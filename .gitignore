@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output
+web/dist/
+
+# Raw CSV cache (re-download with: py scripts/build_db.py --refresh)
+data/raw/
+
+# The built database (web/public/pokemon.sqlite) IS committed on purpose:
+# it makes a fresh clone runnable without the Python step.
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
