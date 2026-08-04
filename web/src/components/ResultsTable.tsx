@@ -1,4 +1,5 @@
-import type { QueryExecResult } from "sql.js";
+import type { SqlValue } from "sql.js";
+import type { QueryResult } from "../db";
 
 const MAX_ROWS = 500;
 
@@ -25,9 +26,7 @@ const TYPE_COLORS: Record<string, string> = {
   stellar: "#40B5A5",
 };
 
-type CellValue = number | string | Uint8Array | null;
-
-function Cell({ column, value }: { column: string; value: CellValue }) {
+function Cell({ column, value }: { column: string; value: SqlValue }) {
   if (value === null) return <span className="cell-null">NULL</span>;
   if (value instanceof Uint8Array) return <span className="cell-null">&lt;blob&gt;</span>;
 
@@ -46,8 +45,15 @@ function Cell({ column, value }: { column: string; value: CellValue }) {
   return <span className={typeof value === "number" ? "cell-num" : undefined}>{text}</span>;
 }
 
-export function ResultsTable({ result }: { result: QueryExecResult }) {
+export function ResultsTable({ result }: { result: QueryResult }) {
   const rows = result.values.slice(0, MAX_ROWS);
+  const notes: string[] = [];
+  if (rows.length < result.values.length) {
+    notes.push(`showing first ${MAX_ROWS} of ${result.values.length.toLocaleString()} fetched rows`);
+  }
+  if (result.truncated) {
+    notes.push("query stopped early — add a LIMIT clause to control the result size");
+  }
   return (
     <div className="result-block">
       <div className="table-scroll">
@@ -72,11 +78,7 @@ export function ResultsTable({ result }: { result: QueryExecResult }) {
           </tbody>
         </table>
       </div>
-      {result.values.length > MAX_ROWS && (
-        <div className="row-cap-note">
-          Showing first {MAX_ROWS} of {result.values.length.toLocaleString()} rows
-        </div>
-      )}
+      {notes.length > 0 && <div className="row-cap-note">{notes.join("; ")}</div>}
     </div>
   );
 }

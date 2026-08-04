@@ -81,13 +81,16 @@ ORDER BY pure_count DESC;`,
   },
   {
     title: "Fastest per gen (window fn)",
-    sql: `SELECT * FROM (
-  SELECT name, generation, speed,
+    sql: `-- Note: ORDER BY generation would sort the TEXT alphabetically
+-- (putting Generation IX before V!), so we order by generation_id.
+SELECT name, generation, speed, rank
+FROM (
+  SELECT name, generation, generation_id, speed,
          RANK() OVER (PARTITION BY generation ORDER BY speed DESC) AS rank
   FROM pokedex
 )
 WHERE rank <= 3
-ORDER BY generation, rank;`,
+ORDER BY generation_id, rank;`,
   },
   {
     title: "Try writing data!",

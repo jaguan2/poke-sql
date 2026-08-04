@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# The committed database is a binary artifact: never EOL-normalize or diff it
+*.sqlite binary

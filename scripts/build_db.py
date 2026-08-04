@@ -10,6 +10,7 @@ Usage:
 """
 
 import csv
+import shutil
 import sqlite3
 import sys
 import urllib.request
@@ -37,6 +38,7 @@ CSV_FILES = [
     "pokemon_colors.csv",
     "pokemon_habitats.csv",
     "egg_groups.csv",
+    "egg_group_prose.csv",
     "pokemon_egg_groups.csv",
     "type_efficacy.csv",
 ]
@@ -55,9 +57,16 @@ def download_csvs(refresh: bool) -> None:
         dest = RAW_DIR / name
         if dest.exists() and not refresh:
             continue
-        url = CSV_BASE + name
         print(f"  downloading {name}")
-        urllib.request.urlretrieve(url, dest)
+        # Download to a temp file and rename into place so an interrupted
+        # download can never be mistaken for a valid cached CSV.
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        try:
+            with urllib.request.urlopen(CSV_BASE + name, timeout=30) as resp, open(tmp, "wb") as f:
+                shutil.copyfileobj(resp, f)
+            tmp.replace(dest)
+        finally:
+            tmp.unlink(missing_ok=True)
 
 
 def read_csv(name: str) -> list[dict]:
@@ -97,7 +106,7 @@ CREATE TABLE abilities (
 
 CREATE TABLE egg_groups (
     id    INTEGER PRIMARY KEY,
-    name  TEXT NOT NULL
+    name  TEXT NOT NULL      -- e.g. 'Water 1', 'Human-Like'
 );
 
 -- One row per species (default form only). id = National Dex number.
@@ -158,6 +167,7 @@ SELECT
     p.name,
     g.name  AS generation,
     g.region,
+    g.id    AS generation_id,  -- for chronological ORDER BY (the text column sorts IX before V)
     t1.name AS type1,
     t2.name AS type2,
     p.hp, p.attack, p.defense,
@@ -224,7 +234,10 @@ def build() -> None:
         ],
     )
 
-    main_types = [r for r in read_csv("types.csv") if int(r["id"]) < 10000]
+    # Only the 18 canonical types: excludes 'unknown'/'shadow' (ids >= 10000)
+    # and 'stellar' (id 19, a Tera battle gimmick with no species or matchup
+    # data), keeping types consistent with the 18x18 type_matchups chart.
+    main_types = [r for r in read_csv("types.csv") if int(r["id"]) <= 18]
     con.executemany(
         "INSERT INTO types VALUES (?, ?)",
         [(int(r["id"]), r["identifier"]) for r in main_types],
@@ -253,9 +266,20 @@ def build() -> None:
     )
     ability_ids = {int(r["id"]) for r in main_abilities}
 
+    # egg_groups.csv identifiers diverge from the names players know
+    # ('plant' vs 'Grass', 'humanshape' vs 'Human-Like'), so resolve them
+    # through egg_group_prose.csv like abilities do with ability_names.csv.
+    egg_group_names = {
+        row["egg_group_id"]: row["name"]
+        for row in read_csv("egg_group_prose.csv")
+        if row["local_language_id"] == ENGLISH
+    }
     con.executemany(
         "INSERT INTO egg_groups VALUES (?, ?)",
-        [(int(r["id"]), r["identifier"]) for r in read_csv("egg_groups.csv")],
+        [
+            (int(r["id"]), egg_group_names.get(r["id"], r["identifier"]))
+            for r in read_csv("egg_groups.csv")
+        ],
     )
 
     species_rows = read_csv("pokemon_species.csv")

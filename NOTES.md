@@ -100,6 +100,41 @@ benefit — this is a text-and-tables app, perfect webview material.
   "factory reset" option.
 - Light theme / Pokédex-red theme toggle.
 
+## Post-build review (same day)
+
+A 14-agent review pass (4 parallel reviewers + adversarial verifiers per
+finding) confirmed and fixed:
+
+- **Reset DB re-ran the editor's SQL after restoring** — following the app's
+  own "Try writing data!" tutorial, reset re-applied the UPDATE it had just
+  undone. Reset now shows a "database restored" notice and leaves the editor
+  untouched.
+- **No guard against runaway queries** — `db.exec` materialized a 1M-row
+  accidental cross join (~1 GB heap, multi-second UI freeze). `runQuery` now
+  uses `iterateStatements` and stops at 2,000 rows/statement, flagged in the
+  status bar. Bonus: zero-row SELECTs now show their column headers.
+- **Interrupted CSV downloads poisoned the cache** — `urlretrieve` left
+  partial files that later runs accepted. Downloads now go to a `.part` temp
+  file renamed into place, with a 30 s timeout.
+- **Egg groups stored raw identifiers** ('water1', 'humanshape') — now mapped
+  through `egg_group_prose.csv` to display names ('Water 1', 'Human-Like').
+- **`ORDER BY generation` sorted Gen IX between IV and V** (text sort) — the
+  pokedex view now exposes `generation_id` and the window-function sample
+  orders by it (and teaches the trap in a comment).
+- **Orphan 'stellar' type** — excluded; `types` is now exactly the 18 types
+  that appear in `type_matchups`.
+- **Vite 5 → 7** — cleared all npm audit findings (two were Windows-specific
+  dev-server CVEs); `npm audit` is now clean.
+- Smaller: pokeball.svg referenced via `BASE_URL` (survives non-root deploys
+  and app wrappers), idempotent `initDb` (StrictMode double-mount), sidebar
+  `<button>` moved out of `<details><summary>` (axe nested-interactive
+  violation) with an explicit disclosure marker, sticky result headers
+  actually stick now (scroll container moved to `.table-scroll`),
+  `*.sqlite binary` in .gitattributes.
+
+Still open (deliberate): no LICENSE file — needs a decision on MIT-for-code +
+data-disclaimer vs keeping the repo private.
+
 ## Verification done at build time
 
 - 1025 rows, 9 generations, counts per gen match Bulbapedia (151/100/135/107/

@@ -45,7 +45,8 @@ genus, color, habitat, legendary flags, `evolves_from_id` self-reference),
 `types`, `pokemon_types`, `abilities`, `pokemon_abilities`, `egg_groups`,
 `pokemon_egg_groups`, `generations`, `type_matchups` (the 18×18 effectiveness
 chart), plus a flattened **`pokedex` view** (type1/type2 columns, generation
-name, evolves_from name) as the beginner-friendly entry point.
+name + `generation_id` for chronological sorting, evolves_from name) as the
+beginner-friendly entry point.
 
 Deliberate schema choices — keep these unless there's a reason not to:
 - Base stats are **wide columns** on `pokemon` (hp…speed, total_stats), not a
@@ -54,6 +55,13 @@ Deliberate schema choices — keep these unless there's a reason not to:
 - NULLs are intentional teaching material: `type2` (single-type Pokémon),
   `habitat` (only recorded Gens 1–3), `evolves_from_id` (base forms).
 - Units are converted at build time: height decimetres→m, weight hectograms→kg.
+- `types` holds exactly the 18 canonical types — 'stellar' (a Tera gimmick
+  with no species or matchup data) and 'unknown'/'shadow' are excluded so the
+  table always joins cleanly against `type_matchups`.
+- Lookup names come from PokeAPI's English name CSVs (`ability_names.csv`,
+  `egg_group_prose.csv`), not raw identifiers — 'Water 1', not 'water1'.
+- The UI stops materializing rows at `MAX_RESULT_ROWS` (2,000) per statement
+  (`db.ts`) so an accidental cartesian product can't freeze the tab.
 
 ## Conventions
 

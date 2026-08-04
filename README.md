@@ -34,4 +34,7 @@ py scripts/build_db.py --refresh
   with types, stats, generation, and sprite.
 
 Data from [PokeAPI](https://pokeapi.co/) ([CSV dumps](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv)).
-Pokémon and Pokémon character names are trademarks of Nintendo.
+Pokémon and Pokémon character names are trademarks of Nintendo. This is an
+unofficial fan project, not affiliated with or endorsed by Nintendo, Game
+Freak, or Creatures; game data and sprites are included non-commercially for
+educational use.

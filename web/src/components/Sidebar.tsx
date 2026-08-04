@@ -26,19 +26,18 @@ export function Sidebar({ schema, onRunSql }: SidebarProps) {
         <h2>Schema</h2>
         {schema.map((t) => (
           <details key={t.name} open={t.kind === "view"}>
+            {/* summary only toggles; the query action lives outside it so
+                interactive elements are never nested */}
             <summary>
-              <button
-                className="table-name"
-                title={`SELECT * FROM ${t.name}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onRunSql(`SELECT * FROM ${t.name} LIMIT 25;`);
-                }}
-              >
-                {t.name}
-              </button>
+              <span className="table-name">{t.name}</span>
               <span className="table-kind">{t.kind}</span>
             </summary>
+            <button
+              className="preview-btn"
+              onClick={() => onRunSql(`SELECT * FROM ${t.name} LIMIT 25;`)}
+            >
+              ▶ SELECT * FROM {t.name}
+            </button>
             <ul className="column-list">
               {t.columns.map((c) => (
                 <li key={c.name}>

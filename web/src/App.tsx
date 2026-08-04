@@ -3,9 +3,8 @@ import CodeMirror from "@uiw/react-codemirror";
 import { sql as sqlLang } from "@codemirror/lang-sql";
 import { keymap } from "@codemirror/view";
 import { Prec } from "@codemirror/state";
-import type { QueryExecResult } from "sql.js";
-import { getSchema, initDb, resetDb, runQuery, schemaForAutocomplete } from "./db";
-import type { TableInfo } from "./db";
+import { MAX_RESULT_ROWS, getSchema, initDb, resetDb, runQuery, schemaForAutocomplete } from "./db";
+import type { QueryResult, TableInfo } from "./db";
 import { ResultsTable } from "./components/ResultsTable";
 import { Sidebar } from "./components/Sidebar";
 import "./App.css";
@@ -15,7 +14,8 @@ const INITIAL_QUERY = "SELECT * FROM pokedex LIMIT 15;";
 type RunState =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ok"; results: QueryExecResult[]; ms: number };
+  | { status: "reset" }
+  | { status: "ok"; results: QueryResult[]; ms: number };
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -79,12 +79,13 @@ export default function App() {
     [execute]
   );
 
-  const handleReset = useCallback(async () => {
-    await resetDb();
+  // Deliberately does NOT re-run the editor content: it may contain the very
+  // UPDATE/DROP the user is resetting away from.
+  const handleReset = useCallback(() => {
+    resetDb();
     setSchema(getSchema());
-    setRunState({ status: "loading" });
-    execute(query || INITIAL_QUERY);
-  }, [execute, query]);
+    setRunState({ status: "reset" });
+  }, []);
 
   if (loadError) {
     return (
@@ -99,7 +100,13 @@ export default function App() {
   if (!ready) {
     return (
       <div className="load-screen">
-        <img src="/pokeball.svg" alt="" width={64} height={64} className="spin" />
+        <img
+          src={`${import.meta.env.BASE_URL}pokeball.svg`}
+          alt=""
+          width={64}
+          height={64}
+          className="spin"
+        />
         <p>Loading Pokédex…</p>
       </div>
     );
@@ -109,7 +116,7 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="brand">
-          <img src="/pokeball.svg" alt="" width={28} height={28} />
+          <img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={28} height={28} />
           <h1>
             Poké<span className="brand-accent">SQL</span>
           </h1>
@@ -146,6 +153,12 @@ export default function App() {
                 <strong>SQL error:</strong> {runState.message}
               </div>
             )}
+            {runState.status === "reset" && (
+              <div className="reset-notice">
+                Database restored to its original state. Your SQL is still in
+                the editor — press Run to execute it.
+              </div>
+            )}
             {runState.status === "ok" && (
               <>
                 <div className="status-bar">
@@ -153,7 +166,13 @@ export default function App() {
                     ? "Statement executed — no rows returned."
                     : `${runState.results
                         .reduce((n, r) => n + r.values.length, 0)
-                        .toLocaleString()} row(s) in ${runState.ms.toFixed(1)} ms`}
+                        .toLocaleString()}${
+                        runState.results.some((r) => r.truncated) ? "+" : ""
+                      } row(s) in ${runState.ms.toFixed(1)} ms${
+                        runState.results.some((r) => r.truncated)
+                          ? ` — stopped at ${MAX_RESULT_ROWS.toLocaleString()} rows per statement; add a LIMIT clause`
+                          : ""
+                      }`}
                 </div>
                 {runState.results.map((r, i) => (
                   <ResultsTable key={i} result={r} />

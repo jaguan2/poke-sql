@@ -170,7 +170,24 @@ body,
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 5px;
-  list-style-position: outside;
+  list-style: none;
+}
+
+/* display:flex suppresses the native disclosure triangle, so draw our own */
+.sidebar summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar summary::before {
+  content: "▸";
+  font-size: 10px;
+  color: var(--text-dim);
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.sidebar details[open] > summary::before {
+  content: "▾";
 }
 
 .sidebar summary:hover {
@@ -178,19 +195,28 @@ body,
 }
 
 .table-name {
-  background: none;
-  border: none;
   color: var(--text);
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  padding: 0;
 }
 
-.table-name:hover {
+.preview-btn {
+  display: block;
+  margin: 2px 0 2px 22px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.preview-btn:hover {
+  background: var(--panel-raised);
   color: var(--accent-soft);
-  text-decoration: underline;
 }
 
 .table-kind {
@@ -251,6 +277,15 @@ body,
   margin-bottom: 10px;
 }
 
+.reset-notice {
+  background: #14301c;
+  border: 1px solid #2e6b40;
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: #9fdcb0;
+  font-size: 14px;
+}
+
 .error-panel {
   background: #3a1518;
   border: 1px solid #7c2d34;
@@ -265,8 +300,11 @@ body,
   margin-bottom: 20px;
 }
 
+/* Vertical scrolling must live on this wrapper (not just .results) or the
+   sticky th would have no scroll container to stick within. */
 .table-scroll {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 70vh;
   border: 1px solid var(--border);
   border-radius: 8px;
 }
