@@ -20,7 +20,10 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await page.getByRole('button', { name: /▶ Run/ }).click();
     await expect(page.getByRole('cell', { name: 'Pikachu', exact: true })).toBeVisible();
     await expect.poll(() => page.locator('img.sprite').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth === 96)).toBe(true);
-    await page.screenshot({ path: 'test-results/desktop.png' });
+    // Hidden packaged windows may not produce compositor frames for screenshots.
+    // Browser layout tests capture the shared frontend; this checks the shell.
+    expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences()))
+      .toMatchObject({ nodeIntegration: false, contextIsolation: true, sandbox: true });
   } finally {
     await app.close();
     const relative = path.relative(path.resolve('test-results'), path.resolve(data));
