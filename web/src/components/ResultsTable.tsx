@@ -31,8 +31,11 @@ function Cell({ column, value }: { column: string; value: SqlValue }) {
   if (value instanceof Uint8Array) return <span className="cell-null">&lt;blob&gt;</span>;
 
   const text = String(value);
-  if (typeof value === "string" && column.endsWith("sprite_url") && text.startsWith("http")) {
-    return <img className="sprite" src={text} alt="" loading="lazy" width={48} height={48} />;
+  const sprite = text.match(/^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\/master\/sprites\/pokemon\/(\d+)\.png$/)
+    ?? text.match(/^sprites\/(\d+)\.png$/);
+  if (column.endsWith("sprite_url") && sprite) {
+    return <img className="sprite" src={`${import.meta.env.BASE_URL}sprites/${sprite[1]}.png`} alt="" loading="lazy" width={48} height={48}
+      onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = `${import.meta.env.BASE_URL}pokeball.svg`; }} />;
   }
   const typeColor = column.toLowerCase().includes("type") ? TYPE_COLORS[text] : undefined;
   if (typeColor) {
@@ -61,7 +64,7 @@ export function ResultsTable({ result }: { result: QueryResult }) {
           <thead>
             <tr>
               {result.columns.map((c, i) => (
-                <th key={i}>{c}</th>
+                <th key={i} scope="col">{c}</th>
               ))}
             </tr>
           </thead>

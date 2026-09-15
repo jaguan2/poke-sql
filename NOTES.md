@@ -1,5 +1,62 @@
 # Design notes
 
+## Implementation update (2026-09-15)
+
+The sections below this update describe the original design and are historical.
+The web/desktop, persistence, offline, and challenge backlog items have now been
+implemented as follows:
+
+- **Desktop:** Electron wraps the same production Vite build. It uses a secure
+  local `pokesql://app` scheme, a sandboxed renderer, no Node integration, no
+  preload bridge, denied permissions and external requests, and a restrictive
+  content security policy. Portable Windows x64 EXE and NSIS installer are built
+  with electron-builder. This replaces the tentative Tauri plan: the existing
+  Node toolchain can build it without adding Rust/C++ prerequisites. The tradeoff
+  is a larger download because Chromium is bundled. See the official
+  [Electron security guidance](https://www.electronjs.org/docs/latest/tutorial/security)
+  and [Windows packaging options](https://www.electron.build/v26/docs/win/).
+- **Offline:** all 1,025 sprites are committed under `web/public/sprites`.
+  The SQLite artifact remains untouched; rendering maps known source URLs to
+  those files. Production builds verify sprite coverage and generate a complete
+  cache list, including Worker JS and WASM. Service worker caches are isolated
+  by deployment scope. Static asset lookups ignore `Vary: Origin` because hosts
+  can give module-script requests a different Origin header from precache
+  requests. The app reports readiness only after installation. Desktop needs
+  no service worker and works offline immediately.
+- **SQL execution:** moved into a dedicated Worker with manual Stop and an
+  eight-second deadline. A cap on returned rows alone cannot stop an expensive
+  aggregate, sort, or recursive query. On interruption, the Worker is terminated
+  and recreated from the last completed snapshot; SQL is never replayed.
+- **Persistence:** IndexedDB stores database snapshots; localStorage stores
+  per-exercise drafts, named queries, 30 distinct recent runs, and completion
+  progress. SQL errors can follow successful statements, so the changed schema
+  and committed state are still captured. Reset saves the original bytes and
+  leaves drafts/progress alone. Explicit transactions remain open across runs;
+  checkpointing waits for COMMIT or ROLLBACK. Because sql.js export reopens the
+  connection, temporary objects/attachments pause autosaving instead of silently
+  destroying session state. `foreign_keys` is preserved across exports; other
+  connection PRAGMAs are session settings and may reset at checkpoints. Saves
+  belong to a browser profile/origin; desktop has a separate profile. Tabs do
+  not merge simultaneous edits.
+- **Challenges:** eight exercises progress through filters, sorting, NULLs,
+  grouping, joins, self-joins and window functions. Grading runs the answer and
+  reference against fresh copies of the original database. One SELECT/WITH
+  statement is allowed, with SQLite query_only as an additional write guard.
+  Aliases can differ; column position, value types, duplicate rows and NULLs
+  must match. Row order matters only when the prompt requests it. This is local
+  learning feedback, not an anti-cheat system; solutions ship with the app.
+- **Verification:** Playwright tests cover dataset integrity, original samples,
+  grading semantics, persistence/reset, transactions, temp tables, cancellation,
+  deadlines, offline reload/sprites, unusual identifiers, broken views, narrow
+  layouts, and a hidden Electron smoke test. Empty-table headers now have an
+  explicit column scope for accessibility. Screenshots are stored in ignored
+  test output. The dependency audit was clean after updating nanoid.
+
+Remaining ideas: a daily Pokémon mystery/Wordle game, more challenge content,
+database import/export, native mobile packaging, and additional forms/moves.
+No signing certificate or automatic app updater is configured. The Vite build
+still reports a large editor bundle warning; it is pre-cached for offline use.
+
 Working notes from the initial build (2026-08-03). CLAUDE.md has the short
 version; this is the reasoning.
 
