@@ -99,8 +99,9 @@ Deliberate schema choices — keep these unless there's a reason not to:
   even after a partial SQL failure. Quote identifiers; broken views after DROP
   practice must not prevent access to the remaining tables.
 - sql.js export reopens its connection. Never export with an open transaction,
-  temporary objects, or attachments. Preserve foreign_keys across checkpoints.
-  Other connection-only PRAGMAs are not persisted. Tests cover COMMIT/ROLLBACK.
+  temporary objects, or attachments. Preserve supported connection PRAGMAs
+  across checkpoints. SQL connection counters such as last_insert_rowid() reset;
+  inspect them in the same script as their modifications. Tests cover COMMIT/ROLLBACK.
 - Challenge queries use isolated original databases with query_only enabled.
   Compare aliases loosely, but preserve column order, value types, NULLs and
   duplicates. Only ordered exercises require matching row order.

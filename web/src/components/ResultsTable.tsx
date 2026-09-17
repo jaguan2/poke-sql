@@ -1,7 +1,8 @@
+import { useEffect, useRef, useState } from "react";
 import type { SqlValue } from "sql.js";
 import type { QueryResult } from "../db";
 
-const MAX_ROWS = 500;
+const PAGE_SIZE = 500;
 
 /** Classic Pokémon type colors, used to badge type values in results. */
 const TYPE_COLORS: Record<string, string> = {
@@ -26,6 +27,16 @@ const TYPE_COLORS: Record<string, string> = {
   stellar: "#40B5A5",
 };
 
+/** Pick the higher-contrast text color using WCAG relative luminance. */
+function badgeTextColor(hex: string): string {
+  const channels = hex.slice(1).match(/../g)!.map(channel => {
+    const value = parseInt(channel, 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+  return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? "#000" : "#fff";
+}
+
 function Cell({ column, value }: { column: string; value: SqlValue }) {
   if (value === null) return <span className="cell-null">NULL</span>;
   if (value instanceof Uint8Array) return <span className="cell-null">&lt;blob&gt;</span>;
@@ -35,12 +46,13 @@ function Cell({ column, value }: { column: string; value: SqlValue }) {
     ?? text.match(/^sprites\/(\d+)\.png$/);
   if (column.endsWith("sprite_url") && sprite) {
     return <img className="sprite" src={`${import.meta.env.BASE_URL}sprites/${sprite[1]}.png`} alt="" loading="lazy" width={48} height={48}
-      onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = `${import.meta.env.BASE_URL}pokeball.svg`; }} />;
+      onError={event => { const fallback = new URL(`${import.meta.env.BASE_URL}pokeball.svg`, location.href).href; if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback; }} />;
   }
-  const typeColor = column.toLowerCase().includes("type") ? TYPE_COLORS[text] : undefined;
+  const typeColor = column.toLowerCase().includes("type") && Object.prototype.hasOwnProperty.call(TYPE_COLORS, text)
+    ? TYPE_COLORS[text] : undefined;
   if (typeColor) {
     return (
-      <span className="type-badge" style={{ backgroundColor: typeColor }}>
+      <span className="type-badge" style={{ backgroundColor: typeColor, color: badgeTextColor(typeColor) }}>
         {text}
       </span>
     );
@@ -49,17 +61,25 @@ function Cell({ column, value }: { column: string; value: SqlValue }) {
 }
 
 export function ResultsTable({ result }: { result: QueryResult }) {
-  const rows = result.values.slice(0, MAX_ROWS);
+  const [pageState, setPageState] = useState({ result, index: 0 });
+  // A replacement result always starts on its first page.
+  const page = pageState.result === result ? pageState.index : 0;
+  const scroll = useRef<HTMLDivElement>(null);
+  useEffect(() => { scroll.current?.scrollTo({ top: 0 }); }, [page, result]);
+  const start = page * PAGE_SIZE;
+  const rows = result.values.slice(start, start + PAGE_SIZE);
   const notes: string[] = [];
-  if (rows.length < result.values.length) {
-    notes.push(`showing first ${MAX_ROWS} of ${result.values.length.toLocaleString()} fetched rows`);
-  }
   if (result.truncated) {
     notes.push("query stopped early — add a LIMIT clause to control the result size");
   }
   return (
     <div className="result-block">
-      <div className="table-scroll">
+      {result.values.length > PAGE_SIZE && <nav className="result-pagination" aria-label="Result pages">
+        <button className="btn" disabled={page === 0} onClick={() => setPageState({ result, index: page - 1 })}>Previous rows</button>
+        <span role="status">Rows {start + 1}–{start + rows.length} of {result.values.length.toLocaleString()}{result.truncated ? "+" : ""}</span>
+        <button className="btn" disabled={start + PAGE_SIZE >= result.values.length} onClick={() => setPageState({ result, index: page + 1 })}>Next rows</button>
+      </nav>}
+      <div className="table-scroll" ref={scroll} tabIndex={0} role="region" aria-label="Query results">
         <table>
           <thead>
             <tr>

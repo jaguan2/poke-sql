@@ -3,10 +3,17 @@ const DB_NAME = "pokesql-workspace-v1";
 async function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
+    let blocked = false;
     request.onupgradeneeded = () => request.result.createObjectStore("workspace");
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      // A blocked open can still succeed later, after the promise rejected.
+      // Close that otherwise orphaned connection instead of leaking it.
+      if (blocked) { request.result.close(); return; }
+      request.result.onversionchange = () => request.result.close();
+      resolve(request.result);
+    };
     request.onerror = () => reject(request.error);
-    request.onblocked = () => reject(new Error("Local storage is blocked by another tab."));
+    request.onblocked = () => { blocked = true; reject(new Error("Local storage is blocked by another tab.")); };
   });
 }
 

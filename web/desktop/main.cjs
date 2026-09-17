@@ -9,6 +9,16 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'pokesql', privileges: {
 const testing = process.env.POKESQL_TEST === '1';
 if (testing && process.env.POKESQL_TEST_DATA) app.setPath('userData', process.env.POKESQL_TEST_DATA);
 let window;
+// Each renderer keeps its own SQLite snapshot. A second process using the same
+// profile could overwrite saved changes with a stale copy.
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+app.on('second-instance', () => {
+  if (!window || window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  if (!testing) window.show();
+  window.focus();
+});
 
 function createWindow() {
   window = new BrowserWindow({
@@ -27,6 +37,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  if (!primaryInstance) return;
   const root = path.resolve(__dirname, '../dist');
   protocol.handle('pokesql', async request => {
     const url = new URL(request.url);

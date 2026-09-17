@@ -8,6 +8,7 @@ export interface SavedQuery { id: string; name: string; sql: string }
 interface SidebarProps {
   schema: TableInfo[];
   onRunSql: (sql: string) => void;
+  onPreviewSql: (sql: string) => void;
   onLoadSql: (sql: string) => void;
   onChallenge: (id: string | null) => void;
   completed: string[];
@@ -19,7 +20,7 @@ interface SidebarProps {
   busy: boolean;
 }
 
-export function Sidebar({ schema, onRunSql, onLoadSql, onChallenge, completed, activeChallenge, history, saved, onDeleteSaved, onClearHistory, busy }: SidebarProps) {
+export function Sidebar({ schema, onRunSql, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, history, saved, onDeleteSaved, onClearHistory, busy }: SidebarProps) {
   const [tab, setTab] = useState("Explore");
   return (
     <aside className="sidebar">
@@ -64,7 +65,7 @@ export function Sidebar({ schema, onRunSql, onLoadSql, onChallenge, completed, a
       </section>}
 
       <section>
-        <h2>Schema</h2>
+        <h2>{activeChallenge ? "Challenge schema" : "Schema"}</h2>
         {schema.map((t) => (
           <details key={t.name} open={t.kind === "view"}>
             {/* summary only toggles; the query action lives outside it so
@@ -76,7 +77,8 @@ export function Sidebar({ schema, onRunSql, onLoadSql, onChallenge, completed, a
             <button
               className="preview-btn"
               disabled={busy}
-              onClick={() => onRunSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`)}
+              title={activeChallenge ? "Load this query into your challenge answer" : "Preview this table"}
+              onClick={() => onPreviewSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`)}
             >
               ▶ SELECT * FROM {t.name}
             </button>

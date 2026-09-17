@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import initSqlJs from 'sql.js';
 import { readFileSync } from 'node:fs';
 import { CHALLENGES, matchesResults } from '../src/challenges';
-import { hasOpenTransaction, readSchema, runStatements } from '../src/engine';
+import { exportSnapshot, hasOpenTransaction, readSchema, runStatements } from '../src/engine';
 
 test('database integrity, samples, and challenge solutions', async () => {
   const SQL = await initSqlJs();
@@ -74,5 +74,36 @@ test('statement boundaries preserve quoted text and triggers, and errors never p
     expect(db.exec('PRAGMA foreign_keys')[0].values).toEqual([[0]]);
     expect(() => runStatements(db, 'SELECT 1;'.repeat(50) + 'PRAGMA foreign_keys = ON;')).toThrow(/at most 50/);
     expect(db.exec('PRAGMA foreign_keys')[0].values).toEqual([[0]]);
+  } finally { db.close(); }
+});
+
+test('autosave preserves SQLite session settings and constraint behavior', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database();
+  try {
+    runStatements(db, 'CREATE TABLE checked (id INTEGER CHECK(id > 0)); PRAGMA ignore_check_constraints = ON; PRAGMA recursive_triggers = ON; PRAGMA case_sensitive_like = ON; PRAGMA cache_size = 123;');
+    exportSnapshot(db);
+    expect(db.exec('PRAGMA recursive_triggers')[0].values).toEqual([[1]]);
+    expect(db.exec('PRAGMA cache_size')[0].values).toEqual([[123]]);
+    expect(runStatements(db, "SELECT 'a' LIKE 'A'")[0].values).toEqual([[0]]);
+    expect(() => runStatements(db, 'INSERT INTO checked VALUES (-1)')).not.toThrow();
+    db.run('PRAGMA query_only = ON');
+    exportSnapshot(db);
+    expect(() => runStatements(db, 'INSERT INTO checked VALUES (2)')).toThrow(/readonly/);
+    db.run('PRAGMA query_only = OFF; PRAGMA ignore_check_constraints = OFF');
+    exportSnapshot(db);
+    expect(() => runStatements(db, 'INSERT INTO checked VALUES (-2)')).toThrow(/CHECK/);
+  } finally { db.close(); }
+});
+
+test('schema introspection does not confuse temporary and persisted tables with the same name', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database();
+  try {
+    runStatements(db, 'CREATE TABLE team (name TEXT); CREATE TEMP TABLE team (id INTEGER); CREATE TEMP TABLE practice (value TEXT);');
+    expect(readSchema(db).find(table => table.name === 'team')?.columns.map(column => column.name)).toEqual(['id']);
+    expect(readSchema(db).some(table => table.name === 'practice')).toBe(true);
+    runStatements(db, 'DROP TABLE temp.team');
+    expect(readSchema(db).find(table => table.name === 'team')?.columns.map(column => column.name)).toEqual(['name']);
   } finally { db.close(); }
 });

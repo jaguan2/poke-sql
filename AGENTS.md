@@ -11,16 +11,27 @@ scripts/build_db.py   Python ETL: downloads PokeAPI CSVs -> web/public/pokemon.s
 data/raw/             Cached CSV downloads (gitignored, regenerable)
 web/                  Vite + React + TypeScript SPA
   public/pokemon.sqlite   The database (committed; ~416 KB)
-  src/db.ts               sql.js wrapper: init/run/reset + schema introspection
+  public/sprites/         Vendored sprites (one PNG per species)
+  src/db.ts               Async Worker client, cancellation and saved snapshots
+  src/db.worker.ts        SQL execution, checkpointing and isolated challenge checks
+  src/engine.ts           Statement execution and resilient schema introspection
+  src/storage.ts          IndexedDB database saves + localStorage helpers
+  src/challenges.ts       Eight exercises and result comparison
+  src/offline.ts          Production service worker registration and status
   src/samples.ts          Sample queries shown in the sidebar (easiest -> hardest)
   src/App.tsx             Layout, editor, query execution state
   src/components/         Sidebar (schema browser), ResultsTable (type badges, sprites)
+  desktop/main.cjs        Sandboxed Electron shell using pokesql://app
+  scripts/                Asset verification and generated offline cache
+  tests/                  Playwright browser, engine, and desktop tests
 ```
 
 The SQL engine is **sql.js** (SQLite compiled to WASM). The entire database is
 fetched into browser memory at startup — queries never leave the page, and
 destructive statements (`UPDATE`/`DROP`) are harmless because "Reset DB"
-restores the original bytes.
+restores the original bytes. SQL runs in a Web Worker; completed snapshots
+persist in IndexedDB. Editor drafts, history, saved queries and completion
+progress use localStorage. Reload never executes the saved editor contents.
 
 ## Commands
 
@@ -32,10 +43,17 @@ cd web
 npm install
 npm run dev                       # dev server at http://localhost:5173
 npm run build                     # type-check (tsc --noEmit) + production build
+npm run sprites                   # fetch missing sprites; -- --refresh replaces them
+npm test                          # engine + browser checks (installed Chrome)
+npm run desktop                   # build and open Electron
+npm run desktop:build             # Windows x64 portable EXE + NSIS installer
+npm run test:desktop               # hidden desktop smoke test
 ```
 
-There is no test suite yet. Verify changes by running `npm run build` and
-loading the app.
+Use Node >=22.12. Run the build and relevant Playwright checks after changes.
+Use npm.cmd if PowerShell execution policy blocks npm.ps1. Desktop tests can
+target an existing package with POKESQL_EXECUTABLE. Test data uses isolated
+profiles under web/test-results; never run tests against a user's live profile.
 
 ## Database schema
 
@@ -60,8 +78,9 @@ Deliberate schema choices — keep these unless there's a reason not to:
   table always joins cleanly against `type_matchups`.
 - Lookup names come from PokeAPI's English name CSVs (`ability_names.csv`,
   `egg_group_prose.csv`), not raw identifiers — 'Water 1', not 'water1'.
-- The UI stops materializing rows at `MAX_RESULT_ROWS` (2,000) per statement
-  (`db.ts`) so an accidental cartesian product can't freeze the tab.
+- `MAX_RESULT_ROWS` is 2,000 per statement, with at most 50 statements per run.
+  The worker has an eight-second timeout and a Stop button. Cancellation
+  restores the last completed snapshot; never automatically replay SQL.
 
 ## Conventions
 
@@ -71,19 +90,32 @@ Deliberate schema choices — keep these unless there's a reason not to:
   Python.
 - Data source is PokeAPI's CSV dumps
   (`raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/`); sprites
-  are hotlinked from the PokeAPI sprites repo by dex number.
+  are downloaded from the PokeAPI sprites repo by scripts/vendor_sprites.mjs.
+  The database's source sprite URLs are mapped to bundled PNGs by ResultsTable;
+  do not introduce a runtime network fallback.
 - Frontend is plain CSS (web/src/App.css) with CSS variables — no UI
   framework. Pokémon type colors live in `ResultsTable.tsx`.
-- CodeMirror autocomplete is schema-aware: it's rebuilt from `getSchema()`
-  after every query so `CREATE TABLE` practice shows up immediately.
+- CodeMirror autocomplete is schema-aware: worker replies refresh the schema
+  even after a partial SQL failure. Quote identifiers; broken views after DROP
+  practice must not prevent access to the remaining tables.
+- sql.js export reopens its connection. Never export with an open transaction,
+  temporary objects, or attachments. Preserve supported connection PRAGMAs
+  across checkpoints. SQL connection counters such as last_insert_rowid() reset;
+  inspect them in the same script as their modifications. Tests cover COMMIT/ROLLBACK.
+- Challenge queries use isolated original databases with query_only enabled.
+  Compare aliases loosely, but preserve column order, value types, NULLs and
+  duplicates. Only ordered exercises require matching row order.
+- The Electron renderer has no Node integration or privileged preload API.
+  Keep its sandbox, CSP, permission denials, navigation guard, and local-only
+  resource loading intact. Web and desktop share the production frontend.
+- Offline assets are generated from the complete dist tree at build time.
+  Never hand-maintain a cache list; keep cache cleanup scoped to this deployment.
 
 ## Roadmap / not yet built
 
-- **App version**: wrap `web/` with Tauri (desktop) or Capacitor (mobile) —
-  the SPA is fully self-contained (WASM + sqlite bundled), so it should work
-  offline once sprites are vendored locally.
-- **Challenge mode**: prompts with expected result sets, checked by comparing
-  the user's query output (see NOTES.md for design sketch).
+- Native mobile packaging; the responsive web app already supports narrow screens.
+- More exercises, a daily SQL Pokémon mystery, database export/import, and
+  workspace sync between devices (currently deliberately local and separate).
 - **Moves data**: PokeAPI has `moves.csv` / `pokemon_moves.csv` (~600k rows) —
   skipped in v1 to keep the DB small.
 - Alternate forms (Megas, regional variants) — pokemon.csv rows with

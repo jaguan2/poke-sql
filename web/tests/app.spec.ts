@@ -26,7 +26,7 @@ test('saves editor, database, named queries, and history without rerunning SQL o
   await page.getByRole('button', { name: 'History', exact: true }).click();
   await expect(page.locator('.history-query')).toHaveCount(2);
   await page.getByRole('button', { name: 'Reset DB' }).click();
-  await expect(page.getByText('Database restored and saved.', { exact: false })).toBeVisible();
+  await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
   await page.reload(); await run(page, 'SELECT name FROM pokemon WHERE id = 1;');
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
 });

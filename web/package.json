@@ -14,14 +14,14 @@
     "sprites": "node ../scripts/vendor_sprites.mjs",
     "desktop": "npm run build && electron .",
     "desktop:build": "npm run build && node node_modules/electron/install.js && electron-builder --win portable nsis --x64 --publish never",
-    "test": "playwright test",
+    "test": "npm run build && playwright test",
     "test:desktop": "playwright test --config playwright.desktop.config.ts"
   },
   "build": {
     "appId": "com.pokesql.app",
     "productName": "PokeSQL",
     "directories": { "output": "release" },
-    "files": ["dist/**/*", "desktop/**/*", "package.json"],
+    "files": ["dist/**/*", "desktop/**/*", "package.json", "!node_modules/**/*"],
     "asar": true,
     "electronDist": "node_modules/electron/dist",
     "win": { "target": ["portable", "nsis"], "icon": "desktop/icon.ico" },

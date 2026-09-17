@@ -10,6 +10,9 @@ async function files(directory, prefix = '') {
 }
 const paths = await files(root);
 const hash = createHash('sha256');
+// Worker logic changes need their own cache too, so a failed new installation
+// cannot damage the cache used by an older active worker with identical assets.
+hash.update(await readFile(new URL(import.meta.url)));
 for (const path of paths) { hash.update(path); hash.update(await readFile(new URL(path, root))); }
 const version = hash.digest('hex').slice(0, 16);
 const source = `// Generated from every production asset; scoped to this deployment path.
@@ -17,9 +20,15 @@ const PREFIX = 'pokesql-offline:' + self.registration.scope + ':';
 const CACHE = PREFIX + '${version}';
 const ASSETS = ${JSON.stringify(paths)};
 self.addEventListener('install', event => event.waitUntil((async () => {
-  const cache = await caches.open(CACHE);
-  for (let i = 0; i < ASSETS.length; i += 32) {
-    await cache.addAll(ASSETS.slice(i, i + 32).map(path => new Request(new URL(path, self.registration.scope), { cache: 'reload' })));
+  try {
+    const cache = await caches.open(CACHE);
+    for (let i = 0; i < ASSETS.length; i += 32) {
+      await cache.addAll(ASSETS.slice(i, i + 32).map(path => new Request(new URL(path, self.registration.scope), { cache: 'reload' })));
+    }
+  } catch (error) {
+    // addAll is atomic per batch, not across the whole installation.
+    await caches.delete(CACHE);
+    throw error;
   }
 })()));
 self.addEventListener('activate', event => event.waitUntil((async () => {

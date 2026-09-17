@@ -53,12 +53,18 @@ profile, so moving the EXE does not move your saved work.
   an eight-second timeout also catches expensive queries. Recovery restores the
   last completed snapshot, discarding unsaved changes from the interrupted run.
 - **Results:** Pokémon sprites, type badges, explicit NULLs, and empty-result
-  column headers. Up to 2,000 rows are fetched per statement; 500 are displayed.
+  column headers. Up to 2,000 rows are fetched per statement, with pagination
+  displaying 500 at a time.
 
 SQL transactions work across runs. An open transaction is not saved until
 COMMIT. Temporary objects and attached databases stay in the live session;
 automatic saves pause until you drop the temporary objects and detach the
 databases. Notices explain when saving is paused or unavailable.
+
+Autosave preserves supported connection PRAGMAs, but sql.js reopens the
+connection when exporting a snapshot. Read `last_insert_rowid()`, `changes()`,
+or `total_changes()` in the same SQL script as the modifications they describe;
+these connection counters reset between saved runs.
 
 Work is local to the current browser profile and site address (or desktop
 profile); web and desktop saves are separate. Clearing site data removes
@@ -102,7 +108,7 @@ Every production build verifies that all database species have a local sprite.
 ```powershell
 cd web
 npm run build
-npm test                 # database tests + Chrome browser tests
+npm test                 # builds fresh, then database + Chrome browser tests
 npm run test:desktop     # hidden Electron smoke test
 ```
 

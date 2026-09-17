@@ -46,7 +46,14 @@ export function initDb(): Promise<DbReply> {
       loaded = true;
     }
     worker = new Worker(new URL("./db.worker.ts", import.meta.url), { type: "module" });
-    worker.onerror = () => cancelQuery("The SQL worker stopped unexpectedly. Run again to restore the last completed save.");
+    worker.onerror = () => {
+      if (pending) cancelQuery("The SQL worker stopped unexpectedly. Run again to restore the last completed save.");
+      else {
+        // An idle worker can also fail; do not send the next query to a dead
+        // worker and make the user wait for an avoidable timeout.
+        worker?.terminate(); worker = null; initPromise = null;
+      }
+    };
     worker.onmessage = (event: MessageEvent<DbReply & { id: number }>) => {
       if (!pending || event.data.id !== pending.id) return;
       const active = pending;

@@ -13,6 +13,7 @@ export interface TableInfo {
 }
 export interface DbReply {
   schema: TableInfo[];
+  challengeSchema?: TableInfo[];
   results?: QueryResult[];
   snapshot?: Uint8Array;
   error?: string;

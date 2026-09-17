@@ -1,30 +1,30 @@
 import initSqlJs from "sql.js";
 import type { Database, SqlJsStatic } from "sql.js";
 import wasmUrl from "sql.js/dist/sql-wasm.wasm?url";
-import { hasOpenTransaction, readSchema, runStatements } from "./engine";
+import { exportSnapshot, hasOpenTransaction, readSchema, runStatements } from "./engine";
 import { CHALLENGES, matchesResults } from "./challenges";
-import type { DbReply, DbRequest } from "./types";
+import type { DbReply, DbRequest, TableInfo } from "./types";
 
 let SQL: SqlJsStatic;
 let db: Database;
 let original: Uint8Array;
+let challengeSchema: TableInfo[];
 
 function checkpoint(): Pick<DbReply, "snapshot" | "notice"> {
   if (hasOpenTransaction(db)) return { notice: "Transaction open. COMMIT to save changes; stopping a query or reloading discards uncommitted work." };
   if (db.exec("SELECT name FROM sqlite_temp_master").length || db.exec("PRAGMA database_list")[0].values.some(row => row[1] !== "main" && row[1] !== "temp")) {
     return { notice: "Temporary tables or attached databases are in use. Saving resumes after you drop temporary objects and detach databases; these remain session-only." };
   }
-  // sql.js export reopens the connection; preserve this important setting.
-  const foreignKeys = db.exec("PRAGMA foreign_keys")[0].values[0][0];
-  const snapshot = db.export();
-  db.run(`PRAGMA foreign_keys = ${foreignKeys ? 1 : 0}`);
-  return { snapshot };
+  return { snapshot: exportSnapshot(db) };
 }
 
 async function handle(request: DbRequest): Promise<DbReply> {
   if (request.action === "init") {
     SQL = await initSqlJs({ locateFile: () => wasmUrl });
     original = request.original;
+    const originalDb = new SQL.Database(original);
+    try { challengeSchema = readSchema(originalDb); }
+    finally { originalDb.close(); }
     let notice: string | undefined;
     try {
       db = new SQL.Database(request.saved ?? original);
@@ -34,7 +34,7 @@ async function handle(request: DbRequest): Promise<DbReply> {
       db = new SQL.Database(original);
       notice = "The saved database could not be read. The original Pokédex has been restored.";
     }
-    return { schema: readSchema(db), ...checkpoint(), notice };
+    return { schema: readSchema(db), challengeSchema, ...checkpoint(), notice };
   }
   if (request.action === "reset") {
     db.close();
@@ -52,7 +52,7 @@ async function handle(request: DbRequest): Promise<DbReply> {
       answerDb.run("PRAGMA query_only = ON");
       const results = runStatements(answerDb, request.sql, true);
       const expected = runStatements(referenceDb, challenge.solution);
-      return { schema: readSchema(db), results, passed: matchesResults(results, expected, challenge.ordered), ms: performance.now() - start };
+      return { schema: readSchema(db), challengeSchema, results, passed: matchesResults(results, expected, challenge.ordered), ms: performance.now() - start };
     } finally { answerDb.close(); referenceDb.close(); }
   }
   let error: string | undefined;

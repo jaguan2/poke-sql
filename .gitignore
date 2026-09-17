@@ -7,6 +7,8 @@ web/release/
 web/.npm-cache/
 web/.cache/
 web/test-results/
+web/playwright-report/
+web/blob-report/
 
 # Raw CSV cache (re-download with: py scripts/build_db.py --refresh)
 data/raw/
