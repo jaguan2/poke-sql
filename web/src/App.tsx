@@ -5,7 +5,7 @@ import { EditorView, keymap } from "@codemirror/view";
 import { Prec } from "@codemirror/state";
 import { cancelQuery, checkChallenge, initDb, resetDb, runQuery, schemaForAutocomplete } from "./db";
 import type { QueryResult, TableInfo } from "./db";
-import { ResultsTable } from "./components/ResultsTable";
+import { QueryResults } from "./components/QueryResults";
 import { Sidebar } from "./components/Sidebar";
 import type { SavedQuery } from "./components/Sidebar";
 import { CHALLENGES } from "./challenges";
@@ -173,7 +173,7 @@ export default function App() {
             {runState.status === "ok" && <>
               {runState.passed !== undefined && <div className={runState.passed ? "reset-notice" : "notice"} role="status">{runState.passed ? "✓ Correct! Challenge completed." : "Not quite yet. Check the requested columns, filters, duplicates, and row order, then try again."}</div>}
               <div className="status-bar">{runState.results.length === 0 ? "Statement executed — no rows returned." : `${runState.results.reduce((n, r) => n + r.values.length, 0).toLocaleString()}${runState.results.some(r => r.truncated) ? "+" : ""} row(s) in ${runState.ms.toFixed(1)} ms`}</div>
-              {runState.results.map((result, i) => <ResultsTable key={i} result={result} />)}
+              <QueryResults results={runState.results} />
             </>}
           </>}
         </div>

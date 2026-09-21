@@ -377,6 +377,8 @@ tbody tr:hover {
 }
 
 .result-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--text-dim); }
+.result-pagination select { max-width: 100%; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 6px; }
+.result-pagination select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .editor-toolbar, .workspace-status { flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
