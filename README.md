@@ -90,6 +90,18 @@ close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
 
+Pokémon sprites come from the [PokeAPI sprites collection](https://github.com/PokeAPI/sprites).
+We bundle the default front-facing PNGs from its
+[`sprites/pokemon/` folder](https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon),
+one per species, in `web/public/sprites/`. Both the web and desktop apps load
+these local copies, including offline; they do not fetch images from PokéAPI
+at runtime.
+
+The upstream collection also offers back, female, and shiny variants,
+Dream World SVGs, official artwork PNGs, and animated Showdown GIFs. Those
+additional sets are not bundled in PokéSQL. The Showdown battle animations
+are credited upstream to the [Smogon community](https://www.smogon.com/).
+
 The SQLite database and 1,025 local sprites ship with the repository. Python
 is only required to rebuild the dataset:
 
@@ -117,6 +129,12 @@ reset, isolated grading, explicit transactions, temporary tables, cancellation,
 timeouts, offline reload, sprites, unusual table names, and responsive layout.
 To test a packaged build, set `POKESQL_EXECUTABLE` to the absolute path of
 `web/release/win-unpacked/PokeSQL.exe` before running `npm run test:desktop`.
+
+## Agent skills
+
+Project-local engineering, strict structural review and verification skills
+are available for explicit use. See [the skill guide](docs/AGENT_SKILLS.md)
+for names, example prompts, sources and verification recipes.
 
 See [CLAUDE.md](CLAUDE.md) for development guidance and [NOTES.md](NOTES.md)
 for architecture decisions and remaining ideas.

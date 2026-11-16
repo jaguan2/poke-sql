@@ -122,3 +122,20 @@ Deliberate schema choices — keep these unless there's a reason not to:
   `is_default = 0` and ids ≥ 10000, currently skipped.
 
 See NOTES.md for the full design rationale and data-source research.
+
+
+## Agent engineering workflow
+
+For substantive feature, bug-fix or refactor work, read
+[the engineering skill](.agents/skills/pokesql-engineering/SKILL.md).
+Trace/reproduce the behavior, implement, apply
+[structural self-review](.agents/skills/pokesql-thermonuclear-review/SKILL.md)
+to the actual diff, fix supported issues within the requested scope, then
+[verify](.agents/skills/pokesql-verify/SKILL.md). Review design changes again;
+failed checks return to investigation. Reuse valid evidence for unchanged code
+and skip this loop for documentation-only or trivial cosmetic changes.
+Standalone review requests remain report-only. These project adapters use the
+shared agent toolkit; the tested revision is pinned in `.agents/toolkit.json`.
+Installation, fallback resolution and updates are documented in
+[the skill guide](docs/AGENT_SKILLS.md). Repository/user rules take precedence
+over upstream model-provider, delegation, rebasing and commit examples.
