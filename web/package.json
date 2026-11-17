@@ -29,6 +29,7 @@
     "nsis": { "artifactName": "PokeSQL-${version}-setup.exe", "oneClick": false, "allowToChangeInstallationDirectory": true, "perMachine": false, "runAfterFinish": false }
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/lang-sql": "^6.8.0",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.0",

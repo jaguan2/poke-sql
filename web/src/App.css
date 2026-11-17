@@ -152,29 +152,6 @@ body,
   border-color: var(--text-dim);
 }
 
-.theme-picker {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border: 1px solid color-mix(in srgb, var(--shell-text) 25%, transparent);
-  border-radius: 12px;
-  background: var(--shell-control);
-}
-
-.theme-picker img { image-rendering: pixelated; flex-shrink: 0; }
-.theme-picker select {
-  min-width: 0;
-  padding: 8px 4px;
-  border: 0;
-  border-radius: 8px;
-  background: var(--shell-control);
-  color: var(--shell-text);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
 /* ---------- layout ---------- */
 
 .body {
@@ -238,7 +215,7 @@ body,
   cursor: pointer;
 }
 
-.sample-btn:hover {
+.sample-btn:hover, .sample-btn.selected {
   background: var(--panel-raised);
   color: var(--highlight);
 }
@@ -528,14 +505,14 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .editor-toolbar { display: flex; align-items: center; gap: 8px; padding: 16px; background: var(--panel); }
 .editor-label { margin-right: auto; font-size: 12px; color: var(--highlight); white-space: nowrap; }
 .editor-toolbar input { width: 175px; min-width: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); color: var(--text); padding: 7px 9px; }
-.challenge-panel { padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--border); max-height: 32vh; overflow: auto; flex-shrink: 0; }
+.practice-panel { padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--border); max-height: 32vh; overflow: auto; flex-shrink: 0; }
 .challenge-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .challenge-heading button { width: auto; font-size: 11px; }
 .eyebrow { color: var(--highlight); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-.challenge-panel h2 { font-size: 18px; margin: 7px 0; }
-.challenge-panel p { font-size: 13px; line-height: 1.6; margin: 6px 0 10px; }
-.challenge-panel summary { cursor: pointer; color: var(--accent-soft); font-size: 12px; margin-bottom: 8px; }
-.challenge-panel small { color: var(--text-dim); font-size: 11px; }
+.practice-panel h2 { font-size: 18px; margin: 7px 0; }
+.practice-panel p { font-size: 13px; line-height: 1.6; margin: 6px 0 10px; }
+.practice-panel summary { cursor: pointer; color: var(--accent-soft); font-size: 12px; margin-bottom: 8px; }
+.practice-panel small { color: var(--text-dim); font-size: 11px; }
 .notice { background: #faf0d9; border: 1px solid #e2ce9c; border-radius: 12px; padding: 10px 12px; color: #76602b; font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
 .empty-state { color: var(--text-dim); text-align: center; padding: 28px 16px; font-size: 14px; line-height: 1.6; max-width: 560px; margin: auto; }
 .empty-state h2 { color: var(--text); font-size: 23px; font-weight: 650; letter-spacing: -.5px; margin: 16px 0 8px; }
@@ -548,9 +525,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 @media (max-width: 760px) {
   .app { grid-template-rows: 132px minmax(0, 1fr); }
   .header { padding: 12px 20px; grid-template-columns: 1fr auto; gap: 8px; }
-  .theme-picker { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
-  .theme-picker img { width: 24px; height: 24px; }
-  .theme-picker select { flex: 1; padding: 5px; }
+  .settings-button { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
 }
 @media (max-width: 620px) {
   .dex-lights { gap: 3px; } .dex-lens { width: 34px; height: 34px; border-width: 3px; } .dex-light { display: none; }
@@ -567,5 +542,15 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
   .header .btn { padding: 7px 9px; font-size: 12px; }
   .editor-toolbar { flex-wrap: wrap; padding: 8px; } .editor-label { width: 100%; }
   .editor-toolbar input { flex: 1; } .editor-wrap { height: 200px; margin: 0 8px; }
-  .challenge-panel { max-height: none; } .workspace-status { margin-top: auto; }
+  .practice-panel { max-height: none; } .workspace-status { margin-top: auto; }
 }
+
+/* Guided query hints and worked answers share the same disclosure controls. */
+.query-help { margin: 12px 0; }
+.practice-panel:has(.query-help details[open]) { max-height: 50vh; }
+.query-help details { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 8px 0; }
+.query-help summary { font-weight: 650; }
+.query-help pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--panel-raised); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 12px; line-height: 1.6; }
+.query-help h3 { font-size: 13px; margin: 12px 0 8px; }
+.worked-answer + .worked-answer { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 4px; }
+@media (max-width: 620px) { .practice-panel:has(.query-help details[open]) { max-height: none; } }

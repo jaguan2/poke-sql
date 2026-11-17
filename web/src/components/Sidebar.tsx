@@ -7,12 +7,13 @@ export interface SavedQuery { id: string; name: string; sql: string }
 
 interface SidebarProps {
   schema: TableInfo[];
-  onRunSql: (sql: string) => void;
+  onSample: (id: string) => void;
   onPreviewSql: (sql: string) => void;
   onLoadSql: (sql: string) => void;
   onChallenge: (id: string | null) => void;
   completed: string[];
   activeChallenge: string | null;
+  activeSample: string | null;
   history: string[];
   saved: SavedQuery[];
   onDeleteSaved: (id: string) => void;
@@ -20,7 +21,7 @@ interface SidebarProps {
   busy: boolean;
 }
 
-export function Sidebar({ schema, onRunSql, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, history, saved, onDeleteSaved, onClearHistory, busy }: SidebarProps) {
+export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy }: SidebarProps) {
   const [tab, setTab] = useState("Explore");
   return (
     <aside className="sidebar">
@@ -29,11 +30,11 @@ export function Sidebar({ schema, onRunSql, onPreviewSql, onLoadSql, onChallenge
       </nav>
       {tab === "Explore" &&
       <section>
-        <h2>Sample queries</h2>
+        <h2>Get started</h2>
         <ul className="sample-list">
           {SAMPLE_QUERIES.map((q) => (
-            <li key={q.title}>
-              <button className="sample-btn" disabled={busy} onClick={() => onRunSql(q.sql)}>
+            <li key={q.id}>
+              <button className={`sample-btn ${activeSample === q.id ? "selected" : ""}`} aria-pressed={activeSample === q.id} disabled={busy} onClick={() => onSample(q.id)}>
                 {q.title}
               </button>
             </li>

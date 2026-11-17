@@ -11,11 +11,20 @@ test('database integrity, samples, and challenge solutions', async () => {
     expect(db.exec('PRAGMA integrity_check')[0].values).toEqual([['ok']]);
     expect(db.exec('PRAGMA foreign_key_check')).toEqual([]);
     const { SAMPLE_QUERIES } = await import('../src/samples');
-    for (const query of SAMPLE_QUERIES) expect(() => runStatements(db, query.sql)).not.toThrow();
+    db.exec('PRAGMA query_only = ON');
+    for (const query of SAMPLE_QUERIES) {
+      const expected = runStatements(db, query.sql, true);
+      expect(expected[0].values.length).toBeGreaterThan(0);
+      for (const answer of query.alternatives ?? []) {
+        expect(matchesResults(runStatements(db, answer.sql, true), expected, true), `${query.title}: ${answer.title}`).toBe(true);
+      }
+    }
     for (const challenge of CHALLENGES) {
       const result = runStatements(db, challenge.solution, true);
       expect(result[0].values.length).toBeGreaterThan(0);
-      expect(matchesResults(result, result, challenge.ordered)).toBe(true);
+      for (const answer of challenge.alternatives) {
+        expect(matchesResults(runStatements(db, answer.sql, true), result, challenge.ordered), `${challenge.title}: ${answer.title}`).toBe(true);
+      }
     }
   } finally { db.close(); }
 });

@@ -40,15 +40,25 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
-- **Poké Ball themes:** use the ball picker in the header to choose Poké,
+- **Settings:** open Settings in the header to choose Poké,
   Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
   saves on this device and works offline. Ultra, Dusk, and Luxury offer dark
   panels; the other themes keep the softer light panels.
+- **SQL autocomplete:** enable or disable suggestions in Settings. When enabled,
+  the editor suggests table and column names, SQL keywords, and phrases such as
+  `LEFT JOIN`, `GROUP BY`, and `ORDER BY`. Use the arrow keys and Enter to accept
+  a suggestion, Escape to dismiss, or Ctrl+Space to open the list. The setting
+  saves on this device; accepting a suggestion does not execute SQL.
 - **SQL editor:** SQLite syntax highlighting, schema autocomplete,
   Ctrl+Enter / Cmd+Enter, and multiple statements.
-- **Explore:** 11 examples, from simple filters to self-joins and window functions.
+- **Get started:** 11 specific prompts, including the top 10 Pokémon by HP,
+  all Gen 1 Pokémon, and all Fire types from Gen 2. Each has a SQL hint and
+  worked answers with alternative approaches. Selecting a prompt, revealing
+  an answer, or loading it into the editor never runs SQL automatically.
 - **Challenges:** eight guided exercises with hints, result checking, and saved
   completion progress. Answers use a fresh copy of the original Pokédex.
+  Reveal **Hint** for a SQL fragment or **Answer** for worked solutions.
+  **Use this answer** loads the chosen approach; only **Check answer** grades it.
 - **Saved work:** separate editor drafts for free practice and each challenge,
   named queries, and the last 30 distinct query runs.
 - **Database saves:** completed changes persist locally in IndexedDB. Reset DB
