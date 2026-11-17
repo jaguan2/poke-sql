@@ -1,0 +1,10 @@
+[
+  { "id": "poke-ball", "name": "Poké Ball" },
+  { "id": "great-ball", "name": "Great Ball" },
+  { "id": "ultra-ball", "name": "Ultra Ball" },
+  { "id": "master-ball", "name": "Master Ball" },
+  { "id": "heal-ball", "name": "Heal Ball" },
+  { "id": "dive-ball", "name": "Dive Ball" },
+  { "id": "dusk-ball", "name": "Dusk Ball" },
+  { "id": "luxury-ball", "name": "Luxury Ball" }
+]

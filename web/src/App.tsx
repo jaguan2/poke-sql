@@ -11,9 +11,12 @@ import type { SavedQuery } from "./components/Sidebar";
 import { CHALLENGES } from "./challenges";
 import { isStringArray, readLocal, writeLocal } from "./storage";
 import { prepareOffline } from "./offline";
+import ballThemes from "./ball-themes.json";
 import "./App.css";
+import "./themes.css";
 
 const INITIAL_QUERY = "SELECT * FROM pokedex LIMIT 15;";
+const isBallTheme = (value: unknown): value is string => typeof value === "string" && ballThemes.some(theme => theme.id === value);
 const isDrafts = (v: unknown): v is Record<string, string> => !!v && typeof v === "object" && !Array.isArray(v) && Object.values(v).every(x => typeof x === "string");
 const isSaved = (v: unknown): v is SavedQuery[] => Array.isArray(v) && v.every(item => item && typeof item.id === "string" && typeof item.name === "string" && typeof item.sql === "string");
 type RunState =
@@ -38,6 +41,7 @@ export default function App() {
   const [notice, setNotice] = useState<string | undefined>();
   const [storageError, setStorageError] = useState(false);
   const [offlineStatus, setOfflineStatus] = useState("");
+  const [ballTheme, setBallTheme] = useState(() => readLocal("ball-theme", "poke-ball", isBallTheme));
   const challenge = CHALLENGES.find(c => c.id === activeChallenge);
   const editorSchema = challenge ? challengeSchema : schema;
   const draftKey = activeChallenge ?? "sandbox";
@@ -71,6 +75,10 @@ export default function App() {
     return () => { disposed = true; };
   }, []);
   useEffect(() => prepareOffline(setOfflineStatus), []);
+  useEffect(() => {
+    document.documentElement.dataset.ballTheme = ballTheme;
+    return () => { delete document.documentElement.dataset.ballTheme; };
+  }, [ballTheme]);
 
   const execute = useCallback(async (sql: string, challengeId: string | null) => {
     if (!ready || busyRef.current || !sql.trim()) return;
@@ -132,7 +140,21 @@ export default function App() {
 
   return <div className="app">
     <header className="header">
-      <div className="brand"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={28} height={28} /><h1>Poké<span className="brand-accent">SQL</span></h1><span className="tagline">Learn SQL. Catch on.</span></div>
+      <div className="brand">
+        <div className="dex-lights" aria-hidden="true"><span className="dex-lens" /><span className="dex-light" /><span className="dex-light" /></div>
+        <div><h1>Poké<span className="brand-accent">SQL</span></h1><span className="tagline">Your pocket SQL laboratory</span></div>
+      </div>
+      <label className="theme-picker">
+        <img src={`${import.meta.env.BASE_URL}sprites/items/${ballTheme}.png`} alt="" width={32} height={32} />
+        <span className="sr-only">Poké Ball theme</span>
+        <select value={ballTheme} onChange={event => {
+          const theme = event.target.value;
+          setBallTheme(theme);
+          if (!writeLocal("ball-theme", theme)) setNotice("Theme applied for this session. This device could not save your appearance preference.");
+        }}>
+          {ballThemes.map(theme => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+        </select>
+      </label>
       <div className="header-actions">
         <button className="btn btn-secondary" disabled={busy} onClick={() => void handleReset()} title="Restore the original database; keeps saved SQL and progress">Reset DB</button>
         {busy ? <button className="btn btn-primary" onClick={() => cancelQuery()}>■ Stop query</button> : <button className="btn btn-primary" disabled={!query.trim()} onClick={() => void execute(query, activeChallenge)}>{challenge ? "Check answer" : "▶ Run"} <kbd>Ctrl+Enter</kbd></button>}
@@ -165,10 +187,14 @@ export default function App() {
         </form>
         <div className="editor-wrap"><CodeMirror value={query} onChange={value => editQuery(value)} extensions={extensions} editable={!busy} theme="dark" height="100%" aria-label="SQL editor" basicSetup={{ autocompletion: true, foldGutter: false }} /></div>
         <div className="results" aria-busy={busy}>
+          <h2 className="results-heading">Query results</h2>
           {storageError && <p className="notice" role="status">This device could not save your SQL or progress. Keep a copy before closing.</p>}
           {notice && <p className="notice" role="status">{notice}</p>}
           {busy ? <p className="running-notice" role="status">Running SQL… You can stop it at any time. Queries time out after 8 seconds.</p> : <>
-            {runState.status === "idle" && <div className="empty-state"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={40} height={40} /><p>{runState.message}</p></div>}
+            {runState.status === "idle" && <div className="empty-state">
+              <div className="starter-sprites" aria-hidden="true">{[1, 4, 7].map(id => <img key={id} src={`${import.meta.env.BASE_URL}sprites/${id}.png`} alt="" width={72} height={72} />)}</div>
+              <h2>A little curiosity. A whole Pokédex.</h2><p>{runState.message}</p>
+            </div>}
             {runState.status === "error" && <div className="error-panel" role="alert"><strong>SQL message:</strong> {runState.message}</div>}
             {runState.status === "ok" && <>
               {runState.passed !== undefined && <div className={runState.passed ? "reset-notice" : "notice"} role="status">{runState.passed ? "✓ Correct! Challenge completed." : "Not quite yet. Check the requested columns, filters, duplicates, and row order, then try again."}</div>}

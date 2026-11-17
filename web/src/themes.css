@@ -1,0 +1,133 @@
+/* Palettes inspired by Poké Ball designs; names and item sprites share the catalog. */
+:root[data-ball-theme="great-ball"] {
+  --bg: #e7edf3;
+  --shell: #3566a0;
+  --shell-dark: #274b77;
+  --screen: #21374c;
+  --panel: #f6f9fc;
+  --panel-raised: #e5edf6;
+  --border: #ccd9e8;
+  --text: #283d53;
+  --text-dim: #5a6e83;
+  --accent-soft: #a43240;
+  --highlight: #315e92;
+  --shell-control: #294d7b;
+  --shell-control-hover: #203e65;
+  --shell-muted: #e0eafa;
+  --brand: #ffc1ba;
+}
+
+:root[data-ball-theme="ultra-ball"] {
+  color-scheme: dark;
+  --bg: #25262b;
+  --shell: #35373e;
+  --shell-dark: #1e2026;
+  --screen: #232731;
+  --panel: #2c2f36;
+  --panel-raised: #393d46;
+  --border: #51545c;
+  --text: #f2efdf;
+  --text-dim: #bdc0c6;
+  --accent-soft: #efcd65;
+  --highlight: #f0cc65;
+  --shell-control: #25272e;
+  --shell-control-hover: #41434b;
+  --shell-muted: #e1d6ae;
+  --brand: #f4d16b;
+}
+
+:root[data-ball-theme="master-ball"] {
+  --bg: #ece7f2;
+  --shell: #76529a;
+  --shell-dark: #553872;
+  --screen: #342e48;
+  --panel: #faf7fd;
+  --panel-raised: #eee5f5;
+  --border: #ddcee8;
+  --text: #443451;
+  --text-dim: #77647e;
+  --accent-soft: #9b366e;
+  --highlight: #785093;
+  --shell-control: #5d3c7d;
+  --shell-control-hover: #4e306b;
+  --shell-muted: #f3e0f5;
+  --brand: #ffbbdf;
+}
+
+:root[data-ball-theme="heal-ball"] {
+  --bg: #f2e9ec;
+  --shell: #e7aec2;
+  --shell-dark: #b77d95;
+  --screen: #463347;
+  --panel: #fff9f8;
+  --panel-raised: #f8e8eb;
+  --border: #e4ccd5;
+  --text: #543b4b;
+  --text-dim: #7f6372;
+  --accent-soft: #994c72;
+  --highlight: #8a466c;
+  --shell-text: #493140;
+  --shell-muted: #63404f;
+  --shell-control: #f8d8e4;
+  --shell-control-hover: #ffebf0;
+  --shell-focus: #59334d;
+  --brand: #593e78;
+}
+
+:root[data-ball-theme="dive-ball"] {
+  --bg: #e3eff1;
+  --shell: #287c9b;
+  --shell-dark: #205b75;
+  --screen: #1d3b49;
+  --panel: #f4fbfb;
+  --panel-raised: #e0f0f2;
+  --border: #c6dde2;
+  --text: #244751;
+  --text-dim: #54737c;
+  --accent-soft: #246b8e;
+  --highlight: #226982;
+  --shell-control: #22637e;
+  --shell-control-hover: #194f67;
+  --shell-muted: #d7f4f6;
+  --brand: #c0f3fa;
+}
+
+:root[data-ball-theme="dusk-ball"] {
+  color-scheme: dark;
+  --bg: #202925;
+  --shell: #3b654b;
+  --shell-dark: #253d2f;
+  --screen: #1c2d28;
+  --panel: #27352e;
+  --panel-raised: #35483d;
+  --border: #4a6353;
+  --text: #e4efdf;
+  --text-dim: #b0c3b2;
+  --accent-soft: #efba7e;
+  --highlight: #edbd85;
+  --shell-control: #2b4a36;
+  --shell-control-hover: #203c2a;
+  --shell-muted: #d9e8d5;
+  --brand: #ffd2a0;
+}
+
+:root[data-ball-theme="luxury-ball"] {
+  color-scheme: dark;
+  --bg: #222023;
+  --shell: #343034;
+  --shell-dark: #1e1a1e;
+  --screen: #29242c;
+  --panel: #2d292f;
+  --panel-raised: #3e373e;
+  --border: #5b4e58;
+  --text: #f1e6d5;
+  --text-dim: #c4b8be;
+  --accent-soft: #f0a4a4;
+  --highlight: #e9c889;
+  --shell-text: #f5e2bc;
+  --shell-muted: #d4c1a9;
+  --shell-control: #4d3037;
+  --shell-control-hover: #633944;
+  --shell-focus: #f3d596;
+  --brand: #e9ba70;
+}

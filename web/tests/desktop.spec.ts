@@ -18,6 +18,8 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     app = await launch();
     const page = await app.firstWindow();
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await page.getByRole('combobox', { name: 'Poké Ball theme' }).selectOption('master-ball');
+    await expect(page.locator('.app')).toHaveCSS('background-color', 'rgb(118, 82, 154)');
     expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe('undefined');
     await expect(page.getByText('Available offline', { exact: true })).toBeVisible();
     await page.locator('.cm-content').click(); await page.keyboard.press('ControlOrMeta+A');
@@ -54,6 +56,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     app = await launch();
     const reopened = await app.firstWindow();
     await expect(reopened.getByRole('button', { name: /Run/ })).toBeEnabled();
+    await expect(reopened.getByRole('combobox', { name: 'Poké Ball theme' })).toHaveValue('master-ball');
     await reopened.locator('.cm-content').click(); await reopened.keyboard.press('ControlOrMeta+A');
     await reopened.keyboard.insertText('SELECT value FROM desktop_saved;');
     await reopened.getByRole('button', { name: /Run/ }).click();

@@ -40,6 +40,10 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
+- **Poké Ball themes:** use the ball picker in the header to choose Poké,
+  Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
+  saves on this device and works offline. Ultra, Dusk, and Luxury offer dark
+  panels; the other themes keep the softer light panels.
 - **SQL editor:** SQLite syntax highlighting, schema autocomplete,
   Ctrl+Enter / Cmd+Enter, and multiple statements.
 - **Explore:** 11 examples, from simple filters to self-joins and window functions.
@@ -91,6 +95,10 @@ close all PokéSQL tabs and reopen the site.
 ## Data and assets
 
 Pokémon sprites come from the [PokeAPI sprites collection](https://github.com/PokeAPI/sprites).
+The theme picker's eight ball icons also come from that repository's
+[`sprites/items/` folder](https://github.com/PokeAPI/sprites/tree/master/sprites/items)
+and are bundled locally. Theme palettes are our interpretations of the ball
+designs shown in the [official Pokémon Trainer Guide](https://diamondpearl.pokemon.com/en-us/trainersguide/fundamentals/battling/).
 We bundle the default front-facing PNGs from its
 [`sprites/pokemon/` folder](https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon),
 one per species, in `web/public/sprites/`. Both the web and desktop apps load
