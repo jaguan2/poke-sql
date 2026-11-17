@@ -11,6 +11,26 @@ export interface TableInfo {
   kind: "table" | "view";
   columns: { name: string; type: string; pk: boolean }[];
 }
+export interface MysteryPokemon {
+  id: number;
+  name: string;
+  type1: string;
+  type2: string | null;
+  generationId: number;
+  heightM: number;
+  weightKg: number;
+}
+export type TypeClue = "correct" | "partial" | "wrong";
+export type NumberClue = "correct" | "higher" | "lower";
+export interface MysteryGuess {
+  pokemon: MysteryPokemon;
+  matched: boolean;
+  type1: TypeClue;
+  type2: TypeClue;
+  generation: NumberClue;
+  height: NumberClue;
+  weight: NumberClue;
+}
 export interface DbReply {
   schema: TableInfo[];
   challengeSchema?: TableInfo[];
@@ -20,9 +40,13 @@ export interface DbReply {
   notice?: string;
   passed?: boolean;
   ms?: number;
+  mysteryTargetId?: number;
+  mysteryGuess?: MysteryGuess;
 }
 export type DbRequest =
   | { action: "init"; original: Uint8Array; saved?: Uint8Array }
   | { action: "run"; sql: string }
   | { action: "check"; sql: string; challengeId: string }
+  | { action: "mystery-start"; previousId?: number }
+  | { action: "mystery-query"; sql: string; targetId: number }
   | { action: "reset" };

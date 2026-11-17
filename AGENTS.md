@@ -114,7 +114,7 @@ Deliberate schema choices — keep these unless there's a reason not to:
 ## Roadmap / not yet built
 
 - Native mobile packaging; the responsive web app already supports narrow screens.
-- More exercises, a daily SQL Pokémon mystery, database export/import, and
+- More exercises, database export/import, and
   workspace sync between devices (currently deliberately local and separate).
 - **Moves data**: PokeAPI has `moves.csv` / `pokemon_moves.csv` (~600k rows) —
   skipped in v1 to keep the DB small.

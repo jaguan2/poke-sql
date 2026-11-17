@@ -40,6 +40,31 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
+- **Find that Pokémon:** a daily hidden species and a SQL guessing notebook.
+  Everyone using the same app version gets the same Pokémon for a UTC date;
+  the next challenge becomes available at **00:00 UTC**. The fixed shuffled
+  schedule visits all 1,025 species before repeating, so no calendar year has
+  duplicate answers and the same date changes the following year. An open
+  round stays on its date after midnight; **Open today's challenge** switches
+  to the new puzzle. Daily challenges cannot be rerolled.
+  Return one row with an `id` or `name` column to make a guess. Green tiles
+  mean exact traits; yellow means a type matches the other slot; arrows point
+  toward the hidden Pokémon's generation, height, or weight. Queries with
+  multiple rows or no identifiable Pokémon remain research and do not use guesses.
+  Matching every trait does not guarantee the same species: identify the exact
+  Pokémon to win. There is no guess limit; the latest 30 guesses, total count,
+  current target, and SQL draft save locally without replay on reload.
+  Queries use fresh read-only copies of the original database, keeping practice
+  edits separate. **Random practice** keeps its own round and draft;
+  **New Pokémon** starts another random round. Both modes work offline, using
+  the device's UTC clock for the daily schedule. Only the latest opened daily
+  round is retained; past-day puzzle archives are not included.
+- **Poké Radio:** three bundled Pokémon arrangements from OverClocked ReMix,
+  with playback, volume, track selection, and repeat controls below the results.
+  Tracks advance in playlist order and return to the first track. Selecting a
+  track pauses playback. Track choice, volume, mute, and repeat save locally;
+  reopening the app always starts paused. Music works offline after the web
+  app finishes caching, and immediately in desktop builds.
 - **Settings:** open Settings in the header to choose Poké,
   Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
   saves on this device and works offline. Ultra, Dusk, and Luxury offer dark
@@ -103,6 +128,15 @@ development mode does not install a service worker. When an update is ready,
 close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
+
+Poké Radio bundles unchanged MP3 arrangements by halc, Emunator, and NoTuX
+(formerly Blue Magic), from [OverClocked ReMix](https://ocremix.org).
+The recordings are used under its [noncommercial content policy](https://ocremix.org/info/Content_Policy),
+which requires attribution and forbids changing redistributed MP3s, including
+their tags. See [music credits and distribution conditions](web/public/music/CREDITS.txt).
+The three tracks add approximately 17.7 MB to the download and offline cache.
+Their hashes are checked during every production build. Music rights are
+separate from the code; reassess them before commercialization or fundraising.
 
 Pokémon sprites come from the [PokeAPI sprites collection](https://github.com/PokeAPI/sprites).
 The theme picker's eight ball icons also come from that repository's

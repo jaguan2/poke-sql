@@ -1,9 +1,10 @@
 const { app, BrowserWindow, protocol, session } = require('electron');
 const path = require('node:path');
 const { readFile } = require('node:fs/promises');
+const { parseByteRange } = require('./byte-range.cjs');
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'pokesql', privileges: {
-  standard: true, secure: true, supportFetchAPI: true, corsEnabled: true,
+  standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true,
 } }]);
 
 const testing = process.env.POKESQL_TEST === '1';
@@ -49,9 +50,24 @@ app.whenReady().then(() => {
     if (relative.startsWith('..') || path.isAbsolute(relative)) return new Response('Not found', { status: 404 });
     try {
       const content = await readFile(filename);
-      const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wasm': 'application/wasm', '.png': 'image/png', '.svg': 'image/svg+xml', '.sqlite': 'application/octet-stream' };
+      const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wasm': 'application/wasm', '.png': 'image/png', '.svg': 'image/svg+xml', '.sqlite': 'application/octet-stream', '.mp3': 'audio/mpeg', '.txt': 'text/plain; charset=utf-8' };
       const headers = new Headers({ 'Content-Type': mimeTypes[path.extname(filename)] ?? 'application/octet-stream' });
       headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-src 'none'");
+      if (path.extname(filename) === '.mp3') {
+        headers.set('Accept-Ranges', 'bytes');
+        const rangeHeader = request.headers.get('Range');
+        if (rangeHeader) {
+          const range = parseByteRange(rangeHeader, content.length);
+          if (!range) {
+            headers.set('Content-Range', `bytes */${content.length}`);
+            return new Response(null, { status: 416, headers });
+          }
+          headers.set('Content-Range', `bytes ${range.start}-${range.end}/${content.length}`);
+          headers.set('Content-Length', String(range.end - range.start + 1));
+          return new Response(content.subarray(range.start, range.end + 1), { status: 206, headers });
+        }
+        headers.set('Content-Length', String(content.length));
+      }
       return new Response(content, { headers });
     } catch { return new Response('Not found', { status: 404 }); }
   });

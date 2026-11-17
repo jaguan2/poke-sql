@@ -19,12 +19,15 @@ interface SidebarProps {
   onDeleteSaved: (id: string) => void;
   onClearHistory: () => void;
   busy: boolean;
+  activeMystery: boolean;
+  onMystery: () => void;
 }
 
-export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy }: SidebarProps) {
+export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy, activeMystery, onMystery }: SidebarProps) {
   const [tab, setTab] = useState("Explore");
   return (
     <aside className="sidebar">
+      <button className="mystery-entry" aria-pressed={activeMystery} disabled={busy} onClick={onMystery}>Find that Pokémon</button>
       <nav className="sidebar-tabs" aria-label="Practice tools">
         {["Explore", "Challenges", "History", "Saved"].map(name => <button key={name} className={tab === name ? "active" : ""} onClick={() => setTab(name)} aria-pressed={tab === name}>{name}</button>)}
       </nav>
@@ -66,7 +69,7 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
       </section>}
 
       <section>
-        <h2>{activeChallenge ? "Challenge schema" : "Schema"}</h2>
+        <h2>{activeMystery ? "Mystery schema" : activeChallenge ? "Challenge schema" : "Schema"}</h2>
         {schema.map((t) => (
           <details key={t.name} open={t.kind === "view"}>
             {/* summary only toggles; the query action lives outside it so
@@ -78,7 +81,7 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
             <button
               className="preview-btn"
               disabled={busy}
-              title={activeChallenge ? "Load this query into your challenge answer" : "Preview this table"}
+              title={activeMystery ? "Load this query into the mystery editor" : activeChallenge ? "Load this query into your challenge answer" : "Preview this table"}
               onClick={() => onPreviewSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`)}
             >
               ▶ SELECT * FROM {t.name}

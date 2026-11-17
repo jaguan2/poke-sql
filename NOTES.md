@@ -1,5 +1,38 @@
 # Design notes
 
+## Daily mystery schedule (2026-11-17)
+
+The default mystery is shared by UTC date and works without a backend. Schedule
+v1 shuffles National Dex IDs 1–1025 once using Fisher–Yates and a fixed xorshift32
+seed (`0x504f4b45`). The index is the absolute number of UTC days since 2026-01-01,
+modulo 1,025 (normalized for dates before the epoch). A complete cycle is a
+permutation: every consecutive 1,025-day window has unique answers. This also
+guarantees uniqueness within every 365/366-day calendar year and different
+answers on matching dates in adjacent years. Leap days occupy their own index.
+
+The v1 pool, seed and epoch are frozen; adding species to the database must not
+silently reshuffle published puzzles. Tests pin representative v1 assignments,
+check complete cycles against the bundled database, and exhaust calendar years.
+Daily saves carry their date and schedule version, validated against the target.
+Random practice keeps the original round key and draft separately. Only the
+latest opened daily round is stored. A midnight timer plus focus/visibility
+refresh detects a new UTC date, but never retargets an open or running round.
+The user can finish that round or explicitly open today's challenge. Reload
+opens the current UTC day when the mystery is selected and never replays SQL.
+
+## Find that Pokémon (2026-11-17)
+
+The random mystery mode uses SQL as the guessing interface: exactly one returned
+Pokémon id or name submits a guess; broader results remain available for research.
+Clues compare the original species' type slots, generation, height and weight.
+Matching traits alone cannot win because different species may share all five.
+Each query uses a fresh original, read-only database in the existing Worker.
+The target is kept outside that SQL connection, so SQL cannot select a secret
+answer table. Local round state and a separate draft survive cancellation and
+reload without replaying SQL. This is offline practice, not an anti-cheat system;
+the target and saved notebook can be inspected in local storage. Random practice
+keeps its own round; daily challenges follow the schedule above.
+
 ## Implementation update (2026-09-15)
 
 The sections below this update describe the original design and are historical.
@@ -52,7 +85,7 @@ implemented as follows:
   explicit column scope for accessibility. Screenshots are stored in ignored
   test output. The dependency audit was clean after updating nanoid.
 
-Remaining ideas: a daily Pokémon mystery/Wordle game, more challenge content,
+Remaining ideas: more challenge content,
 database import/export, native mobile packaging, and additional forms/moves.
 No signing certificate or automatic app updater is configured. The Vite build
 still reports a large editor bundle warning; it is pre-cached for offline use.

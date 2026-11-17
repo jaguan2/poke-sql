@@ -323,6 +323,10 @@ body,
   background: var(--screen);
 }
 
+/* Size the React wrapper as well as CodeMirror so its own scroller owns long
+   scripts, including after switching between mobile and desktop layouts. */
+.editor-wrap > .sql-editor { height: 100%; }
+
 .editor-wrap .cm-editor {
   height: 100%;
   font-size: 14px;

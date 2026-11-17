@@ -11,7 +11,7 @@ export function runStatements(db: Database, sql: string, readOnly = false): Quer
     if (!remaining) break;
     if (++count > 50) throw new Error("Run at most 50 statements at a time.");
     if (readOnly && (count > 1 || !/^(SELECT|WITH)\b/i.test(remaining))) {
-      throw new Error("Challenge answers must contain one SELECT query (WITH is also supported).");
+      throw new Error("Use one SELECT query (WITH is also supported) in read-only practice modes.");
     }
     let stmt;
     try { stmt = db.prepare(remaining); }

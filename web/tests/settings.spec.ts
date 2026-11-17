@@ -17,6 +17,9 @@ test('LEFT suggests LEFT JOIN and accepting it edits SQL without running it', as
   const suggestion = page.getByRole('option', { name: 'LEFT JOIN', exact: true });
   await expect(suggestion).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('left-join-suggestion.png'), fullPage: true });
+  // CodeMirror intentionally ignores completion navigation for 75 ms after
+  // opening. A screenshot can finish sooner than that interaction guard.
+  await page.waitForTimeout(100);
   if (await suggestion.getAttribute('aria-selected') !== 'true') await page.keyboard.press('ArrowDown');
   await expect(suggestion).toHaveAttribute('aria-selected', 'true');
   await page.keyboard.press('Enter');
@@ -25,6 +28,36 @@ test('LEFT suggests LEFT JOIN and accepting it edits SQL without running it', as
   await typeAfter(page, '', 'SELECT name FROM pokemon WHERE id = 1;');
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
+});
+
+test('background offline status updates preserve active SQL completions', async ({ page }) => {
+  // Drive an actual parent-state update at a known point, rather than relying
+  // on a service worker installation happening during the typing interval.
+  await page.addInitScript(() => {
+    const installing = Object.assign(new EventTarget(), { state: 'installing' });
+    const registration = Object.assign(new EventTarget(), { active: null as EventTarget | null, installing, waiting: null });
+    Object.defineProperty(navigator.serviceWorker, 'register', { configurable: true, value: async () => registration });
+    window.addEventListener('pokesql-test-offline-ready', () => {
+      installing.state = 'activated';
+      registration.active = installing;
+      installing.dispatchEvent(new Event('statechange'));
+    });
+  });
+  await page.reload();
+  await expect(page.getByText('Preparing offline access…', { exact: true })).toBeVisible();
+  await typeAfter(page, 'SELECT * FROM pokemon p ', 'LEFT');
+  const suggestion = page.getByRole('option', { name: 'LEFT JOIN', exact: true });
+  await expect(suggestion).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('pokesql-test-offline-ready')));
+  await expect(page.getByText('Available offline', { exact: true })).toBeVisible();
+  await expect(suggestion).toBeVisible();
+  // Respect the same completion interaction guard as a user's reading pause.
+  await page.waitForTimeout(100);
+  if (await suggestion.getAttribute('aria-selected') !== 'true') await page.keyboard.press('ArrowDown');
+  await expect(suggestion).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.cm-content')).toHaveText('SELECT * FROM pokemon p LEFT JOIN');
+  await expect(page.locator('tbody tr')).toHaveCount(0);
 });
 
 test('phrase suggestions work alongside schema completion and ignore strings and comments', async ({ page }) => {

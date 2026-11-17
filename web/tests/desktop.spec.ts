@@ -3,6 +3,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import tracks from '../src/music-tracks.json' with { type: 'json' };
 
 test('desktop loads bundled SQL and sprites without Node access in the page', async ({}, testInfo) => {
   const data = testInfo.outputPath('profile');
@@ -25,6 +26,20 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await expect(page.locator('.app')).toHaveCSS('background-color', 'rgb(118, 82, 154)');
     expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe('undefined');
     await expect(page.getByText('Available offline', { exact: true })).toBeVisible();
+    const music = page.locator('audio');
+    expect(await music.evaluate(player => player.paused)).toBe(true);
+    await music.scrollIntoViewIfNeeded();
+    await music.click({ position: { x: 20, y: 18 } });
+    await expect.poll(() => music.evaluate(player => !player.paused && player.currentTime > 0)).toBe(true);
+    await music.evaluate(player => { player.currentTime = 30; });
+    await expect.poll(() => music.evaluate(player => player.currentTime)).toBeGreaterThanOrEqual(30);
+    await music.evaluate(player => player.pause());
+    const musicRange = await page.evaluate(async file => {
+      const response = await fetch(`music/${file}`, { headers: { Range: 'bytes=0-63' } });
+      return { status: response.status, type: response.headers.get('Content-Type'), range: response.headers.get('Content-Range'), length: (await response.arrayBuffer()).byteLength };
+    }, tracks[0].file);
+    expect(musicRange).toMatchObject({ status: 206, type: 'audio/mpeg', length: 64 });
+    expect(musicRange.range).toMatch(/^bytes 0-63\//);
     await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
     await page.getByText('Hint', { exact: true }).click();
     await expect(page.locator('.query-help pre:visible')).toContainText('ORDER BY hp DESC');
@@ -81,6 +96,56 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     try {
       await app?.close();
     } finally {
+      const relative = path.relative(path.resolve(testInfo.outputDir), path.resolve(data));
+      if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) await rm(data, { recursive: true, force: true });
+    }
+  }
+});
+
+test('desktop mystery uses original data and resumes its notebook after reload', async ({}, testInfo) => {
+  const data = testInfo.outputPath('profile');
+  await mkdir(data, { recursive: true });
+  const env = { ...process.env, POKESQL_TEST: '1', POKESQL_TEST_DATA: data };
+  delete env.ELECTRON_RUN_AS_NODE;
+  let app: Awaited<ReturnType<typeof electron.launch>> | undefined;
+  try {
+    app = await electron.launch({
+      executablePath: process.env.POKESQL_EXECUTABLE,
+      args: process.env.POKESQL_EXECUTABLE ? [] : ['.'], env,
+    });
+    const page = await app.firstWindow();
+    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await page.evaluate(() => localStorage.setItem('pokesql:mystery-round', JSON.stringify({ targetId: 6, guessCount: 0, attempts: [] })));
+    await page.reload();
+    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    const dailyTarget = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:daily-mystery-round')!).targetId);
+    await page.locator('.cm-editor').click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.insertText(`SELECT id FROM pokedex WHERE id = ${dailyTarget}`);
+    await page.keyboard.press('ControlOrMeta+Enter');
+    await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
+    await page.reload();
+    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
+    await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+    await page.locator('.cm-editor').click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.insertText('SELECT id FROM pokedex WHERE id = 5');
+    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+    await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toContainText('↑ Taller');
+    await page.reload();
+    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+    await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toBeVisible();
+    await page.locator('.cm-editor').click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.insertText('SELECT id FROM pokedex WHERE id = 6');
+    await page.keyboard.press('ControlOrMeta+Enter');
+    await expect(page.getByText('You found Charizard in 2 guesses!', { exact: false })).toBeVisible();
+    expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe('undefined');
+  } finally {
+    try { await app?.close(); }
+    finally {
       const relative = path.relative(path.resolve(testInfo.outputDir), path.resolve(data));
       if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) await rm(data, { recursive: true, force: true });
     }

@@ -1,7 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 
 async function run(page: Page, sql: string) {
-  await page.locator('.cm-content').click();
+  // Click the visible editor viewport. A long .cm-content document can have
+  // its center outside the scroller after a responsive resize.
+  await page.locator('.cm-editor').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
   const start = Date.now();
@@ -44,6 +46,8 @@ test('maximum statement batch and repeated queries stay usable', async ({ page }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.screenshot({ path: testInfo.outputPath('batch-mobile.png') });
   await page.setViewportSize({ width: 1280, height: 720 });
+  expect(await page.locator('.cm-scroller').evaluate(element => element.clientHeight))
+    .toBeLessThanOrEqual(await page.locator('.editor-wrap').evaluate(element => element.clientHeight));
   const runs: number[] = [];
   for (let i = 0; i < 20; i++) {
     runs.push(await run(page, `SELECT COUNT(*) AS count, ${i} AS iteration FROM pokemon;`));

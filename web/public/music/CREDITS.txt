@@ -1,0 +1,38 @@
+Poké Radio — bundled offline Pokémon arrangements
+
+Photosynthesis — halc
+Eterna Forest, Pokémon Diamond Version
+https://ocremix.org/remix/OCR02731
+
+On the Shores of Canalave — Emunator
+Canalave City (Day), Pokémon Diamond Version
+https://ocremix.org/remix/OCR04128
+
+Snowflakes in Her Hair — NoTuX (originally credited as Blue Magic)
+Snowpoint City (Day), Pokémon Diamond Version
+https://ocremix.org/remix/OCR02801
+
+All three recordings: the named ReMixer, OverClocked ReMix (https://ocremix.org).
+Original game soundtrack credited to Go Ichinose, Hitomi Sato, Junichi Masuda,
+and Morikazu Aoki. Compositions and recordings belong to their respective owners.
+No affiliation with or endorsement by the artists, OC ReMix, or Pokémon is implied.
+
+Source and distribution conditions
+https://ocremix.org/info/Content_Policy
+Reviewed 2026-11-17.
+
+These are the unchanged MP3 files downloaded from OC ReMix's official mirror:
+https://ocrmirror.org/files/music/remixes/
+The filenames, audio, and ID3 tags have not been changed. SHA-256 hashes are
+recorded in web/src/music-tracks.json and checked by the production build.
+
+OC ReMix's policy permits noncommercial redistribution/incorporation with
+attribution to the artist and OC ReMix. It requires that redistributed MP3s
+remain unmodified. It excludes profit-making redistribution, commercial works,
+advertising use, and specified donation/name-your-price arrangements. OC ReMix
+reserves the right to terminate its license; see the live policy for full terms.
+This permission does not transfer ownership or clear third-party composition
+rights. Reassess the music before commercializing or changing distribution.
+
+PokéSQL bundles these recordings for its free, noncommercial educational app.
+They are not public-domain music and are not covered by any code license.

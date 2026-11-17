@@ -3,6 +3,7 @@ import type { Database, SqlJsStatic } from "sql.js";
 import wasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 import { exportSnapshot, hasOpenTransaction, readSchema, runStatements } from "./engine";
 import { CHALLENGES, matchesResults } from "./challenges";
+import { pickMysteryTarget, runMysteryQuery } from "./mystery";
 import type { DbReply, DbRequest, TableInfo } from "./types";
 
 let SQL: SqlJsStatic;
@@ -42,7 +43,15 @@ async function handle(request: DbRequest): Promise<DbReply> {
     return { schema: readSchema(db), ...checkpoint() };
   }
   const start = performance.now();
-  if (request.sql.length > 100_000) throw new Error("Keep SQL scripts below 100,000 characters.");
+  if ("sql" in request && request.sql.length > 100_000) throw new Error("Keep SQL scripts below 100,000 characters.");
+  if (request.action === "mystery-start" || request.action === "mystery-query") {
+    const mysteryDb = new SQL.Database(original);
+    try {
+      mysteryDb.run("PRAGMA query_only = ON");
+      if (request.action === "mystery-start") return { schema: readSchema(db), mysteryTargetId: pickMysteryTarget(mysteryDb, request.previousId) };
+      return { schema: readSchema(db), ...runMysteryQuery(mysteryDb, request.sql, request.targetId), ms: performance.now() - start };
+    } finally { mysteryDb.close(); }
+  }
   if (request.action === "check") {
     const challenge = CHALLENGES.find(c => c.id === request.challengeId);
     if (!challenge) throw new Error("Unknown challenge.");

@@ -86,6 +86,8 @@ async function execute(data: DbRequest): Promise<DbReply> {
 export const runQuery = (sql: string) => execute({ action: "run", sql });
 export const checkChallenge = (sql: string, challengeId: string) => execute({ action: "check", sql, challengeId });
 export const resetDb = () => execute({ action: "reset" });
+export const startMystery = (previousId?: number) => execute({ action: "mystery-start", previousId });
+export const queryMystery = (sql: string, targetId: number) => execute({ action: "mystery-query", sql, targetId });
 
 export function schemaForAutocomplete(schema: TableInfo[]): Record<string, string[]> {
   return Object.fromEntries(schema.map(table => [table.name, table.columns.map(column => column.name)]));

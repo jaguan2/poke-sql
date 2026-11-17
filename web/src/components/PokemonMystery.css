@@ -1,0 +1,33 @@
+.mystery-entry { width: 100%; margin-bottom: 12px; padding: 11px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-raised); color: var(--highlight); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+.mystery-entry[aria-pressed="true"] { border-color: var(--highlight); }
+.mystery-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.mystery-modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.mystery-modes .btn { padding: 6px 10px; font-size: 11px; }
+.mystery-modes [aria-pressed="true"] { border-color: var(--highlight); color: var(--highlight); }
+.mystery-panel .mystery-date { color: var(--text-dim); font-size: 11px; }
+.mystery-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0; color: var(--text-dim); font-size: 11px; }
+.mystery-panel > details { margin: 10px 0; }
+.mystery-panel code { overflow-wrap: anywhere; }
+.mystery-workspace .editor-wrap { height: 160px; }
+.mystery-workspace .results { min-height: 220px; }
+.mystery-query-results { margin: 8px 0; }
+.mystery-query-results > summary { width: fit-content; color: var(--highlight); cursor: pointer; font-size: 12px; margin-bottom: 10px; }
+.mystery-notebook { min-width: 0; }
+.mystery-notebook h3 { margin: 4px 0 12px; color: var(--text); font-size: 13px; }
+.mystery-notebook h3 small { margin-left: 8px; color: var(--text-dim); font-size: 11px; font-weight: 400; }
+.mystery-table-scroll { max-width: 100%; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; overflow: auto; }
+.mystery-table th, .mystery-table td { padding: 10px; }
+.mystery-table td { white-space: normal; vertical-align: top; border-right: 1px solid var(--border); }
+.mystery-table td:last-child { border-right: 0; }
+.mystery-clue { min-width: 90px; text-align: center; }
+.mystery-clue strong { display: block; color: var(--text); font-size: 12px; }
+.mystery-clue span { display: block; margin-top: 6px; font-size: 11px; color: var(--text); white-space: nowrap; }
+.mystery-table .clue-correct { background: color-mix(in srgb, var(--panel) 65%, #5fb879); }
+.mystery-table .clue-partial { background: color-mix(in srgb, var(--panel) 60%, #e4bf52); }
+.mystery-table .clue-wrong, .mystery-table .clue-higher, .mystery-table .clue-lower { background: color-mix(in srgb, var(--panel) 88%, #c67a79); }
+.mystery-pokemon { min-width: 150px; max-width: 240px; }
+.mystery-pokemon > div { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.mystery-pokemon img { image-rendering: pixelated; }
+.mystery-pokemon summary { margin-top: 6px; color: var(--highlight); font-size: 11px; cursor: pointer; }
+.mystery-pokemon pre { width: 200px; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.mystery-idle { margin: 8px 0 16px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }

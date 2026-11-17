@@ -1,0 +1,29 @@
+[
+  {
+    "id": "photosynthesis",
+    "title": "Photosynthesis",
+    "theme": "Eterna Forest · Pokémon Diamond",
+    "artist": "halc",
+    "file": "Pokemon_Diamond_Version_Photosynthesis_OC_ReMix.mp3",
+    "source": "https://ocremix.org/remix/OCR02731",
+    "sha256": "b4f7d434f967d2e3f82d2ce8b87ee9e38b488d8451683f903cffa0560525953b"
+  },
+  {
+    "id": "canalave",
+    "title": "On the Shores of Canalave",
+    "theme": "Canalave City · Pokémon Diamond",
+    "artist": "Emunator",
+    "file": "Pokemon_Diamond_Version_On_the_Shores_of_Canalave_OC_ReMix.mp3",
+    "source": "https://ocremix.org/remix/OCR04128",
+    "sha256": "9ff1aac2afa2dba53ea6e3adcbc42b4386a2749fa1ec2e807272f845aeb942b5"
+  },
+  {
+    "id": "snowflakes",
+    "title": "Snowflakes in Her Hair",
+    "theme": "Snowpoint City · Pokémon Diamond",
+    "artist": "NoTuX",
+    "file": "Pokemon_Diamond_Version_Snowflakes_in_Her_Hair_OC_ReMix.mp3",
+    "source": "https://ocremix.org/remix/OCR02801",
+    "sha256": "95edb105262cc50bcc623099e0202e3692fa4b1aebcdf418d0be092a60ff1ac0"
+  }
+]

@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import byteRange from '../desktop/byte-range.cjs';
 const root = new URL('../dist/', import.meta.url);
 async function files(directory, prefix = '') {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -13,12 +14,14 @@ const hash = createHash('sha256');
 // Worker logic changes need their own cache too, so a failed new installation
 // cannot damage the cache used by an older active worker with identical assets.
 hash.update(await readFile(new URL(import.meta.url)));
+hash.update(byteRange.parseByteRange.toString());
 for (const path of paths) { hash.update(path); hash.update(await readFile(new URL(path, root))); }
 const version = hash.digest('hex').slice(0, 16);
 const source = `// Generated from every production asset; scoped to this deployment path.
 const PREFIX = 'pokesql-offline:' + self.registration.scope + ':';
 const CACHE = PREFIX + '${version}';
 const ASSETS = ${JSON.stringify(paths)};
+const parseByteRange = ${byteRange.parseByteRange.toString()};
 self.addEventListener('install', event => event.waitUntil((async () => {
   try {
     const cache = await caches.open(CACHE);
@@ -43,7 +46,24 @@ self.addEventListener('fetch', event => {
     if (event.request.mode === 'navigate') return (await cache.match(new URL('index.html', self.registration.scope))) || fetch(event.request);
     // These are our own immutable static assets. Ignore Vary: Origin from
     // static hosts: module scripts and precache requests send different Origin headers.
-    return (await cache.match(event.request, { ignoreVary: true })) || fetch(event.request);
+    const cached = await cache.match(event.request, { ignoreVary: true });
+    const rangeHeader = event.request.headers.get('Range');
+    if (cached && rangeHeader && url.pathname.endsWith('.mp3')) {
+      const content = await cached.arrayBuffer();
+      const range = parseByteRange(rangeHeader, content.byteLength);
+      const headers = new Headers(cached.headers);
+      headers.delete('Content-Encoding');
+      headers.set('Accept-Ranges', 'bytes');
+      if (!range) {
+        headers.set('Content-Range', 'bytes */' + content.byteLength);
+        headers.delete('Content-Length');
+        return new Response(null, { status: 416, headers });
+      }
+      headers.set('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + content.byteLength);
+      headers.set('Content-Length', String(range.end - range.start + 1));
+      return new Response(content.slice(range.start, range.end + 1), { status: 206, headers });
+    }
+    return cached || fetch(event.request);
   })());
 });
 `;
