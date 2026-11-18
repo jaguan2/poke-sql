@@ -5,6 +5,7 @@ import { EditorView, keymap } from "@codemirror/view";
 import { Prec } from "@codemirror/state";
 import { cancelQuery, checkChallenge, initDb, queryMystery, resetDb, runQuery, schemaForAutocomplete, startMystery } from "./db";
 import type { QueryResult, TableInfo } from "./db";
+import type { AchievementCatalog } from "./types";
 import { QueryResults } from "./components/QueryResults";
 import { Sidebar } from "./components/Sidebar";
 import { Settings } from "./components/Settings";
@@ -16,6 +17,8 @@ import type { MysteryRound } from "./mystery";
 import { createDailyMysteryRound, isDailyMysteryRound, utcDateKey } from "./daily-mystery";
 import type { DailyMysteryRound } from "./daily-mystery";
 import { useUtcDay } from "./use-utc-day";
+import { useEncounters } from "./use-encounters";
+import { PersonalPokedex } from "./components/PersonalPokedex";
 import type { SavedQuery } from "./components/Sidebar";
 import { CHALLENGES } from "./challenges";
 import { SAMPLE_QUERIES } from "./samples";
@@ -50,6 +53,8 @@ export default function App() {
   const [selection, setSelection] = useState<PracticeSelection>(null);
   const [randomMysteryRound, setRandomMysteryRound] = useState<MysteryRound | null>(() => readLocal("mystery-round", null, isMysteryRound));
   const [dailyMysteryRound, setDailyMysteryRound] = useState<DailyMysteryRound | null>(() => readLocal("daily-mystery-round", null, isDailyMysteryRound));
+  const [showPokedex, setShowPokedex] = useState(false);
+  const { encounters, saveError: encounterSaveError } = useEncounters(dailyMysteryRound, randomMysteryRound);
   const [mysteryMode, setMysteryMode] = useState<"daily" | "random">("daily");
   const today = useUtcDay();
   const mysteryRound = mysteryMode === "daily" ? dailyMysteryRound : randomMysteryRound;
@@ -60,6 +65,8 @@ export default function App() {
   const [runState, setRunState] = useState<RunState>({ status: "idle", message: "Choose a Get started prompt, write your own SQL, or try a challenge. Your work saves on this device." });
   const [schema, setSchema] = useState<TableInfo[]>([]);
   const [challengeSchema, setChallengeSchema] = useState<TableInfo[]>([]);
+  const [achievementCatalog, setAchievementCatalog] = useState<AchievementCatalog | null>(null);
+  const [datasetUpdateAvailable, setDatasetUpdateAvailable] = useState(false);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const [notice, setNotice] = useState<string | undefined>();
@@ -105,6 +112,8 @@ export default function App() {
     initDb().then(reply => {
       if (disposed) return;
       setSchema(reply.schema); setChallengeSchema(reply.challengeSchema ?? reply.schema); setNotice(reply.notice); setReady(true);
+      setAchievementCatalog(reply.achievementCatalog ?? null);
+      setDatasetUpdateAvailable(reply.datasetUpdateAvailable ?? false);
     }).catch(error => { if (!disposed) setLoadError((error as Error).message); });
     return () => { disposed = true; };
   }, []);
@@ -151,6 +160,7 @@ export default function App() {
 
   const executeRef = useRef(() => {});
   executeRef.current = () => {
+    if (showPokedex) return;
     if (isMystery) {
       if (!mysteryRound || mysterySolved(mysteryRound)) return;
       if (mysteryMode === "daily") {
@@ -169,6 +179,7 @@ export default function App() {
 
   const loadSql = (sql: string) => {
     if (busyRef.current) return;
+    setShowPokedex(false);
     setSelection(null); editQuery(sql, "sandbox");
     setRunState({ status: "idle", message: "Query loaded. Press Run when you are ready." });
   };
@@ -178,6 +189,7 @@ export default function App() {
     try {
       const reply = await resetDb();
       setSchema(reply.schema); setNotice(reply.notice);
+      if (!reply.error) setDatasetUpdateAvailable(false);
       setRunState(reply.error ? { status: "error", message: reply.error } : { status: "idle", message: "Database restored. Your SQL, saved queries, and challenge progress are still here." });
     } catch (error) { setRunState({ status: "error", message: (error as Error).message }); }
     finally { busyRef.current = false; setBusy(false); }
@@ -205,6 +217,7 @@ export default function App() {
 
   const openDailyMystery = () => {
     if (!ready || busyRef.current) return;
+    setShowPokedex(false);
     const date = utcDateKey();
     setSelection({ kind: "mystery" }); setMysteryMode("daily"); setNotice(undefined);
     if (dailyMysteryRound?.date !== date) {
@@ -216,9 +229,14 @@ export default function App() {
 
   const openRandomMystery = () => {
     if (!ready || busyRef.current) return;
+    setShowPokedex(false);
     setSelection({ kind: "mystery" }); setMysteryMode("random"); setNotice(undefined);
     setRunState({ status: "idle", message: "Random practice resumes your current round. Choose New Pokémon for a different target." });
     if (!randomMysteryRound) void handleNewMystery();
+  };
+
+  const openPokedex = () => {
+    if (!busyRef.current) setShowPokedex(true);
   };
 
   if (loadError) return <div className="load-screen"><h1>Could not load PokéSQL</h1><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Try again</button></div>;
@@ -240,31 +258,50 @@ export default function App() {
           if (!writeLocal("autocomplete", enabled)) setSettingsSaveError(true);
         }} />
       <div className="header-actions">
+        {showPokedex ? <>
+          <button className="btn btn-secondary" onClick={() => setShowPokedex(false)}>Back to workspace</button>
+          <button className="btn btn-primary" onClick={openDailyMystery}>Today's mystery</button>
+        </> : <>
         <button className="btn btn-secondary" disabled={busy} onClick={() => void handleReset()} title="Restore the original database; keeps saved SQL and progress">Reset DB</button>
         {busy ? <button className="btn btn-primary" onClick={() => cancelQuery()}>■ Stop query</button> : <button className="btn btn-primary" disabled={!query.trim() || (isMystery && (!mysteryRound || mysterySolved(mysteryRound)))} onClick={() => executeRef.current()}>{isMystery ? "Guess Pokémon" : challenge ? "Check answer" : "▶ Run"} <kbd>Ctrl+Enter</kbd></button>}
+        </>}
       </div>
     </header>
     <div className="body">
-      <Sidebar schema={editorSchema} busy={busy} history={history} saved={saved} completed={completed} activeChallenge={activeChallenge} activeSample={sample?.id ?? null} activeMystery={isMystery}
+      <Sidebar schema={editorSchema} busy={busy} history={history} saved={saved} completed={completed} activeChallenge={activeChallenge} activeSample={sample?.id ?? null} activeMystery={isMystery && !showPokedex}
+        pokedexCount={encounters.length} activePokedex={showPokedex} onPokedex={openPokedex}
         onMystery={openDailyMystery}
         onSample={id => {
+          setShowPokedex(false);
           setSelection({ kind: "sample", id }); setNotice(undefined);
           setRunState({ status: "idle", message: "Try the prompt above, reveal a hint, or explore a worked answer. Press Run when you are ready." });
         }} onLoadSql={loadSql}
+        onGuideSql={sql => {
+          if (busyRef.current) return;
+          setShowPokedex(false);
+          editQuery(sql); setNotice(undefined);
+          setRunState({ status: "idle", message: "SQL guide example loaded into your current editor. Submit it when you are ready." });
+        }}
         onPreviewSql={sql => {
           if (busyRef.current) return;
+          setShowPokedex(false);
           if (practice || isMystery) {
             editQuery(sql);
             setRunState({ status: "idle", message: isMystery ? "Query loaded. Narrow it to one Pokémon to make a guess." : challenge ? "Query loaded into your answer. Check it against the original database when you are ready." : "Query loaded. Press Run when you are ready." });
           } else { loadSql(sql); void execute(sql, { kind: "practice" }); }
         }}
-        onChallenge={id => { setSelection(id ? { kind: "challenge", id } : null); setNotice(undefined); setRunState({ status: "idle", message: id ? "Write your answer above, then check it. Column aliases may differ; return columns in the requested order." : "Free practice uses your saved database." }); }}
+        onChallenge={id => { setShowPokedex(false); setSelection(id ? { kind: "challenge", id } : null); setNotice(undefined); setRunState({ status: "idle", message: id ? "Write your answer above, then check it. Column aliases may differ; return columns in the requested order." : "Free practice uses your saved database." }); }}
         onDeleteSaved={id => { const next = saved.filter(item => item.id !== id); setSaved(next); persist("saved", next); }}
         onClearHistory={() => { setHistory([]); persist("history", []); }} />
-      <main className={`main${isMystery ? " mystery-workspace" : ""}`}>
+      <main className={`main${isMystery && !showPokedex ? " mystery-workspace" : ""}`}>
+        {showPokedex ? <PersonalPokedex encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} onDaily={openDailyMystery} onRandom={openRandomMystery} /> : <>
+        {datasetUpdateAvailable && !isMystery && !challenge && <div className="notice dataset-update" role="status">
+          <strong>New Pokédex fields and forms are available.</strong> Your saved practice database is an older version. Reset DB loads the update and replaces practice database edits. Your SQL drafts, saved queries, and progress stay saved.
+          <button className="btn" disabled={busy} onClick={() => void handleReset()}>Reset DB and load update</button>
+        </div>}
         {isMystery && <MysteryPanel round={mysteryRound} busy={busy} mode={mysteryMode} date={dailyMysteryRound?.date} today={today}
           onDaily={openDailyMystery} onRandom={openRandomMystery} onNew={() => void handleNewMystery()}
-          onLeave={() => { setSelection(null); setNotice(undefined); setRunState({ status: "idle", message: "Free practice uses your saved database. Your current mystery is waiting in Find that Pokémon." }); }} />}
+          onLeave={() => { setSelection(null); setNotice(undefined); setRunState({ status: "idle", message: "Free practice uses your saved database. Your current mystery is waiting in Who’s That Pokémon?" }); }} />}
         {practice && <section className="practice-panel" key={`${selection?.kind}:${practice.id}`} aria-label={challenge ? "Current challenge" : "Get started query"}>
           <div className="challenge-heading"><span className="eyebrow">{challenge?.topic ?? "Get started"}</span><button className="sample-btn" disabled={busy} onClick={() => { setSelection(null); setRunState({ status: "idle", message: "Free practice uses your saved database." }); }}>Back to free practice</button></div>
           <h2>{practice.title}</h2><p>{practice.prompt}</p>
@@ -278,11 +315,13 @@ export default function App() {
           <label className="sr-only" htmlFor="query-name">Query name</label><input id="query-name" value={queryName} onChange={event => setQueryName(event.target.value)} placeholder="Name this query…" maxLength={80} />
           <button className="btn" disabled={!queryName.trim() || !query.trim()}>Save query</button>
         </form>
-        <div className="editor-wrap"><CodeMirror className="sql-editor" value={query} onChange={onEditorChange} extensions={extensions} editable={!busy} theme="dark" height="100%" aria-label="SQL editor" basicSetup={editorSetup} /></div>
+        {/* Each draft owns its editor instance. A delayed controlled-value
+            update from the previous mode must not overwrite a new edit. */}
+        <div className="editor-wrap"><CodeMirror key={draftKey} className="sql-editor" value={query} onChange={onEditorChange} extensions={extensions} editable={!busy} theme="dark" height="100%" aria-label="SQL editor" basicSetup={editorSetup} /></div>
         <div className="results" aria-busy={busy}>
           <h2 className="results-heading">{isMystery ? "Mystery notebook" : "Query results"}</h2>
-          {isMystery && mysteryRound && <MysteryNotebook round={mysteryRound} daily={mysteryMode === "daily"} />}
-          {storageError && <p className="notice" role="status">This device could not save your SQL or progress. Keep a copy before closing.</p>}
+          {isMystery && mysteryRound && <MysteryNotebook round={mysteryRound} daily={mysteryMode === "daily"} onOpenPokedex={openPokedex} />}
+          {(storageError || encounterSaveError) && <p className="notice" role="status">This device could not save your SQL or progress. Keep a copy before closing.</p>}
           {notice && <p className="notice" role="status">{notice}</p>}
           {busy ? <p className="running-notice" role="status">Running SQL… You can stop it at any time. Queries time out after 8 seconds.</p> : <>
             {runState.status === "idle" && (isMystery ? <p className="mystery-idle">{runState.message}</p> : <div className="empty-state">
@@ -297,6 +336,7 @@ export default function App() {
             </>}
           </>}
         </div>
+        </>}
         <MusicPlayer />
         <footer className="workspace-status"><span>SQLite · stored on this device</span><span role="status">{offlineStatus}</span></footer>
       </main>

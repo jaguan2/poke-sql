@@ -15,9 +15,9 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
   onNew: () => void;
   onLeave: () => void;
 }) {
-  return <section className="practice-panel mystery-panel" aria-label="Find that Pokémon">
+  return <section className="practice-panel mystery-panel" aria-label="Who’s That Pokémon?">
     <div className="challenge-heading"><span className="eyebrow">SQL detective</span><button className="sample-btn" disabled={busy} onClick={onLeave}>Back to free practice</button></div>
-    <div className="mystery-heading"><h2>Find that Pokémon</h2>{mode === "random" && <button className="btn" disabled={busy} onClick={onNew}>New Pokémon</button>}</div>
+    <div className="mystery-heading"><h2>Who’s That Pokémon?</h2>{mode === "random" && <button className="btn" disabled={busy} onClick={onNew}>New Pokémon</button>}</div>
     <div className="mystery-modes" aria-label="Mystery mode">
       <button className="btn" aria-pressed={mode === "daily"} disabled={busy} onClick={onDaily}>Daily challenge</button>
       <button className="btn" aria-pressed={mode === "random"} disabled={busy} onClick={onRandom}>Random practice</button>
@@ -35,12 +35,12 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
   </section>;
 }
 
-function ClueCell({ value, clue, higher, lower }: { value: string; clue: NumberClue | TypeClue; higher?: string; lower?: string }) {
+function ClueCell({ label, value, clue, higher, lower }: { label: string; value: string; clue: NumberClue | TypeClue; higher?: string; lower?: string }) {
   const explanation = clue === "correct" ? "✓ Exact" : clue === "partial" ? "↔ Other slot" : clue === "higher" ? `↑ ${higher}` : clue === "lower" ? `↓ ${lower}` : "× No match";
-  return <td className={`mystery-clue clue-${clue}`}><strong>{value}</strong><span>{explanation}</span></td>;
+  return <td className={`mystery-clue clue-${clue}`}><span className="clue-label" aria-hidden="true">{label}</span><strong>{value}</strong><span>{explanation}</span></td>;
 }
 
-export function MysteryNotebook({ round, daily = false }: { round: MysteryRound; daily?: boolean }) {
+export function MysteryNotebook({ round, daily = false, onOpenPokedex }: { round: MysteryRound; daily?: boolean; onOpenPokedex: () => void }) {
   const notebook = useRef<HTMLElement>(null);
   useEffect(() => {
     if (round.guessCount > 0) notebook.current?.scrollIntoView({ block: "nearest" });
@@ -49,7 +49,7 @@ export function MysteryNotebook({ round, daily = false }: { round: MysteryRound;
   const latest = round.attempts[round.attempts.length - 1]?.feedback;
   const sharedTraits = latest && !latest.matched && [latest.type1, latest.type2, latest.generation, latest.height, latest.weight].every(clue => clue === "correct");
   return <section ref={notebook} className="mystery-notebook" aria-label="Mystery notebook">
-    {solved && <div className="reset-notice" role="status">You found {solved.feedback.pokemon.name} in {round.guessCount} guess{round.guessCount === 1 ? "" : "es"}! {daily ? "Daily challenge completed. Come back tomorrow or try Random practice." : "Choose New Pokémon to play again."}</div>}
+    {solved && <div className="reset-notice" role="status">You found {solved.feedback.pokemon.name} in {round.guessCount} guess{round.guessCount === 1 ? "" : "es"}! {daily ? "Daily challenge completed. Come back tomorrow or try Random practice." : "Choose New Pokémon to play again."}<div className="mystery-win-actions"><button className="btn" onClick={onOpenPokedex}>View Pokédex</button></div></div>}
     {sharedTraits && <p className="notice" role="status">All five traits match, but this is a different species. Keep looking for the hidden Pokémon.</p>}
     {round.attempts.length > 0 && <>
       <h3>Guess history <small>Newest first{round.guessCount > MYSTERY_HISTORY_LIMIT ? ` · latest ${MYSTERY_HISTORY_LIMIT}` : ""}</small></h3>
@@ -58,11 +58,11 @@ export function MysteryNotebook({ round, daily = false }: { round: MysteryRound;
           <tbody>{round.attempts.slice().reverse().map(({ sql, feedback }, index) => <tr key={round.guessCount - index}>
             <td className="mystery-pokemon"><div><img src={`${import.meta.env.BASE_URL}sprites/${feedback.pokemon.id}.png`} alt="" width={40} height={40} /><strong>{round.guessCount - index}. {feedback.pokemon.name}</strong></div>
               <details><summary>SQL used</summary><pre>{sql}</pre></details></td>
-            <ClueCell value={feedback.pokemon.type1} clue={feedback.type1} />
-            <ClueCell value={feedback.pokemon.type2 ?? "None"} clue={feedback.type2} />
-            <ClueCell value={`Gen ${feedback.pokemon.generationId}`} clue={feedback.generation} higher="Later" lower="Earlier" />
-            <ClueCell value={`${feedback.pokemon.heightM.toLocaleString()} m`} clue={feedback.height} higher="Taller" lower="Shorter" />
-            <ClueCell value={`${feedback.pokemon.weightKg.toLocaleString()} kg`} clue={feedback.weight} higher="Heavier" lower="Lighter" />
+            <ClueCell label="Type 1" value={feedback.pokemon.type1} clue={feedback.type1} />
+            <ClueCell label="Type 2" value={feedback.pokemon.type2 ?? "None"} clue={feedback.type2} />
+            <ClueCell label="Generation" value={`Gen ${feedback.pokemon.generationId}`} clue={feedback.generation} higher="Later" lower="Earlier" />
+            <ClueCell label="Height" value={`${feedback.pokemon.heightM.toLocaleString()} m`} clue={feedback.height} higher="Taller" lower="Shorter" />
+            <ClueCell label="Weight" value={`${feedback.pokemon.weightKg.toLocaleString()} kg`} clue={feedback.weight} higher="Heavier" lower="Lighter" />
           </tr>)}</tbody>
         </table>
       </div>

@@ -29,6 +29,35 @@ test('database integrity, samples, and challenge solutions', async () => {
   } finally { db.close(); }
 });
 
+test('popular Pokémon problems return their promised species, evolution stages, and type multipliers', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
+  const { SAMPLE_QUERIES } = await import('../src/samples');
+  const sample = (id: string) => runStatements(db, SAMPLE_QUERIES.find(query => query.id === id)!.sql, true)[0].values;
+  const challenge = (id: string) => runStatements(db, CHALLENGES.find(query => query.id === id)!.solution, true)[0].values;
+  try {
+    db.run('PRAGMA query_only = ON');
+    expect(challenge('charizard-profile')).toEqual([['Charizard', 'fire', 'flying', 534]]);
+    expect(sample('charizard-card')[0].filter(value => typeof value === 'number')).toEqual([78, 100, 534]);
+    expect(sample('pikachu-eevee').map(row => row[0])).toEqual(['Pikachu', 'Eevee']);
+    expect(sample('kanto-starter-showdown').map(row => row[0])).toEqual(['Charizard', 'Blastoise', 'Venusaur']);
+    expect(sample('heavier-than-snorlax')).toHaveLength(10);
+    expect(sample('heavier-than-snorlax').every(row => Number(row[1]) > 460)).toBe(true);
+    expect(sample('gengar-rivals').map(row => row[0])).toEqual(['Dragapult', 'Flutter Mane', 'Spectrier', 'Marshadow']);
+    const evolutions = sample('eevee-choices');
+    expect(evolutions.map(row => row[0]).sort()).toEqual(['Espeon', 'Flareon', 'Glaceon', 'Jolteon', 'Leafeon', 'Sylveon', 'Umbreon', 'Vaporeon']);
+    expect(evolutions[0][0]).toBe('Jolteon');
+    expect(sample('charizard-abilities')).toEqual([['Charizard', 'Blaze', 0], ['Charizard', 'Solar Power', 1]]);
+    expect(sample('dragonite-family')).toEqual([[1, 'Dratini'], [2, 'Dragonair'], [3, 'Dragonite']]);
+    expect(challenge('lucario-abilities')).toEqual([['Lucario', 'Inner Focus', 0], ['Lucario', 'Steadfast', 0], ['Lucario', 'Justified', 1]]);
+    expect(challenge('charizard-weaknesses')).toEqual([['rock', 4], ['electric', 2], ['water', 2]]);
+    const speedClub = challenge('pikachu-speed-club');
+    expect(speedClub).toHaveLength(5);
+    expect(speedClub[0]).toEqual(['Regieleki', 200]);
+    expect(speedClub.every(row => Number(row[1]) > 90)).toBe(true);
+  } finally { db.close(); }
+});
+
 test('grading respects duplicates, value types, NULLs, and explicit ordering', () => {
   const result = (values: (string | number | null)[][]) => [{ columns: ['alias'], values, truncated: false }];
   expect(matchesResults(result([[1], [2]]), result([[2], [1]]))).toBe(true);

@@ -1,4 +1,6 @@
-.music-player { flex-shrink: 0; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--panel-raised); }
+/* Anchor the hidden track label here so a long workspace cannot make the
+   document scroll outside its desktop shell. */
+.music-player { position: relative; flex-shrink: 0; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--panel-raised); }
 .music-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; }
 .music-heading { display: grid; gap: 3px; }
 .music-heading strong { font-size: 13px; color: var(--highlight); }

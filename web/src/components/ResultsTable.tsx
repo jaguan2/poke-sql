@@ -37,6 +37,11 @@ function badgeTextColor(hex: string): string {
   return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? "#000" : "#fff";
 }
 
+export function TypeBadge({ type }: { type: string }) {
+  const color = Object.prototype.hasOwnProperty.call(TYPE_COLORS, type) ? TYPE_COLORS[type] : undefined;
+  return color ? <span className="type-badge" style={{ backgroundColor: color, color: badgeTextColor(color) }}>{type}</span> : <span>{type}</span>;
+}
+
 function Cell({ column, value }: { column: string; value: SqlValue }) {
   if (value === null) return <span className="cell-null">NULL</span>;
   if (value instanceof Uint8Array) return <span className="cell-null">&lt;blob&gt;</span>;
@@ -48,15 +53,7 @@ function Cell({ column, value }: { column: string; value: SqlValue }) {
     return <img className="sprite" src={`${import.meta.env.BASE_URL}sprites/${sprite[1]}.png`} alt="" loading="lazy" width={48} height={48}
       onError={event => { const fallback = new URL(`${import.meta.env.BASE_URL}pokeball.svg`, location.href).href; if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback; }} />;
   }
-  const typeColor = column.toLowerCase().includes("type") && Object.prototype.hasOwnProperty.call(TYPE_COLORS, text)
-    ? TYPE_COLORS[text] : undefined;
-  if (typeColor) {
-    return (
-      <span className="type-badge" style={{ backgroundColor: typeColor, color: badgeTextColor(typeColor) }}>
-        {text}
-      </span>
-    );
-  }
+  if (column.toLowerCase().includes("type") && Object.prototype.hasOwnProperty.call(TYPE_COLORS, text)) return <TypeBadge type={text} />;
   return <span className={typeof value === "number" ? "cell-num" : undefined}>{text}</span>;
 }
 

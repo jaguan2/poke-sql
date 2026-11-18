@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { dailyPokemonForDate } from '../src/daily-mystery';
 
 async function openDaily(page: Page) {
-  await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+  await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Daily challenge', exact: true })).toHaveAttribute('aria-pressed', 'true');
 }
 
@@ -56,7 +56,7 @@ test('daily and random rounds keep independent drafts and progress, including of
   await edit(page, 'SELECT id FROM pokedex WHERE id = 6;');
   await page.getByRole('button', { name: 'Daily challenge', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText(`WHERE id = ${target};`);
-  await expect(page.getByRole('region', { name: 'Find that Pokémon', exact: true })).toContainText('1 guess');
+  await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('1 guess');
   await page.locator('.cm-editor').click();
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
@@ -69,7 +69,7 @@ test('daily and random rounds keep independent drafts and progress, including of
   await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('WHERE id = 6;');
-  await expect(page.getByRole('region', { name: 'Find that Pokémon', exact: true })).toContainText('1 guess');
+  await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('1 guess');
   await page.locator('.cm-editor').click();
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.getByText('You found Charizard in 2 guesses!', { exact: false })).toBeVisible();
@@ -95,7 +95,7 @@ test('midnight does not retarget an in-flight round and opening today resets onl
   expect(oldRound).toMatchObject({ date: '2026-11-17', targetId: target, guessCount: 1 });
   await openToday.click();
   await expect(page.locator('.mystery-date')).toContainText('2026-11-18');
-  await expect(page.getByRole('region', { name: 'Find that Pokémon', exact: true })).toContainText('0 guesses');
+  await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   await expect(page.locator('.mystery-table tbody tr')).toHaveCount(0);
   await expect(page.locator('.cm-content')).toContainText("WHERE name = 'Pikachu'");
   const newRound = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:daily-mystery-round')!));

@@ -1,8 +1,11 @@
 # PokéSQL 🔴⚪
 
 Practice real SQL with 1,025 Pokémon from Generations I–IX. Explore types,
-stats, evolutions, abilities, and the type-effectiveness chart in a web app
+stats, evolutions, Mega and regional forms, abilities, and the type-effectiveness chart in a web app
 or a Windows desktop application. No account, cloud database, or backend.
+
+See the [application screenshots](docs/screenshots/README.md) for desktop SQL
+practice, daily mysteries, collections, and achievements across all eight themes.
 
 ## Start the web app
 
@@ -40,7 +43,29 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
-- **Find that Pokémon:** a daily hidden species and a SQL guessing notebook.
+- **Mobile workspace:** one page scroll with Run and Stop in a sticky header.
+  **Tools & schema** expands the query browser, which folds away after a choice.
+  Mystery guesses become cards with all five clues visible; wide SQL results
+  retain horizontal scrolling. Long SQL scripts scroll inside the editor.
+- **SQL guide:** an expandable SQLite reference below the schema browser, from
+  SELECT and filtering through joins, grouping, NULLs, CTEs, and window functions.
+  **Load example** fills the current editor without running SQL or checking an
+  answer. On phones, open **Tools & schema** to browse the guide.
+- **My Pokédex:** a personal collection of Pokémon found by solving daily and
+  random mysteries. Each species has one entry with its sprite, types, generation,
+  height, weight, first registration date (UTC), best guess count, and discovery
+  modes. Search by name or Dex number, filter by generation, or sort your finds.
+  The collection saves separately from the practice database and survives new
+  rounds, offline reloads, and Reset DB. Currently saved solved rounds are imported
+  automatically; their registration date is when they enter the collection.
+- **Achievements:** open **My Pokédex → Achievements** for overall, generation,
+  and type collections, such as **12 / 151 Gen 1** or **5 / 81 Fire types**.
+  Generation milestones unlock at 10, 25, 50, 100, and full completion; type
+  milestones start at 5. Goals beyond a collection's size are omitted. Counts
+  use unique discovered species, with dual types progressing both collections.
+  Existing discoveries count automatically, and progress works offline. Goal
+  totals come from the original bundled database, independent of practice edits.
+- **Who’s That Pokémon?** A daily hidden species and a SQL guessing notebook.
   Everyone using the same app version gets the same Pokémon for a UTC date;
   the next challenge becomes available at **00:00 UTC**. The fixed shuffled
   schedule visits all 1,025 species before repeating, so no calendar year has
@@ -76,18 +101,29 @@ profile, so moving the EXE does not move your saved work.
   saves on this device; accepting a suggestion does not execute SQL.
 - **SQL editor:** SQLite syntax highlighting, schema autocomplete,
   Ctrl+Enter / Cmd+Enter, and multiple statements.
-- **Get started:** 11 specific prompts, including the top 10 Pokémon by HP,
-  all Gen 1 Pokémon, and all Fire types from Gen 2. Each has a SQL hint and
-  worked answers with alternative approaches. Selecting a prompt, revealing
+- **Get started:** 25 specific prompts, including Charizard's Pokédex card,
+  Pikachu and Eevee, a Kanto starter comparison, Eevee's evolutions, and
+  Dragonite's family tree, alongside broader Pokédex queries. Each has a SQL hint and
+  worked answers, with alternative approaches for many problems. New examples
+  cover Mega counts, regional variants, evolution stages, capture rates, and
+  Charizard's default and Mega stats. Selecting a prompt, revealing
   an answer, or loading it into the editor never runs SQL automatically.
-- **Challenges:** eight guided exercises with hints, result checking, and saved
+- **Challenges:** fifteen guided exercises with hints, result checking, and saved
   completion progress. Answers use a fresh copy of the original Pokédex.
   Reveal **Hint** for a SQL fragment or **Answer** for worked solutions.
   **Use this answer** loads the chosen approach; only **Check answer** grades it.
+  New Pokémon-focused tasks include Charizard's profile and dual-type weaknesses,
+  Pikachu's speed club, Lucario's full ability list, Kanto's Mega roster,
+  baby evolution stages, and Mega Charizard's changing types.
 - **Saved work:** separate editor drafts for free practice and each challenge,
   named queries, and the last 30 distinct query runs.
 - **Database saves:** completed changes persist locally in IndexedDB. Reset DB
   restores and saves the original database, keeping your SQL and progress.
+  Older saved databases stay intact after an app update. A notice offers
+  **Reset DB and load update** to load new fields and forms; this explicitly
+  replaces practice database edits while keeping drafts, saved queries,
+  challenge progress, and your personal Pokédex. Challenges and mysteries
+  always use the latest bundled original data.
 - **Responsive execution:** SQL runs in a Web Worker. Stop interrupts a query;
   an eight-second timeout also catches expensive queries. Recovery restores the
   last completed snapshot, discarding unsaved changes from the interrupted run.
@@ -128,6 +164,30 @@ development mode does not install a service worker. When an update is ready,
 close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
+
+`pokemon` and the beginner-friendly `pokedex` view still contain exactly one
+row per species (1,025). Both expose `has_mega_evolution`, `mega_form_count`,
+`has_regional_form`, `evolution_stage`, and `can_evolve`. The view also exposes
+`capture_rate`, `color`, `habitat`, `is_baby`, `genus`, `base_happiness`,
+`base_experience`, and `evolves_from_id` alongside its original columns.
+
+`pokemon_forms` holds 1,579 linked form records with names, stats, dimensions,
+Mega/regional flags, and introduction information. Join its `species_id` to
+`pokemon.id`; form IDs and `source_pokemon_id` identify different source records.
+Use `pokemon_form_types` and `pokemon_form_abilities` for form-specific joins.
+`pokemon.generation_id` means species debut; `introduced_generation_id` and
+`introduced_version_group` describe the form's introduction. Stats and abilities
+are inherited from the source Pokémon variety; types include source form overrides.
+Only the 18 canonical types are linked; the historical unknown Arceus form has
+no canonical type link. Species sprites remain the bundled default sprites.
+
+Evolution stages start at 1 and include baby species. `can_evolve` follows
+species links, including regional-only branches; it does not promise that every
+form can evolve in every game. Mega transformations do not add an evolution
+stage. Regional flags include named Alolan, Galarian, Hisuian, and Paldean forms,
+excluding region-themed costumes such as Pikachu's Alola cap. `capture_rate`
+is a catch-rate parameter, not a percentage. Missing habitats remain NULL.
+Form metadata comes from [PokéAPI's form data](https://pokeapi.co/docs/v2/#pokemon-forms).
 
 Poké Radio bundles unchanged MP3 arrangements by halc, Emunator, and NoTuX
 (formerly Blue Magic), from [OverClocked ReMix](https://ocremix.org).

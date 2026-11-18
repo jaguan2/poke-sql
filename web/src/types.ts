@@ -31,6 +31,11 @@ export interface MysteryGuess {
   height: NumberClue;
   weight: NumberClue;
 }
+export interface AchievementCatalog {
+  speciesCount: number;
+  generations: { id: number; name: string; region: string; total: number }[];
+  types: { name: string; total: number }[];
+}
 export interface DbReply {
   schema: TableInfo[];
   challengeSchema?: TableInfo[];
@@ -42,6 +47,8 @@ export interface DbReply {
   ms?: number;
   mysteryTargetId?: number;
   mysteryGuess?: MysteryGuess;
+  achievementCatalog?: AchievementCatalog;
+  datasetUpdateAvailable?: boolean;
 }
 export type DbRequest =
   | { action: "init"; original: Uint8Array; saved?: Uint8Array }

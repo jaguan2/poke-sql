@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { CHALLENGES } from '../src/challenges';
 
 async function loadDirectAnswer(page: Page) {
   await page.getByText('Answer', { exact: true }).click();
@@ -64,7 +65,7 @@ test('challenge alternative answers are revealable, load without grading, and pa
   await page.getByText('Answer', { exact: true }).click();
   await page.getByRole('article', { name: 'Using OR conditions' }).getByRole('button', { name: 'Use this answer' }).click();
   await expect(page.locator('.cm-content')).toContainText("OR name = 'Charmander'");
-  await expect(page.getByText('Training · 0/8 complete', { exact: true })).toBeVisible();
+  await expect(page.getByText(`Training · 0/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await page.getByRole('button', { name: /Check answer/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
@@ -85,5 +86,58 @@ test('worked answers and their controls stay usable on desktop and mobile', asyn
     await expect(page.locator('.cm-content')).toContainText('ROW_NUMBER() OVER');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     await page.screenshot({ path: testInfo.outputPath(`worked-answer-${width}.png`), fullPage: true });
+  }
+});
+
+test('Charizard lookup loads without running and shows its sprite on desktop and mobile', async ({ page }, testInfo) => {
+  await page.getByRole('button', { name: "Charizard's Pokédex card", exact: true }).click();
+  await page.getByText('Hint', { exact: true }).click();
+  await expect(page.locator('.query-help pre:visible')).toHaveText("WHERE name = 'Charizard'");
+  await loadDirectAnswer(page);
+  await expect(page.locator('.cm-content')).toContainText("WHERE name = 'Charizard'");
+  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await expect(page.locator('tbody tr')).toHaveCount(1);
+  await expect(page.getByRole('cell', { name: 'Charizard', exact: true })).toBeVisible();
+  await expect(page.locator('.type-badge')).toHaveText(['fire', 'flying']);
+  await expect.poll(() => page.locator('img.sprite').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth === 96)).toBe(true);
+  await page.getByText('Hint', { exact: true }).click();
+  await page.getByText('Answer', { exact: true }).click();
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.getByRole('region', { name: 'Query results', exact: true }).scrollIntoViewIfNeeded();
+    await expect(page.locator('img.sprite')).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await page.screenshot({ path: testInfo.outputPath(`charizard-card-${width}.png`) });
+  }
+});
+
+test('new popular Pokémon challenges grade correctly and retain existing completion', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('pokesql:completed', JSON.stringify(['fast-ghosts'])));
+  await page.reload();
+  await page.getByRole('button', { name: 'Challenges', exact: true }).click();
+  await expect(page.getByRole('button', { name: /✓\. Ghost race/ })).toBeVisible();
+  await page.getByRole('button', { name: /Meet Charizard/ }).click();
+  await loadDirectAnswer(page);
+  await expect(page.getByText(`Training · 1/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Check answer/ }).click();
+  await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
+  await page.getByRole('button', { name: /Charizard's type weaknesses/ }).click();
+  await page.locator('.cm-content').focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.insertText("SELECT 'rock', 2 UNION ALL SELECT 'electric', 2 UNION ALL SELECT 'water', 2;");
+  await page.getByRole('button', { name: /Check answer/ }).click();
+  await expect(page.getByText('Not quite yet.', { exact: false })).toBeVisible();
+  await expect(page.getByText(`Training · 2/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
+  await page.getByText('Answer', { exact: true }).click();
+  await page.getByRole('article', { name: 'Naming each defense with a CTE' }).getByRole('button', { name: 'Use this answer' }).click();
+  await expect(page.locator('tbody tr')).toHaveCount(0);
+  await page.getByRole('button', { name: /Check answer/ }).click();
+  await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
+  await expect(page.locator('tbody tr').first().locator('td')).toHaveText(['rock', '4']);
+  await expect(page.getByText(`Training · 3/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Challenges', exact: true }).click();
+  for (const name of [/✓\. Ghost race/, /✓\. Meet Charizard/, /✓\. Charizard's type weaknesses/]) {
+    await expect(page.getByRole('button', { name })).toBeVisible();
   }
 });

@@ -51,9 +51,12 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await expect(page.locator('tbody tr').first()).toContainText('Blissey');
     await page.getByRole('button', { name: 'Back to free practice' }).click();
     await page.locator('.cm-content').click(); await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText('SELECT name, sprite_url FROM pokedex WHERE id = 25;');
+    await page.keyboard.insertText(`SELECT p.name, p.sprite_url, p.mega_form_count,
+      (SELECT COUNT(*) FROM pokemon_forms f WHERE f.species_id=p.id AND f.is_mega=1) AS linked_megas
+      FROM pokedex p WHERE p.id=6;`);
     await page.getByRole('button', { name: /▶ Run/ }).click();
-    await expect(page.getByRole('cell', { name: 'Pikachu', exact: true })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Charizard', exact: true })).toBeVisible();
+    await expect(page.getByRole('cell', { name: '2', exact: true })).toHaveCount(2);
     await expect.poll(() => page.locator('img.sprite').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth === 96)).toBe(true);
     // Hidden packaged windows may not produce compositor frames for screenshots.
     // Browser layout tests capture the shared frontend; this checks the shell.
@@ -117,7 +120,7 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
     await page.evaluate(() => localStorage.setItem('pokesql:mystery-round', JSON.stringify({ targetId: 6, guessCount: 0, attempts: [] })));
     await page.reload();
-    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     const dailyTarget = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:daily-mystery-round')!).targetId);
     await page.locator('.cm-editor').click();
     await page.keyboard.press('ControlOrMeta+A');
@@ -125,7 +128,7 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
     await page.reload();
-    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
     await page.getByRole('button', { name: 'Random practice', exact: true }).click();
     await page.locator('.cm-editor').click();
@@ -134,7 +137,7 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.getByRole('button', { name: /Guess Pokémon/ }).click();
     await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toContainText('↑ Taller');
     await page.reload();
-    await page.getByRole('button', { name: 'Find that Pokémon', exact: true }).click();
+    await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     await page.getByRole('button', { name: 'Random practice', exact: true }).click();
     await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toBeVisible();
     await page.locator('.cm-editor').click();
@@ -142,6 +145,19 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.keyboard.insertText('SELECT id FROM pokedex WHERE id = 6');
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('You found Charizard in 2 guesses!', { exact: false })).toBeVisible();
+    await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+    await expect(page.locator('.encounter-card')).toHaveCount(new Set([dailyTarget, 6]).size);
+    await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toBeVisible();
+    await page.reload();
+    await page.getByRole('button', { name: /^My Pokédex/ }).click();
+    await expect(page.locator('.encounter-card')).toHaveCount(new Set([dailyTarget, 6]).size);
+    await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toContainText('Random practice');
+    await page.getByRole('button', { name: /^Achievements/ }).click();
+    await expect(page.getByRole('article', { name: 'Gen 1 · Kanto', exact: true }).getByRole('progressbar')).toHaveAttribute('max', '151');
+    await page.getByRole('button', { name: 'Types', exact: true }).click();
+    const fireProgress = page.getByRole('article', { name: 'Fire collector', exact: true }).getByRole('progressbar');
+    await expect(fireProgress).toHaveAttribute('max', '81');
+    expect(Number(await fireProgress.getAttribute('value'))).toBeGreaterThanOrEqual(1);
     expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe('undefined');
   } finally {
     try { await app?.close(); }

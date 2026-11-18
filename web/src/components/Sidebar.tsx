@@ -1,7 +1,8 @@
 import type { TableInfo } from "../db";
 import { SAMPLE_QUERIES } from "../samples";
 import { CHALLENGES } from "../challenges";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { SqlGuide } from "./SqlGuide";
 
 export interface SavedQuery { id: string; name: string; sql: string }
 
@@ -9,6 +10,7 @@ interface SidebarProps {
   schema: TableInfo[];
   onSample: (id: string) => void;
   onPreviewSql: (sql: string) => void;
+  onGuideSql: (sql: string) => void;
   onLoadSql: (sql: string) => void;
   onChallenge: (id: string | null) => void;
   completed: string[];
@@ -21,23 +23,40 @@ interface SidebarProps {
   busy: boolean;
   activeMystery: boolean;
   onMystery: () => void;
+  pokedexCount: number;
+  activePokedex: boolean;
+  onPokedex: () => void;
 }
 
-export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy, activeMystery, onMystery }: SidebarProps) {
+export function Sidebar({ schema, onSample, onPreviewSql, onGuideSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy, activeMystery, onMystery, pokedexCount, activePokedex, onPokedex }: SidebarProps) {
   const [tab, setTab] = useState("Explore");
+  const [expanded, setExpanded] = useState(false);
+  const toolsToggle = useRef<HTMLButtonElement>(null);
+  const choose = (action: () => void) => {
+    action();
+    setExpanded(false);
+    // The mobile browser folds away after a choice. Keep keyboard focus on
+    // its disclosure instead of leaving it inside the now-hidden content.
+    if (toolsToggle.current?.getClientRects().length) toolsToggle.current.focus();
+  };
   return (
     <aside className="sidebar">
-      <button className="mystery-entry" aria-pressed={activeMystery} disabled={busy} onClick={onMystery}>Find that Pokémon</button>
+      <div className="sidebar-actions">
+        <button className="mystery-entry" aria-pressed={activeMystery} disabled={busy} onClick={() => choose(onMystery)}>Who’s That Pokémon?</button>
+        <button className="sidebar-toggle" ref={toolsToggle} aria-expanded={expanded} aria-controls="practice-browser" onClick={() => setExpanded(value => !value)}>Tools &amp; schema <span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
+      </div>
+      <button className="pokedex-entry" aria-pressed={activePokedex} disabled={busy} onClick={() => choose(onPokedex)}>My Pokédex <span>{pokedexCount} found</span></button>
       <nav className="sidebar-tabs" aria-label="Practice tools">
-        {["Explore", "Challenges", "History", "Saved"].map(name => <button key={name} className={tab === name ? "active" : ""} onClick={() => setTab(name)} aria-pressed={tab === name}>{name}</button>)}
+        {["Explore", "Challenges", "History", "Saved"].map(name => <button key={name} className={tab === name ? "active" : ""} onClick={() => { setTab(name); setExpanded(true); }} aria-pressed={tab === name}>{name}</button>)}
       </nav>
+      <div id="practice-browser" className={`sidebar-content${expanded ? " is-expanded" : ""}`}>
       {tab === "Explore" &&
       <section>
         <h2>Get started</h2>
         <ul className="sample-list">
           {SAMPLE_QUERIES.map((q) => (
             <li key={q.id}>
-              <button className={`sample-btn ${activeSample === q.id ? "selected" : ""}`} aria-pressed={activeSample === q.id} disabled={busy} onClick={() => onSample(q.id)}>
+              <button className={`sample-btn ${activeSample === q.id ? "selected" : ""}`} aria-pressed={activeSample === q.id} disabled={busy} onClick={() => choose(() => onSample(q.id))}>
                 {q.title}
               </button>
             </li>
@@ -47,8 +66,8 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
       }
       {tab === "Challenges" && <section>
         <h2>Training · {completed.filter(id => CHALLENGES.some(c => c.id === id)).length}/{CHALLENGES.length} complete</h2>
-        <button className="sample-btn" disabled={busy} onClick={() => onChallenge(null)}>← Free practice</button>
-        {CHALLENGES.map((challenge, index) => <button key={challenge.id} disabled={busy} className={`challenge-link ${activeChallenge === challenge.id ? "selected" : ""}`} onClick={() => onChallenge(challenge.id)}>
+        <button className="sample-btn" disabled={busy} onClick={() => choose(() => onChallenge(null))}>← Free practice</button>
+        {CHALLENGES.map((challenge, index) => <button key={challenge.id} disabled={busy} className={`challenge-link ${activeChallenge === challenge.id ? "selected" : ""}`} onClick={() => choose(() => onChallenge(challenge.id))}>
           <span>{completed.includes(challenge.id) ? "✓" : index + 1}. {challenge.title}</span><small>{challenge.topic}</small>
         </button>)}
       </section>}
@@ -56,14 +75,14 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
         <h2>Last 30 runs</h2>
         <p className="sidebar-note">Select a query to load it into free practice.</p>
         {history.length === 0 && <p className="sidebar-note">Your executed SQL will appear here.</p>}
-        {history.map((sql, i) => <button key={i} disabled={busy} className="history-query" title={sql} onClick={() => onLoadSql(sql)}>{sql}</button>)}
+        {history.map((sql, i) => <button key={i} disabled={busy} className="history-query" title={sql} onClick={() => choose(() => onLoadSql(sql))}>{sql}</button>)}
         {history.length > 0 && <button className="sample-btn" onClick={onClearHistory}>Clear history</button>}
       </section>}
       {tab === "Saved" && <section>
         <h2>Saved queries</h2>
         {saved.length === 0 && <p className="sidebar-note">Give your SQL a name above the editor, then save it here.</p>}
         {saved.map(item => <div className="saved-query" key={item.id}>
-          <button className="sample-btn" disabled={busy} onClick={() => onLoadSql(item.sql)}>{item.name}</button>
+          <button className="sample-btn" disabled={busy} onClick={() => choose(() => onLoadSql(item.sql))}>{item.name}</button>
           <button className="remove-query" aria-label={`Delete ${item.name}`} onClick={() => onDeleteSaved(item.id)}>×</button>
         </div>)}
       </section>}
@@ -82,7 +101,7 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
               className="preview-btn"
               disabled={busy}
               title={activeMystery ? "Load this query into the mystery editor" : activeChallenge ? "Load this query into your challenge answer" : "Preview this table"}
-              onClick={() => onPreviewSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`)}
+              onClick={() => choose(() => onPreviewSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`))}
             >
               ▶ SELECT * FROM {t.name}
             </button>
@@ -100,6 +119,8 @@ export function Sidebar({ schema, onSample, onPreviewSql, onLoadSql, onChallenge
           </details>
         ))}
       </section>
+      <SqlGuide busy={busy} onUseExample={sql => choose(() => onGuideSql(sql))} />
+      </div>
     </aside>
   );
 }

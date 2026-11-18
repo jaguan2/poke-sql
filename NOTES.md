@@ -1,5 +1,109 @@
 # Design notes
 
+## Species metadata and forms (2026-11-18)
+
+The rebuilt artifact keeps 1,025 rows in `pokemon` and `pokedex`, and adds
+1,579 form records in `pokemon_forms`. Species rows summarize Mega availability,
+Mega form count, regional availability, evolution stage and whether a child
+species exists. The view appends those fields plus existing capture rate, color,
+habitat, baby status, genus, happiness, experience and evolution parent ID;
+its original column order is preserved. The catalog has 25 samples and 15
+challenges, including Mega Charizard stats/types and baby evolution stages.
+
+Forms link to a species and retain both their source form ID and source Pokémon
+variety ID. Names use English form names; stats, dimensions and abilities come
+from the variety. `pokemon_form_types` applies source form-specific overrides
+for Arceus and Silvally before falling back to variety types. The unknown Arceus
+form has no canonical type link; unsupported types never become Normal. Form
+abilities are normalized through `pokemon_form_abilities`. Only default species
+sprites are bundled; form rows do not introduce runtime sprite downloads.
+
+`pokemon.generation_id` is the species debut, while form introduction comes from
+the form's version group and its generation. Charizard is Gen 1; Mega Charizard
+X/Y debuted in Gen 6. Mega status uses the source flag, not name matching;
+Gigantamax is not Mega. Named Alola/Galar/Hisui/Paldea variants are explicitly
+classified, including Galarian Darmanitan's modes and Paldean Tauros breeds.
+Pikachu's Alola-cap costume is deliberately excluded from regional status.
+
+Evolution stages start at the root species (1), include babies (Pichu 1,
+Pikachu 2, Raichu 3), and reject broken/cyclic parent links. `can_evolve` follows
+the species tree, including regional-only branches such as Farfetch'd and
+Linoone; it is not a promise about every form or game's evolution conditions.
+Mega transformations do not affect this tree. Capture rate is a catch-rate
+parameter, not a complete probability, and missing habitats remain NULL.
+
+Schema revision 1 is stored in `PRAGMA user_version`. Loading an older saved
+workspace preserves its edits and offers an explicit reset/update notice in
+practice mode. Reset replaces practice data with the new original but keeps
+SQL, challenge progress and discoveries. New challenges/mysteries and achievement
+goals always read the original dataset. The builder writes a partial artifact,
+checks integrity and foreign keys, then replaces the committed database only
+after success. `python -m unittest scripts.test_build_db -v` covers bad evolution
+links and preserving the previous artifact on a failed build.
+
+Sources: [PokéAPI forms documentation](https://pokeapi.co/docs/v2/#pokemon-forms),
+[form records](https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_forms.csv),
+[form types](https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_form_types.csv),
+and [version groups](https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/version_groups.csv).
+
+## Collection achievements (2026-11-18)
+
+My Pokédex has Collection and Achievements views. Achievements project the saved
+encounters into national, generation, and type tracks, deduplicating by species
+ID and counting both distinct type slots. There is no second achievement save
+to migrate or synchronize. Imported discoveries and offline reloads retain the
+same earned milestones; search and generation filters do not affect totals.
+
+During worker initialization, `readAchievementCatalog` reads generation and
+distinct per-type totals from the original bundled database, before closing that
+connection. The initializer returns this metadata alongside the original schema.
+Practice SQL and saved database mutations therefore cannot change achievement
+goals. Generation membership comes from PokeAPI's species `generation_id`, rather
+than evolution families or regional Pokédex availability. Gen 1 has 151 species;
+the current default-form dataset has 81 Fire-type species across either slot.
+Source: [PokéAPI species CSV](https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_species.csv).
+
+National milestones are 1, 10, 25, 50, 100, 250, 500, and completion. Generation
+tracks use 10, 25, 50, 100, and completion; type tracks use 5, 10, 25, 50, 100,
+and completion. Duplicate or unattainable goals are removed. The UI shows the
+full collection denominator, earned milestones, and the next reachable target.
+
+## Personal Pokédex (2026-11-18)
+
+Solved daily and random mysteries register their original, canonical target in
+`pokesql:encounters`. Intermediate guesses and research results do not register
+Pokémon. Entries are unique by National Dex ID, retain their first registration
+timestamp, merge discovery modes, and keep the lowest known guess count.
+Reprocessing a saved win is idempotent. The collection is separate from the SQL
+database, so edits, resets, and replacement mystery rounds cannot erase it.
+
+The latest saved solved rounds are imported at startup. Their original completion
+timestamps were not stored; the journal records when they were registered. Older
+overwritten rounds cannot be reconstructed. The collection is local to the
+browser or desktop profile, like the rest of the workspace.
+
+The collection view preserves the underlying workspace and never submits its
+draft. Cards use stored canonical traits and bundled sprites. Filters and 24-card
+pages bound the rendered list, while mobile keeps document scrolling. Each SQL
+draft has its own CodeMirror instance to prevent delayed value updates crossing
+between daily, random, sample, and challenge editors.
+
+## Familiar Pokémon practice problems (2026-11-17)
+
+The catalog now contains 19 Get started prompts and 12 graded challenges.
+Eight new examples use Charizard, Pikachu, Eevee, the final Kanto starters,
+Snorlax, Gengar, and Dragonite to introduce lookups, comparisons, joins, and
+recursive evolution queries. Four new challenges cover Charizard's profile and
+dual-type weaknesses, Pokémon faster than Pikachu, and Lucario's abilities.
+Charizard's type-chart multipliers combine both defending types and deliberately
+exclude abilities and other battle conditions.
+
+Existing exercise IDs remain unchanged, preserving saved drafts and completion.
+Each new prompt has a hint, a worked answer, and an alternative approach;
+selecting or revealing them never executes SQL. All examples and alternatives
+are checked against the original database, with fixed expected results for key
+Pokémon examples in the engine tests.
+
 ## Daily mystery schedule (2026-11-17)
 
 The default mystery is shared by UTC date and works without a backend. Schedule
@@ -20,7 +124,7 @@ refresh detects a new UTC date, but never retargets an open or running round.
 The user can finish that round or explicitly open today's challenge. Reload
 opens the current UTC day when the mystery is selected and never replays SQL.
 
-## Find that Pokémon (2026-11-17)
+## Who’s That Pokémon? (2026-11-17)
 
 The random mystery mode uses SQL as the guessing interface: exactly one returned
 Pokémon id or name submits a guess; broader results remain available for research.
@@ -86,7 +190,7 @@ implemented as follows:
   test output. The dependency audit was clean after updating nanoid.
 
 Remaining ideas: more challenge content,
-database import/export, native mobile packaging, and additional forms/moves.
+database import/export, native mobile packaging, alternate-form sprites, and moves.
 No signing certificate or automatic app updater is configured. The Vite build
 still reports a large editor bundle warning; it is pre-cached for offline use.
 
@@ -152,11 +256,10 @@ benefit — this is a text-and-tables app, perfect webview material.
 
 ## Schema decisions
 
-- **Default forms only** (ids < 10000, `is_default = 1`): keeps `pokemon.id`
+- **Default forms in the species table** (ids < 10000, `is_default = 1`): keeps `pokemon.id`
   equal to the National Dex number, which is the mental model everyone has.
-  Alternate forms (Megas, Alolan/Galarian, Deoxys forms…) would break the
-  1-row-per-dex-number invariant; if added later they should be a separate
-  `pokemon_forms` table.
+  Alternate forms (Megas, Alolan/Galarian, Deoxys forms…) live in the separate
+  `pokemon_forms` table to preserve the 1-row-per-dex-number invariant.
 - **Wide stats, normalized relationships** (the key tension): a fully
   normalized `pokemon_stats(pokemon_id, stat_id, value)` table is better pivot
   practice but miserable for casual browsing. Wide won. If pivot practice is

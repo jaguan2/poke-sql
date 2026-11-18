@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Python ETL/test bytecode
+__pycache__/
+*.pyc
+
 # Build output
 web/dist/
 web/release/

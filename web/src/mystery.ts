@@ -78,6 +78,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> => !!value &
 const isPositiveInteger = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 const isMeasurement = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0;
 
+export function isMysteryPokemon(value: unknown): value is MysteryPokemon {
+  return isRecord(value) && isPositiveInteger(value.id) && typeof value.name === "string" && typeof value.type1 === "string"
+    && (value.type2 === null || typeof value.type2 === "string") && isPositiveInteger(value.generationId)
+    && isMeasurement(value.heightM) && isMeasurement(value.weightKg);
+}
+
 // localStorage is untrusted input. Reject malformed rounds before rendering
 // their nested clues, while keeping the rest of the workspace usable.
 export function isMysteryRound(value: unknown): value is MysteryRound | null {
@@ -88,9 +94,7 @@ export function isMysteryRound(value: unknown): value is MysteryRound | null {
     if (!isRecord(attempt) || typeof attempt.sql !== "string" || attempt.sql.length > 100_000 || !isRecord(attempt.feedback)) return false;
     const feedback = attempt.feedback;
     const pokemon = feedback.pokemon;
-    return isRecord(pokemon) && isPositiveInteger(pokemon.id) && typeof pokemon.name === "string" && typeof pokemon.type1 === "string"
-      && (pokemon.type2 === null || typeof pokemon.type2 === "string") && isPositiveInteger(pokemon.generationId)
-      && isMeasurement(pokemon.heightM) && isMeasurement(pokemon.weightKg) && typeof feedback.matched === "boolean"
+    return isMysteryPokemon(pokemon) && typeof feedback.matched === "boolean"
       && [feedback.type1, feedback.type2].every(clue => clue === "correct" || clue === "partial" || clue === "wrong")
       && [feedback.generation, feedback.height, feedback.weight].every(clue => clue === "correct" || clue === "higher" || clue === "lower");
   });

@@ -27,6 +27,10 @@ CSV_FILES = [
     "pokemon.csv",
     "pokemon_species.csv",
     "pokemon_species_names.csv",
+    "pokemon_forms.csv",
+    "pokemon_form_names.csv",
+    "pokemon_form_types.csv",
+    "version_groups.csv",
     "pokemon_stats.csv",
     "pokemon_types.csv",
     "types.csv",
@@ -49,6 +53,36 @@ ROMAN = {
     "i": "I", "ii": "II", "iii": "III", "iv": "IV", "v": "V",
     "vi": "VI", "vii": "VII", "viii": "VIII", "ix": "IX", "x": "X",
 }
+
+# Named regional variants only. Pikachu's alola-cap is a costume, not an
+# Alolan regional form; matching arbitrary region-name prefixes is incorrect.
+REGIONAL_FORMS = {
+    "alola": "Alola",
+    "galar": "Galar", "galar-standard": "Galar", "galar-zen": "Galar",
+    "hisui": "Hisui",
+    "paldea": "Paldea", "paldea-combat-breed": "Paldea",
+    "paldea-blaze-breed": "Paldea", "paldea-aqua-breed": "Paldea",
+}
+
+
+def evolution_metadata(species_rows: list[dict]) -> dict[str, tuple[int, int]]:
+    """Species-tree depth, including babies, and whether any species evolves from it."""
+    parents = {row["id"]: row["evolves_from_species_id"] for row in species_rows}
+    children = {parent for parent in parents.values() if parent}
+    stages: dict[str, int] = {}
+    visiting: set[str] = set()
+
+    def stage(species_id: str) -> int:
+        if species_id in visiting:
+            raise ValueError(f"Evolution cycle at species {species_id}")
+        if species_id not in stages:
+            visiting.add(species_id)
+            parent = parents[species_id]
+            stages[species_id] = 1 + stage(parent) if parent else 1
+            visiting.remove(species_id)
+        return stages[species_id]
+
+    return {species_id: (stage(species_id), int(species_id in children)) for species_id in parents}
 
 
 def download_csvs(refresh: bool) -> None:
@@ -80,6 +114,8 @@ def num(value: str):
 
 
 SCHEMA = """
+PRAGMA user_version = 1;
+
 CREATE TABLE generations (
     id      INTEGER PRIMARY KEY,
     name    TEXT NOT NULL,   -- e.g. 'Generation I'
@@ -133,7 +169,12 @@ CREATE TABLE pokemon (
     is_mythical      INTEGER NOT NULL DEFAULT 0,
     is_baby          INTEGER NOT NULL DEFAULT 0,
     evolves_from_id  INTEGER REFERENCES pokemon(id),
-    sprite_url       TEXT
+    sprite_url       TEXT,
+    has_mega_evolution INTEGER NOT NULL DEFAULT 0,
+    mega_form_count  INTEGER NOT NULL DEFAULT 0,
+    has_regional_form INTEGER NOT NULL DEFAULT 0,
+    evolution_stage  INTEGER NOT NULL DEFAULT 1,
+    can_evolve       INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE pokemon_types (
@@ -157,8 +198,53 @@ CREATE TABLE pokemon_egg_groups (
     PRIMARY KEY (pokemon_id, egg_group_id)
 );
 
+-- Source form IDs are distinct from species IDs and source pokemon IDs.
+-- Each form inherits stats and abilities from its source pokemon variety.
+CREATE TABLE pokemon_forms (
+    id               INTEGER PRIMARY KEY,
+    species_id       INTEGER NOT NULL REFERENCES pokemon(id),
+    source_pokemon_id INTEGER NOT NULL,
+    identifier       TEXT NOT NULL UNIQUE,
+    name             TEXT NOT NULL,
+    form_name        TEXT,
+    is_species_default INTEGER NOT NULL,
+    is_mega          INTEGER NOT NULL,
+    is_regional      INTEGER NOT NULL,
+    regional_region  TEXT,
+    is_battle_only   INTEGER NOT NULL,
+    introduced_generation_id INTEGER NOT NULL REFERENCES generations(id),
+    introduced_version_group TEXT NOT NULL,
+    height_m         REAL,
+    weight_kg        REAL,
+    base_experience  INTEGER,
+    hp               INTEGER,
+    attack           INTEGER,
+    defense          INTEGER,
+    special_attack   INTEGER,
+    special_defense  INTEGER,
+    speed            INTEGER,
+    total_stats      INTEGER
+);
+
+CREATE TABLE pokemon_form_types (
+    form_id INTEGER NOT NULL REFERENCES pokemon_forms(id),
+    type_id INTEGER NOT NULL REFERENCES types(id),
+    slot    INTEGER NOT NULL,
+    PRIMARY KEY (form_id, type_id),
+    UNIQUE (form_id, slot)
+);
+
+CREATE TABLE pokemon_form_abilities (
+    form_id    INTEGER NOT NULL REFERENCES pokemon_forms(id),
+    ability_id INTEGER NOT NULL REFERENCES abilities(id),
+    is_hidden  INTEGER NOT NULL,
+    slot       INTEGER NOT NULL,
+    PRIMARY KEY (form_id, slot)
+);
+
 CREATE INDEX idx_pokemon_types_type ON pokemon_types(type_id);
 CREATE INDEX idx_pokemon_generation ON pokemon(generation_id);
+CREATE INDEX idx_pokemon_forms_species ON pokemon_forms(species_id);
 
 -- Flattened one-row-per-Pokemon view: the easy starting point.
 CREATE VIEW pokedex AS
@@ -176,7 +262,11 @@ SELECT
     p.height_m, p.weight_kg,
     p.is_legendary, p.is_mythical,
     pre.name AS evolves_from,
-    p.sprite_url
+    p.sprite_url,
+    p.has_mega_evolution, p.mega_form_count, p.has_regional_form,
+    p.evolution_stage, p.can_evolve,
+    p.capture_rate, p.color, p.habitat, p.is_baby,
+    p.genus, p.base_happiness, p.base_experience, p.evolves_from_id
 FROM pokemon p
 JOIN generations g   ON g.id = p.generation_id
 LEFT JOIN pokemon_types pt1 ON pt1.pokemon_id = p.id AND pt1.slot = 1
@@ -187,7 +277,7 @@ LEFT JOIN pokemon pre       ON pre.id = p.evolves_from_id;
 """
 
 
-def build() -> None:
+def populate_database(con: sqlite3.Connection) -> None:
     regions = {r["id"]: r["identifier"].capitalize() for r in read_csv("regions.csv")}
     colors = {r["id"]: r["identifier"] for r in read_csv("pokemon_colors.csv")}
     habitats = {r["id"]: r["identifier"] for r in read_csv("pokemon_habitats.csv")}
@@ -204,11 +294,12 @@ def build() -> None:
         if row["local_language_id"] == ENGLISH
     }
 
-    # Default-form pokemon rows keyed by species id (alternate forms have
-    # ids >= 10000 and is_default = 0; we skip them for v1).
+    # The main table stays one row per species. Alternate forms are linked
+    # separately and never change the default-form type or achievement totals.
+    source_pokemon = {row["id"]: row for row in read_csv("pokemon.csv")}
     default_forms = {
         row["species_id"]: row
-        for row in read_csv("pokemon.csv")
+        for row in source_pokemon.values()
         if row["is_default"] == "1"
     }
 
@@ -217,9 +308,6 @@ def build() -> None:
     for row in read_csv("pokemon_stats.csv"):
         stats.setdefault(row["pokemon_id"], {})[row["stat_id"]] = int(row["base_stat"])
 
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DB_PATH.unlink(missing_ok=True)
-    con = sqlite3.connect(DB_PATH)
     con.executescript(SCHEMA)
 
     con.executemany(
@@ -283,6 +371,7 @@ def build() -> None:
     )
 
     species_rows = read_csv("pokemon_species.csv")
+    evolutions = evolution_metadata(species_rows)
     for sp in species_rows:
         form = default_forms.get(sp["id"])
         if form is None:
@@ -292,7 +381,13 @@ def build() -> None:
         stat_values = [st.get(str(i)) for i in range(1, 7)]
         display_name, genus = names.get(sp["id"], (sp["identifier"], None))
         con.execute(
-            "INSERT INTO pokemon VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            """INSERT INTO pokemon (
+                id, name, generation_id, height_m, weight_kg, base_experience,
+                hp, attack, defense, special_attack, special_defense, speed, total_stats,
+                genus, color, habitat, capture_rate, base_happiness,
+                is_legendary, is_mythical, is_baby, evolves_from_id, sprite_url,
+                evolution_stage, can_evolve
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 int(sp["id"]),
                 display_name,
@@ -312,6 +407,7 @@ def build() -> None:
                 int(sp["is_baby"] or 0),
                 num(sp["evolves_from_species_id"]),
                 f"{SPRITE_BASE}{sp['id']}.png",
+                *evolutions[sp["id"]],
             ),
         )
 
@@ -344,12 +440,94 @@ def build() -> None:
         ],
     )
 
-    con.commit()
+    form_names = {
+        row["pokemon_form_id"]: row
+        for row in read_csv("pokemon_form_names.csv")
+        if row["local_language_id"] == ENGLISH
+    }
+    version_groups = {row["id"]: row for row in read_csv("version_groups.csv")}
+    variety_types: dict[str, list[dict]] = {}
+    for row in read_csv("pokemon_types.csv"):
+        variety_types.setdefault(row["pokemon_id"], []).append(row)
+    form_types: dict[str, list[dict]] = {}
+    for row in read_csv("pokemon_form_types.csv"):
+        form_types.setdefault(row["pokemon_form_id"], []).append(row)
+    variety_abilities: dict[str, list[dict]] = {}
+    for row in read_csv("pokemon_abilities.csv"):
+        variety_abilities.setdefault(row["pokemon_id"], []).append(row)
 
-    for table in ("pokemon", "types", "abilities", "pokemon_types", "type_matchups"):
-        count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-        print(f"  {table}: {count} rows")
-    con.close()
+    for form in read_csv("pokemon_forms.csv"):
+        variety = source_pokemon[form["pokemon_id"]]
+        species_id = variety["species_id"]
+        if int(species_id) not in species_ids:
+            continue
+        species_name = names[species_id][0]
+        english = form_names.get(form["id"], {})
+        label = english.get("form_name") or form["form_identifier"].replace("-", " ").title() or None
+        is_species_default = variety["is_default"] == "1" and form["is_default"] == "1"
+        display_name = english.get("pokemon_name") or (
+            species_name if is_species_default or not label else
+            label if species_name in label else f"{species_name} ({label})"
+        )
+        version = version_groups[form["introduced_in_version_group_id"]]
+        regional_region = REGIONAL_FORMS.get(form["form_identifier"])
+        st = stats.get(variety["id"], {})
+        stat_values = [st.get(str(i)) for i in range(1, 7)]
+        con.execute(
+            "INSERT INTO pokemon_forms VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                int(form["id"]), int(species_id), int(variety["id"]), form["identifier"], display_name, label,
+                int(is_species_default), int(form["is_mega"]), int(regional_region is not None), regional_region,
+                int(form["is_battle_only"]), int(version["generation_id"]), version["identifier"],
+                int(variety["height"]) / 10 if variety["height"] else None,
+                int(variety["weight"]) / 10 if variety["weight"] else None,
+                num(variety["base_experience"]), *stat_values,
+                sum(value for value in stat_values if value is not None) or None,
+            ),
+        )
+        # Arceus and Silvally have form-specific type overrides. Unsupported
+        # unknown/shadow/stellar types stay excluded, never replaced by Normal.
+        con.executemany(
+            "INSERT INTO pokemon_form_types VALUES (?, ?, ?)",
+            [(int(form["id"]), int(row["type_id"]), int(row["slot"]))
+             for row in form_types.get(form["id"], variety_types.get(variety["id"], []))
+             if int(row["type_id"]) in type_ids],
+        )
+        con.executemany(
+            "INSERT INTO pokemon_form_abilities VALUES (?, ?, ?, ?)",
+            [(int(form["id"]), int(row["ability_id"]), int(row["is_hidden"]), int(row["slot"]))
+             for row in variety_abilities.get(variety["id"], [])
+             if int(row["ability_id"]) in ability_ids],
+        )
+
+    con.execute("""UPDATE pokemon SET
+        mega_form_count = (SELECT COUNT(*) FROM pokemon_forms f WHERE f.species_id = pokemon.id AND f.is_mega = 1),
+        has_mega_evolution = EXISTS (SELECT 1 FROM pokemon_forms f WHERE f.species_id = pokemon.id AND f.is_mega = 1),
+        has_regional_form = EXISTS (SELECT 1 FROM pokemon_forms f WHERE f.species_id = pokemon.id AND f.is_regional = 1)
+    """)
+
+
+def build() -> None:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temporary = DB_PATH.with_suffix(".sqlite.part")
+    temporary.unlink(missing_ok=True)
+    con = sqlite3.connect(temporary)
+    try:
+        populate_database(con)
+        if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+            raise ValueError("Built database failed integrity_check")
+        if con.execute("PRAGMA foreign_key_check").fetchall():
+            raise ValueError("Built database contains broken foreign keys")
+        for table in ("pokemon", "pokemon_forms", "types", "abilities", "pokemon_types", "type_matchups"):
+            count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            print(f"  {table}: {count} rows")
+        con.commit()
+        con.close()
+        temporary.replace(DB_PATH)
+    finally:
+        con.close()
+        temporary.unlink(missing_ok=True)
+
     print(f"  wrote {DB_PATH} ({DB_PATH.stat().st_size / 1024:.0f} KB)")
 
 

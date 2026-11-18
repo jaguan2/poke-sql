@@ -184,6 +184,9 @@ body,
   box-shadow: 0 3px 0 color-mix(in srgb, var(--shell-dark) 30%, transparent);
 }
 
+.sidebar-toggle { display: none; }
+.sidebar-content { display: contents; }
+
 .sidebar h2 {
   font-size: 11px;
   text-transform: uppercase;
@@ -524,6 +527,8 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .running-notice { color: var(--highlight); font-size: 13px; }
 .reset-notice { margin-bottom: 12px; }
 .workspace-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--text-dim); padding: 8px 16px; border-top: 1px solid var(--border); background: var(--panel); }
+.dataset-update { margin: 12px 16px; flex-shrink: 0; }
+.dataset-update .btn { display: block; margin-top: 10px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 850px) { .tagline { display: none; } .body { grid-template-columns: 230px minmax(0, 1fr); } .btn kbd { display: none; } }
 @media (max-width: 760px) {
@@ -532,21 +537,39 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
   .settings-button { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
 }
 @media (max-width: 620px) {
+  /* The document owns mobile scrolling. Panels grow with their content; only
+     the code editor and horizontally wide SQL tables have local scrolling. */
+  html, body, #root { height: auto; min-height: 100%; }
+  html { scroll-padding-top: 128px; }
   .dex-lights { gap: 3px; } .dex-lens { width: 34px; height: 34px; border-width: 3px; } .dex-light { display: none; }
-  .results { padding: 14px; }
+  .results { flex: none; overflow: visible; padding: 16px 12px; min-height: 0; }
+  .table-scroll { max-height: none; overflow-x: auto; }
   .starter-sprites { gap: 8px; } .starter-sprites img { width: 60px; height: 60px; border-radius: 18px; }
-  .app { height: calc(100dvh - 16px); margin: 8px; border-radius: 22px; grid-template-rows: 126px minmax(0, 1fr); }
-  .body { display: block; overflow: auto; padding: 0 8px 8px; }
-  .sidebar { max-height: 220px; margin-bottom: 10px; padding: 12px; }
-  .sidebar-tabs { grid-template-columns: repeat(4, 1fr); position: sticky; top: 0; background: var(--panel); padding: 4px 0; z-index: 1; }
+  .app { display: block; height: auto; min-height: calc(100dvh - 16px); margin: 8px; border-radius: 22px; overflow: visible; }
+  .body { display: block; overflow: visible; padding: 0 8px 8px; }
+  .sidebar { max-height: none; overflow: visible; margin-bottom: 10px; padding: 10px; }
+  .sidebar-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .sidebar-actions .mystery-entry { margin: 0; min-height: 44px; }
+  .sidebar-toggle { display: flex; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); color: var(--highlight); padding: 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .sidebar-content { display: none; }
+  .sidebar-content.is-expanded { display: block; padding-top: 12px; }
+  .sidebar-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); position: static; margin: 0; gap: 4px; }
+  .sidebar-tabs button { min-height: 40px; padding: 6px 2px; font-size: 12px; }
   .sidebar section { margin-bottom: 12px; }
-  .main { min-height: 650px; overflow: hidden; }
-  .header { padding: 12px; }
+  .main { min-height: 0; overflow: visible; }
+  .main > :first-child { border-radius: 19px 19px 0 0; }
+  .header { position: sticky; top: 0; z-index: 20; grid-template-columns: 1fr auto; gap: 10px; padding: 10px; background: var(--shell); border-radius: 21px 21px 0 0; }
+  .settings-button { grid-column: 2; grid-row: 1; justify-self: end; }
+  .header-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 2fr; }
   .brand { gap: 10px; } .brand h1 { font-size: 19px; }
-  .header .btn { padding: 7px 9px; font-size: 12px; }
-  .editor-toolbar { flex-wrap: wrap; padding: 8px; } .editor-label { width: 100%; }
-  .editor-toolbar input { flex: 1; } .editor-wrap { height: 200px; margin: 0 8px; }
-  .practice-panel { max-height: none; } .workspace-status { margin-top: auto; }
+  .header .btn { min-height: 40px; padding: 8px 10px; font-size: 12px; }
+  .editor-toolbar { flex-wrap: wrap; padding: 12px; } .editor-label { width: 100%; }
+  .editor-toolbar input { flex: 1; font-size: 16px; }
+  .editor-toolbar .btn { min-height: 40px; padding: 8px 10px; }
+  .editor-wrap { height: 200px; margin: 0 10px; }
+  .editor-wrap .cm-editor { font-size: 16px; }
+  .practice-panel { max-height: none; overflow: visible; padding: 14px 12px; }
+  .workspace-status { margin-top: 0; border-radius: 0 0 19px 19px; }
 }
 
 /* Guided query hints and worked answers share the same disclosure controls. */

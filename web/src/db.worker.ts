@@ -4,7 +4,8 @@ import wasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 import { exportSnapshot, hasOpenTransaction, readSchema, runStatements } from "./engine";
 import { CHALLENGES, matchesResults } from "./challenges";
 import { pickMysteryTarget, runMysteryQuery } from "./mystery";
-import type { DbReply, DbRequest, TableInfo } from "./types";
+import { readAchievementCatalog } from "./achievements";
+import type { AchievementCatalog, DbReply, DbRequest, TableInfo } from "./types";
 
 let SQL: SqlJsStatic;
 let db: Database;
@@ -24,7 +25,12 @@ async function handle(request: DbRequest): Promise<DbReply> {
     SQL = await initSqlJs({ locateFile: () => wasmUrl });
     original = request.original;
     const originalDb = new SQL.Database(original);
-    try { challengeSchema = readSchema(originalDb); }
+    let achievementCatalog: AchievementCatalog;
+    let originalVersion: number;
+    try {
+      challengeSchema = readSchema(originalDb); achievementCatalog = readAchievementCatalog(originalDb);
+      originalVersion = Number(originalDb.exec("PRAGMA user_version")[0].values[0][0]);
+    }
     finally { originalDb.close(); }
     let notice: string | undefined;
     try {
@@ -35,12 +41,15 @@ async function handle(request: DbRequest): Promise<DbReply> {
       db = new SQL.Database(original);
       notice = "The saved database could not be read. The original Pokédex has been restored.";
     }
-    return { schema: readSchema(db), challengeSchema, ...checkpoint(), notice };
+    // Never overwrite an older workspace just because the bundled dataset
+    // expanded. The user can explicitly reset after reviewing the notice.
+    const datasetUpdateAvailable = Number(db.exec("PRAGMA user_version")[0].values[0][0]) < originalVersion;
+    return { schema: readSchema(db), challengeSchema, achievementCatalog, datasetUpdateAvailable, ...checkpoint(), notice };
   }
   if (request.action === "reset") {
     db.close();
     db = new SQL.Database(original);
-    return { schema: readSchema(db), ...checkpoint() };
+    return { schema: readSchema(db), datasetUpdateAvailable: false, ...checkpoint() };
   }
   const start = performance.now();
   if ("sql" in request && request.sql.length > 100_000) throw new Error("Keep SQL scripts below 100,000 characters.");

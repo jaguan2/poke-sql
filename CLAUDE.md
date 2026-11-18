@@ -10,13 +10,16 @@ locally: no cloud database, no backend server.
 scripts/build_db.py   Python ETL: downloads PokeAPI CSVs -> web/public/pokemon.sqlite
 data/raw/             Cached CSV downloads (gitignored, regenerable)
 web/                  Vite + React + TypeScript SPA
-  public/pokemon.sqlite   The database (committed; ~416 KB)
+  public/pokemon.sqlite   The database (committed; ~848 KB)
   public/sprites/         Vendored sprites (one PNG per species)
   src/db.ts               Async Worker client, cancellation and saved snapshots
   src/db.worker.ts        SQL execution, checkpointing and isolated challenge checks
   src/engine.ts           Statement execution and resilient schema introspection
   src/storage.ts          IndexedDB database saves + localStorage helpers
-  src/challenges.ts       Eight exercises and result comparison
+  src/challenges.ts       Fifteen exercises and result comparison
+  src/encounters.ts       Solved-mystery collection and persisted-entry validation
+  src/achievements.ts     Original-dataset goals and collection milestones
+  src/use-encounters.ts   Personal Pokédex persistence and saved-win import
   src/offline.ts          Production service worker registration and status
   src/samples.ts          Sample queries shown in the sidebar (easiest -> hardest)
   src/App.tsx             Layout, editor, query execution state
@@ -65,6 +68,18 @@ genus, color, habitat, legendary flags, `evolves_from_id` self-reference),
 chart), plus a flattened **`pokedex` view** (type1/type2 columns, generation
 name + `generation_id` for chronological sorting, evolves_from name) as the
 beginner-friendly entry point.
+
+Both species entry points include Mega flags/counts, regional-form availability,
+`evolution_stage` and `can_evolve`. Stages include babies and follow species
+links, including regional-only branches; Megas do not add stages. The view also
+exposes capture rate, color, habitat, baby status and other existing metadata.
+`pokemon_forms` holds separate form records (source form IDs), linked by
+`species_id`, with names, dimensions, stats, flags and introduction generation
+and version group. `pokemon_form_types` and `pokemon_form_abilities` hold form
+links. Main generation is species debut; form introduction is separate. Types
+use form overrides where supplied; stats/abilities inherit from source varieties.
+Older saved practice databases remain intact until the explicit update/reset
+action. `PRAGMA user_version` identifies the bundled schema revision.
 
 Deliberate schema choices — keep these unless there's a reason not to:
 - Base stats are **wide columns** on `pokemon` (hp…speed, total_stats), not a
@@ -118,7 +133,6 @@ Deliberate schema choices — keep these unless there's a reason not to:
   workspace sync between devices (currently deliberately local and separate).
 - **Moves data**: PokeAPI has `moves.csv` / `pokemon_moves.csv` (~600k rows) —
   skipped in v1 to keep the DB small.
-- Alternate forms (Megas, regional variants) — pokemon.csv rows with
-  `is_default = 0` and ids ≥ 10000, currently skipped.
+- Alternate-form sprites; form metadata is already available for SQL practice.
 
 See NOTES.md for the full design rationale and data-source research.

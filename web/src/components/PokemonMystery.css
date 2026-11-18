@@ -20,6 +20,7 @@
 .mystery-table td { white-space: normal; vertical-align: top; border-right: 1px solid var(--border); }
 .mystery-table td:last-child { border-right: 0; }
 .mystery-clue { min-width: 90px; text-align: center; }
+.mystery-clue .clue-label { display: none; }
 .mystery-clue strong { display: block; color: var(--text); font-size: 12px; }
 .mystery-clue span { display: block; margin-top: 6px; font-size: 11px; color: var(--text); white-space: nowrap; }
 .mystery-table .clue-correct { background: color-mix(in srgb, var(--panel) 65%, #5fb879); }
@@ -31,3 +32,26 @@
 .mystery-pokemon summary { margin-top: 6px; color: var(--highlight); font-size: 11px; cursor: pointer; }
 .mystery-pokemon pre { width: 200px; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
 .mystery-idle { margin: 8px 0 16px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
+.mystery-win-actions { margin-top: 10px; }
+
+@media (max-width: 620px) {
+  .mystery-modes .btn { min-height: 40px; font-size: 12px; }
+  .mystery-workspace .editor-wrap { height: 180px; }
+  .mystery-workspace .results { min-height: 0; }
+  .mystery-table-scroll { overflow: visible; border: 0; border-radius: 0; }
+  .mystery-table { display: block; }
+  /* Keep column headers available to assistive technology. The same cells
+     become labeled cards, so there is no duplicate mobile notebook to sync. */
+  .mystery-table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+  .mystery-table tbody { display: grid; gap: 12px; }
+  .mystery-table tbody tr { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--panel); }
+  .mystery-table td { min-width: 0; border: 0; padding: 10px 6px; }
+  .mystery-table .mystery-pokemon { grid-column: 1 / -1; max-width: none; padding: 10px 12px; background: var(--panel-raised); }
+  .mystery-pokemon > div { font-size: 14px; }
+  .mystery-pokemon pre { width: auto; }
+  .mystery-pokemon summary { width: fit-content; padding: 6px 0; }
+  .mystery-clue { grid-column: span 2; }
+  .mystery-clue:nth-last-child(-n + 2) { grid-column: span 3; border-top: 1px solid var(--border); }
+  .mystery-clue .clue-label { display: block; margin: 0 0 6px; color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: .3px; }
+  .mystery-clue span { white-space: normal; }
+}
