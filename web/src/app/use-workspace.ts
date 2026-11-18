@@ -10,6 +10,8 @@ import { useUtcDay } from "../features/mystery/use-utc-day";
 import { useEncounters } from "../features/pokedex/use-encounters";
 import { useSafari } from "./use-safari";
 import type { AssignmentId } from "../features/safari/types";
+import type { SafariFleeLimit } from "../features/safari/types";
+import { isSafariFleeLimit } from "../features/safari/model";
 import { CHALLENGES } from "../features/practice/challenges";
 import { SAMPLE_QUERIES } from "../features/practice/samples";
 import { isStringArray, readLocal, writeLocal } from "../shared/storage/local";
@@ -52,6 +54,7 @@ export function useWorkspace() {
   const [offlineStatus, setOfflineStatus] = useState("");
   const [ballTheme, setBallTheme] = useState(() => readLocal("ball-theme", "poke-ball", isBallTheme));
   const [autocomplete, setAutocomplete] = useState(() => readLocal("autocomplete", true, isBoolean));
+  const [safariFleeAfter, setSafariFleeAfter] = useState<SafariFleeLimit>(() => readLocal("safari-flee-after", null, isSafariFleeLimit));
   const [settingsSaveError, setSettingsSaveError] = useState(false);
   const activeChallenge = selection?.kind === "challenge" ? selection.id : null;
   const isMystery = selection?.kind === "mystery";
@@ -113,7 +116,7 @@ export function useWorkspace() {
       throw error;
     } finally { busyRef.current = false; setBusy(false); }
   }, [ready]);
-  const safari = useSafari(runSafariCheck);
+  const safari = useSafari(runSafariCheck, safariFleeAfter);
   const { encounters, saveError: encounterSaveError, recovered: encountersRecovered } = useEncounters(dailyMysteryRound, randomMysteryRound, safari.session.lastCatch);
 
   const execute = useCallback(async (sql: string, context: QueryContext) => {
@@ -283,16 +286,20 @@ export function useWorkspace() {
     setAutocomplete(enabled);
     if (!writeLocal("autocomplete", enabled)) setSettingsSaveError(true);
   };
+  const changeSafariFleeAfter = (limit: SafariFleeLimit) => {
+    setSafariFleeAfter(limit);
+    if (!writeLocal("safari-flee-after", limit)) setSettingsSaveError(true);
+  };
 
   return {
     ready, loadError, selection, activeChallenge, isMystery, challenge, sample, practice,
     query, draftKey, editorSchema, showPokedex, showSafari, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
-    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, autocomplete,
+    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, autocomplete, safariFleeAfter,
     settingsSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
     saved, queryName, runState,
     actions: {
       run, stop: cancelQuery, reset: handleReset, newMystery: handleNewMystery,
-      saveQuery, setQueryName, editQuery: onEditorChange, changeTheme, changeAutocomplete,
+      saveQuery, setQueryName, editQuery: onEditorChange, changeTheme, changeAutocomplete, changeSafariFleeAfter,
       openPokedex, openSafari: () => { if (!busyRef.current) setView("safari"); },
       returnToWorkspace: () => { if (!busyRef.current) setView("workspace"); }, openDailyMystery, openRandomMystery,
       selectSample, selectChallenge, loadSql, loadGuideSql, previewSql, loadAnswer, leaveMystery,

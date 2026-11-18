@@ -142,7 +142,7 @@ test('catches from expanded habitats restore without resetting the expedition', 
   const [entry] = await entriesFor([872]);
   const session = changeSafariZone(createSafariSession(), 'tundra');
   const caught = { encounterId: 'snow-catch', pokemon: entry.pokemon, attempts: 1, caughtAt: '2026-11-18T12:00:00.000Z' };
-  expect(isSafariSession({ ...session, catches: 1, encounter: { id: 'snow-catch', pokemonId: 872, assignmentId: 'field-notes', attempts: 1, caught: true }, lastCatch: caught })).toBe(true);
+  expect(isSafariSession({ ...session, catches: 1, encounter: { id: 'snow-catch', pokemonId: 872, assignmentId: 'field-notes', attempts: 1, outcome: "caught", fleeAfter: null }, lastCatch: caught })).toBe(true);
 });
 
 test('Safari save validation rejects impossible positions, forged pools and broken caught state', async () => {
@@ -153,9 +153,9 @@ test('Safari save validation rejects impossible positions, forged pools and brok
   for (const value of [null, {}, { ...initial, position: { x: 0, y: 0 } }, { ...initial, zoneId: 'unknown' },
     { ...initial, steps: -1 }, { ...active, encounter: { ...active.encounter, pokemonId: 1025 } },
     { ...active, encounter: { ...active.encounter, assignmentId: 'unknown' } },
-    { ...active, encounter: { ...active.encounter, caught: true } }]) expect(isSafariSession(value)).toBe(false);
+    { ...active, encounter: { ...active.encounter, outcome: "caught", fleeAfter: null } }]) expect(isSafariSession(value)).toBe(false);
   const [entry] = await entriesFor([10]);
-  const caught = { ...active, encounter: { ...active.encounter!, caught: true, attempts: 1 }, catches: 1,
+  const caught = { ...active, encounter: { ...active.encounter!, outcome: "caught", fleeAfter: null, attempts: 1 }, catches: 1,
     lastCatch: { encounterId: 'encounter', pokemon: entry.pokemon, attempts: 1, caughtAt: entry.firstFoundAt } };
   expect(isSafariSession(caught)).toBe(true);
 });

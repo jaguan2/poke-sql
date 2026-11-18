@@ -16,7 +16,7 @@ export default function App() {
   const {
     ready, loadError, selection, activeChallenge, isMystery, challenge, sample, practice,
     query, draftKey, editorSchema, showPokedex, showSafari, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
-    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, autocomplete,
+    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, autocomplete, safariFleeAfter,
     settingsSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
     saved, queryName, runState, actions,
   } = useWorkspace();
@@ -31,6 +31,7 @@ export default function App() {
         <div><h1>Poké<span className="brand-accent">SQL</span></h1><span className="tagline">Your pocket SQL laboratory</span></div>
       </div>
       <Settings ballTheme={ballTheme} autocomplete={autocomplete} saveError={settingsSaveError}
+        safariFleeAfter={safariFleeAfter} onSafariFleeAfterChange={actions.changeSafariFleeAfter}
         onThemeChange={actions.changeTheme} onAutocompleteChange={actions.changeAutocomplete} />
       <div className="header-actions">
         {showPokedex || showSafari ? <>
@@ -50,7 +51,7 @@ export default function App() {
         onGuideSql={actions.loadGuideSql} onPreviewSql={actions.previewSql} onChallenge={actions.selectChallenge}
         onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
       <main className={`main${isMystery && !showPokedex && !showSafari ? " mystery-workspace" : ""}`}>
-        {showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError}
+        {showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
           onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex}
           editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}

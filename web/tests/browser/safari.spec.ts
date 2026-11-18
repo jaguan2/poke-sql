@@ -272,7 +272,7 @@ test('guide examples fill the active catch draft without grading, while roaming 
   await joins.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Safari Zone/ })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('JOIN pokemon_types AS pt');
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ pokemonId: id, attempts: 0, caught: false });
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ pokemonId: id, attempts: 0, outcome: "active", fleeAfter: null });
   await page.getByRole('button', { name: 'Return to trail', exact: true }).click();
   await joins.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();

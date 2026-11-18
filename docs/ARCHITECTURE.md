@@ -108,6 +108,28 @@ phase is transient; an active encounter reloads into its assignment without
 replaying SQL. Only a worker-confirmed correct result creates `lastCatch` with a
 canonical Pokémon profile. The Pokédex consumes that typed catch contract,
 merging the `safari` source into the same per-species records as mysteries.
+Session version 3 records active/caught/fled outcomes and a per-encounter
+five/eight-answer limit or unlimited attempts. Settings changes apply only to
+future encounters. Errors and cancelled/timed-out queries do not spend chances;
+only a completed incorrect grade can cause fleeing. `recordSafariReply` owns
+these transitions, rejects terminal/stale replies and preserves prior catches.
+Old saves migrate with unlimited attempts, retaining drafts and progress.
 Malformed collection rows are recovered individually; exact original save bytes
 are preserved in `pokesql:encounters-recovery` before a recovered collection is
 written. A failed backup prevents overwriting the original collection.
+
+## Windows distribution
+
+GitHub Actions builds version-tagged releases with a small NSIS web installer,
+its separately hosted application payload and a complete offline portable build.
+The generated stable feed and assets are attached to a reviewable draft release.
+Application builds are ignored by Git. See [releasing](RELEASING.md).
+
+`desktop/updates.cjs` coordinates main-process checks and download announcements;
+`electron-updater` handles verification, caching and installation on normal quit.
+It uses its own network session, so the renderer retains its local-only network
+guard and no privileged preload API is introduced. Background failures are
+handled without blocking window startup. App/profile identities are unchanged;
+the updater cache and installation directory do not own the user's database.
+Only the updater is a production Node dependency; React, CodeMirror and sql.js
+are build dependencies whose browser code is already in the Vite bundle.

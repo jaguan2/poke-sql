@@ -1,11 +1,13 @@
 {
   "name": "poke-sql-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Practice SQL with a local Pokédex database",
   "author": "PokéSQL contributors",
   "main": "desktop/main.cjs",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader runner",
@@ -14,40 +16,77 @@
     "preview": "vite preview --configLoader runner",
     "sprites": "node ../scripts/vendor_sprites.mjs",
     "desktop": "npm run build && electron .",
-    "desktop:build": "npm run build && node node_modules/electron/install.js && electron-builder --win portable nsis --x64 --publish never",
+    "desktop:build": "npm run build && node node_modules/electron/install.js && electron-builder --win nsis-web portable --x64 --publish never && npm run check:release",
     "test": "npm run build && playwright test",
-    "test:desktop": "playwright test --config playwright.desktop.config.ts"
+    "test:desktop": "playwright test --config playwright.desktop.config.ts",
+    "check:release": "node scripts/check-release.mjs",
+    "test:updates": "node --test tests/updates/*.test.cjs"
   },
   "build": {
     "appId": "com.pokesql.app",
     "productName": "PokeSQL",
-    "directories": { "output": "release" },
-    "files": ["dist/**/*", "desktop/**/*", "package.json", "!node_modules/**/*"],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "package.json"
+    ],
     "asar": true,
     "electronDist": "node_modules/electron/dist",
-    "win": { "target": ["portable", "nsis"], "icon": "desktop/icon.ico" },
-    "portable": { "artifactName": "PokeSQL-${version}-portable.exe" },
-    "nsis": { "artifactName": "PokeSQL-${version}-setup.exe", "oneClick": false, "allowToChangeInstallationDirectory": true, "perMachine": false, "runAfterFinish": false }
+    "win": {
+      "target": [
+        "nsis-web",
+        "portable"
+      ],
+      "icon": "desktop/icon.ico"
+    },
+    "portable": {
+      "artifactName": "PokeSQL-${version}-portable.exe"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "jaguan2",
+        "repo": "poke-sql",
+        "releaseType": "draft"
+      }
+    ],
+    "nsisWeb": {
+      "artifactName": "PokeSQL-${version}-setup.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": false
+    }
   },
   "dependencies": {
+    "electron-updater": "6.8.11"
+  },
+  "devDependencies": {
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/lang-sql": "^6.8.0",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.0",
-    "@uiw/react-codemirror": "^4.23.6",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "sql.js": "^1.13.0"
-  },
-  "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/sql.js": "^1.4.9",
+    "@uiw/react-codemirror": "^4.23.6",
     "@vitejs/plugin-react": "^5.0.0",
     "electron": "^44.3.0",
     "electron-builder": "^26.15.3",
+    "js-yaml": "4.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.13.0",
     "typescript": "^5.6.3",
     "vite": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jaguan2/poke-sql.git"
   }
 }

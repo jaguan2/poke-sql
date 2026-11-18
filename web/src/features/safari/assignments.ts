@@ -28,5 +28,11 @@ export function checkSafariQuery(db: Database, sql: string, pokemonId: number, a
   const pokemon: PokemonProfile = { id: Number(row[0]), name: String(row[1]), type1: String(row[2]), type2: row[3] === null ? null : String(row[3]), generationId: Number(row[4]), heightM: Number(row[5]), weightKg: Number(row[6]) };
   const results = runStatements(db, sql, true);
   const expected = runStatements(db, safariAssignment(assignmentId, pokemon).sql, true);
-  return { results, passed: matchesResults(results, expected, true), safariPokemon: pokemon };
+  const passed = matchesResults(results, expected, true);
+  const actual = results[0], target = expected[0];
+  const safariFeedback = passed ? undefined : !actual || actual.columns.length !== target.columns.length
+    ? `Return exactly ${target.columns.length} columns in the requested order.`
+    : actual.values.length !== target.values.length ? `Return ${target.values.length} ${target.values.length === 1 ? "row" : "rows"}; your query returned ${actual.values.length}${actual.truncated ? "+" : ""}. Check your filters and joins.`
+      : "The returned values or row order do not match. Check column order, NULLs, filters, and sorting.";
+  return { results, passed, safariPokemon: pokemon, safariFeedback };
 }

@@ -1,0 +1,104 @@
+name: Windows build and draft release
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: pwsh
+    working-directory: web
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_CHANNEL: chromium
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Keep generated binaries out of source control
+        run: |
+          $binaries = @(git -C .. ls-files -- '*.exe' '*.nsis.7z' '*.blockmap')
+          if ($binaries.Count) { throw "Remove generated binaries from Git: $binaries" }
+      - name: Validate version tag
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -cne "v$version") { throw 'Tag and package.json version must match.' }
+      - run: npm ci
+      - run: npx playwright install chromium
+      - run: npm test
+      - run: npm run test:updates
+      - name: Package the web installer and offline portable application
+        run: npx electron-builder --win nsis-web portable --x64 --publish never
+      - run: npm run check:release
+      - name: Test the packaged application
+        env:
+          POKESQL_EXECUTABLE: ${{ github.workspace }}/web/release/win-unpacked/PokeSQL.exe
+        run: npm run test:desktop
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: windows-release
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            web/release/*.exe
+            web/release/nsis-web/*.exe
+            web/release/nsis-web/*.nsis.7z
+            web/release/nsis-web/*.blockmap
+            web/release/nsis-web/latest.yml
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: always()
+        with:
+          name: windows-test-evidence
+          retention-days: 7
+          path: |
+            web/test-results/
+            !web/test-results/**/profile/**
+            !web/test-results/**/cache/**
+
+  draft:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: windows-release
+          path: web/release
+      - name: Upload a reviewable draft; published versions are immutable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = @(Get-ChildItem -LiteralPath release -Recurse -File | Select-Object -ExpandProperty FullName)
+          $release = gh release view $env:RELEASE_TAG --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($release | ConvertFrom-Json).isDraft) { throw 'This version is already published. Bump the version for a new release.' }
+            gh release upload $env:RELEASE_TAG --clobber @assets
+          } else {
+            gh release create $env:RELEASE_TAG --verify-tag --draft --generate-notes --title $env:RELEASE_TAG @assets
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Draft release upload failed.' }

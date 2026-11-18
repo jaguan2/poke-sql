@@ -1,16 +1,19 @@
 import { useRef } from "react";
+import type { SafariFleeLimit } from "../safari/types";
 import ballThemes from "./themes.json";
 import "./Settings.css";
 
 interface SettingsProps {
   ballTheme: string;
   autocomplete: boolean;
+  safariFleeAfter: SafariFleeLimit;
   saveError: boolean;
   onThemeChange: (theme: string) => void;
   onAutocompleteChange: (enabled: boolean) => void;
+  onSafariFleeAfterChange: (limit: SafariFleeLimit) => void;
 }
 
-export function Settings({ ballTheme, autocomplete, saveError, onThemeChange, onAutocompleteChange }: SettingsProps) {
+export function Settings({ ballTheme, autocomplete, safariFleeAfter, saveError, onThemeChange, onAutocompleteChange, onSafariFleeAfterChange }: SettingsProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   return <>
     <button className="btn btn-secondary settings-button" onClick={() => dialog.current?.showModal()}>Settings</button>
@@ -38,6 +41,17 @@ export function Settings({ ballTheme, autocomplete, saveError, onThemeChange, on
           <input type="checkbox" role="switch" aria-label="SQL autocomplete" aria-describedby="autocomplete-description" checked={autocomplete} onChange={event => onAutocompleteChange(event.target.checked)} />
         </label>
         <p className="settings-help">When enabled, use ↑ / ↓ to choose, Enter to accept, and Escape to dismiss. Ctrl+Space opens suggestions.</p>
+      </section>
+      <section className="settings-section" aria-labelledby="safari-settings-title">
+        <h3 id="safari-settings-title">Safari encounters</h3>
+        <label className="safari-limit-setting" htmlFor="safari-flee-after">Chances before fleeing</label>
+        <select id="safari-flee-after" value={safariFleeAfter ?? "unlimited"} aria-describedby="safari-flee-description"
+          onChange={event => onSafariFleeAfterChange(event.target.value === "unlimited" ? null : event.target.value === "5" ? 5 : 8)}>
+          <option value="unlimited">Unlimited — relaxed practice</option>
+          <option value="5">5 incorrect answers</option>
+          <option value="8">8 incorrect answers</option>
+        </select>
+        <p id="safari-flee-description">Choose a limit to let wild Pokémon flee. Hints, SQL errors and stopped queries keep your chances. Changes apply to your next encounter; the current encounter keeps its original limit.</p>
       </section>
       <p className={saveError ? "notice" : "settings-save-note"} role="status">{saveError ? "This device could not save a setting. Your changes apply for this session; they may reset when you reopen the app." : "Changes save automatically on this device."}</p>
     </dialog>

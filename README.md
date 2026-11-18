@@ -22,24 +22,47 @@ in place of `npm` in these commands.
 
 ## Windows application
 
+Download the small `PokeSQL-<version>-setup.exe` from
+[GitHub Releases](https://github.com/jaguan2/poke-sql/releases). It installs the
+full application for your Windows user and creates a shortcut. First setup needs
+internet access, or the matching `.nsis.7z` payload beside the installer. Once
+installed, open the application from its shortcut; it works offline.
+
+Installed builds check for stable releases in the background. A verified update
+installs when you close PokéSQL normally, without restarting it or interrupting a
+query. Failed/offline update checks leave the current version usable. SQL drafts,
+saved queries, database edits, Pokédex and Safari progress remain in the existing
+Windows user profile. Existing portable users can run the installer once to opt
+into updates; portable builds continue to use manual replacement.
+
+For development and local builds:
+
 ```powershell
 cd web
 npm install
 npm run desktop          # build and open the desktop app
-npm run desktop:build    # build portable EXE and installer
+npm run desktop:build    # build web installer + payload + offline portable EXE
 ```
 
 The Windows x64 build produces:
 
-- `web/release/PokeSQL-0.1.0-portable.exe` — launch without installation.
-- `web/release/PokeSQL-0.1.0-setup.exe` — install for your Windows user.
+- `web/release/nsis-web/PokeSQL-0.2.0-setup.exe` — small web installer.
+- `web/release/nsis-web/poke-sql-web-0.2.0-x64.nsis.7z` — full application payload.
+- `web/release/nsis-web/latest.yml` — version and checksums for the updater.
+- `web/release/PokeSQL-0.2.0-portable.exe` — full application for offline first launch.
 
-The desktop build uses Electron and includes the database, SQLite engine,
-and all sprites. It works offline from the first launch. Building requires
+The full application uses Electron and includes the database, SQLite engine,
+music and all sprites. The portable build works offline from its first launch. Building requires
 internet access to download npm dependencies and Windows packaging tools;
 the finished app does not. Builds are unsigned; no signing certificate is
 configured. The portable EXE still saves its workspace in the Windows user
 profile, so moving the EXE does not move your saved work.
+
+Generated EXEs and installer payloads are ignored by Git. The repository-root
+`PokeSQL.exe`, when copied there for convenience, is the small installer; keep
+its matching payload beside it for local setup before that release is published.
+Builds are distributed as release downloads instead of committed binaries.
+See [releasing and testing updates](docs/RELEASING.md).
 
 ## Practice tools
 
@@ -71,8 +94,14 @@ profile, so moving the EXE does not move your saved work.
   Saved encounters resume without replaying their entrance. Assignments progress
   through filtering, selecting stats, joining types, and surveying abilities,
   then cycle. Correct results register a catch in your Pokédex and achievements;
-  incorrect queries and leaving an encounter add nothing. There is no catch
-  limit. Your expedition, current encounter, and draft save locally without
+  incorrect queries and leaving an encounter add nothing. Settings → Safari
+  encounters offers **unlimited attempts** (the default), **5 incorrect answers**,
+  or **8 incorrect answers** before a Pokémon flees. Remaining chances and warning
+  dialogue make the limit clear. Hints, SQL errors, stopped queries and timeouts
+  keep your chances; a correct answer on the final chance still catches.
+  Changes apply to the next encounter. Fled encounters offer a solution review,
+  stay fled after reload, and remain available in the encounter pool. There is
+  no daily catch limit. Your expedition, current encounter, and draft save locally without
   executing SQL on reload. Safari works offline, supports reduced motion, and
   always grades against the original database.
 

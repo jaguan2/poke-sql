@@ -27,6 +27,8 @@
 .autocomplete-setting small { display: block; color: var(--text-dim); font-size: 12px; line-height: 1.6; margin-top: 4px; }
 .autocomplete-setting input { width: 22px; height: 22px; flex-shrink: 0; accent-color: var(--highlight); cursor: pointer; }
 .settings-dialog .settings-help { font-size: 12px; }
+.safari-limit-setting { display:block; margin:14px 0 8px; font-size:14px; }
+#safari-flee-after { width:100%; padding:12px; font:inherit; font-size:14px; color:var(--text); background:var(--panel-raised); border:1px solid var(--border); border-radius:10px; }
 .settings-save-note { padding-top: 16px; border-top: 1px solid var(--border); margin-bottom: 0; }
 .settings-dialog .notice { color: #76602b; }
 

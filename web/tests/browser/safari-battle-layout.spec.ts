@@ -57,7 +57,7 @@ test('long encounter and catch messages stay inside the dialogue box on a small 
   await page.setViewportSize({ width: 320, height: 844 });
   await page.addInitScript(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), {
     ...nearSafariGrass('desert'),
-    encounter: { id: 'long-name', pokemonId: 449, assignmentId: 'field-notes', attempts: 0, caught: false },
+    encounter: { id: 'long-name', pokemonId: 449, assignmentId: 'field-notes', attempts: 0, outcome: "active", fleeAfter: null },
     draft: 'SELECT id, name, type1, type2 FROM pokedex WHERE id=449;',
   });
   await page.goto('/');
@@ -90,7 +90,7 @@ for (const [zone, id, name, terrain] of [
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.addInitScript(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), {
       ...nearSafariGrass(zone),
-      encounter: { id: 'sprite-grounding', pokemonId: id, assignmentId: 'field-notes', attempts: 0, caught: false },
+      encounter: { id: 'sprite-grounding', pokemonId: id, assignmentId: 'field-notes', attempts: 0, outcome: "active", fleeAfter: null },
     });
     await page.goto('/');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();

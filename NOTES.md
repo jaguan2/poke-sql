@@ -38,11 +38,27 @@ and the picker both use `encounterTable`, so weather multipliers and the
 immediately previous caught species's exclusion have one owner. A resting row
 remains visible for collection progress but cannot be rolled until another
 species is caught.
-Version 1 clearing saves migrate to version 2 by relocating only the trainer
-and resetting consecutive grass steps. Catches, checked attempts, active targets,
+Version 1 clearing saves first relocate only the trainer and reset consecutive
+grass steps. Version 2 route saves then migrate to version 3 with an explicit
+active/caught/fled outcome and unlimited chances for existing encounters.
+Catches, checked attempts, active targets,
 drafts, latest catch and total walking steps are retained and validated.
 Reload opens an active assignment directly and never submits its saved draft.
 Reduced motion skips the entrance delay and disables visual animations.
+
+Safari's flee preference uses `pokesql:safari-flee-after`: null for unlimited
+practice (default), or 5/8 incorrect answers. Each encounter captures its own
+`fleeAfter` at creation; changing Settings never refills or reduces an active
+encounter's budget. `recordSafariReply` applies only completed, graded replies
+for the active encounter ID. Wrong results consume a chance, while syntax errors,
+cancellation and timeouts preserve attempts. Correct results win even on the
+final chance. Terminal caught/fled outcomes reject subsequent replies. Fleeing
+preserves previous catches and does not change journal entries or pool weights.
+The review shows the submitted draft, the prompt, a correct solution and any
+available last results. Reload retains the fled outcome/draft, without rerunning
+SQL; returned result sets remain transient. Save validation rejects impossible
+terminal counters. The app controller owns asynchronous state; the feature model
+owns the catch/flee transition and its validation.
 
 The encounter and caught views share a responsive 3:2 screen, based on the
 Game Boy Advance's 240×160 resolution ([Nintendo technical data](https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html)).

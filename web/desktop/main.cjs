@@ -1,7 +1,10 @@
-const { app, BrowserWindow, protocol, session } = require('electron');
+const { app, BrowserWindow, dialog, protocol, session } = require('electron');
 const path = require('node:path');
 const { readFile } = require('node:fs/promises');
 const { parseByteRange } = require('./byte-range.cjs');
+const { startUpdates } = require('./updates.cjs');
+
+if (process.platform === 'win32') app.setAppUserModelId('com.pokesql.app');
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'pokesql', privileges: {
   standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true,
@@ -77,6 +80,17 @@ app.whenReady().then(() => {
     callback({ cancel: !details.url.startsWith('pokesql://app/') && !details.url.startsWith('devtools:') });
   });
   createWindow();
+  if (app.isPackaged && process.platform === 'win32' && !testing && !process.env.PORTABLE_EXECUTABLE_FILE) {
+    const { autoUpdater } = require('electron-updater');
+    const stopUpdates = startUpdates(autoUpdater, version => {
+      if (!window || window.isDestroyed()) return;
+      return dialog.showMessageBox(window, { type: 'info', title: 'PokéSQL update ready',
+        message: `PokéSQL ${version} is ready to install.`,
+        detail: 'Finish your work, then close PokéSQL normally. The update will install after you close it. Your saved SQL, database edits and Pokédex progress stay on this device.',
+        buttons: ['Keep working'], defaultId: 0, noLink: true });
+    });
+    app.once('before-quit', stopUpdates);
+  }
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

@@ -18,6 +18,7 @@ export interface DbReply {
   achievementCatalog?: AchievementCatalog;
   datasetUpdateAvailable?: boolean;
   safariPokemon?: PokemonProfile;
+  safariFeedback?: string;
 }
 export type DbRequest =
   | { action: "init"; original: Uint8Array; saved?: Uint8Array }

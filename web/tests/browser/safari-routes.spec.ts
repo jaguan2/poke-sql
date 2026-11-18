@@ -72,8 +72,8 @@ test('old clearing saves retain catches, active SQL, and attempts when moved to 
   await expect(page.locator('.safari-pass strong')).toHaveText('01');
   await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!))).toMatchObject({
-    version: 2, position: { x: 10, y: 17 }, steps: 47, catches: 1,
-    encounter: { id: 'old-grass', attempts: 2, caught: false },
+    version: 3, position: { x: 10, y: 17 }, steps: 47, catches: 1,
+    encounter: { id: 'old-grass', attempts: 2, outcome: 'active', fleeAfter: null },
   });
   await page.getByRole('button', { name: /Check query & catch/ }).click();
   await expect(page.getByText('Gotcha! Weedle was caught!', { exact: true })).toBeVisible();
