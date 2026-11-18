@@ -43,6 +43,21 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
+- **Safari Zone:** explore Verdant Forest, Willow Wetlands, and Amber Ridge with
+  a walking trainer, using arrow keys/WASD while the map is focused, or touch
+  direction buttons. All three areas stay open, with a featured area rotating
+  daily at 00:00 UTC. Each has a curated, weighted encounter pool: forest
+  Bug/Grass species, wetland Water species, and rocky Ground/Rock species.
+  Walk through tall grass for a chance encounter, or investigate the sparkling,
+  shaking patch for a guaranteed encounter. A sliding battle entrance reveals
+  the wild Pokémon and a short SQL catch assignment. Assignments progress
+  through filtering, selecting stats, joining types, and surveying abilities,
+  then cycle. Correct results register a catch in your Pokédex and achievements;
+  incorrect queries and leaving an encounter add nothing. There is no catch
+  limit. Your expedition, current encounter, and draft save locally without
+  executing SQL on reload. Safari works offline, supports reduced motion, and
+  always grades against the original database.
+
 - **Mobile workspace:** one page scroll with Run and Stop in a sticky header.
   **Tools & schema** expands the query browser, which folds away after a choice.
   Mystery guesses become cards with all five clues visible; wide SQL results
@@ -52,12 +67,16 @@ profile, so moving the EXE does not move your saved work.
   **Load example** fills the current editor without running SQL or checking an
   answer. On phones, open **Tools & schema** to browse the guide.
 - **My Pokédex:** a personal collection of Pokémon found by solving daily and
-  random mysteries. Each species has one entry with its sprite, types, generation,
+  random mysteries or completing Safari catch assignments. Each species has one entry with its sprite, types, generation,
   height, weight, first registration date (UTC), best guess count, and discovery
   modes. Search by name or Dex number, filter by generation, or sort your finds.
   The collection saves separately from the practice database and survives new
   rounds, offline reloads, and Reset DB. Currently saved solved rounds are imported
   automatically; their registration date is when they enter the collection.
+  Safari's latest saved catch is imported idempotently using its catch timestamp.
+  If a collection entry is malformed, valid entries are recovered and the raw
+  save is backed up before replacement. If that backup cannot be saved, the
+  original collection is retained and recovery stays session-only.
 - **Achievements:** open **My Pokédex → Achievements** for overall, generation,
   and type collections, such as **12 / 151 Gen 1** or **5 / 81 Fire types**.
   Generation milestones unlock at 10, 25, 50, 100, and full completion; type
@@ -165,6 +184,13 @@ close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
 
+Safari uses 27 curated species across its first three areas. Trainer graphics
+come from the [Pokémon Emerald decompilation archive](https://github.com/pret/pokeemerald),
+with original SVG terrain and CSS transitions for PokéSQL. The trainer PNG is
+unchanged; a bundled vector mask hides its palette backdrop. See the
+[Safari asset credits](web/public/safari/CREDITS.txt). Assets ship locally and
+their hashes are checked by the build.
+
 `pokemon` and the beginner-friendly `pokedex` view still contain exactly one
 row per species (1,025). Both expose `has_mega_evolution`, `mega_form_count`,
 `has_regional_form`, `evolution_stage`, and `can_evolve`. The view also exposes
@@ -226,6 +252,16 @@ npm run sprites          # download any missing sprites for the rebuilt DB
 The sprite downloader validates PNG headers, retries failures, and uses atomic
 file replacement. `npm run sprites -- --refresh` re-downloads existing sprites.
 Every production build verifies that all database species have a local sprite.
+
+## Code organization
+
+The frontend separates app composition (`web/src/app/`), feature-owned models,
+components and styles (`web/src/features/`), and reusable SQL, storage, Pokémon
+and UI code (`web/src/shared/`). Engine, browser and desktop tests have separate
+directories. The build checks dependency boundaries and runtime import cycles.
+
+See the [architecture guide](docs/ARCHITECTURE.md) for ownership rules and how to
+add a feature, and the [test guide](web/tests/README.md) for focused checks.
 
 ## Verification
 

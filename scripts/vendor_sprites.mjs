@@ -2,7 +2,7 @@
 import { createRequire } from 'node:module';
 import { readFile, mkdir, writeFile, rename, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import ballThemes from '../web/src/ball-themes.json' with { type: 'json' };
+import ballThemes from '../web/src/features/settings/themes.json' with { type: 'json' };
 const require = createRequire(new URL('../web/package.json', import.meta.url));
 const SQL = await require('sql.js')();
 const db = new SQL.Database(await readFile(new URL('../web/public/pokemon.sqlite', import.meta.url)));

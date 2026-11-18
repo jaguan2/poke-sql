@@ -1,7 +1,7 @@
 # PokéSQL screenshots
 
 Updated November 18, 2026, from the production web app in isolated Chrome
-profiles. All ten photos show the desktop interface, using all eight ball themes.
+profiles. All thirteen photos show the desktop interface, using all eight ball themes.
 These are actual application screenshots: SQL examples and guesses ran through
 the worker. Collection previews use demo saves with canonical Pokémon traits;
 no personal workspace was used.
@@ -21,6 +21,9 @@ answer. The solved random round uses a demonstration target of Dragonite.
 | Type achievements | Luxury Ball | 1440 × 1100 |
 | Mega Charizard SQL challenge | Great Ball | 1440 × 1250 |
 | SQL guide | Dive Ball | 1440 × 1100 |
+| Safari forest exploration | Dusk Ball | 1440 × 1200 |
+| Safari SQL encounter | Master Ball | 1440 × 1300 |
+| Safari catch complete | Master Ball | 1440 × 1100 |
 
 ## SQL practice and Poké Radio
 
@@ -91,6 +94,26 @@ The expanded JOIN reference below the schema sits alongside its executed
 example, which returns one row per Pokémon type. Dive Ball theme.
 
 ![SQL JOIN guide and query results in the Dive Ball theme](sql-guide-desktop.png)
+
+## Safari Zone
+
+Verdant Forest shows the walking trainer, original terrain, shaking encounter
+patch, movement controls, and weighted field guide. All areas remain available;
+one is featured per UTC day. Dusk Ball theme.
+
+![Safari forest exploration and encounter pool in the Dusk Ball theme](safari-forest-desktop.png)
+
+A wild encounter slides onto a battle-style scene. The learner writes SQL to
+complete its assignment; an encounter alone does not register a discovery.
+Master Ball theme.
+
+![Safari wild encounter with a SQL catch assignment](safari-sql-encounter-desktop.png)
+
+A correct result completes the catch and registers the canonical species in the
+personal Pokédex and its achievement tracks. Repeat catches stay one species.
+Master Ball theme.
+
+![Safari catch completed after a correct SQL query](safari-caught-desktop.png)
 
 ## Mobile verification
 

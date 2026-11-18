@@ -24,7 +24,7 @@ Reviewed 2026-11-17.
 These are the unchanged MP3 files downloaded from OC ReMix's official mirror:
 https://ocrmirror.org/files/music/remixes/
 The filenames, audio, and ID3 tags have not been changed. SHA-256 hashes are
-recorded in web/src/music-tracks.json and checked by the production build.
+recorded in web/src/features/music/tracks.json and checked by the production build.
 
 OC ReMix's policy permits noncommercial redistribution/incorporation with
 attribution to the artist and OC ReMix. It requires that redistributed MP3s

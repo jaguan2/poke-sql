@@ -1,5 +1,76 @@
 # Design notes
 
+## Safari Zone (2026-11-18)
+
+Three areas stay open: Verdant Forest (10 forest species), Willow Wetlands
+(nine Water species) and Amber Ridge (eight Ground/Rock/Steel species). The
+featured area cycles by absolute UTC day; it highlights an area without locking
+other areas, changing a current encounter, or adding a catch quota. Pool weights
+are 6/3/1 for Common/Uncommon/Rare. The immediately previous caught species is
+excluded from the next roll when present in that area.
+
+Maps are 15×10 grids with blocked trees, rocks and water, safe paths and encounter
+grass. Movement counts successful tile changes, never blocked input. Ordinary
+grass begins rolling at the second consecutive grass step (24%); six consecutive
+grass steps guarantee an encounter. A visible rustling patch guarantees one
+immediately. Random values and encounter IDs are supplied to pure movement logic,
+so React's repeated reducer evaluation cannot reroll a step. Keyboard input is
+scoped to the focused map; touch buttons support holding and stop on release,
+blur, visibility change and leaving the map.
+
+`app/use-safari.ts` coordinates transient entrance animations and persistent
+`pokesql:safari` sessions. The session retains location, facing, successful step
+count, catch count, current target/task/draft, and latest confirmed catch.
+Reload opens an active assignment directly and never submits its saved draft.
+Reduced motion skips the entrance delay and disables visual animations.
+
+Four assignments cycle by successful catch count: field notes, stat scan, type
+tracker, and ability survey. Their SQL runs through a new worker action against
+a fresh original database with query_only enabled, preserving practice edits.
+Generic result comparison was moved to shared SQL utilities. It checks ordered
+results, columns, types, NULLs and duplicates while allowing aliases. Syntax
+errors/cancellation do not consume checked-query attempts; wrong valid results
+do. The field task has no failure chance after a correct result. Catches merge
+into the journal's unique species and existing achievement tracks with a new
+`safari` source. Saved latest catches import idempotently using their actual
+catch timestamp. Existing daily/random save keys and the daily schedule remain.
+
+The previously identified collection recovery bug is fixed as part of extending
+the save format: malformed entries no longer discard valid discoveries. The
+exact old bytes are backed up before a recovered collection is written; a failed
+backup leaves those original bytes untouched and exposes session-only status.
+
+Brendan's walking sheet is vendored unchanged from the
+[pret Pokémon Emerald archive](https://github.com/pret/pokeemerald/blob/master/graphics/object_events/pics/people/brendan/walking.png).
+The 144×32 atlas has nine 16×32 frames. A local SVG mask uses background palette
+index 0 for display transparency. Terrain/transition art is original SVG/CSS;
+default Pokémon sprites are reused. All new assets enter the generated offline
+cache and Electron package through the existing dist-tree process; build-time
+hash checks and [credits](web/public/safari/CREDITS.txt) document the assets.
+
+## Feature-oriented source layout (2026-11-18)
+
+Frontend ownership now follows `app/`, `features/` and `shared/`. Practice,
+mystery, Pokédex, music and settings keep their models, content, styles and UI
+together. The worker protocol/dispatcher remain application composition, while
+SQL execution/result types, storage and shared Pokémon profiles are independent
+utilities. Mystery grading no longer imports the transport protocol, and type
+badges no longer require importing a SQL results component.
+
+`app/use-workspace.ts` owns transitions, persisted drafts, captured query
+contexts, and asynchronous replies. `app/App.tsx` renders that state;
+`app/components/SqlEditor.tsx` owns CodeMirror, completion and keyboard bindings.
+Persisted keys, editor identities, cancellation/checkpoint rules, dataset bytes,
+and the published daily schedule are preserved by this refactor. Tests now live
+under `tests/engine/`, `tests/browser/`, `tests/desktop/` and `tests/fixtures/`.
+
+`npm run check:architecture` uses the existing TypeScript parser to enforce
+layer boundaries and reject runtime import cycles. See
+[the architecture guide](docs/ARCHITECTURE.md) for the layout and extension rules.
+The structure-only refactor left the earlier review findings as follow-up work.
+The subsequent Safari implementation above addresses collection recovery;
+catalog/dataset migration and packaged artifact updates remain separate work.
+
 ## Species metadata and forms (2026-11-18)
 
 The rebuilt artifact keeps 1,025 rows in `pokemon` and `pokedex`, and adds

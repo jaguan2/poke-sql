@@ -9,7 +9,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader runner",
-    "build": "tsc --noEmit && node scripts/check-assets.mjs && vite build --configLoader runner && node scripts/build-offline.mjs",
+    "build": "tsc --noEmit && npm run check:architecture && node scripts/check-assets.mjs && vite build --configLoader runner && node scripts/build-offline.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
     "preview": "vite preview --configLoader runner",
     "sprites": "node ../scripts/vendor_sprites.mjs",
     "desktop": "npm run build && electron .",

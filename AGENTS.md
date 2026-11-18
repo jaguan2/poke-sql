@@ -7,26 +7,33 @@ locally: no cloud database, no backend server.
 ## Architecture
 
 ```
-scripts/build_db.py   Python ETL: downloads PokeAPI CSVs -> web/public/pokemon.sqlite
-data/raw/             Cached CSV downloads (gitignored, regenerable)
-web/                  Vite + React + TypeScript SPA
-  public/pokemon.sqlite   The database (committed; ~848 KB)
-  public/sprites/         Vendored sprites (one PNG per species)
-  src/db.ts               Async Worker client, cancellation and saved snapshots
-  src/db.worker.ts        SQL execution, checkpointing and isolated challenge checks
-  src/engine.ts           Statement execution and resilient schema introspection
-  src/storage.ts          IndexedDB database saves + localStorage helpers
-  src/challenges.ts       Fifteen exercises and result comparison
-  src/encounters.ts       Solved-mystery collection and persisted-entry validation
-  src/achievements.ts     Original-dataset goals and collection milestones
-  src/use-encounters.ts   Personal Pokédex persistence and saved-win import
-  src/offline.ts          Production service worker registration and status
-  src/samples.ts          Sample queries shown in the sidebar (easiest -> hardest)
-  src/App.tsx             Layout, editor, query execution state
-  src/components/         Sidebar (schema browser), ResultsTable (type badges, sprites)
-  desktop/main.cjs        Sandboxed Electron shell using pokesql://app
-  scripts/                Asset verification and generated offline cache
-  tests/                  Playwright browser, engine, and desktop tests
+scripts/build_db.py        Python ETL -> web/public/pokemon.sqlite
+scripts/vendor_sprites.mjs Vendored species and theme sprites
+data/raw/                  Cached CSV downloads (gitignored)
+web/
+  public/                  Database (~848 KB), sprites, music and credits
+  src/main.tsx             React entry point
+  src/app/                 App composition, workspace controller and editor
+    database/client.ts     Worker lifecycle, timeout and snapshots
+    database/worker.ts     SQL execution and isolated feature checks
+    database/protocol.ts   Worker message contract
+    use-safari.ts          Expedition state and asynchronous catch replies
+  src/features/
+    practice/              Samples, challenges, worked answers and SQL guide
+    mystery/               Daily/random rounds, grading and clue UI
+    pokedex/               Encounters, personal journal and achievements
+    music/                 Player, styles and curated track manifest
+    settings/              Settings, theme manifest and palettes
+    safari/                Biome maps, encounters and SQL catch assignments
+  src/shared/
+    sql/                   Execution, schema introspection and result types
+    storage/               IndexedDB snapshots and localStorage helpers
+    pokemon/               Shared profiles, validation and type badges
+    ui/                    SQL results rendering
+    offline.ts             Service worker registration/status
+  desktop/                 Sandboxed Electron shell (pokesql://app)
+  scripts/                 Architecture/assets checks and offline cache build
+  tests/                   engine/, browser/, desktop/ and shared fixtures/
 ```
 
 The SQL engine is **sql.js** (SQLite compiled to WASM). The entire database is
@@ -34,7 +41,8 @@ fetched into browser memory at startup — queries never leave the page, and
 destructive statements (`UPDATE`/`DROP`) are harmless because "Reset DB"
 restores the original bytes. SQL runs in a Web Worker; completed snapshots
 persist in IndexedDB. Editor drafts, history, saved queries and completion
-progress use localStorage. Reload never executes the saved editor contents.
+progress use localStorage. Safari sessions use a separate localStorage key;
+only a correct SQL catch task registers a Safari discovery in the journal. Reload never executes the saved editor contents.
 
 ## Commands
 
@@ -45,7 +53,8 @@ py scripts/build_db.py --refresh  # re-download CSVs from PokeAPI first
 cd web
 npm install
 npm run dev                       # dev server at http://localhost:5173
-npm run build                     # type-check (tsc --noEmit) + production build
+npm run build                     # type-check + architecture/assets checks + build
+npm run check:architecture        # dependency boundaries and runtime cycles
 npm run sprites                   # fetch missing sprites; -- --refresh replaces them
 npm test                          # engine + browser checks (installed Chrome)
 npm run desktop                   # build and open Electron
@@ -108,8 +117,13 @@ Deliberate schema choices — keep these unless there's a reason not to:
   are downloaded from the PokeAPI sprites repo by scripts/vendor_sprites.mjs.
   The database's source sprite URLs are mapped to bundled PNGs by ResultsTable;
   do not introduce a runtime network fallback.
-- Frontend is plain CSS (web/src/App.css) with CSS variables — no UI
-  framework. Pokémon type colors live in `ResultsTable.tsx`.
+- Frontend is plain CSS (`web/src/app/App.css` plus colocated feature CSS)
+  with CSS variables — no UI framework. Pokémon type colors live in
+  `web/src/shared/pokemon/TypeBadge.tsx`.
+- Keep feature behavior in `src/features/`, reusable code in `src/shared/`, and
+  cross-feature composition in `src/app/`. Shared code must not import features
+  or app; features must not import app. The build enforces these boundaries.
+  See [the architecture guide](docs/ARCHITECTURE.md).
 - CodeMirror autocomplete is schema-aware: worker replies refresh the schema
   even after a partial SQL failure. Quote identifiers; broken views after DROP
   practice must not prevent access to the remaining tables.

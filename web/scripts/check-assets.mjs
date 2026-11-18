@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import initSqlJs from 'sql.js';
-import ballThemes from '../src/ball-themes.json' with { type: 'json' };
-import tracks from '../src/music-tracks.json' with { type: 'json' };
+import ballThemes from '../src/features/settings/themes.json' with { type: 'json' };
+import tracks from '../src/features/music/tracks.json' with { type: 'json' };
+import safariAssets from '../src/features/safari/assets.json' with { type: 'json' };
 import { createHash } from 'node:crypto';
 const SQL = await initSqlJs();
 const db = new SQL.Database(await readFile(new URL('../public/pokemon.sqlite', import.meta.url)));
@@ -26,3 +27,8 @@ for (const track of tracks) {
   }
 }
 console.log(`Verified ${tracks.length} unchanged bundled music tracks.`);
+for (const asset of safariAssets) {
+  const data = await readFile(new URL(`../public/safari/${asset.file}`, import.meta.url));
+  if (createHash('sha256').update(data).digest('hex') !== asset.sha256) throw new Error(`Safari asset changed: ${asset.file}. Check the asset and its source credits before updating its hash.`);
+}
+console.log(`Verified ${safariAssets.length} bundled Safari assets.`);

@@ -1,0 +1,22 @@
+Safari Zone assets
+
+trainer-walking.png
+  Brendan overworld walking sprites, Pokemon Emerald.
+  Source archive: https://github.com/pret/pokeemerald
+  File: graphics/object_events/pics/people/brendan/walking.png
+  https://raw.githubusercontent.com/pret/pokeemerald/master/graphics/object_events/pics/people/brendan/walking.png
+  The original indexed PNG is unchanged. The sprite belongs to Nintendo,
+  Game Freak, and Creatures; the archive is a decompilation source, not a
+  separate grant of ownership or an asset license from those rights holders.
+
+trainer-mask.svg
+  Vector transparency mask generated from background palette index 0 of the
+  walking sheet. It removes the palette backdrop at display time without
+  changing the source PNG, colors, or frame layout.
+
+Terrain, field interface, and transition animation
+  Original SVG/CSS for PokeSQL, not extracted game maps or tilesets.
+
+Pokemon portraits reuse the existing bundled PokeAPI default species sprites.
+No external sprite or terrain requests are made at runtime.
+This is an unofficial educational fan project with no affiliation or endorsement.
