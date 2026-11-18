@@ -1,22 +1,61 @@
 Safari Zone assets
 
-trainer-walking.png
-  Brendan overworld walking sprites, Pokemon Emerald.
-  Source archive: https://github.com/pret/pokeemerald
-  File: graphics/object_events/pics/people/brendan/walking.png
-  https://raw.githubusercontent.com/pret/pokeemerald/master/graphics/object_events/pics/people/brendan/walking.png
-  The original indexed PNG is unchanged. The sprite belongs to Nintendo,
-  Game Freak, and Creatures; the archive is a decompilation source, not a
-  separate grant of ownership or an asset license from those rights holders.
+Terrain maps and field effects
+  Pokemon Emerald assets archived by https://github.com/pret/pokeemerald
+  Pinned revision: 9103e529c2fbdd7add4a1ff3350c6c1f92112c42
+  https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/tilesets
+  Source tilesets: primary/general and secondary/petalburg, fortree, lavaridge,
+  mauville, slateport and cave. General water, shore and flower animation frame 0
+  is loaded at the original VRAM tile offsets from src/tileset_anims.c.
+  Maps combine original 8x8 pixels using the source metatile records, flip bits,
+  layers, and palettes. Route sections use original game layouts and artwork:
+    forest: Route101; wetlands: Route120; ridge: Route112; meadow: Route117;
+    coast: Route109; desert: Route111; cave: GraniteCave_1F;
+    tundra: ShoalCave_LowTideIceRoom; volcano: JaggedPass.
+  Source layout dimensions/tilesets: data/layouts/layouts.json.
+  Source block data: data/layouts/<layout name>/map.bin.
+  Crops and walking collisions are adapted for the PokeSQL Safari minigame.
+  Native 16x16 map cells are scaled with nearest-neighbor rendering at runtime.
+  grass-effect.png: graphics/field_effects/pics/tall_grass.png
+  dust-effect.png: graphics/field_effects/pics/ground_impact_dust.png
+  Effects retain source pixel colors; palette index 0 is made transparent.
+  Rebuild with scripts/build_safari_assets.py (pillow and fonttools[woff] required).
+  Recipes live in web/src/features/safari/routes.json. The build generates
+  web/src/features/safari/maps.json and the matching PNGs together.
 
-trainer-mask.svg
-  Vector transparency mask generated from background palette index 0 of the
-  walking sheet. It removes the palette backdrop at display time without
-  changing the source PNG, colors, or frame layout.
+Trainer sprites, battle scenery, window frames and lettering
+  Pokemon FireRed/LeafGreen assets archived by https://github.com/pret/pokefirered
+  Pinned revision: ce6406d8c2eaf46d543c8a2606de0c3cb1951982
+  https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics
+  trainer-walking.png: graphics/object_events/pics/people/red_normal.png
+  trainer-battle.png: graphics/trainers/back_pics/red_back_pic.png
+  Both trainer PNGs are unchanged, including native palette transparency.
+  battle/{grass,sand,cave,water}.png:
+    graphics/battle_terrain/<terrain>/terrain.{png,bin,pal}
+    Original tiles, flip bits and palettes reconstruct the 240x160 scene.
+    Grass retains native platform pixels with an olive palette and a warm striped
+    backdrop adapted to the user's encounter reference. Other terrain is unchanged.
+  battle/dialogue.png:
+    graphics/battle_interface/textbox.png, textbox.bin, textbox1.pal, textbox2.pal
+    Native 240x48 dialogue geometry with an adapted slate/white palette.
+  battle/nameplate.png:
+    graphics/battle_interface/healthbox_singles_opponent.png, healthbox.pal
+    Reassembled OAM tiles; widened 8px and the level label removed to display
+    actual Dex identity and WILD/CAUGHT status instead of invented battle stats.
+  battle/pixel.woff2:
+    graphics/fonts/latin_normal.png, charmap.txt, src/text.c
+    Glyph outlines follow dark source pixels; advance widths follow the original
+    normal Latin font. Generated locally with FontTools, without an external font.
+  Build implementation: scripts/build_safari_battle.py, scripts/safari_sources.py.
+  Generated sprite alpha bounds use unchanged bundled PokeAPI PNGs. The manifest
+  binds those bounds to the original files with a combined SHA-256 digest.
 
-Terrain, field interface, and transition animation
-  Original SVG/CSS for PokeSQL, not extracted game maps or tilesets.
+Field interface, weather overlays, and transition animation
+  CSS/UI made for PokeSQL, inspired by classic Pokemon and the Wild Area.
 
-Pokemon portraits reuse the existing bundled PokeAPI default species sprites.
-No external sprite or terrain requests are made at runtime.
+Pokemon portraits reuse the existing bundled PokeAPI default species sprites:
+https://github.com/PokeAPI/sprites
+No external sprite, terrain or font requests are made at runtime.
+Game artwork and lettering belong to Nintendo, Game Freak and Creatures.
+The pret archives are decompilation sources, not asset licenses from those owners.
 This is an unofficial educational fan project with no affiliation or endorsement.

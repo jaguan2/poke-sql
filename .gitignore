@@ -6,6 +6,10 @@ __pycache__/
 *.pyc
 
 # Build output
+/PokeSQL.exe
+/Poke.exe
+/*.nsis.7z
+/*.blockmap
 web/dist/
 web/release/
 web/.npm-cache/

@@ -1,33 +1,40 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { changeSafariZone, createSafariSession, isSafariSession, walkSafari } from "../features/safari/model";
+import { changeSafariZone, walkSafari } from "../features/safari/model";
+import { loadSafariSession } from "../features/safari/persistence";
 import type { AssignmentId, SafariCheckReply, SafariPhase, SafariSession } from "../features/safari/types";
 import type { Direction, ZoneId } from "../features/safari/zones";
+import { weatherFor, zoneById } from "../features/safari/zones";
 import type { QueryResult } from "../shared/sql/types";
-import { readLocal, writeLocal } from "../shared/storage/local";
+import { writeLocal } from "../shared/storage/local";
 
 interface State { session: SafariSession; phase: SafariPhase; results: QueryResult[]; message: string; error: string }
 type Action =
-  | { type: "move"; direction: Direction; chance: number; pick: number; id: string }
+  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string }
   | { type: "zone"; id: ZoneId }
-  | { type: "ready"; id: string }
+  | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string }
   | { type: "error"; message: string }
   | { type: "leave" };
 
 function initialState(): State {
-  const session = readLocal("safari", createSafariSession(), isSafariSession);
+  const session = loadSafariSession();
   return { session, phase: session.encounter ? session.encounter.caught ? "caught" : "battle" : "roaming", results: [], message: "", error: "" };
 }
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "move": {
       if (state.phase !== "roaming") return state;
-      const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id);
-      return { ...state, session, phase: session.encounter ? "entering" : "roaming", error: "", message: "" };
+      const weather = weatherFor(zoneById(state.session.zoneId), action.date);
+      const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id, weather);
+      return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
-    case "ready": return state.phase === "entering" && state.session.encounter?.id === action.id ? { ...state, phase: "battle" } : state;
+    case "advance": {
+      if (state.session.encounter?.id !== action.id) return state;
+      if (state.phase === "rustling") return { ...state, phase: "entering" };
+      return state.phase === "entering" ? { ...state, phase: "battle" } : state;
+    }
     case "edit": return action.sql.length <= 100_000 ? { ...state, session: { ...state.session, draft: action.sql }, error: "", message: "" }
       : { ...state, error: "Keep Safari queries below 100,000 characters." };
     case "error": return { ...state, error: action.message };
@@ -55,15 +62,16 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const lastMove = useRef(-Infinity);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
-    if (state.phase !== "entering" || !state.session.encounter) return;
+    if ((state.phase !== "rustling" && state.phase !== "entering") || !state.session.encounter) return;
     const id = state.session.encounter.id;
-    const timer = setTimeout(() => dispatch({ type: "ready", id }), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 950);
+    const duration = state.phase === "rustling" ? 400 : 1200;
+    const timer = setTimeout(() => dispatch({ type: "advance", id }), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration);
     return () => clearTimeout(timer);
   }, [state.phase, state.session.encounter]);
   const move = (direction: Direction) => {
     if (checking.current || performance.now() - lastMove.current < 110) return;
     lastMove.current = performance.now();
-    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), id: crypto.randomUUID() });
+    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10) });
   };
   const submit = async () => {
     const encounter = state.session.encounter;

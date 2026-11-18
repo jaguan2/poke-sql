@@ -1,20 +1,22 @@
 import { test, expect } from '@playwright/test';
 import initSqlJs from 'sql.js';
 import { readFileSync } from 'node:fs';
-import { SAFARI_ZONES, chooseSpecies, featuredZone, isWalkable, movePosition, tileAt, zoneById } from '../../src/features/safari/zones';
+import { SAFARI_ZONES, chooseSpecies, encounterTable, featuredZone, isWalkable, movePosition, rustlingPatch, tileAt, weatherFor, zoneById } from '../../src/features/safari/zones';
 import { ASSIGNMENTS, changeSafariZone, createSafariSession, isSafariSession, walkSafari } from '../../src/features/safari/model';
 import { checkSafariQuery, safariAssignment } from '../../src/features/safari/assignments';
 import { recordSafariEncounter, recordSolvedEncounter, isPokemonEncounters } from '../../src/features/pokedex/encounters';
 import { compareMysteryPokemon } from '../../src/features/mystery/model';
 import { entriesFor } from '../fixtures/pokemon-encounters';
+import { nearSafariGrass } from '../fixtures/safari';
 
 test('Safari maps have connected safe starts and reachable encounter grass, with biome-appropriate canonical pools', async () => {
   const SQL = await initSqlJs();
   const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
   try {
     for (const zone of SAFARI_ZONES) {
-      expect(zone.map).toHaveLength(10);
-      expect(zone.map.every(row => row.length === 15)).toBe(true);
+      expect(zone.map.length).toBeGreaterThanOrEqual(15);
+      expect(zone.map[0].length).toBeGreaterThanOrEqual(20);
+      expect(zone.map.every(row => row.length === zone.map[0].length)).toBe(true);
       expect(isWalkable(zone, zone.start)).toBe(true);
       expect(tileAt(zone, zone.start)).not.toBe('g');
       const seen = new Set<string>();
@@ -31,39 +33,74 @@ test('Safari maps have connected safe starts and reachable encounter grass, with
       }
       expect(seen.has(`${zone.rustle.x},${zone.rustle.y}`)).toBe(true);
       expect(tileAt(zone, zone.rustle)).toBe('g');
+      for (let catches = 0; catches < 120; catches++) {
+        const patch = rustlingPatch(zone, catches);
+        expect(tileAt(zone, patch)).toBe('g');
+        expect(seen.has(`${patch.x},${patch.y}`)).toBe(true);
+      }
       expect(new Set(zone.species.map(species => species.id)).size).toBe(zone.species.length);
       for (const species of zone.species) {
         const row = db.exec('SELECT name, type1, type2 FROM pokedex WHERE id=?', [species.id])[0].values[0];
         expect(row[0]).toBe(species.name);
-        const expected = zone.id === 'forest' ? ['bug', 'grass', 'electric'] : zone.id === 'wetlands' ? ['water'] : ['rock', 'ground', 'steel'];
+        const expected = { forest: ['bug', 'grass', 'electric'], wetlands: ['water'], ridge: ['rock', 'ground', 'steel'], meadow: ['normal', 'flying', 'fairy', 'psychic'], coast: ['water', 'flying'], desert: ['ground', 'grass', 'dragon'], cave: ['rock', 'ground', 'dark', 'ghost', 'poison', 'flying'], tundra: ['ice'], volcano: ['fire', 'rock'] }[zone.id];
         expect(expected.some(type => row.slice(1).includes(type))).toBe(true);
       }
     }
   } finally { db.close(); }
 });
 
+test('guaranteed encounters follow the new patch after a catch instead of the old patch', () => {
+  const zone = zoneById('forest');
+  const patch = rustlingPatch(zone, 1);
+  const approach = (['up', 'down', 'left', 'right'] as const).map(direction => ({ direction, position: movePosition(zone, patch, direction) })).find(entry => entry.position !== patch)!;
+  const reverse = { up: 'down', down: 'up', left: 'right', right: 'left' } as const;
+  const session = { ...createSafariSession(), catches: 1, position: approach.position };
+  const encounter = walkSafari(session, reverse[approach.direction], 1, 0, 'new-hotspot');
+  expect(encounter.position).toEqual(patch);
+  expect(encounter.encounter?.pokemonId).toBe(10);
+  const oldPatch = walkSafari({ ...nearSafariGrass(), catches: 1 }, 'left', 1, 0, 'old-hotspot');
+  expect(oldPatch.position).toEqual(zone.rustle);
+  expect(oldPatch.encounter).toBeNull();
+});
+
 test('movement blocks obstacles, encounters require walking in grass, and rustles and pity steps work', () => {
   const initial = createSafariSession();
-  const wall = { ...initial, position: { x: 1, y: 1 } };
+  const wall = { ...initial, position: { x: 2, y: 8 } };
   expect(walkSafari(wall, 'left', 0, 0, 'wall')).toMatchObject({ position: wall.position, steps: 0, encounter: null });
   expect(walkSafari(initial, 'up', 0, 0, 'path').encounter).toBeNull();
-  const near = { ...initial, position: { x: 5, y: 6 } };
+  const near = nearSafariGrass();
   const encountered = walkSafari(near, 'left', 0.99, 0, 'rustle');
   expect(encountered.encounter).toMatchObject({ id: 'rustle', pokemonId: 10, assignmentId: 'field-notes' });
   expect(walkSafari(encountered, 'up', 0, 0, 'another')).toBe(encountered);
   expect(changeSafariZone(encountered, 'wetlands')).toBe(encountered);
-  const pity = { ...initial, position: { x: 2, y: 2 }, grassSteps: 5 };
+  const pity = { ...initial, position: { x: 2, y: 3 }, grassSteps: 5 };
   expect(walkSafari(pity, 'right', 0.99, 0.99, 'pity').encounter).not.toBeNull();
   expect(changeSafariZone(initial, 'wetlands')).toMatchObject({ zoneId: 'wetlands', position: zoneById('wetlands').start });
 });
 
-test('weighted encounters exclude the last caught species and every zone remains featured over a three-day cycle', () => {
+test('weighted encounters exclude the last caught species and every zone remains featured over a nine-day cycle', () => {
   const zone = zoneById('forest');
   const samples = Array.from({ length: 1000 }, (_, index) => chooseSpecies(zone, index / 1000));
   expect(samples.filter(species => species.id === 10).length).toBeGreaterThan(samples.filter(species => species.id === 123).length * 4);
   for (const roll of [0, 0.3, 0.8, 0.9999]) expect(chooseSpecies(zone, roll, 10).id).not.toBe(10);
-  expect(new Set(['2026-11-18', '2026-11-19', '2026-11-20'].map(featuredZone)).size).toBe(3);
-  expect(featuredZone('2026-11-18')).toBe(featuredZone('2026-11-18'));
+  expect(new Set(Array.from({ length: 9 }, (_, day) => featuredZone(`2026-11-${18 + day}`))).size).toBe(9);
+});
+
+test('the encounter table and actual rolls share rarity weights, weather boosts and last-catch exclusion', () => {
+  const zone = { ...zoneById('forest'), species: [
+    { id: 10, name: 'Caterpie', weight: 6, rarity: 'Common', favoredWeather: [] },
+    { id: 46, name: 'Paras', weight: 3, rarity: 'Uncommon', favoredWeather: [] },
+    { id: 25, name: 'Pikachu', weight: 1, rarity: 'Rare', favoredWeather: ['rain'] },
+  ] } as const;
+  expect(encounterTable(zone).rows.map(row => [row.pokemon.id, row.weight, row.chance])).toEqual([
+    [10, 6, 0.6], [46, 3, 0.3], [25, 1, 0.1],
+  ]);
+  expect([0, 0.59, 0.6, 0.89, 0.9, 0.999].map(roll => chooseSpecies(zone, roll).id)).toEqual([10, 10, 46, 46, 25, 25]);
+  const rain = encounterTable(zone, 'rain', 10);
+  expect(rain.totalWeight).toBe(5);
+  expect(rain.rows.map(row => [row.pokemon.id, row.chance])).toEqual([[46, 0.6], [25, 0.4]]);
+  expect(chooseSpecies(zone, 0.65, 10, 'rain').id).toBe(25);
+  expect(chooseSpecies(zone, 0.65, 10, 'clear').id).toBe(46);
 });
 
 test('all Safari assignments grade against canonical rows, preserve NULLs/order, and reject writes and multiple statements', async () => {
@@ -93,10 +130,25 @@ test('all Safari assignments grade against canonical rows, preserve NULLs/order,
   } finally { db.close(); }
 });
 
+test('weather changes actual encounter outcomes and rotates within each habitat', () => {
+  const forest = zoneById('forest');
+  expect(chooseSpecies(forest, 0.96, undefined, 'clear').name).toBe('Scyther');
+  expect(chooseSpecies(forest, 0.96, undefined, 'rain').name).toBe('Pikachu');
+  const conditions = new Set(Array.from({ length: 9 }, (_, day) => weatherFor(forest, `2026-11-${18 + day}`)));
+  expect([...conditions].sort()).toEqual(['clear', 'rain', 'sun']);
+});
+
+test('catches from expanded habitats restore without resetting the expedition', async () => {
+  const [entry] = await entriesFor([872]);
+  const session = changeSafariZone(createSafariSession(), 'tundra');
+  const caught = { encounterId: 'snow-catch', pokemon: entry.pokemon, attempts: 1, caughtAt: '2026-11-18T12:00:00.000Z' };
+  expect(isSafariSession({ ...session, catches: 1, encounter: { id: 'snow-catch', pokemonId: 872, assignmentId: 'field-notes', attempts: 1, caught: true }, lastCatch: caught })).toBe(true);
+});
+
 test('Safari save validation rejects impossible positions, forged pools and broken caught state', async () => {
   const initial = createSafariSession();
   expect(isSafariSession(JSON.parse(JSON.stringify(initial)))).toBe(true);
-  const active = walkSafari({ ...initial, position: { x: 5, y: 6 } }, 'left', 0, 0, 'encounter');
+  const active = walkSafari(nearSafariGrass(), 'left', 0, 0, 'encounter');
   expect(isSafariSession(active)).toBe(true);
   for (const value of [null, {}, { ...initial, position: { x: 0, y: 0 } }, { ...initial, zoneId: 'unknown' },
     { ...initial, steps: -1 }, { ...active, encounter: { ...active.encounter, pokemonId: 1025 } },

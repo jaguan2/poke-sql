@@ -2,27 +2,66 @@
 
 ## Safari Zone (2026-11-18)
 
-Three areas stay open: Verdant Forest (10 forest species), Willow Wetlands
-(nine Water species) and Amber Ridge (eight Ground/Rock/Steel species). The
+Nine areas stay open. Verdant Forest (10 forest species), Willow Wetlands
+(nine Water species) and Amber Ridge (eight Ground/Rock/Steel species) are joined
+by meadow, coast, desert, cave, tundra and volcanic habitats (eight species each). The
 featured area cycles by absolute UTC day; it highlights an area without locking
 other areas, changing a current encounter, or adding a catch quota. Pool weights
-are 6/3/1 for Common/Uncommon/Rare. The immediately previous caught species is
+start at 6/3/1 for Common/Uncommon/Rare and double for weather-favored species.
+The immediately previous caught species is
 excluded from the next roll when present in that area.
 
-Maps are 15×10 grids with blocked trees, rocks and water, safe paths and encounter
-grass. Movement counts successful tile changes, never blocked input. Ordinary
+Maps now use native Emerald route sections from 20×20 to 60×20 cells, with taller
+routes up to 46 cells. A clamped 15×10 camera follows the trainer; the expandable
+Route map marks the trainer, trailhead and rustling patch. Crops, entrances and
+encounter behaviors live in `features/safari/routes.json`. The asset script reads
+the pinned source layouts, block collision bits and metatile behaviors, then
+generates both `maps.json` and matching PNGs. Walking uses the section reachable
+from the recipe's explicit trailhead; Surf water, ledge jumps and building warps stay blocked. Game graphics
+are preserved, including native shorelines, signs, flowers and first animation
+frames for water. Movement counts successful tile changes, never blocked input. Ordinary
 grass begins rolling at the second consecutive grass step (24%); six consecutive
 grass steps guarantee an encounter. A visible rustling patch guarantees one
 immediately. Random values and encounter IDs are supplied to pure movement logic,
 so React's repeated reducer evaluation cannot reroll a step. Keyboard input is
-scoped to the focused map; touch buttons support holding and stop on release,
+active throughout Safari exploration, including after clicking outside the map.
+Its listener exists only with the roaming map, skips consumed/modifier/composition
+events, and leaves typing, media controls, modal settings and the open habitat
+picker alone. A new habitat restores map focus. Touch buttons support holding and stop on release,
 blur, visibility change and leaving the map.
 
 `app/use-safari.ts` coordinates transient entrance animations and persistent
 `pokesql:safari` sessions. The session retains location, facing, successful step
 count, catch count, current target/task/draft, and latest confirmed catch.
+The field guide renders a semantic encounter table. Its next-roll percentages
+and the picker both use `encounterTable`, so weather multipliers and the
+immediately previous caught species's exclusion have one owner. A resting row
+remains visible for collection progress but cannot be rolled until another
+species is caught.
+Version 1 clearing saves migrate to version 2 by relocating only the trainer
+and resetting consecutive grass steps. Catches, checked attempts, active targets,
+drafts, latest catch and total walking steps are retained and validated.
 Reload opens an active assignment directly and never submits its saved draft.
 Reduced motion skips the entrance delay and disables visual animations.
+
+The encounter and caught views share a responsive 3:2 screen, based on the
+Game Boy Advance's 240×160 resolution ([Nintendo technical data](https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html)).
+It reaches 720×480 (3×) on desktop, with the SQL notebook and catch summary in
+the same centred column. A fixed 250px/220px height previously made desktop
+battles stretch into a banner. Sprite positions, platform dimensions and entrance
+travel now scale inside the screen; mobile no longer overrides the battle's
+shape. `SafariBattleScene` owns the pixel renderer separately from the SQL
+notebook. FireRed/LeafGreen tilemaps supply the platforms and lower 48px dialogue
+frame; the supplied reference informs a warm striped grass backdrop, olive
+platform palette and slate/white text window. Sand, water and cave encounters use
+their native scenery; tundra applies a cool palette filter. The native opponent
+nameplate is widened for Dex identity/status, with its original level removed.
+There are no invented levels or HP mechanics. A local WOFF2 font traces the dark
+pixels in the game's normal Latin glyph sheet and retains its advance widths;
+CSS adds its pixel shadow. All lettering scales with the 240px game coordinate system.
+Generated alpha bounds align unchanged PokéAPI sprites to the far platform,
+preserving native small-species sizes and fitting large sprites inside 64×64 pixels.
+The dialogue occupies the lower 30%; the SQL notebook supplies the catch action.
 
 Four assignments cycle by successful catch count: field notes, stat scan, type
 tracker, and ability survey. Their SQL runs through a new worker action against
@@ -40,11 +79,16 @@ the save format: malformed entries no longer discard valid discoveries. The
 exact old bytes are backed up before a recovered collection is written; a failed
 backup leaves those original bytes untouched and exposes session-only status.
 
-Brendan's walking sheet is vendored unchanged from the
-[pret Pokémon Emerald archive](https://github.com/pret/pokeemerald/blob/master/graphics/object_events/pics/people/brendan/walking.png).
-The 144×32 atlas has nine 16×32 frames. A local SVG mask uses background palette
-index 0 for display transparency. Terrain/transition art is original SVG/CSS;
-default Pokémon sprites are reused. All new assets enter the generated offline
+Red's walking and battle-back sheets are vendored unchanged from the pinned
+[FireRed/LeafGreen archive](https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics).
+The 144×32 walking atlas has nine 16×32 frames and native transparency, so the
+previous Brendan background mask is removed. Grass effects render in front of
+the trainer's feet. The initial drawn terrain has been replaced by native
+Emerald metatiles and palettes. Nine route sections now share one collision/art
+build, with recipe and generated-geometry hashes checked before production builds.
+Daily weather affects encounter weights;
+the field guide identifies favored species. Default Pokémon sprites are reused.
+All new assets enter the generated offline
 cache and Electron package through the existing dist-tree process; build-time
 hash checks and [credits](web/public/safari/CREDITS.txt) document the assets.
 

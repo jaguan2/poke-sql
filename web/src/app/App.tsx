@@ -51,7 +51,7 @@ export default function App() {
         onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
       <main className={`main${isMystery && !showPokedex && !showSafari ? " mystery-workspace" : ""}`}>
         {showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError}
-          results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
+          registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
           onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex}
           editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
             onChange={safari.actions.editDraft} onRun={() => void safari.actions.submit()} busy={busy} autocomplete={autocomplete} />} />

@@ -1,0 +1,11 @@
+{
+  "forest": { "layout": "Route101", "crop": [0, 0, 20, 20], "entrance": [10, 17], "encounters": [2, 3, 9], "name": "Canopy Trail" },
+  "wetlands": { "layout": "Route120", "crop": [0, 45, 40, 40], "entrance": [34, 23], "encounters": [2, 3, 9], "name": "Willow Crossing" },
+  "ridge": { "layout": "Route112", "crop": [0, 20, 40, 38], "entrance": [18, 32], "encounters": [2, 3, 9], "name": "Amber Ascent" },
+  "meadow": { "layout": "Route117", "crop": [0, 0, 60, 20], "entrance": [55, 10], "encounters": [2, 3, 9], "name": "Blossom Lane" },
+  "coast": { "layout": "Route109", "crop": [0, 0, 40, 32], "entrance": [17, 9], "encounters": [6, 33, 37], "name": "Seabreeze Walk" },
+  "desert": { "layout": "Route111", "crop": [0, 35, 40, 42], "entrance": [31, 36], "encounters": [6, 33, 37], "name": "Mirage Pass" },
+  "cave": { "layout": "GraniteCave_1F", "crop": [0, 0, 42, 15], "entrance": [5, 9], "encounters": [8], "name": "Moonstone Passage" },
+  "tundra": { "layout": "ShoalCave_LowTideIceRoom", "crop": [0, 0, 20, 30], "entrance": [5, 26], "encounters": [32, 38, 39], "name": "Frostveil Passage" },
+  "volcano": { "layout": "JaggedPass", "crop": [0, 0, 30, 46], "entrance": [12, 39], "encounters": [2, 3, 9, 36], "name": "Ember Switchbacks" }
+}

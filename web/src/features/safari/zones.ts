@@ -1,66 +1,145 @@
-export type ZoneId = "forest" | "wetlands" | "ridge";
+import maps from "./maps.json" with { type: "json" };
+
+export type ZoneId = keyof typeof maps;
+export type WeatherId = "clear" | "rain" | "fog" | "sandstorm" | "snow" | "sun";
 export type Direction = "up" | "down" | "left" | "right";
 export interface Position { x: number; y: number }
-export interface SafariSpecies { id: number; name: string; weight: number; rarity: "Common" | "Uncommon" | "Rare" }
+export interface SafariSpecies { id: number; name: string; weight: number; rarity: "Common" | "Uncommon" | "Rare"; favoredWeather: readonly WeatherId[] }
 export interface SafariZoneDefinition {
   id: ZoneId; name: string; subtitle: string; description: string;
-  accent: string; ground: string; grass: string; canopy: string;
-  map: readonly string[]; start: Position; rustle: Position;
+  accent: string; ground: string; canopy: string; icon: string;
+  encounterTerrain: "grass" | "sand" | "stone" | "snow"; weather: readonly WeatherId[];
+  battleTerrain: "grass" | "sand" | "cave" | "water";
+  map: readonly string[]; start: Position; rustle: Position; routeName: string;
   species: readonly SafariSpecies[];
 }
 
-// Fifteen columns by ten rows. Walls/trees (T), water (~) and boulders (R)
-// block movement; g is encounter grass; dots and S are safe paths.
-const FOREST = [
-  "TTTTTTTTTTTTTTT", "Tggggg...gggggT", "Tggggg...gggggT", "Tggggg...gggggT",
-  "T.............T", "Tggggg...gggggT", "Tggggg...gggggT", "Tggggg...gggggT",
-  "T......S......T", "TTTTTT...TTTTTT",
-] as const;
-const common = (id: number, name: string): SafariSpecies => ({ id, name, weight: 6, rarity: "Common" });
-const uncommon = (id: number, name: string): SafariSpecies => ({ id, name, weight: 3, rarity: "Uncommon" });
-const rare = (id: number, name: string): SafariSpecies => ({ id, name, weight: 1, rarity: "Rare" });
+// Native route geometry and art are generated together from the pinned game maps.
+const common = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 6, rarity: "Common", favoredWeather });
+const uncommon = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 3, rarity: "Uncommon", favoredWeather });
+const rare = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 1, rarity: "Rare", favoredWeather });
 
 export const SAFARI_ZONES: readonly SafariZoneDefinition[] = [
   {
-    id: "forest", name: "Verdant Forest", subtitle: "Bug & Grass country",
+    id: "forest", battleTerrain: "grass", name: "Verdant Forest", subtitle: "Bug & Grass country",
     description: "Sunlight catches the canopy. Bug Pokémon shelter in the grass, with a few elusive forest neighbours.",
-    accent: "#d5ec9b", ground: "#8cb978", grass: "#477f54", canopy: "#285d48",
-    map: FOREST, start: { x: 7, y: 8 }, rustle: { x: 4, y: 6 },
-    species: [common(10, "Caterpie"), common(13, "Weedle"), common(46, "Paras"), common(48, "Venonat"), uncommon(102, "Exeggcute"), uncommon(114, "Tangela"), uncommon(165, "Ledyba"), uncommon(167, "Spinarak"), rare(123, "Scyther"), rare(25, "Pikachu")],
+    icon: "♧", encounterTerrain: "grass", weather: ["clear", "rain", "sun"],
+    accent: "#d5ec9b", ground: "#8cb978", canopy: "#285d48",
+    map: maps.forest.rows, start: maps.forest.start, rustle: maps.forest.rustle, routeName: maps.forest.name,
+    species: [common(10, "Caterpie"), common(13, "Weedle"), common(46, "Paras"), common(48, "Venonat"), uncommon(102, "Exeggcute"), uncommon(114, "Tangela", "sun"), uncommon(165, "Ledyba"), uncommon(167, "Spinarak"), rare(123, "Scyther"), rare(25, "Pikachu", "rain")],
   },
   {
-    id: "wetlands", name: "Willow Wetlands", subtitle: "Water's edge",
-    description: "Follow the boardwalk through shallow pools. Water Pokémon gather in the reeds along the banks.",
-    accent: "#aae0dc", ground: "#8eafa0", grass: "#477d75", canopy: "#315f60",
-    map: ["TTTTTTTTTTTTTTT", "Tggggg...gggggT", "Tggggg...gggggT", "Tgg~~~...~~~ggT", "T..~~~...~~~..T", "Tgg~~~...~~~ggT", "Tggggg...gggggT", "Tggggg...gggggT", "T......S......T", "TTTTTT...TTTTTT"],
-    start: { x: 7, y: 8 }, rustle: { x: 4, y: 6 },
-    species: [common(54, "Psyduck"), common(60, "Poliwag"), common(79, "Slowpoke"), common(129, "Magikarp"), uncommon(118, "Goldeen"), uncommon(183, "Marill"), uncommon(194, "Wooper"), uncommon(270, "Lotad"), rare(283, "Surskit")],
+    id: "wetlands", battleTerrain: "grass", name: "Willow Wetlands", subtitle: "Water's edge",
+    description: "Follow the bridge and winding banks through shallow pools. Water Pokémon gather in the reeds.",
+    icon: "≈", encounterTerrain: "grass", weather: ["rain", "fog"],
+    accent: "#aae0dc", ground: "#8eafa0", canopy: "#315f60",
+    map: maps.wetlands.rows, start: maps.wetlands.start, rustle: maps.wetlands.rustle, routeName: maps.wetlands.name,
+    species: [common(54, "Psyduck"), common(60, "Poliwag", "rain"), common(79, "Slowpoke"), common(129, "Magikarp"), uncommon(118, "Goldeen"), uncommon(183, "Marill"), uncommon(194, "Wooper"), uncommon(270, "Lotad"), rare(283, "Surskit", "rain")],
   },
   {
-    id: "ridge", name: "Amber Ridge", subtitle: "Rock & Ground trails",
+    id: "ridge", battleTerrain: "grass", name: "Amber Ridge", subtitle: "Rock & Ground trails",
     description: "Warm stone, winding trails, and hardy grass. Rock and Ground Pokémon make their home on this quiet ridge.",
-    accent: "#f1d39b", ground: "#b8aa7c", grass: "#8a9050", canopy: "#796e55",
-    map: ["RRRRRRRRRRRRRRR", "Rggggg...gggggR", "RggRgg...ggRggR", "Rggggg...gggggR", "R.............R", "Rggggg...gggggR", "Rggggg...gggggR", "Rggggg...gggggR", "R......S......R", "RRRRRR...RRRRRR"],
-    start: { x: 7, y: 8 }, rustle: { x: 4, y: 6 },
-    species: [common(74, "Geodude"), common(27, "Sandshrew"), common(111, "Rhyhorn"), common(328, "Trapinch"), uncommon(95, "Onix"), uncommon(304, "Aron"), uncommon(299, "Nosepass"), rare(246, "Larvitar")],
+    icon: "◇", encounterTerrain: "grass", weather: ["clear", "sandstorm"],
+    accent: "#f1d39b", ground: "#b8aa7c", canopy: "#796e55",
+    map: maps.ridge.rows, start: maps.ridge.start, rustle: maps.ridge.rustle, routeName: maps.ridge.name,
+    species: [common(74, "Geodude"), common(27, "Sandshrew"), common(111, "Rhyhorn"), common(328, "Trapinch"), uncommon(95, "Onix"), uncommon(304, "Aron"), uncommon(299, "Nosepass"), rare(246, "Larvitar", "sandstorm")],
+  },
+  {
+    id: "meadow", battleTerrain: "grass", name: "Sunlit Meadow", subtitle: "Normal, Flying & Fairy",
+    description: "Open grassland and flower borders shelter small mammals, songbirds and shy Fairy types.",
+    icon: "✿", encounterTerrain: "grass", weather: ["clear", "sun", "fog"],
+    accent: "#e6eda6", ground: "#9fbd75", canopy: "#49784b",
+    map: maps.meadow.rows, start: maps.meadow.start, rustle: maps.meadow.rustle, routeName: maps.meadow.name,
+    species: [common(831, "Wooloo"), common(661, "Fletchling"), common(427, "Buneary"), common(333, "Swablu"), uncommon(280, "Ralts", "fog"), uncommon(175, "Togepi", "sun"), uncommon(209, "Snubbull"), rare(133, "Eevee", "clear")],
+  },
+  {
+    id: "coast", battleTerrain: "water", name: "Azure Coast", subtitle: "Shoreline Water & Flying",
+    description: "A beachside trail winds between parasols, surf and rocky shores. Water Pokémon gather in the sand.",
+    icon: "≋", encounterTerrain: "sand", weather: ["clear", "rain"],
+    accent: "#b5e8ed", ground: "#d8c08b", canopy: "#3d7c8b",
+    map: maps.coast.rows, start: maps.coast.start, rustle: maps.coast.rustle, routeName: maps.coast.name,
+    species: [common(278, "Wingull"), common(98, "Krabby"), common(90, "Shellder"), common(72, "Tentacool", "rain"), uncommon(418, "Buizel", "rain"), uncommon(170, "Chinchou"), uncommon(279, "Pelipper"), rare(131, "Lapras", "rain")],
+  },
+  {
+    id: "desert", battleTerrain: "sand", name: "Mirage Dunes", subtitle: "Sand-dwelling Ground & Dragon",
+    description: "Windblown sand hides burrowing Pokémon, desert plants and the occasional young Dragon.",
+    icon: "⌁", encounterTerrain: "sand", weather: ["sun", "sandstorm"],
+    accent: "#f3d58b", ground: "#d6bb78", canopy: "#8f7745",
+    map: maps.desert.rows, start: maps.desert.start, rustle: maps.desert.rustle, routeName: maps.desert.name,
+    species: [common(551, "Sandile", "sandstorm"), common(328, "Trapinch"), common(27, "Sandshrew"), common(449, "Hippopotas", "sandstorm"), uncommon(331, "Cacnea", "sun"), uncommon(343, "Baltoy"), uncommon(556, "Maractus", "sun"), rare(443, "Gible", "sandstorm")],
+  },
+  {
+    id: "cave", battleTerrain: "cave", name: "Moonstone Caverns", subtitle: "Dark caves & Ghost sightings",
+    description: "Stone corridors and underground pools shelter bats, cave dwellers and Ghost types in the mist.",
+    icon: "☾", encounterTerrain: "stone", weather: ["clear", "fog"],
+    accent: "#cdc4eb", ground: "#8f8271", canopy: "#4c485a",
+    map: maps.cave.rows, start: maps.cave.start, rustle: maps.cave.rustle, routeName: maps.cave.name,
+    species: [common(41, "Zubat"), common(74, "Geodude"), common(92, "Gastly", "fog"), common(524, "Roggenrola"), uncommon(714, "Noibat"), uncommon(425, "Drifloon", "fog"), uncommon(302, "Sableye", "fog"), rare(633, "Deino")],
+  },
+  {
+    id: "tundra", battleTerrain: "cave", name: "Frostveil Tundra", subtitle: "Snowfields & Ice types",
+    description: "Icy tracks lead between frozen pools. Cold-adapted Pokémon roam the snow and crystal outcrops.",
+    icon: "❄", encounterTerrain: "snow", weather: ["clear", "snow"],
+    accent: "#d3eff7", ground: "#c4dfe5", canopy: "#6d91aa",
+    map: maps.tundra.rows, start: maps.tundra.start, rustle: maps.tundra.rustle, routeName: maps.tundra.name,
+    species: [common(220, "Swinub"), common(361, "Snorunt", "snow"), common(363, "Spheal"), common(582, "Vanillite", "snow"), uncommon(613, "Cubchoo", "snow"), uncommon(459, "Snover"), uncommon(872, "Snom", "snow"), rare(996, "Frigibax", "snow")],
+  },
+  {
+    id: "volcano", battleTerrain: "cave", name: "Ember Foothills", subtitle: "Volcanic slopes & Fire types",
+    description: "Warm ash trails and hot springs attract hardy Fire Pokémon and species that thrive in volcanic foothills.",
+    icon: "♨", encounterTerrain: "grass", weather: ["clear", "sun"],
+    accent: "#f5c69e", ground: "#b99578", canopy: "#805450",
+    map: maps.volcano.rows, start: maps.volcano.start, rustle: maps.volcano.rustle, routeName: maps.volcano.name,
+    species: [common(218, "Slugma", "sun"), common(322, "Numel", "sun"), common(58, "Growlithe"), common(77, "Ponyta"), uncommon(607, "Litwick"), uncommon(757, "Salandit", "sun"), uncommon(837, "Rolycoly"), rare(324, "Torkoal", "sun")],
   },
 ];
 
 export const zoneById = (id: ZoneId): SafariZoneDefinition => SAFARI_ZONES.find(zone => zone.id === id)!;
 export const isZoneId = (id: unknown): id is ZoneId => SAFARI_ZONES.some(zone => zone.id === id);
 export const tileAt = (zone: SafariZoneDefinition, position: Position): string | undefined => zone.map[position.y]?.[position.x];
+export function routeCamera(zone: SafariZoneDefinition, position: Position) {
+  const width = Math.min(15, zone.map[0].length), height = Math.min(10, zone.map.length);
+  return { width, height,
+    x: Math.max(0, Math.min(position.x - Math.floor(width / 2), zone.map[0].length - width)),
+    y: Math.max(0, Math.min(position.y - Math.floor(height / 2), zone.map.length - height)) };
+}
+/** A stable hotspot for this expedition, moving to fresh grass after each catch.
+ * Derived from existing saved progress so older sessions need no migration. */
+export function rustlingPatch(zone: SafariZoneDefinition, catches: number): Position {
+  const grass = zone.map.flatMap((row, y) => [...row].flatMap((tile, x) => tile === "g" ? [{ x, y }] : []));
+  const start = grass.findIndex(tile => tile.x === zone.rustle.x && tile.y === zone.rustle.y);
+  return grass[(start + (catches % grass.length) * 17) % grass.length];
+}
 export const isWalkable = (zone: SafariZoneDefinition, position: Position): boolean => [".", "g", "S"].includes(tileAt(zone, position) ?? "");
 export function movePosition(zone: SafariZoneDefinition, position: Position, direction: Direction): Position {
   const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[direction];
   const next = { x: position.x + delta[0], y: position.y + delta[1] };
   return isWalkable(zone, next) ? next : position;
 }
-export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number): SafariSpecies {
-  const pool = zone.species.filter(species => species.id !== previousId);
-  let remaining = Math.max(0, Math.min(roll, 0.999999)) * pool.reduce((sum, species) => sum + species.weight, 0);
-  return pool.find(species => (remaining -= species.weight) < 0) ?? pool[pool.length - 1];
+export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number, weather: WeatherId = "clear"): SafariSpecies {
+  const { rows, totalWeight } = encounterTable(zone, weather, previousId);
+  let remaining = Math.max(0, Math.min(roll, 0.999999)) * totalWeight;
+  return (rows.find(row => (remaining -= row.weight) < 0) ?? rows[rows.length - 1]).pokemon;
+}
+export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = "clear", previousId?: number) {
+  const eligible = zone.species.filter(pokemon => pokemon.id !== previousId)
+    .map(pokemon => ({ pokemon, weight: encounterWeight(pokemon, weather) }));
+  const totalWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
+  return { totalWeight, rows: eligible.map(row => ({ ...row, chance: row.weight / totalWeight })) };
 }
 export function featuredZone(date: string): ZoneId {
   const day = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000);
   return SAFARI_ZONES[((day % SAFARI_ZONES.length) + SAFARI_ZONES.length) % SAFARI_ZONES.length].id;
 }
+
+export const WEATHER: Record<WeatherId, { name: string; icon: string }> = {
+  clear: { name: "Clear skies", icon: "☀" }, rain: { name: "Rain", icon: "☂" },
+  fog: { name: "Fog", icon: "≋" }, sandstorm: { name: "Sandstorm", icon: "⌁" },
+  snow: { name: "Snow", icon: "❄" }, sun: { name: "Strong sunlight", icon: "☀" },
+};
+export function weatherFor(zone: SafariZoneDefinition, date: string): WeatherId {
+  const day = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000);
+  const offset = [...zone.id].reduce((sum, character) => sum + character.charCodeAt(0), 0);
+  return zone.weather[((day + offset) % zone.weather.length + zone.weather.length) % zone.weather.length];
+}
+export const encounterWeight = (species: SafariSpecies, weather: WeatherId): number => species.weight * (species.favoredWeather.includes(weather) ? 2 : 1);

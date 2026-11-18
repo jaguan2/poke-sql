@@ -43,20 +43,55 @@ profile, so moving the EXE does not move your saved work.
 
 ## Practice tools
 
-- **Safari Zone:** explore Verdant Forest, Willow Wetlands, and Amber Ridge with
-  a walking trainer, using arrow keys/WASD while the map is focused, or touch
-  direction buttons. All three areas stay open, with a featured area rotating
-  daily at 00:00 UTC. Each has a curated, weighted encounter pool: forest
-  Bug/Grass species, wetland Water species, and rocky Ground/Rock species.
-  Walk through tall grass for a chance encounter, or investigate the sparkling,
-  shaking patch for a guaranteed encounter. A sliding battle entrance reveals
-  the wild Pokémon and a short SQL catch assignment. Assignments progress
+- **Safari Zone:** explore nine habitats: Verdant Forest, Willow Wetlands,
+  Amber Ridge, Sunlit Meadow, Azure Coast, Mirage Dunes, Moonstone Caverns,
+  Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
+  Move the trainer with arrow keys/WASD while exploring, or touch
+  direction buttons. Keyboard walking works after clicking around the Safari;
+  typing, settings and the habitat picker pause it. All areas stay open, with a featured area rotating
+  daily at 00:00 UTC. Each has its own layout and habitat-appropriate species.
+  Routes now scroll with the trainer through winding trails, tree clusters,
+  ledges, bridges, ponds, flower borders and beach landmarks. Open **Route map**
+  for an overview showing you, the trailhead and the next shaking patch.
+  Location and weather follow the [Wild Area's design](https://swordshield.pokemon.com/en-us/gameplay/wild-area/):
+  daily local conditions favor certain encounters. Marked species have twice
+  their usual encounter weight; no species is weather-locked.
+  The **Encounter table** shows the actual next-roll chances, including weather
+  and the last caught species being skipped until you catch something different. Walking encounters draw
+  from that same weighted table.
+  Walk through tall grass, sand, snow, or cave patches for a chance encounter, or investigate the sparkling,
+  shaking patch for a guaranteed encounter; it moves to fresh grass after each
+  successful catch. Grass kicks up around your trainer before a split-screen
+  wipe and opposing trainer/Pokémon slide-ins reveal a short SQL catch assignment.
+  Encounter and catch screens preserve the Game Boy Advance's **240×160 (3:2)**
+  proportions, scaling up to 720×480 on desktop and fitting smaller screens.
+  A centred SQL notebook sits beneath the game screen. The frame follows
+  [Nintendo's GBA display specifications](https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html).
+  The field guide marks registered species and tracks each habitat's collection.
+  Saved encounters resume without replaying their entrance. Assignments progress
   through filtering, selecting stats, joining types, and surveying abilities,
   then cycle. Correct results register a catch in your Pokédex and achievements;
   incorrect queries and leaving an encounter add nothing. There is no catch
   limit. Your expedition, current encounter, and draft save locally without
   executing SQL on reload. Safari works offline, supports reduced motion, and
   always grades against the original database.
+
+  Map tiles and grass/dust effects use archived
+  [Pokémon Emerald assets](https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/tilesets).
+  Red's walking/back sprites, battle platforms, window frames and pixel lettering
+  use [FireRed/LeafGreen assets](https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics).
+  Grass encounters pair native platforms with a warm striped backdrop; a light
+  dialogue window and compact Dex/status plate follow the supplied game references.
+  Pokémon keep their native proportions, with transparent margins removed at display time
+  so their feet sit on the platform. The plate shows Dex identity and catch status.
+  Route sections use Emerald's original layouts and metatiles, adapted to the
+  Safari walking game. Existing clearing saves retain their catches, active
+  assignments and SQL drafts; the trainer moves to the new route's trailhead.
+  Credits and source paths are in
+  `web/public/safari/CREDITS.txt`. To regenerate the bundled artwork, install
+  `pillow` and `fonttools[woff]`
+  and run `py scripts/build_safari_assets.py` from the repository root. Builds
+  check map/collision pairs, asset hashes and sprite geometry; runtime needs no Python or downloads.
 
 - **Mobile workspace:** one page scroll with Run and Stop in a sticky header.
   **Tools & schema** expands the query browser, which folds away after a choice.
@@ -184,10 +219,13 @@ close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
 
-Safari uses 27 curated species across its first three areas. Trainer graphics
-come from the [Pokémon Emerald decompilation archive](https://github.com/pret/pokeemerald),
-with original SVG terrain and CSS transitions for PokéSQL. The trainer PNG is
-unchanged; a bundled vector mask hides its palette backdrop. See the
+Safari offers 72 distinct species across nine habitats (75 encounter-pool slots,
+including species shared by habitats). Route graphics and field effects come
+from the [Pokémon Emerald archive](https://github.com/pret/pokeemerald); Red's trainer
+sprites, battle graphics and lettering come from the
+[FireRed/LeafGreen archive](https://github.com/pret/pokefirered).
+Trainer PNGs are unchanged, with native transparency. Battle palettes and frames
+are adapted for the Safari interface. See the
 [Safari asset credits](web/public/safari/CREDITS.txt). Assets ship locally and
 their hashes are checked by the build.
 

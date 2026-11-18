@@ -4,7 +4,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import tracks from '../../src/features/music/tracks.json' with { type: 'json' };
-import { createSafariSession } from '../../src/features/safari/model';
+import { nearSafariGrass } from '../fixtures/safari';
 
 test('desktop loads bundled SQL and sprites without Node access in the page', async ({}, testInfo) => {
   // This broad smoke includes native audio, a second process and a restart.
@@ -120,28 +120,41 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
       args: process.env.POKESQL_EXECUTABLE ? [] : ['.'], env });
     const page = await app.firstWindow();
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
-    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), { ...createSafariSession(), position: { x: 5, y: 6 } });
+    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
     await page.reload();
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-    const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/trainer-mask.svg'].map(async file => {
+    const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/grass-effect.png', 'safari/trainer-battle.png', 'safari/maps/forest.png', 'safari/maps/tundra.png', 'safari/battle/grass.png', 'safari/battle/dialogue.png', 'safari/battle/nameplate.png', 'safari/battle/pixel.woff2'].map(async file => {
       const response = await fetch(file);
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };
     })));
     expect(assets.every(asset => asset.status === 200 && asset.size > 100)).toBe(true);
-    await page.getByRole('button', { name: 'Move left', exact: true }).click();
+    await expect(page.getByRole('table', { name: 'Verdant Forest encounter table' })).toBeVisible();
+    await page.getByRole('heading', { name: /Safari Zone/ }).click();
+    await page.keyboard.press('a');
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+    expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
+    const battleScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
+    expect(battleScreen.width / battleScreen.height).toBeCloseTo(1.5, 2);
+    expect(battleScreen.width).toBeLessThanOrEqual(720.5);
     const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
     await page.locator('.cm-content').focus();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('Gotcha!', { exact: false })).toBeVisible();
+    const caughtScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
+    expect(caughtScreen.width).toBeCloseTo(battleScreen.width, 1);
+    expect(caughtScreen.height).toBeCloseTo(battleScreen.height, 1);
     await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
     await page.reload();
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
     await expect(page.locator('.encounter-card')).toHaveCount(1);
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
+    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
+    await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
+    await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');
   } finally {
     try { await app?.close(); }
     finally {
