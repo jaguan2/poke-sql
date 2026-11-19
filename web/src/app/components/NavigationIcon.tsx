@@ -8,6 +8,7 @@ const paths = {
   table: "M3 4h18v16H3V4Zm0 5h18M9 9v11m6-11v11M3 14h18",
   history: "M3 11a9 9 0 1 1 2 7M3 4v7h7m2-5v6l4 2",
   bookmark: "M6 3h12v18l-6-4-6 4V3Z",
+  boxes: "M3 3h7v7H3V3Zm11 0h7v7h-7V3ZM3 14h7v7H3v-7Zm11 0h7v7h-7v-7Z",
 } as const;
 
 export function NavigationIcon({ name }: { name: keyof typeof paths }) {

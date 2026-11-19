@@ -19,7 +19,7 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
   onLeave: () => void;
 }) {
   return <section className="practice-panel mystery-panel" aria-label="Who’s That Pokémon?">
-    <div className="challenge-heading"><span className="eyebrow">SQL detective</span><button className="sample-btn" disabled={busy} onClick={onLeave}>Back to free practice</button></div>
+    <div className="challenge-heading"><button className="sample-btn" disabled={busy} onClick={onLeave}>Back to free practice</button></div>
     <div className="mystery-heading"><h2>Who’s That Pokémon?</h2>{mode === "random" && <button className="btn" disabled={busy} onClick={onNew}>New Pokémon</button>}</div>
     <div className="mystery-modes" aria-label="Mystery mode">
       <button className="btn" aria-pressed={mode === "daily"} disabled={busy} onClick={onDaily}>Daily challenge</button>
@@ -44,7 +44,7 @@ function ClueCell({ label, value, clue, higher, lower }: { label: string; value:
   return <td className={`mystery-clue clue-${clue}`}><span className="clue-label" aria-hidden="true">{label}</span><strong>{value}</strong><span>{explanation}</span></td>;
 }
 
-export function MysteryNotebook({ round, daily = false, onOpenPokedex }: { round: MysteryRound; daily?: boolean; onOpenPokedex: () => void }) {
+export function MysteryNotebook({ round, daily = false, onOpenPokedex, onOpenPc }: { round: MysteryRound; daily?: boolean; onOpenPokedex: () => void; onOpenPc: () => void }) {
   const notebook = useRef<HTMLElement>(null);
   const solved = round.attempts.find(attempt => attempt.feedback.matched);
   useEffect(() => {
@@ -53,7 +53,7 @@ export function MysteryNotebook({ round, daily = false, onOpenPokedex }: { round
   const latest = round.attempts[round.attempts.length - 1]?.feedback;
   const sharedTraits = latest && !latest.matched && [latest.type1, latest.type2, latest.generation, latest.height, latest.weight].every(clue => clue === "correct");
   return <section ref={notebook} className="mystery-notebook" aria-label="Mystery notebook">
-    {solved && <div className="reset-notice" role="status">You found {solved.feedback.pokemon.name} in {round.guessCount} guess{round.guessCount === 1 ? "" : "es"}! {daily ? "Daily challenge completed. Come back tomorrow or try Random practice." : "Choose New Pokémon to play again."}<div className="mystery-win-actions"><button className="btn" onClick={onOpenPokedex}>View Pokédex</button></div></div>}
+    {solved && <div className="reset-notice" role="status">You found {solved.feedback.pokemon.name} in {round.guessCount} guess{round.guessCount === 1 ? "" : "es"}! {daily ? "Daily challenge completed. Come back tomorrow or try Random practice." : "Choose New Pokémon to play again."}<div className="mystery-win-actions"><button className="btn" onClick={onOpenPokedex}>View Pokédex</button><button className="btn" onClick={onOpenPc}>Open PC Boxes</button></div></div>}
     {sharedTraits && <p className="notice" role="status">All five traits match, but this is a different species. Keep looking for the hidden Pokémon.</p>}
     {round.attempts.length > 0 && <>
       <h3>Guess history <small>Newest first{round.guessCount > MYSTERY_HISTORY_LIMIT ? ` · latest ${MYSTERY_HISTORY_LIMIT}` : ""}</small></h3>

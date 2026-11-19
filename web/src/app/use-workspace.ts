@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { encounterLevel } from "../shared/pokemon/encounter-level";
 import { cancelQuery, checkChallenge, checkSafari, initDb, queryMystery, resetDb, runQuery, startMystery } from "./database/client";
 import type { TableInfo } from "../shared/sql/types";
 import type { AchievementCatalog } from "../features/pokedex/types";
-import { isMysteryRound, MYSTERY_INITIAL_QUERY, mysterySolved, recordMysteryGuess } from "../features/mystery/model";
+import { MYSTERY_INITIAL_QUERY, mysterySolved, recordMysteryGuess } from "../features/mystery/model";
 import type { MysteryRound } from "../features/mystery/model";
 import { createDailyMysteryRound, isDailyMysteryRound, utcDateKey } from "../features/mystery/daily";
 import type { DailyMysteryRound } from "../features/mystery/daily";
 import { useUtcDay } from "../features/mystery/use-utc-day";
 import { useEncounters } from "../features/pokedex/use-encounters";
 import { useSafari } from "./use-safari";
-import type { AssignmentId } from "../features/safari/types";
+import type { AssignmentId, SafariCaptureContext } from "../features/safari/types";
 import type { SafariFleeLimit } from "../features/safari/types";
 import { isSafariFleeLimit } from "../features/safari/model";
 import { CHALLENGES } from "../features/practice/challenges";
 import { SAMPLE_QUERIES } from "../features/practice/samples";
 import { isStringArray, readLocal, writeLocal } from "../shared/storage/local";
 import { prepareOffline } from "../shared/offline";
-import ballThemes from "../features/profiles/themes.json";
+import ballThemes from "../shared/pokemon/ball-themes.json" with { type: "json" };
 import { isTrainerId, isTrainerName, MAX_TRAINER_NAME } from "../shared/trainer/profile";
 import { POKEDEX_SPECIES_COUNT } from "../features/pokedex/encounters";
 import type { TrainerId } from "../shared/trainer/profile";
@@ -26,6 +26,9 @@ import type { PokedexView } from "../features/pokedex/PersonalPokedex";
 import type { SavedQuery, RunState, PracticeSelection, QueryContext } from "./workspace-types";
 import type { NavigationId, WorkspaceView } from "./navigation";
 import type { CatalogFilters, CatalogKind } from "../features/practice/types";
+import { useCollection } from "../features/pc/use-collection";
+import { collectionDiscoveries, dailyRewardId, randomRewardId, readLegacyCollection, restoreRandomRound, restoreSolvedRound } from "./capture-rewards";
+import { zoneById } from "../features/safari/zones";
 
 const INITIAL_QUERY = "SELECT * FROM pokedex LIMIT 15;";
 const isBallTheme = (value: unknown): value is string => typeof value === "string" && ballThemes.some(theme => theme.id === value);
@@ -38,7 +41,7 @@ export function useWorkspace() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [drafts, setDrafts] = useState(() => readLocal("drafts", { sandbox: INITIAL_QUERY }, isDrafts));
   const [selection, setSelection] = useState<PracticeSelection>(null);
-  const [randomMysteryRound, setRandomMysteryRound] = useState<MysteryRound | null>(() => readLocal("mystery-round", null, isMysteryRound));
+  const [randomMysteryRound, setRandomMysteryRound] = useState<MysteryRound | null>(restoreRandomRound);
   const [dailyMysteryRound, setDailyMysteryRound] = useState<DailyMysteryRound | null>(() => readLocal("daily-mystery-round", null, isDailyMysteryRound));
   const [view, setView] = useState<WorkspaceView>("workspace");
   const referenceContext = useRef<"workspace" | "safari">("workspace");
@@ -61,7 +64,7 @@ export function useWorkspace() {
   const [history, setHistory] = useState(() => readLocal("history", [], isStringArray).slice(0, 30));
   const [saved, setSaved] = useState(() => readLocal("saved", [], isSaved));
   const [queryName, setQueryName] = useState("");
-  const [runState, setRunState] = useState<RunState>({ status: "idle", message: "Choose a Get started prompt, write your own SQL, or try a challenge. Your work saves on this device." });
+  const [runState, setRunState] = useState<RunState>({ status: "idle", message: "Choose a Get started question, or write SQL above and select Run." });
   const [schema, setSchema] = useState<TableInfo[]>([]);
   const [challengeSchema, setChallengeSchema] = useState<TableInfo[]>([]);
   const [achievementCatalog, setAchievementCatalog] = useState<AchievementCatalog | null>(null);
@@ -78,6 +81,7 @@ export function useWorkspace() {
   const [autocomplete, setAutocomplete] = useState(() => readLocal("autocomplete", true, isBoolean));
   const [safariFleeAfter, setSafariFleeAfter] = useState<SafariFleeLimit>(() => readLocal("safari-flee-after", null, isSafariFleeLimit));
   const [profileSaveError, setProfileSaveError] = useState(false);
+  const pc = useCollection(readLegacyCollection);
   const activeChallenge = selection?.kind === "challenge" ? selection.id : null;
   const isMystery = selection?.kind === "mystery";
   const challenge = CHALLENGES.find(c => c.id === activeChallenge);
@@ -128,21 +132,41 @@ export function useWorkspace() {
     return () => { delete document.documentElement.dataset.ballTheme; };
   }, [ballTheme]);
 
-  const runSafariCheck = useCallback(async (sql: string, pokemonId: number, assignmentId: AssignmentId) => {
+  const runSafariCheck = useCallback(async (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext) => {
     if (!ready || busyRef.current) throw new Error("Wait for the current query before checking a catch.");
     busyRef.current = true; setBusy(true);
     setHistory(previous => [sql, ...previous.filter(item => item !== sql)].slice(0, 30));
     try {
       const reply = await checkSafari(sql, pokemonId, assignmentId);
       setSchema(reply.schema);
+      if (!reply.error && reply.passed && reply.safariPokemon?.id === pokemonId) {
+        const at = new Date().toISOString();
+        await pc.award({ id: `safari:${context.id}`, pokemon: reply.safariPokemon, source: "safari", sources: ["safari"],
+          level: context.level, ball: ballTheme, caughtAt: at, firstRecordedAt: at,
+          location: zoneById(context.zoneId).name, attempts: context.attempts + 1, sql });
+        return { ...reply, caughtAt: at };
+      }
       return reply;
     } catch (error) {
       try { setSchema((await initDb()).schema); } catch { /* The query error stays visible. */ }
       throw error;
     } finally { busyRef.current = false; setBusy(false); }
-  }, [ready]);
+  }, [ready, pc.award, ballTheme]);
   const safari = useSafari(runSafariCheck, safariFleeAfter);
-  const { encounters, saveError: encounterSaveError, recovered: encountersRecovered } = useEncounters(dailyMysteryRound, randomMysteryRound, safari.session.lastCatch);
+  const discoveries = useMemo(() => collectionDiscoveries(pc.collection), [pc.collection]);
+  const { encounters, saveError: encounterSaveError, recovered: encountersRecovered } = useEncounters(dailyMysteryRound, randomMysteryRound, safari.session.lastCatch, discoveries);
+  const restoreSafariCatch = safari.actions.restoreCatch;
+  useEffect(() => {
+    if (!pc.collection || busyRef.current) return;
+    const captures = pc.collection.captures;
+    setDailyMysteryRound(previous => previous ? restoreSolvedRound(previous, captures.find(capture => capture.id === dailyRewardId(previous.date, previous.scheduleVersion))) : previous);
+    setRandomMysteryRound(previous => previous ? restoreSolvedRound(previous, captures.find(capture => capture.id === randomRewardId(previous))) : previous);
+    const encounter = safari.session.encounter;
+    const capture = encounter?.outcome === "active" ? captures.find(item => item.id === `safari:${encounter.id}` && item.source === "safari") : undefined;
+    if (capture?.caughtAt && encounter && (encounter.fleeAfter === null || capture.attempts <= encounter.fleeAfter)) restoreSafariCatch({
+      encounterId: encounter.id, pokemon: capture.pokemon, attempts: capture.attempts, caughtAt: capture.caughtAt,
+    });
+  }, [pc.collection, busy, safari.session.encounter, restoreSafariCatch]);
 
   const execute = useCallback(async (sql: string, context: QueryContext) => {
     if (!ready || busyRef.current || !sql.trim()) return;
@@ -160,11 +184,18 @@ export function useWorkspace() {
         setRunState({ status: "ok", results: reply.results ?? [], ms: reply.ms ?? 0, passed: reply.passed, mysteryGuess: !!reply.mysteryGuess });
         if (reply.mysteryGuess) {
           const feedback = reply.mysteryGuess;
+          if ((context.kind === "daily-mystery" || context.kind === "random-mystery") && feedback.matched && feedback.pokemon.id === context.targetId) {
+            const at = new Date().toISOString();
+            const source = context.kind === "daily-mystery" ? "daily" : "random";
+            await pc.award({ id: context.rewardId, pokemon: feedback.pokemon, source, sources: [source],
+              level: context.level, ball: context.ball, caughtAt: at, firstRecordedAt: at, location: null,
+              attempts: context.attempts + 1, sql: sql.length <= 100_000 ? sql : null });
+          }
           if (context.kind === "daily-mystery") {
             setDailyMysteryRound(previous => previous && previous.date === context.date && previous.targetId === context.targetId
               ? { ...previous, ...recordMysteryGuess(previous, sql, feedback) } : previous);
           } else if (context.kind === "random-mystery") {
-            setRandomMysteryRound(previous => previous && previous.targetId === context.targetId ? recordMysteryGuess(previous, sql, feedback) : previous);
+            setRandomMysteryRound(previous => previous && previous.targetId === context.targetId && randomRewardId(previous) === context.rewardId ? recordMysteryGuess(previous, sql, feedback) : previous);
           }
         }
         if (reply.passed && context.kind === "challenge") setCompleted(previous => {
@@ -177,15 +208,18 @@ export function useWorkspace() {
       try { setSchema((await initDb()).schema); } catch { /* Keep the recovery error visible; next run retries. */ }
     }
     finally { busyRef.current = false; setBusy(false); }
-  }, [ready]);
+  }, [ready, pc.award]);
 
   const run = () => {
     if (view !== "workspace") return;
     if (isMystery) {
       if (!mysteryRound || mysterySolved(mysteryRound)) return;
+      const capture = { targetId: mysteryRound.targetId, level: mysteryRound.level ?? encounterLevel(`mystery:${mysteryRound.targetId}`),
+        ball: ballTheme, attempts: mysteryRound.guessCount };
       if (mysteryMode === "daily") {
-        if (dailyMysteryRound) void execute(query, { kind: "daily-mystery", targetId: dailyMysteryRound.targetId, date: dailyMysteryRound.date });
-      } else { void execute(query, { kind: "random-mystery", targetId: mysteryRound.targetId }); }
+        if (dailyMysteryRound) void execute(query, { kind: "daily-mystery", ...capture, date: dailyMysteryRound.date,
+          rewardId: dailyRewardId(dailyMysteryRound.date, dailyMysteryRound.scheduleVersion) });
+      } else { void execute(query, { kind: "random-mystery", ...capture, rewardId: randomRewardId(mysteryRound) }); }
     } else {
       void execute(query, activeChallenge ? { kind: "challenge", challengeId: activeChallenge } : { kind: "practice" });
     }
@@ -222,7 +256,7 @@ export function useWorkspace() {
       const reply = await startMystery(randomMysteryRound?.targetId);
       setSchema(reply.schema);
       if (reply.error || reply.mysteryTargetId === undefined) throw new Error(reply.error ?? "Could not start a mystery. Try New Pokémon again.");
-      setRandomMysteryRound({ targetId: reply.mysteryTargetId, level: encounterLevel(), guessCount: 0, attempts: [] });
+      setRandomMysteryRound({ id: crypto.randomUUID(), targetId: reply.mysteryTargetId, level: encounterLevel(), guessCount: 0, attempts: [] });
       setDrafts(previous => ({ ...previous, mystery: MYSTERY_INITIAL_QUERY }));
       setRunState({ status: "idle", message: "A Pokémon is hiding. Start with a guess, then follow the clues." });
     } catch (error) { setRunState({ status: "error", message: (error as Error).message }); }
@@ -340,7 +374,7 @@ export function useWorkspace() {
   };
 
   return {
-    ready, loadError, selection, isMystery, challenge, practice,
+    ready, loadError, selection, isMystery, challenge, practice, pc, showPc: view === "pc",
     query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount: CHALLENGES.length, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
     datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, autocomplete, safariFleeAfter,
     profileProgress: { entries: encounters.length, species: achievementCatalog?.speciesCount ?? POKEDEX_SPECIES_COUNT, catches: safari.session.catches,

@@ -17,6 +17,36 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
 });
 
+test('the schema picker shows a selected table and previews its rows', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  const tables = page.getByRole('group', { name: 'Tables and views', exact: true });
+  await expect(tables.getByRole('button', { name: 'pokedex view', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('heading', { name: 'SQL guide', exact: true })).toBeInViewport();
+  const types = tables.getByRole('button', { name: 'types table', exact: true });
+  await types.focus();
+  await page.keyboard.press('Enter');
+  await expect(types).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('list', { name: 'types columns', exact: true }).locator('.col-name')).toHaveText(['id 🔑', 'name']);
+  await page.getByRole('button', { name: '▶ SELECT * FROM types', exact: true }).click();
+  await expect(page.getByRole('columnheader', { name: 'name', exact: true })).toBeVisible();
+  await expect(page.locator('tbody tr')).toHaveCount(18);
+  await expect(page.getByRole('cell', { name: 'fire', exact: true })).toBeVisible();
+});
+
+test('the guide shortcut reaches reference topics on a portrait tablet', async ({ page }) => {
+  await page.setViewportSize({ width: 820, height: 1180 });
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await page.getByRole('link', { name: 'SQL guide ↓', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'SQL guide', exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(page.getByRole('heading', { name: 'SQL guide', exact: true })).toBeFocused();
+  const filters = topic(page, 'WHERE filters');
+  await filters.locator('summary').click();
+  await filters.getByRole('button', { name: 'Load example', exact: true }).click();
+  await expect(page.locator('.cm-content')).toContainText("type1 = 'water'");
+  await expect(page.locator('tbody tr')).toHaveCount(0);
+});
+
 test('the guide sits below the schema and loads a runnable example without executing it', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   const guide = page.getByRole('region', { name: 'SQL guide', exact: true });

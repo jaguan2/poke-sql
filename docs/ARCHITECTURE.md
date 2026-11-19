@@ -26,6 +26,7 @@ web/
       pokedex/              Encounters, journal, achievement goals and UI
       music/                Player, styles, curated track manifest
       profiles/             Trainer ID card, model selection, settings and palettes
+      pc/                   Individual capture storage, boxes and featured Pokémon
       safari/               Maps, encounter pools, movement and SQL catch tasks
     shared/
       sql/                  Statement execution, schema reading, result types,
@@ -45,6 +46,24 @@ web/
 ```
 
 ## Dependency rules
+
+PC ownership is stored in `pokesql-collection-v1`, separately from the SQL
+workspace snapshot. `features/pc/` owns validated capture receipts, box commands,
+IndexedDB transactions and the per-reward localStorage outbox. App composition
+maps confirmed Safari/mystery wins to stable reward IDs in `capture-rewards.ts`
+and `use-workspace.ts`; it also restores interrupted game saves from committed
+captures without SQL replay. The journal remains unique by species. Legacy raw
+progress is preserved in the migration transaction, with unknown capture fields
+left unknown. Profile highlights reference at most six owned instance IDs.
+The profile receives its PC showcase as a React node composed by the app.
+
+Box captures use a unique placement index. Moving to an occupied slot swaps
+both records in one transaction. The hook serializes local commands and refreshes
+other tabs through BroadcastChannel; each transaction reads canonical IndexedDB
+state. Pending rewards survive reload through separate outbox keys, and saves
+report failures rather than substituting an empty collection for unreadable data.
+Ball-theme IDs/names are shared in `shared/pokemon/ball-themes.json` by profiles,
+PC validation and the asset scripts.
 
 - **App composes features.** Workspace navigation and commands belong in
   `app/`; feature modules do not import the application controller.

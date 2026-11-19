@@ -1,7 +1,9 @@
 .sql-guide { margin-top: 20px; padding-top: 4px; border-top: 1px solid var(--border); }
+.sql-guide h2 { margin:16px 0 8px; font-size:18px; }
+#sql-guide-title,#schema-browser-title { scroll-margin-block:20px; }
 .sql-guide .sidebar-note { margin-bottom: 12px; }
 .sql-guide details { border-bottom: 1px solid var(--border); }
-.sql-guide summary { font-size: 12px; font-weight: 600; }
+.sql-guide summary { min-height:44px; padding:12px 0; cursor:pointer; font-size: 12px; font-weight: 600; }
 .sql-guide p { font-size: 12px; line-height: 1.6; color: var(--text-dim); }
 .sql-guide pre { margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-raised); color: var(--text); font-size: 11px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 .sql-guide-body, .sql-clause-order > p, .sql-clause-order > pre { margin-left: 6px; margin-right: 6px; }

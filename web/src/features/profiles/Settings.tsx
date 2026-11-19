@@ -1,6 +1,6 @@
 import type { SafariFleeLimit } from "../safari/types";
 import { PersonalizationPage } from "./PersonalizationPage";
-import ballThemes from "./themes.json";
+import ballThemes from "../../shared/pokemon/ball-themes.json" with { type: "json" };
 
 interface Props {
   ballTheme: string; autocomplete: boolean; safariFleeAfter: SafariFleeLimit; saveError: boolean;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function Settings({ ballTheme, autocomplete, safariFleeAfter, saveError, onThemeChange, onAutocompleteChange, onSafariFleeAfterChange, onDone }: Props) {
-  return <PersonalizationPage title="Settings" description="Settle into your own way to play and practice." saveError={saveError} onDone={onDone}>
+  return <PersonalizationPage title="Settings" description="Themes, SQL autocomplete and Safari encounters." saveError={saveError} onDone={onDone}>
     <fieldset className="profile-section">
       <legend>Poké Ball colors</legend><p>Your colors also choose the ball used for Safari catches.</p>
       <div className="theme-options">{ballThemes.map(theme => <label className="theme-option" key={theme.id}>

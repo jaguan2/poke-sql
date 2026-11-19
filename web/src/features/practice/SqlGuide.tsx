@@ -3,7 +3,7 @@ import "./SqlGuide.css";
 
 export function SqlGuide({ busy, onUseExample }: { busy: boolean; onUseExample: (sql: string) => void }) {
   return <section className="sql-guide" aria-labelledby="sql-guide-title">
-    <h2 id="sql-guide-title">SQL guide</h2>
+    <h2 id="sql-guide-title" tabIndex={-1}>SQL guide</h2>
     <p className="sidebar-note">A SQLite quick reference. Examples load into your current editor without running or checking an answer.</p>
     <details className="sql-clause-order">
       <summary>Query structure</summary>

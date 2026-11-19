@@ -44,7 +44,7 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '0');
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
-    await expect(page.getByRole('heading', { name: 'Your first discovery is waiting' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'No Pokémon registered' })).toBeVisible();
   } finally {
     try { await app?.close(); }
     finally {

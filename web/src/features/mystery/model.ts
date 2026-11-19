@@ -9,6 +9,7 @@ import type { PokemonProfile } from "../../shared/pokemon/profile";
 export const MYSTERY_INITIAL_QUERY = "-- Return one Pokémon to make a guess.\nSELECT * FROM pokedex\nWHERE name = 'Pikachu';";
 export const MYSTERY_HISTORY_LIMIT = 30;
 export interface MysteryRound {
+  id?: string; // Legacy rounds receive a stable ID when restored by the app.
   targetId: number;
   level?: number; // Absent in saves created before encounter levels.
   guessCount: number;
@@ -87,6 +88,7 @@ const isPositiveInteger = (value: unknown): value is number => typeof value === 
 export function isMysteryRound(value: unknown): value is MysteryRound | null {
   if (value === null) return true;
   if (!isRecord(value) || !isPositiveInteger(value.targetId) || value.targetId > 1025
+    || (value.id !== undefined && (typeof value.id !== "string" || !value.id || value.id.length > 100))
     || (value.level !== undefined && !isEncounterLevel(value.level)) || !Number.isSafeInteger(value.guessCount) || Number(value.guessCount) < 0
     || !Array.isArray(value.attempts) || value.attempts.length > MYSTERY_HISTORY_LIMIT || value.attempts.length > Number(value.guessCount)) return false;
   return value.attempts.every(attempt => {

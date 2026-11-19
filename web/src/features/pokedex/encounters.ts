@@ -55,9 +55,18 @@ function recordDiscovery(encounters: PokemonEncounter[], pokemon: PokemonProfile
     sources: [source],
   }];
   const bestGuessCount = Math.min(existing.bestGuessCount, attempts);
-  if (existing.sources.includes(source) && existing.bestGuessCount === bestGuessCount) return encounters;
+  const firstFoundAt = existing.firstFoundAt < at ? existing.firstFoundAt : at;
+  if (existing.sources.includes(source) && existing.bestGuessCount === bestGuessCount && existing.firstFoundAt === firstFoundAt) return encounters;
   return encounters.map(entry => entry !== existing ? entry : {
-    ...entry, bestGuessCount,
+    ...entry, bestGuessCount, firstFoundAt,
     sources: existing.sources.includes(source) ? existing.sources : [...existing.sources, source],
   });
+}
+
+export function recordCollectionEncounters(encounters: PokemonEncounter[], discoveries: PokemonEncounter[]): PokemonEncounter[] {
+  let next = encounters;
+  for (const discovery of discoveries) if (isPokemonEncounters([discovery])) {
+    for (const source of discovery.sources) next = recordDiscovery(next, discovery.pokemon, discovery.bestGuessCount, source, discovery.firstFoundAt);
+  }
+  return next;
 }

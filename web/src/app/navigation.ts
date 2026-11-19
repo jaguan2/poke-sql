@@ -8,6 +8,7 @@ export const NAVIGATION = [
     { id: "mystery", label: "Who’s That Pokémon?", icon: "sparkle" },
     { id: "safari", label: "Safari Zone", icon: "compass" },
     { id: "pokedex", label: "My Pokédex", icon: "ball" },
+    { id: "pc", label: "PC Boxes", icon: "boxes" },
   ] },
   { caption: "Your workspace", items: [
     { id: "schema", label: "Schema & guide", icon: "table" },

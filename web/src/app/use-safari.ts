@@ -1,12 +1,13 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
-import type { AssignmentId, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariSession } from "../features/safari/types";
+import type { AssignmentId, SafariCaptureContext, SafariCatch, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariSession } from "../features/safari/types";
 import type { Direction, ZoneId } from "../features/safari/zones";
 import { weatherFor, zoneById } from "../features/safari/zones";
 import type { QueryResult } from "../shared/sql/types";
 import { writeLocal } from "../shared/storage/local";
+import { encounterLevel } from "../shared/pokemon/encounter-level";
 
 interface State { session: SafariSession; phase: SafariPhase; results: QueryResult[]; message: string; error: string }
 type Action =
@@ -15,6 +16,7 @@ type Action =
   | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string }
+  | { type: "restore-catch"; caught: SafariCatch }
   | { type: "error"; message: string }
   | { type: "leave" };
 
@@ -40,6 +42,12 @@ function reducer(state: State, action: Action): State {
     case "edit": return state.phase !== "battle" ? state : action.sql.length <= 100_000 ? { ...state, session: { ...state.session, draft: action.sql }, error: "", message: "" }
       : { ...state, error: "Keep Safari queries below 100,000 characters." };
     case "error": return { ...state, error: action.message };
+    case "restore-catch": {
+      const encounter = state.session.encounter;
+      if (!encounter || encounter.outcome !== "active" || encounter.id !== action.caught.encounterId || encounter.pokemonId !== action.caught.pokemon.id) return state;
+      return { ...state, phase: "caught", session: { ...state.session, catches: state.session.catches + 1,
+        lastCatch: action.caught, encounter: { ...encounter, outcome: "caught", attempts: action.caught.attempts } } };
+    }
     case "leave": return { ...state, session: { ...state.session, encounter: null, draft: "", grassSteps: 0 }, phase: "roaming", results: [], message: "", error: "" };
     case "reply": {
       const encounter = state.session.encounter;
@@ -55,11 +63,12 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export function useSafari(check: (sql: string, pokemonId: number, assignmentId: AssignmentId) => Promise<SafariCheckReply>, fleeAfter: SafariFleeLimit) {
+export function useSafari(check: (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext) => Promise<SafariCheckReply>, fleeAfter: SafariFleeLimit) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [saveError, setSaveError] = useState(false);
   const checking = useRef(false);
   const lastMove = useRef(-Infinity);
+  const restoreCatch = useCallback((caught: SafariCatch) => dispatch({ type: "restore-catch", caught }), []);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
     const transition = SAFARI_TRANSITIONS[state.phase];
@@ -78,12 +87,15 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     if (checking.current || state.phase !== "battle" || !encounter || !state.session.draft.trim()) return;
     checking.current = true;
     try {
-      const reply = await check(state.session.draft, encounter.pokemonId, encounter.assignmentId);
-      dispatch({ type: "reply", id: encounter.id, reply, at: new Date().toISOString() });
+      const reply = await check(state.session.draft, encounter.pokemonId, encounter.assignmentId, {
+        id: encounter.id, level: encounter.level ?? encounterLevel(encounter.id), zoneId: state.session.zoneId, attempts: encounter.attempts,
+      });
+      dispatch({ type: "reply", id: encounter.id, reply, at: reply.caughtAt ?? new Date().toISOString() });
     } catch (error) { dispatch({ type: "error", message: (error as Error).message }); }
     finally { checking.current = false; }
   };
   return { ...state, saveError, actions: { move,
+    restoreCatch,
     changeZone: (id: ZoneId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "zone", id }); },
     editDraft: (sql: string) => { if (!checking.current) dispatch({ type: "edit", sql }); },
     submit,

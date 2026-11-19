@@ -164,6 +164,15 @@ See [releasing and testing updates](docs/RELEASING.md).
   SELECT and filtering through joins, grouping, NULLs, CTEs, and window functions.
   **Load example** fills the current editor without running SQL or checking an
   answer. Open **Schema & guide** from the sidebar to browse the reference.
+- **PC Boxes:** each successful Safari catch or solved mystery round adds an
+  individual Pokémon to a 30-slot box. Start with 64 boxes (1,920 slots); more
+  boxes are created automatically when needed. Repeat catches are separate
+  individuals. Rename boxes, change backgrounds, choose a catch destination,
+  search, nickname, favorite, and move or swap Pokémon between boxes. Capture
+  details retain the encounter level, ball, location, date and successful SQL.
+  Older progress imports one Pokémon per recorded species; unavailable levels,
+  balls and historical duplicate catches are not invented. Collection data lives
+  in its own IndexedDB database and survives practice database edits and Reset DB.
 - **My Pokédex:** a personal collection of Pokémon found by solving daily and
   random mysteries or completing Safari catch assignments. Each species has one entry with its sprite, types, generation,
   height, weight, first registration date (UTC), best guess count, and discovery
@@ -217,6 +226,8 @@ See [releasing and testing updates](docs/RELEASING.md).
   Its five-digit local ID and issue date stay the same when you rename your
   trainer or change models. Eight SQL badges mark challenge-completion milestones.
   Boy/girl style filters help browse models. Existing choices and collections carry over.
+  Feature up to six caught Pokémon from PC Boxes, reorder the lineup, or replace
+  selections. Nicknames and individual encounter levels appear on the profile.
 - **Settings:** use the gear icon to choose Poké,
   Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
   saves on this device and works offline. Ultra, Dusk, and Luxury offer dark

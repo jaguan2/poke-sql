@@ -1,16 +1,9 @@
-.workspace-library { width:100%; max-width:1100px; margin:0 auto; padding:32px; min-width:0; }
-.workspace-library > header h2 { margin:8px 0; font-size:32px; letter-spacing:-.7px; }
-.workspace-library > header p,.library-empty { color:var(--text-dim); font-size:13px; line-height:1.8; }
-.workspace-library > section { margin:28px 0; }
-.schema-tables { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); align-items:start; gap:12px; }
-.schema-browser details { border:1px solid var(--border); border-radius:14px; padding:10px; min-width:0; background:var(--panel-raised); }
-.schema-browser summary { display:flex; align-items:center; gap:8px; padding:8px; cursor:pointer; list-style:none; }
-.schema-browser summary::before { content:"▸"; color:var(--highlight); }
-.schema-browser details[open] > summary::before { content:"▾"; }
-.schema-browser .table-name { overflow-wrap:anywhere; }
-.schema-browser .column-list { padding-left:0; }
-.schema-browser .preview-btn { margin:8px 0; padding:6px; max-width:100%; overflow-wrap:anywhere; text-align:left; }
+.workspace-library { width:100%; padding:var(--page-padding); min-width:0; container-type:inline-size; }
+.workspace-library > header h2 { margin:6px 0 8px; font-size:28px; letter-spacing:-.7px; }
+.workspace-library > header p,.library-empty { color:var(--text-dim); font-size:13px; line-height:1.6; }
+.workspace-library > section { margin:20px 0; }
+.library-reference-links { display:flex; flex-wrap:wrap; gap:8px 20px; margin:12px 0 20px; }
+.library-reference-links a { display:inline-flex; align-items:center; min-height:44px; color:var(--highlight); font-size:12px; text-underline-offset:4px; }
 .library-section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.workspace-library .history-query { padding:16px; margin:10px 0; max-height:none; font-size:13px; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--border); background:var(--panel-raised); }
+.workspace-library .history-query { padding:12px; margin:8px 0; max-height:none; font-size:13px; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--border); background:var(--panel-raised); }
 .workspace-library .saved-query { padding:12px; border:1px solid var(--border); background:var(--panel-raised); border-radius:12px; margin:10px 0; }
-@media(max-width:620px) { .workspace-library { padding:20px 12px; }.workspace-library > header h2 { font-size:28px; }.schema-tables { grid-template-columns:minmax(0,1fr); } }

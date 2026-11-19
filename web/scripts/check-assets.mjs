@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import safariMaps from '../src/features/safari/maps.json' with { type: 'json' };
 import safariRoutes from '../src/features/safari/routes.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
-import ballThemes from '../src/features/profiles/themes.json' with { type: 'json' };
+import ballThemes from '../src/shared/pokemon/ball-themes.json' with { type: 'json' };
 import tracks from '../src/features/music/tracks.json' with { type: 'json' };
 import trainers from '../src/shared/trainer/profiles.json' with { type: 'json' };
 import safariManifest from '../src/features/safari/assets.json' with { type: 'json' };

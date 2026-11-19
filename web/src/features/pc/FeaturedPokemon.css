@@ -1,0 +1,26 @@
+.featured-pokemon { min-width:0; margin:20px 0; container-type:inline-size; }
+.featured-pokemon > header,.featured-picker > header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+.featured-pokemon h3,.featured-picker h3 { margin:0; font-size:18px; }
+.featured-pokemon p,.featured-picker p { color:var(--text-dim); font-size:12px; line-height:1.6; }
+.featured-pokemon > header > div:last-child { display:flex; gap:8px; flex-wrap:wrap; }
+.featured-slots { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; list-style:none; padding:0; margin:0; }
+.featured-slots > li { display:flex; align-items:center; justify-content:center; flex-direction:column; min-width:0; min-height:175px; padding:10px 6px; border:1px solid var(--border); border-radius:14px; background:var(--panel-raised); text-align:center; }
+.featured-slots img,.featured-picker-results img { image-rendering:pixelated; max-width:100%; object-fit:contain; }
+.featured-slots strong { font-size:13px; max-width:100%; overflow-wrap:anywhere; }
+.featured-slots small,.featured-slots .featured-empty { font-size:11px; color:var(--text-dim); }
+.featured-slots .featured-empty { gap:12px; border-style:dashed; background:var(--panel); }
+.featured-empty img { opacity:.4; }
+.featured-slot-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:4px; margin-top:10px; }
+.featured-slot-actions .btn { padding:6px; min-width:36px; min-height:36px; }
+.featured-picker { width:min(760px,calc(100vw - 32px)); max-height:85dvh; overflow:auto; padding:20px; color:var(--text); background:var(--panel); border:1px solid var(--border); border-radius:18px; }
+.featured-picker::backdrop { background:#12241e99; }
+.featured-picker label { display:grid; gap:8px; font-size:12px; }
+.featured-picker input { width:100%; min-height:44px; padding:8px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel-raised); color:var(--text); font:inherit; }
+.featured-picker-results { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:16px 0; }
+.featured-picker-results > button { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; min-width:0; padding:10px 6px; border:1px solid var(--border); border-radius:12px; background:var(--panel); color:var(--text); cursor:pointer; }
+.featured-picker-results > [aria-pressed=true] { background:var(--panel-raised); border-color:var(--highlight); box-shadow:inset 0 0 0 1px var(--highlight); }
+.featured-picker-results strong { font-size:13px; overflow-wrap:anywhere; }
+.featured-picker-results small { font-size:11px; color:var(--text-dim); }
+@container(max-width:800px) { .featured-slots { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(pointer:coarse) { .featured-slot-actions .btn { min-width:44px; min-height:44px; }.featured-picker input { font-size:16px; } }
+@media(max-width:620px) { .featured-slots { grid-template-columns:repeat(2,minmax(0,1fr)); }.featured-picker-results { grid-template-columns:repeat(2,minmax(0,1fr)); } }

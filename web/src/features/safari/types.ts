@@ -16,4 +16,5 @@ export interface SafariSession {
   draft: string; lastCatch: SafariCatch | null;
 }
 export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "catching" | "caught" | "fled";
-export interface SafariCheckReply { results?: QueryResult[]; passed?: boolean; safariPokemon?: PokemonProfile; safariFeedback?: string; error?: string }
+export interface SafariCaptureContext { id: string; level: number; zoneId: ZoneId; attempts: number }
+export interface SafariCheckReply { results?: QueryResult[]; passed?: boolean; safariPokemon?: PokemonProfile; safariFeedback?: string; error?: string; caughtAt?: string }

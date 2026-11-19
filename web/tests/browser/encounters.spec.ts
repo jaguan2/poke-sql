@@ -40,7 +40,7 @@ test('daily and random solved targets are collected, while research and wrong gu
   await expect(page.getByText('Research query only', { exact: false })).toBeVisible();
   await guess(page, 25);
   await openPokedex(page);
-  await expect(page.getByText('Your first discovery is waiting', { exact: true })).toBeVisible();
+  await expect(page.getByText('No Pokémon registered', { exact: true })).toBeVisible();
   await expect(page.locator('.encounter-card')).toHaveCount(0);
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await guess(page, dailyPokemonForDate('2026-01-01'));
@@ -175,7 +175,7 @@ test('corrupt or blocked storage keeps the collection usable without claiming a 
   });
   await page.goto('/');
   await openPokedex(page);
-  await expect(page.getByText('Your first discovery is waiting', { exact: true })).toBeVisible();
+  await expect(page.getByText('No Pokémon registered', { exact: true })).toBeVisible();
   await expect(page.getByText('this device could not save it', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Try random practice', exact: true }).click();
   await guess(page, 6);

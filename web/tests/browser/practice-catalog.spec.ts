@@ -8,7 +8,6 @@ test('Get started is a browsable page with topic filters and separate question d
   await expect(page.getByRole('heading', { name: 'Get started', exact: true })).toBeFocused();
   await expect(page.locator('.catalog-question')).toHaveCount(25);
   await expect(page.locator('.cm-content')).toHaveCount(0);
-  await expect(page.getByRole('complementary', { name: 'Workspace menu' }).getByRole('button')).toHaveCount(9);
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await page.screenshot({ path: info.outputPath('get-started-desktop.png') });

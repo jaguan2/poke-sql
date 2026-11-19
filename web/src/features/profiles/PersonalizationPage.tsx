@@ -17,7 +17,7 @@ export function PersonalizationPage({ title, description, saveError, onDone, chi
   }, []);
   return <section className="profiles-page" ref={page} aria-labelledby={titleId}>
     <header className="profiles-heading">
-      <div><span className="eyebrow">Your adventure, your way</span><h2 id={titleId} ref={heading} tabIndex={-1}>{title}</h2><p>{description}</p></div>
+      <div><h2 id={titleId} ref={heading} tabIndex={-1}>{title}</h2><p>{description}</p></div>
       <button className="btn" onClick={onDone}>Done</button>
     </header>
     {children}

@@ -7,7 +7,6 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId, dat
   const { rows } = encounterTable(zone, weather, previousId, date);
   const chances = new Map(rows.map(row => [row.pokemon.id, row.chance]));
   return <aside className="safari-field-guide" aria-label={`${zone.name} encounter pool`}>
-    <span className="eyebrow">02 / FIELD GUIDE</span>
     <h3>Encounter table</h3><p>{zone.description}</p>
     <p className="safari-weather-note">{WEATHER[weather].icon} {WEATHER[weather].name}. Weather-favored species have twice their usual encounter weight.</p>
     <div className="safari-habitat-progress">

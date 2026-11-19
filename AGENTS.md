@@ -29,6 +29,7 @@ web/
     pokedex/               Encounters, personal journal and achievements
     music/                 Player, styles and curated track manifest
     profiles/              Trainer card, model selection, preferences and palettes
+    pc/                    Individual catches, 30-slot boxes and profile highlights
     safari/                Biome maps, encounters and SQL catch assignments
   src/shared/
     sql/                   Execution, schema introspection and result types
@@ -48,6 +49,14 @@ restores the original bytes. SQL runs in a Web Worker; completed snapshots
 persist in IndexedDB. Editor drafts, history, saved queries and completion
 progress use localStorage. Safari sessions use a separate localStorage key;
 only a correct SQL catch task registers a Safari discovery in the journal. Reload never executes the saved editor contents.
+
+PC ownership uses a separate `pokesql-collection-v1` IndexedDB database. Stable
+reward IDs deduplicate wins; captures and unique box/slot placements commit in
+one transaction. A per-reward localStorage outbox bridges capture commits and
+the existing game saves. Retry pending captures without rerunning SQL. The app
+reconciles interrupted game/journal updates from committed captures. Preserve
+legacy backups, unknown imported capture fields and the six-owned-Pokémon
+profile limit. SQL practice/reset never changes PC ownership or highlights.
 
 ## Commands
 
@@ -125,6 +134,8 @@ Deliberate schema choices — keep these unless there's a reason not to:
 - Frontend is plain CSS (`web/src/app/App.css` plus colocated feature CSS)
   with CSS variables — no UI framework. Pokémon type colors live in
   `web/src/shared/pokemon/TypeBadge.tsx`.
+- Keep UI copy brief and functional. Prefer familiar Pokémon terms; avoid
+  invented slogans, repeated taglines and decorative subtitles.
 - Keep feature behavior in `src/features/`, reusable code in `src/shared/`, and
   cross-feature composition in `src/app/`. Shared code must not import features
   or app; features must not import app. The build enforces these boundaries.

@@ -9,7 +9,7 @@ const TOPICS: Record<PracticeTopic, { id: PracticeTopic; label: string; detail: 
   sorting: { id: "sorting", label: "Sort & filter", detail: "ORDER BY, LIMIT & flags", symbol: "02" },
   joins: { id: "joins", label: "Connect tables", detail: "JOINs & relationships", symbol: "03" },
   aggregation: { id: "aggregation", label: "Group & count", detail: "Aggregates & GROUP BY", symbol: "04" },
-  advanced: { id: "advanced", label: "Go further", detail: "Subqueries, windows & CTEs", symbol: "05" },
+  advanced: { id: "advanced", label: "Advanced SQL", detail: "Subqueries, windows & CTEs", symbol: "05" },
 };
 
 interface Props {
@@ -30,8 +30,8 @@ export function PracticeCatalog({ kind, filters, completed, drafts, busy, onFilt
     && `${question.title} ${question.prompt} ${question.difficulty} ${TOPICS[question.category].label}`.toLocaleLowerCase().includes(search));
   const completeCount = CHALLENGES.filter(question => completed.includes(question.id)).length;
   return <section className="practice-catalog" ref={page} aria-labelledby="catalog-title">
-    <header className="catalog-heading"><div><span className="eyebrow">Practice your SQL skills</span><h2 id="catalog-title" ref={heading} tabIndex={-1}>{challenges ? "Challenges" : "Get started"}</h2>
-      <p>{challenges ? "Put your skills to the test. Solve a specific Pokémon problem and check your answer." : "Pick a Pokémon question, write a little SQL, and learn at your own pace."}</p></div>
+    <header className="catalog-heading"><div><h2 id="catalog-title" ref={heading} tabIndex={-1}>{challenges ? "Challenges" : "Get started"}</h2>
+      <p>{challenges ? "Solve a SQL challenge and check your answer." : "Choose a question and write a SQL query to answer it."}</p></div>
       <button className="btn" disabled={busy} onClick={onFreePractice}>Free practice</button></header>
     <div className="catalog-overview"><span><strong>{questions.length}</strong> {challenges ? "SQL challenges" : "guided questions"}</span><span>{challenges ? `${completeCount} completed` : "Hints & worked answers included"}</span><span>{challenges ? "Checked against the original Pokédex" : "Works with your practice database"}</span></div>
     <section className="catalog-skills" aria-label="Practice topics">{Object.values(TOPICS).map(topic => <button key={topic.id} aria-pressed={filters.category === topic.id} onClick={() => onFiltersChange({ ...filters, category: filters.category === topic.id ? "all" : topic.id })}>

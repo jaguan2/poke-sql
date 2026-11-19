@@ -47,7 +47,6 @@ export function PersonalPokedex({ encounters, catalog, saveError, recovered, onD
 
   return <section className="personal-pokedex" ref={view} aria-labelledby="personal-pokedex-title">
     <header className="pokedex-heading">
-      <span className="eyebrow">Your field journal</span>
       <h2 id="personal-pokedex-title" ref={heading} tabIndex={-1}>My Pokédex</h2>
       <p>Solve daily and random mysteries or complete Safari catch assignments to grow your collection. Each species gets one entry.</p>
       <div className="pokedex-progress"><strong>{encounters.length} / {POKEDEX_SPECIES_COUNT.toLocaleString()} discovered</strong><span>Saved on this device</span></div>
@@ -62,8 +61,8 @@ export function PersonalPokedex({ encounters, catalog, saveError, recovered, onD
     {activeView === 'achievements' && achievements ? <PokedexAchievements progress={achievements} /> : <>
     {encounters.length === 0 ? <div className="pokedex-empty">
       <img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={72} height={72} />
-      <h3>Your first discovery is waiting</h3>
-      <p>Solve Who’s That Pokémon? or catch a Pokémon in the Safari Zone to register it here. Your discoveries stay with you as you start new rounds.</p>
+      <h3>No Pokémon registered</h3>
+      <p>Solve Who’s That Pokémon? or catch a Pokémon in the Safari Zone to register it here.</p>
       <div className="pokedex-actions"><button className="btn btn-primary" onClick={onSafari}>Explore Safari Zone</button><button className="btn" onClick={onDaily}>Play today's mystery</button><button className="btn" onClick={onRandom}>Try random practice</button></div>
     </div> : <>
       <div className="pokedex-filters">

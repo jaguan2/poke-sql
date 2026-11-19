@@ -14,12 +14,14 @@ import { mysterySolved } from "../features/mystery/model";
 import { PersonalPokedex } from "../features/pokedex/PersonalPokedex";
 import { useWorkspace } from "./use-workspace";
 import { SafariZone } from "../features/safari/SafariZone";
+import { PCBoxes } from "../features/pc/PCBoxes";
+import { FeaturedPokemon } from "../features/pc/FeaturedPokemon";
 import "./App.css";
 import "../features/profiles/themes.css";
 
 export default function App() {
   const {
-    ready, loadError, selection, isMystery, challenge, practice,
+    ready, loadError, selection, isMystery, challenge, practice, pc, showPc,
     query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
     datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, profileProgress, autocomplete, safariFleeAfter,
     profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
@@ -43,7 +45,7 @@ export default function App() {
           </svg>
         </button>
         <div className="dex-lights" aria-hidden="true"><span className="dex-lens" /><span className="dex-light" /><span className="dex-light" /></div>
-        <div><h1>Poké<span className="brand-accent">SQL</span></h1><span className="tagline">Your pocket SQL laboratory</span></div>
+        <h1>Poké<span className="brand-accent">SQL</span></h1>
       </div>
       <div className="header-personalization">
         <button className="btn btn-secondary header-icon profiles-button" ref={profileButton} aria-label="Profiles" title="Trainer ID" aria-pressed={showProfiles} disabled={busy} onClick={actions.openProfiles}>
@@ -64,9 +66,11 @@ export default function App() {
       </div>
     </header>
     <div className={`body${menuOpen ? "" : " menu-collapsed"}`}>
-      <Sidebar collapsed={!menuOpen} active={activeNavigation} busy={busy} pokedexCount={encounters.length} completedCount={completedCount} challengeCount={challengeCount} onNavigate={actions.navigate} />
+      <Sidebar collapsed={!menuOpen} active={activeNavigation} busy={busy} pokedexCount={encounters.length} pcCount={pc.collection?.captures.length ?? 0} completedCount={completedCount} challengeCount={challengeCount} onNavigate={actions.navigate} />
       <main className={`main${isMystery && showWorkspace ? " mystery-workspace" : ""}`}>
+        {!showPc && pc.pendingCount > 0 && pc.error && <div className="notice dataset-update" role="status">{pc.pendingCount} caught Pokémon {pc.pendingCount === 1 ? "is" : "are"} waiting to be saved to PC Boxes. {pc.error} Keep this window open if device storage is blocked. <button className="btn" disabled={pc.busy} onClick={() => void pc.retry()}>Retry PC save</button></div>}
         {showProfiles ? <Profiles name={trainerName} trainer={trainer} identity={trainerIdentity} progress={profileProgress} ballTheme={ballTheme} saveError={profileSaveError}
+          featuredPokemon={<FeaturedPokemon collection={pc.collection} busy={pc.busy || pc.pendingCount > 0} error={pc.error} onCommand={pc.command} onRetry={pc.retry} onOpenPc={() => actions.navigate("pc")} />}
           onNameChange={actions.changeTrainerName} onTrainerChange={actions.changeTrainer}
           onDone={() => { actions.closePersonalization(); profileButton.current?.focus(); }} />
         : showSettings ? <Settings ballTheme={ballTheme} autocomplete={autocomplete} safariFleeAfter={safariFleeAfter} saveError={profileSaveError}
@@ -75,9 +79,10 @@ export default function App() {
         : catalogKind ? <PracticeCatalog kind={catalogKind} filters={catalogFilters[catalogKind]} completed={completed} drafts={drafts} busy={busy} onFiltersChange={filters => actions.setCatalogFilters(catalogKind, filters)} onSelect={catalogKind === "samples" ? actions.selectSample : actions.selectChallenge} onFreePractice={() => actions.navigate("workspace")} />
         : libraryView ? <WorkspaceLibrary view={libraryView} schema={editorSchema} history={history} saved={saved} busy={busy} schemaTitle={isMystery ? "Mystery schema" : challenge ? "Challenge schema" : "Schema"}
           onPreviewSql={actions.previewSql} onGuideSql={actions.loadGuideSql} onLoadSql={actions.loadSql} onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
+        : showPc ? <PCBoxes collection={pc.collection} error={pc.error} pendingCount={pc.pendingCount} busy={pc.busy} onCommand={pc.command} onRetry={pc.retry} onSafari={actions.openSafari} onProfile={actions.openProfiles} />
         : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
-          onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex}
+          onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
           editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
             onChange={safari.actions.editDraft} onRun={() => void safari.actions.submit()} busy={busy} autocomplete={autocomplete} />} />
         : showPokedex ? <PersonalPokedex activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
@@ -104,13 +109,13 @@ export default function App() {
           onRun={actions.run} busy={busy} autocomplete={autocomplete} />
         <div className="results" aria-busy={busy}>
           <h2 className="results-heading">{isMystery ? "Mystery notebook" : "Query results"}</h2>
-          {isMystery && mysteryRound && <MysteryNotebook round={mysteryRound} daily={mysteryMode === "daily"} onOpenPokedex={actions.openPokedex} />}
+          {isMystery && mysteryRound && <MysteryNotebook round={mysteryRound} daily={mysteryMode === "daily"} onOpenPokedex={actions.openPokedex} onOpenPc={() => actions.navigate("pc")} />}
           {(storageError || encounterSaveError) && <p className="notice" role="status">This device could not save your SQL or progress. Keep a copy before closing.</p>}
           {notice && <p className="notice" role="status">{notice}</p>}
           {busy ? <p className="running-notice" role="status">Running SQL… You can stop it at any time. Queries time out after 8 seconds.</p> : <>
             {runState.status === "idle" && (isMystery ? <p className="mystery-idle">{runState.message}</p> : <div className="empty-state">
               <div className="starter-sprites" aria-hidden="true">{[1, 4, 7].map(id => <img key={id} src={`${import.meta.env.BASE_URL}sprites/${id}.png`} alt="" width={72} height={72} />)}</div>
-              <h2>A little curiosity. A whole Pokédex.</h2><p>{runState.message}</p>
+              <p>{runState.message}</p>
             </div>)}
             {runState.status === "error" && <div className="error-panel" role="alert"><strong>SQL message:</strong> {runState.message}</div>}
             {runState.status === "ok" && <>

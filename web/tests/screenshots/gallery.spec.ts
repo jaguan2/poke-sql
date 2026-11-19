@@ -32,6 +32,11 @@ async function open(page: Page, theme: string, safari?: SafariSession, date = '2
 async function shoot(page: Page, name: string, fullPage = false) {
   await page.evaluate(async () => { await document.fonts.ready; window.scrollTo(0, 0); });
   await page.locator('.main').evaluate(element => { element.scrollTop = 0; element.scrollLeft = 0; });
+  // Reject an unstyled capture even when its text and images have loaded.
+  const menu = (await page.getByRole('complementary', { name: 'Workspace menu' }).boundingBox())!;
+  const main = (await page.locator('main').boundingBox())!;
+  expect(Math.abs(main.y - menu.y)).toBeLessThanOrEqual(1);
+  expect(main.x).toBeGreaterThan(menu.x + menu.width);
   await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   await page.screenshot({ path: path.join(output, name), fullPage, animations: 'disabled' });
 }
@@ -102,6 +107,20 @@ test('Lapras catch', async ({ page }) => {
   await sql(page, 'SELECT id, name, type1, type2 FROM pokedex WHERE id = 131;', /Check query & catch/);
   await expect(page.getByRole('article', { name: 'Lapras Pokédex entry', exact: true })).toBeVisible();
   await shoot(page, 'safari-catch.png');
+  await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
+  await page.getByRole('button', { name: 'Slot 13: Lapras, level 37', exact: true }).click();
+  await shoot(page, 'pc-boxes.png');
+  await page.getByRole('button', { name: 'Feature on profile', exact: true }).click();
+  await page.getByRole('button', { name: 'View Trainer ID', exact: true }).click();
+  await page.getByRole('button', { name: 'Choose Pokémon', exact: true }).click();
+  const choices = page.getByRole('group', { name: 'Caught Pokémon choices', exact: true });
+  for (const name of ['Charizard', 'Pikachu', 'Eevee', 'Squirtle', 'Bulbasaur']) {
+    const button = choices.getByRole('button', { name: new RegExp(`^${name}`) });
+    await button.click(); await expect(button).toHaveAttribute('aria-pressed', 'true');
+  }
+  await page.getByRole('dialog').getByRole('button', { name: 'Done', exact: true }).click();
+  await page.setViewportSize({ width: 1600, height: 1600 });
+  await shoot(page, 'featured-pokemon.png');
 });
 
 test('Pokédex', async ({ page }) => {
@@ -142,6 +161,27 @@ test('schema and guide', async ({ page }) => {
 
 test.describe('tablet gallery', () => {
   test.use({ isMobile: true, hasTouch: true });
+
+for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`tablet PC at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await open(page, 'poke-ball');
+    await page.getByRole('button', { name: 'PC Boxes', exact: true }).tap();
+    await expect(page.getByRole('button', { name: 'Slot 1: Bulbasaur', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Slot 1: Bulbasaur', exact: true }).tap();
+    await shoot(page, `tablet-pc-${viewport.width}.png`);
+  });
+}
+
+for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`tablet schema at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await open(page, 'poke-ball');
+    await page.getByRole('button', { name: 'Schema & guide', exact: true }).tap();
+    await expect(page.getByRole('list', { name: 'pokedex columns', exact: true })).toBeVisible();
+    await shoot(page, `tablet-schema-${viewport.width}.png`);
+  });
+}
 
 test('portrait tablet SQL workspace', async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1180 });
