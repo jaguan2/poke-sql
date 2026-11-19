@@ -534,7 +534,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 @media (max-width: 760px) {
   .app { grid-template-rows: 132px minmax(0, 1fr); }
   .header { padding: 12px 20px; grid-template-columns: 1fr auto; gap: 8px; }
-  .settings-button { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
+  .profiles-button { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
 }
 @media (max-width: 620px) {
   /* The document owns mobile scrolling. Panels grow with their content; only
@@ -559,7 +559,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
   .main { min-height: 0; overflow: visible; }
   .main > :first-child { border-radius: 19px 19px 0 0; }
   .header { position: sticky; top: 0; z-index: 20; grid-template-columns: 1fr auto; gap: 10px; padding: 10px; background: var(--shell); border-radius: 21px 21px 0 0; }
-  .settings-button { grid-column: 2; grid-row: 1; justify-self: end; }
+  .profiles-button { grid-column: 2; grid-row: 1; justify-self: end; }
   .header-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 2fr; }
   .brand { gap: 10px; } .brand h1 { font-size: 19px; }
   .header .btn { min-height: 40px; padding: 8px 10px; font-size: 12px; }

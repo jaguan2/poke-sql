@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
 import { loadSafariSession } from "../features/safari/persistence";
+import { SAFARI_TRANSITIONS } from "../features/safari/animation";
 import type { AssignmentId, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariSession } from "../features/safari/types";
 import type { Direction, ZoneId } from "../features/safari/zones";
 import { weatherFor, zoneById } from "../features/safari/zones";
@@ -33,8 +34,8 @@ function reducer(state: State, action: Action): State {
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
     case "advance": {
       if (state.session.encounter?.id !== action.id) return state;
-      if (state.phase === "rustling") return { ...state, phase: "entering" };
-      return state.phase === "entering" ? { ...state, phase: "battle" } : state;
+      const transition = SAFARI_TRANSITIONS[state.phase];
+      return transition ? { ...state, phase: transition.next } : state;
     }
     case "edit": return state.phase !== "battle" ? state : action.sql.length <= 100_000 ? { ...state, session: { ...state.session, draft: action.sql }, error: "", message: "" }
       : { ...state, error: "Keep Safari queries below 100,000 characters." };
@@ -47,7 +48,7 @@ function reducer(state: State, action: Action): State {
       const session = recordSafariReply(state.session, action.id, action.reply, action.at);
       if (session === state.session) return { ...state, error: "Could not verify this catch. Please try again; your chances are unchanged." };
       const outcome = session.encounter!.outcome;
-      return { ...state, session, phase: outcome === "active" ? "battle" : outcome, results: action.reply.results ?? [], error: "",
+      return { ...state, session, phase: outcome === "active" ? "battle" : outcome === "caught" ? "catching" : outcome, results: action.reply.results ?? [], error: "",
         message: outcome === "caught" ? `${session.lastCatch!.pokemon.name} was added to your Pokédex!`
           : `Not quite. ${action.reply.safariFeedback ?? "Check the requested columns, filters, and ordering."}` };
     }
@@ -61,10 +62,10 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const lastMove = useRef(-Infinity);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
-    if ((state.phase !== "rustling" && state.phase !== "entering") || !state.session.encounter) return;
+    const transition = SAFARI_TRANSITIONS[state.phase];
+    if (!transition || !state.session.encounter) return;
     const id = state.session.encounter.id;
-    const duration = state.phase === "rustling" ? 400 : 1200;
-    const timer = setTimeout(() => dispatch({ type: "advance", id }), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration);
+    const timer = setTimeout(() => dispatch({ type: "advance", id }), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : transition.durationMs);
     return () => clearTimeout(timer);
   }, [state.phase, state.session.encounter]);
   const move = (direction: Direction) => {

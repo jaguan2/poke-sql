@@ -18,7 +18,7 @@ async function open(page: Page) {
   await expect(page.getByRole('heading', { name: /Safari Zone/ })).toBeVisible();
 }
 async function encounter(page: Page) {
-  await page.getByRole('button', { name: 'Move left', exact: true }).click();
+  await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-battle-scene')).toBeVisible();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   return page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId as number);
@@ -51,9 +51,11 @@ test('fresh encounters rustle on the map, slide into battle, and then unlock the
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await seed(page);
   await open(page);
-  await page.getByRole('button', { name: 'Move left', exact: true }).click();
+  await page.keyboard.press('ArrowLeft');
   await expect(page.getByText('Something is moving in the grass!', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Move left', exact: true })).toBeDisabled();
+  await page.waitForTimeout(130);
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('.safari-player')).toHaveAttribute('data-x', String(nearSafariGrass().position.x - 1));
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
   await expect(page.locator('.is-entering .encounter-sprite')).toHaveCSS('animation-name', 'safari-slide-wild');
   await expect(page.locator('.is-entering .encounter-trainer')).toHaveCSS('animation-name', 'safari-slide-trainer');
@@ -73,7 +75,7 @@ test('successful catches register habitat progress and move the shaking patch; l
   await page.getByRole('button', { name: 'Return to trail', exact: true }).click();
   await expect(progress).toHaveAttribute('value', '0');
   expect(await page.locator('.safari-rustle').evaluate(node => [node.getAttribute('data-x'), node.getAttribute('data-y')])).toEqual(initialPatch);
-  await page.getByRole('button', { name: 'Move right', exact: true }).click();
+  await page.keyboard.press('ArrowRight');
   await expect(page.locator('.safari-player')).toHaveAttribute('data-x', String(nearSafariGrass().position.x));
   await page.waitForTimeout(130); // Respect the shared keyboard/touch walking cadence.
   const id = await encounter(page);
@@ -118,7 +120,7 @@ test('walking controls, collisions, biome pools and featured areas work with key
   await expect(page.locator('.safari-zones')).toContainText('Featured today');
   await page.locator('.safari-area-picker > summary').click();
   await page.getByRole('button', { name: /Verdant Forest/ }).click();
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
   await page.getByRole('radio', { name: 'Dusk Ball', exact: true }).check();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
@@ -127,10 +129,10 @@ test('walking controls, collisions, biome pools and featured areas work with key
 
 test('rustling grass opens a sliding encounter; only a correct SQL assignment registers the catch', async ({ page }, info) => {
   await seed(page); await page.setViewportSize({ width: 1440, height: 1300 }); await open(page);
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
   await page.getByRole('radio', { name: 'Master Ball', exact: true }).check();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await page.getByRole('button', { name: 'Move left', exact: true }).click();
+  await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-encounter')).toHaveClass(/is-entering/);
   expect(await page.locator('.encounter-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('safari-slide-wild');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
@@ -203,7 +205,7 @@ test('walking and SQL catches advance all four assignments without duplicating r
   await open(page);
   const walk = async (directions: string[]) => {
     for (const direction of directions) {
-      await page.getByRole('button', { name: `Move ${direction}`, exact: true }).click();
+      await page.keyboard.press(`Arrow${direction[0].toUpperCase()}${direction.slice(1)}`);
       await page.waitForTimeout(130); // Respect the shared keyboard/touch walking cadence.
     }
   };
@@ -316,24 +318,45 @@ test('a blocked recovery backup preserves the original save instead of overwriti
 
 test.describe('Safari touch input', () => {
   test.use({ isMobile: true, hasTouch: true, viewport: { width: 390, height: 844 } });
-  test('touch taps and held controls move the trainer and release or blur stops movement', async ({ page }) => {
+  test('swipes walk in each direction; taps, cancellations, blur and open menus do not move the trainer', async ({ page, context }) => {
     await seed(page, createSafariSession()); await open(page);
-    const left = page.getByRole('button', { name: 'Move left', exact: true });
-    await left.tap();
-    await expect(page.locator('.safari-player')).toHaveAttribute('data-x', String(createSafariSession().position.x - 1));
-    await page.waitForTimeout(130);
-    await left.dispatchEvent('pointerdown', { pointerId: 1, pointerType: 'touch' });
-    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).position.x)).toBeLessThanOrEqual(createSafariSession().position.x - 2);
-    await left.dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch' });
-    const stopped = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps);
-    await page.waitForTimeout(350);
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps)).toBe(stopped);
-    const right = page.getByRole('button', { name: 'Move right', exact: true });
-    await right.dispatchEvent('pointerdown', { pointerId: 2, pointerType: 'touch' });
-    await page.evaluate(() => window.dispatchEvent(new Event('blur')));
-    const blurred = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps);
-    await page.waitForTimeout(350);
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps)).toBe(blurred);
+    await page.getByRole('button', { name: 'Got it', exact: true }).tap();
+    const map = page.locator('.safari-map');
+    const player = page.locator('.safari-player');
+    await map.scrollIntoViewIfNeeded();
+    const client = await context.newCDPSession(page);
+    async function swipe(dx: number, dy: number, end: 'touchEnd' | 'touchCancel' | 'blur' = 'touchEnd') {
+      const bounds = (await map.boundingBox())!;
+      const x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height / 2;
+      await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ id: 1, x, y }] });
+      await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ id: 1, x: x + dx, y: y + dy }] });
+      if (end === 'blur') await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+      await client.send('Input.dispatchTouchEvent', { type: end === 'touchCancel' ? 'touchCancel' : 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(130);
+    }
+    for (const [dx, dy, x, y] of [[-60, 0, 9, 17], [60, 0, 10, 17], [0, -60, 10, 16], [0, 60, 10, 17]]) {
+      await swipe(dx, dy);
+      await expect(player).toHaveAttribute('data-x', String(x));
+      await expect(player).toHaveAttribute('data-y', String(y));
+    }
+    // Chrome's raw touch injection suppresses the next native tap even on a
+    // plain HTML page; use locator clicks for menus and touch for the swipes.
+    await page.locator('.safari-area-picker > summary').click();
+    await expect(page.locator('.safari-area-picker')).toHaveAttribute('open', '');
+    await map.scrollIntoViewIfNeeded();
+    await swipe(-60, 0);
+    await page.locator('.safari-area-picker > summary').click();
+    await expect(page.locator('.safari-area-picker')).not.toHaveAttribute('open');
+    await map.scrollIntoViewIfNeeded();
+    await swipe(5, 5);
+    await expect(player).toHaveAttribute('data-x', '10');
+    await swipe(-60, 0, 'touchCancel');
+    await expect(player).toHaveAttribute('data-x', '10');
+    await swipe(-60, 0, 'blur');
+    await expect(player).toHaveAttribute('data-x', '10');
+    await expect(player).toHaveAttribute('data-y', '17');
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps)).toBe(4);
+    await client.detach();
   });
 });
 
@@ -343,8 +366,9 @@ test('mobile Safari controls and SQL catch layout fit without nested page scroll
   for (const width of [320, 390, 620]) {
     await page.setViewportSize({ width, height: 844 });
     await open(page);
-    await page.locator('.safari-dpad').scrollIntoViewIfNeeded();
-    await expect(page.getByRole('button', { name: 'Move left', exact: true })).toBeInViewport();
+    await page.locator('.safari-map').scrollIntoViewIfNeeded();
+    await expect(page.locator('.safari-player')).toBeInViewport();
+    await expect(page.getByRole('button', { name: /^Move (left|right|up|down)$/ })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     if (width === 320) {
       await encounter(page);

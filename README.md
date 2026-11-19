@@ -10,6 +10,9 @@ practice, daily mysteries, collections, and achievements across all eight themes
 Browse the [Safari screenshot gallery](docs/screenshots/safari/README.md) for
 all nine habitats, encounters, SQL catches, Pokédex entries, and mobile views.
 
+The [Profiles gallery](docs/screenshots/profiles/README.md) shows the trainer card,
+eight model choices, saved name, progress counters and new throwing previews.
+
 ## Start the web app
 
 Use Node.js 22.12 or newer (Node 24 recommended).
@@ -72,9 +75,14 @@ See [releasing and testing updates](docs/RELEASING.md).
 - **Safari Zone:** explore nine habitats: Verdant Forest, Willow Wetlands,
   Amber Ridge, Sunlit Meadow, Azure Coast, Mirage Dunes, Moonstone Caverns,
   Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
-  Move the trainer with arrow keys/WASD while exploring, or touch
-  direction buttons. Keyboard walking works after clicking around the Safari;
-  typing, settings and the habitat picker pause it. All areas stay open, with a featured area rotating
+  Move the trainer with arrow keys/WASD while exploring, or swipe the map on a
+  touchscreen. A brief controls popup appears when you first explore.
+  **Profiles → Your trainer model** offers eight models: Red, Leaf, Brendan and
+  May in Emerald and Ruby/Sapphire outfits, Wally, and Steven. Each has matching
+  portraits, walking and battle sprites. Your choice saves on this device and also appears
+  in daily/random mystery encounters. Keyboard walking works after clicking
+  around the Safari; typing, Profiles and the habitat picker pause it.
+  All areas stay open, with a featured area rotating
   daily at 00:00 UTC. Each has its own layout and habitat-appropriate species.
   Routes now scroll with the trainer through winding trails, tree clusters,
   ledges, bridges, ponds, flower borders and beach landmarks. Open **Route map**
@@ -107,11 +115,15 @@ See [releasing and testing updates](docs/RELEASING.md).
   Saved encounters resume without replaying their entrance. Assignments progress
   through filtering, selecting stats, joining types, and surveying abilities,
   then cycle. Correct results register a catch in your Pokédex and achievements.
-  A Pokédex entry automatically reveals the caught Pokémon's sprite, category,
+  Your trainer winds up and pitches your selected theme's ball toward the Pokémon,
+  using the game's throwing poses. It captures the Pokémon in a flash,
+  then lands and shakes before the Pokédex entry appears. Reduced motion skips
+  the sequence. Reloading during the throw preserves the catch without replaying it.
+  The entry reveals the caught Pokémon's sprite, category,
   types, height, weight, generation, and English game description. Keep exploring
   or open your collection afterward. Entries remain available offline and after
   reloading a caught encounter, including older saves.
-  Incorrect queries and leaving an encounter add nothing. Settings → Safari
+  Incorrect queries and leaving an encounter add nothing. Profiles → Safari
   encounters offers **unlimited attempts** (the default), **5 incorrect answers**,
   or **8 incorrect answers** before a Pokémon flees. Remaining chances and warning
   dialogue make the limit clear. Hints, SQL errors, stopped queries and timeouts
@@ -196,11 +208,14 @@ See [releasing and testing updates](docs/RELEASING.md).
   track pauses playback. Track choice, volume, mute, and repeat save locally;
   reopening the app always starts paused. Music works offline after the web
   app finishes caching, and immediately in desktop builds.
-- **Settings:** open Settings in the header to choose Poké,
+- **Profiles:** open Profiles in the header to name your trainer, choose among
+  eight character models, and see your Pokédex entries, Safari catches, completed
+  SQL challenges and discovered types. Boy/girl style filters help browse the
+  models. Existing trainer choices and collections carry over. Also choose Poké,
   Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
   saves on this device and works offline. Ultra, Dusk, and Luxury offer dark
   panels; the other themes keep the softer light panels.
-- **SQL autocomplete:** enable or disable suggestions in Settings. When enabled,
+- **SQL autocomplete:** enable or disable suggestions in Profiles. When enabled,
   the editor suggests table and column names, SQL keywords, and phrases such as
   `LEFT JOIN`, `GROUP BY`, and `ORDER BY`. Use the arrow keys and Enter to accept
   a suggestion, Escape to dismiss, or Ctrl+Space to open the list. The setting

@@ -36,7 +36,7 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
   }, nearSafariGrass('tundra'));
   await page.goto('/');
   await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-  await page.getByRole('button', { name: 'Move left', exact: true }).click();
+  await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
   await expect(page.locator('.encounter-trainer')).toHaveCSS('background-image', /trainer-battle\.png/);

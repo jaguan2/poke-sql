@@ -1,9 +1,14 @@
 .safari-battle-snow .encounter-background { filter:hue-rotate(155deg) saturate(.45) brightness(1.4); }
-.safari-encounter.is-caught .encounter-nameplate > i { background:#d5a52b; border-color:#f6dc7c; }
+.safari-encounter.is-caught .encounter-hp-fill { background:#d5a52b; border-color:#f6dc7c #d5a52b #97741e; }
 .safari-encounter.is-caught .encounter-sprite { opacity:0; }
 .safari-encounter.is-fled .encounter-sprite { opacity:0; translate:70cqw 0; transition:translate 650ms ease-in,opacity 450ms ease-in; }
-.safari-encounter.is-fled .encounter-nameplate > i { background:#b67766; border-color:#d6b5a1; }
-.safari-catch-ball { position:absolute; left:73.3333%; bottom:55%; width:10%; height:auto; transform:translateX(-50%); image-rendering:pixelated; animation:safari-ball 650ms ease-out both; }
+.safari-encounter.is-fled .encounter-hp-fill { background:#b67766; border-color:#d6b5a1 #b67766 #7d5146; }
+/* Lift the padded icon's visible base to the Pokémon's platform baseline.
+   Share this offset between the landing, shakes and final caught pose. */
+.safari-catch-ball { --safari-ball-rest-y:-2.666667cqw; position:absolute; z-index:1; left:73.3333%; bottom:48%; width:10%; margin-left:-5%; height:auto; translate:0 var(--safari-ball-rest-y); image-rendering:pixelated; }
+.safari-encounter.is-catching .safari-catch-ball { opacity:0; animation:safari-catch-throw var(--safari-catch-duration) var(--safari-release-delay) linear forwards; }
+.safari-encounter.is-catching .encounter-sprite { animation:safari-catch-absorb var(--safari-catch-duration) var(--safari-release-delay) linear both; }
+.safari-catch-flash { position:absolute; z-index:1; left:73.3333%; top:34%; width:20%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,#ffffed 15%,#fff9b9bb 35%,#fff9b900 70%); translate:-50% -50%; pointer-events:none; animation:safari-catch-flash var(--safari-catch-duration) var(--safari-release-delay) linear both; }
 .safari-battle-wipe { position:absolute; inset:0; z-index:5; pointer-events:none; }
 .safari-battle-wipe span { display:block; height:50%; background:#183c32; animation:safari-wipe-left 650ms ease-in-out both; }
 .safari-battle-wipe span + span { animation-name:safari-wipe-right; }
@@ -15,4 +20,24 @@
 @keyframes safari-card-in { from { opacity:0; translate:-30px 0; } to { opacity:1; translate:0 0; } }
 @keyframes safari-wipe-left { 0%,20% { translate:0 0; } 100% { translate:-101% 0; } }
 @keyframes safari-wipe-right { 0%,20% { translate:0 0; } 100% { translate:101% 0; } }
-@keyframes safari-ball { from { translate:-50cqw -25cqw; rotate:-180deg; } to { translate:0 0; rotate:0deg; } }
+@keyframes safari-catch-throw {
+  0% { opacity:1; translate:var(--safari-flight-0); rotate:-120deg; }
+  5% { translate:var(--safari-flight-1); rotate:-50deg; }
+  10% { translate:var(--safari-flight-2); rotate:20deg; }
+  15% { translate:var(--safari-flight-3); rotate:100deg; }
+  20%,32% { translate:var(--safari-flight-4); rotate:180deg; }
+  42%,52%,64%,77%,90%,100% { opacity:1; translate:0 var(--safari-ball-rest-y); rotate:0deg; }
+  47% { translate:0 calc(var(--safari-ball-rest-y) - 2cqw); rotate:0deg; }
+  56%,69%,82% { translate:-.7cqw var(--safari-ball-rest-y); rotate:-18deg; }
+  60%,73%,86% { translate:.7cqw var(--safari-ball-rest-y); rotate:18deg; }
+}
+@keyframes safari-catch-absorb {
+  0%,20% { opacity:1; transform:translateX(-50%) scale(1); filter:none; }
+  24% { opacity:1; transform:translateX(-50%) scale(1); filter:brightness(0) invert(1); }
+  34%,100% { opacity:0; transform:translateX(-50%) scale(.03); filter:brightness(0) invert(1); }
+}
+@keyframes safari-catch-flash {
+  0%,18% { opacity:0; scale:.2; }
+  24% { opacity:1; scale:1; }
+  34%,100% { opacity:0; scale:1.8; }
+}

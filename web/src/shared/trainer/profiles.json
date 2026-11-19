@@ -1,0 +1,298 @@
+{
+  "red": {
+    "label": "Boy (Red)",
+    "walking": {
+      "file": "trainer-walking.png",
+      "source": "graphics/object_events/pics/people/red_normal.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-battle.png",
+      "source": "graphics/trainers/back_pics/red_back_pic.png",
+      "columns": 1,
+      "rows": 5,
+      "idleFrame": 0,
+      "throwFrames": [
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "releasePoint": [
+        61,
+        27
+      ]
+    },
+    "archive": "firered",
+    "style": "boy",
+    "region": "Kanto",
+    "game": "FireRed / LeafGreen",
+    "portrait": {
+      "file": "trainer-red-portrait.png",
+      "source": "graphics/trainers/front_pics/red_front_pic.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "leaf": {
+    "label": "Girl (Leaf)",
+    "walking": {
+      "file": "trainer-girl-walking.png",
+      "source": "graphics/object_events/pics/people/green_normal.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-girl-battle.png",
+      "source": "graphics/trainers/back_pics/leaf_back_pic.png",
+      "columns": 1,
+      "rows": 5,
+      "idleFrame": 0,
+      "throwFrames": [
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "releasePoint": [
+        60,
+        27
+      ]
+    },
+    "archive": "firered",
+    "style": "girl",
+    "region": "Kanto",
+    "game": "FireRed / LeafGreen",
+    "portrait": {
+      "file": "trainer-leaf-portrait.png",
+      "source": "graphics/trainers/front_pics/leaf_front_pic.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "brendan": {
+    "label": "Brendan (Emerald)",
+    "archive": "emerald",
+    "style": "boy",
+    "region": "Hoenn",
+    "game": "Emerald",
+    "walking": {
+      "file": "trainer-brendan-walking.png",
+      "source": "graphics/object_events/pics/people/brendan/walking.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-brendan-battle.png",
+      "source": "graphics/trainers/back_pics/brendan.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        59,
+        29
+      ]
+    },
+    "portrait": {
+      "file": "trainer-brendan-portrait.png",
+      "source": "graphics/trainers/front_pics/brendan.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "may": {
+    "label": "May (Emerald)",
+    "archive": "emerald",
+    "style": "girl",
+    "region": "Hoenn",
+    "game": "Emerald",
+    "walking": {
+      "file": "trainer-may-walking.png",
+      "source": "graphics/object_events/pics/people/may/walking.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-may-battle.png",
+      "source": "graphics/trainers/back_pics/may.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        60,
+        33
+      ]
+    },
+    "portrait": {
+      "file": "trainer-may-portrait.png",
+      "source": "graphics/trainers/front_pics/may.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "brendan-rs": {
+    "label": "Brendan (Ruby / Sapphire)",
+    "archive": "emerald",
+    "style": "boy",
+    "region": "Hoenn",
+    "game": "Ruby / Sapphire",
+    "walking": {
+      "file": "trainer-brendan-rs-walking.png",
+      "source": "graphics/object_events/pics/people/ruby_sapphire_brendan/walking.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-brendan-rs-battle.png",
+      "source": "graphics/trainers/back_pics/brendan_rs.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        59,
+        27
+      ]
+    },
+    "portrait": {
+      "file": "trainer-brendan-rs-portrait.png",
+      "source": "graphics/trainers/front_pics/brendan_rs.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "may-rs": {
+    "label": "May (Ruby / Sapphire)",
+    "archive": "emerald",
+    "style": "girl",
+    "region": "Hoenn",
+    "game": "Ruby / Sapphire",
+    "walking": {
+      "file": "trainer-may-rs-walking.png",
+      "source": "graphics/object_events/pics/people/ruby_sapphire_may/walking.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-may-rs-battle.png",
+      "source": "graphics/trainers/back_pics/may_rs.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        60,
+        33
+      ]
+    },
+    "portrait": {
+      "file": "trainer-may-rs-portrait.png",
+      "source": "graphics/trainers/front_pics/may_rs.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "wally": {
+    "label": "Wally",
+    "archive": "emerald",
+    "style": "boy",
+    "region": "Hoenn",
+    "game": "Emerald",
+    "walking": {
+      "file": "trainer-wally-walking.png",
+      "source": "graphics/object_events/pics/people/wally.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-wally-battle.png",
+      "source": "graphics/trainers/back_pics/wally.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        60,
+        44
+      ]
+    },
+    "portrait": {
+      "file": "trainer-wally-portrait.png",
+      "source": "graphics/trainers/front_pics/wally.png",
+      "columns": 1,
+      "rows": 1
+    }
+  },
+  "steven": {
+    "label": "Steven",
+    "archive": "emerald",
+    "style": "boy",
+    "region": "Hoenn",
+    "game": "Emerald",
+    "walking": {
+      "file": "trainer-steven-walking.png",
+      "source": "graphics/object_events/pics/people/steven.png",
+      "columns": 9,
+      "rows": 1
+    },
+    "battle": {
+      "file": "trainer-steven-battle.png",
+      "source": "graphics/trainers/back_pics/steven.png",
+      "columns": 1,
+      "rows": 4,
+      "idleFrame": 3,
+      "throwFrames": [
+        0,
+        1,
+        2,
+        0,
+        3
+      ],
+      "releasePoint": [
+        61,
+        59
+      ]
+    },
+    "portrait": {
+      "file": "trainer-steven-portrait.png",
+      "source": "graphics/trainers/front_pics/steven.png",
+      "columns": 1,
+      "rows": 1
+    }
+  }
+}

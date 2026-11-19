@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises';
 import safariMaps from '../src/features/safari/maps.json' with { type: 'json' };
 import safariRoutes from '../src/features/safari/routes.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
-import ballThemes from '../src/features/settings/themes.json' with { type: 'json' };
+import ballThemes from '../src/features/profiles/themes.json' with { type: 'json' };
 import tracks from '../src/features/music/tracks.json' with { type: 'json' };
+import trainers from '../src/shared/trainer/profiles.json' with { type: 'json' };
 import safariManifest from '../src/features/safari/assets.json' with { type: 'json' };
 import spriteBounds from '../src/shared/pokemon/sprite-bounds.json' with { type: 'json' };
 import pokedex from '../src/shared/pokemon/pokedex-entries.json' with { type: 'json' };
@@ -42,6 +43,19 @@ if (missing.length) throw new Error(`${missing.length} sprites missing or invali
 if (spriteDigest.digest('hex') !== safariManifest.spriteSourceSha256) throw new Error('Safari sprite geometry is stale. Run py scripts/build_safari_assets.py from the repository root.');
 if (createHash('sha256').update(JSON.stringify(spriteBounds)).digest('hex') !== safariManifest.spriteBoundsSha256) throw new Error('Sprite geometry changed. Run py scripts/build_safari_assets.py from the repository root.');
 const safariAssets = safariManifest.assets;
+for (const trainer of Object.values(trainers)) {
+  if (trainer.battle.throwFrames.length !== 5) throw new Error(`${trainer.label} must define five throwing poses in shared/trainer/profiles.json.`);
+  if (trainer.battle.releasePoint.length !== 2 || trainer.battle.releasePoint.some(value => !Number.isFinite(value) || value < 0 || value > 64)) throw new Error(`Invalid throwing hand position for ${trainer.label}. Check shared/trainer/profiles.json.`);
+  for (const [pose, frameWidth, frameHeight] of [['walking', 16, 32], ['battle', 64, 64], ['portrait', 64, 64]]) {
+    const sheet = trainer[pose];
+    const file = sheet.file;
+    const data = await readFile(new URL(`../public/safari/${file}`, import.meta.url));
+    if (!safariAssets.some(asset => asset.file === file) || data.readUInt32BE(16) !== frameWidth * sheet.columns || data.readUInt32BE(20) !== frameHeight * sheet.rows) {
+      throw new Error(`Invalid ${pose} trainer sheet ${file}. Run py scripts/build_trainers.py from the repository root.`);
+    }
+    if (pose === 'battle' && [sheet.idleFrame, ...sheet.throwFrames].some(frame => !Number.isInteger(frame) || frame < 0 || frame >= sheet.columns * sheet.rows)) throw new Error(`Invalid battle poses in ${file}. Check shared/trainer/profiles.json.`);
+  }
+}
 console.log(`Verified ${ids.length} species and ${ballThemes.length} bundled item sprites.`);
 // OC ReMix permits redistribution of the original MP3s, without retagging or
 // transcoding. Hash checks keep that constraint part of every production build.

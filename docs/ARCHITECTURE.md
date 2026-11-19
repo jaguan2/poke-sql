@@ -24,7 +24,7 @@ web/
       mystery/              Random/daily rounds, grading, clues, UTC rollover
       pokedex/              Encounters, journal, achievement goals and UI
       music/                Player, styles, curated track manifest
-      settings/             Settings UI, theme manifest and color variables
+      profiles/             Trainer card, model selection, preferences and palettes
       safari/               Maps, encounter pools, movement and SQL catch tasks
     shared/
       sql/                  Statement execution, schema reading, result types,

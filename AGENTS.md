@@ -23,7 +23,7 @@ web/
     mystery/               Daily/random rounds, grading and clue UI
     pokedex/               Encounters, personal journal and achievements
     music/                 Player, styles and curated track manifest
-    settings/              Settings, theme manifest and palettes
+    profiles/              Trainer card, model selection, preferences and palettes
     safari/                Biome maps, encounters and SQL catch assignments
   src/shared/
     sql/                   Execution, schema introspection and result types

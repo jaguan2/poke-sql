@@ -1,5 +1,8 @@
 # PokéSQL screenshots
 
+The [Profiles gallery](profiles/README.md) shows the current trainer card,
+personalization, eight character models, progress counters and throwing previews.
+
 Updated November 18, 2026, from the production web app in isolated Chrome
 profiles. All thirteen photos show the desktop interface, using all eight ball themes.
 These are actual application screenshots: SQL examples and guesses ran through

@@ -10,7 +10,7 @@ async function seed(page: Page) {
   }, nearSafariGrass());
 }
 async function limit(page: Page, value: 'unlimited' | '5' | '8') {
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
   await page.getByLabel('Chances before fleeing', { exact: true }).selectOption(value);
   await page.getByRole('button', { name: 'Done', exact: true }).click();
 }
@@ -131,11 +131,11 @@ test('relaxed practice is the default and keeps the Pokémon after nine wrong an
 test('invalid preferences fall back to relaxed practice and a blocked setting write is explained', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('pokesql:safari-flee-after', JSON.stringify(3)));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
   await expect(page.getByLabel('Chances before fleeing', { exact: true })).toHaveValue('unlimited');
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException('Blocked', 'SecurityError'); }; });
   await page.getByLabel('Chances before fleeing', { exact: true }).selectOption('8');
-  await expect(page.getByText('This device could not save a setting.', { exact: false })).toBeVisible();
+  await expect(page.getByText('This device could not save a profile change.', { exact: false })).toBeVisible();
   await expect(page.getByLabel('Chances before fleeing', { exact: true })).toHaveValue('8');
 });
 
@@ -153,7 +153,7 @@ test('the fled solution review fits a small phone and returns to a usable route'
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await page.screenshot({ path: info.outputPath('fled-mobile.png'), animations: 'disabled', fullPage: true });
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Move left', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Move right', exact: true }).click();
+  await expect(page.locator('.safari-map')).toHaveAttribute('tabindex', '0');
+  await page.keyboard.press('ArrowRight');
   await expect(page.locator('.safari-position')).toContainText('1 steps');
 });

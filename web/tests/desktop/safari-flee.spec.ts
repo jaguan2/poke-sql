@@ -16,7 +16,7 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
     await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
     await page.reload();
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
     await page.getByLabel('Chances before fleeing', { exact: true }).selectOption('5');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
@@ -33,7 +33,7 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await expect(page.locator('.safari-fled-summary')).toContainText('After 5 incorrect answers');
     await expect(page.locator('.safari-pass strong')).toHaveText('00');
     await page.reload();
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
     await expect(page.getByLabel('Chances before fleeing', { exact: true })).toHaveValue('5');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();

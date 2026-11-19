@@ -99,6 +99,94 @@
     {
       "file": "trainer-battle.png",
       "sha256": "cd56e9c887a82cf0f95e357eacf9fc7bbeace7f4635e8fe2da2da037830287e9"
+    },
+    {
+      "file": "trainer-girl-walking.png",
+      "sha256": "1229935843ebeb349176fe0c0dad579fdb855c5b89ecad8a22cbb9096581e1df"
+    },
+    {
+      "file": "trainer-girl-battle.png",
+      "sha256": "122b170c9823b4d66f5bf41bd05ce5c242ccca124abb2d474987b11435801da5"
+    },
+    {
+      "file": "trainer-red-portrait.png",
+      "sha256": "4442795842373b5045041f7207619799160edcc9e0124e19996e46401ed149f0"
+    },
+    {
+      "file": "trainer-leaf-portrait.png",
+      "sha256": "54dc10d0408c2e064b4f192891a32e499dafa611875f875ba41f51ad45deec71"
+    },
+    {
+      "file": "trainer-brendan-walking.png",
+      "sha256": "e132470130dcf7e8bdc8699ef47e5ac5dbed8ecc1ccf441d21c67d90d31ea98f"
+    },
+    {
+      "file": "trainer-brendan-battle.png",
+      "sha256": "9742002793dac999bf6c136997764f38af967f6c1e1c3c6db2275b2fe0862423"
+    },
+    {
+      "file": "trainer-brendan-portrait.png",
+      "sha256": "3ba282d389bdbb280867b2bbf990f30b14c9f9314b24ed1f4ed019d2920bd7c9"
+    },
+    {
+      "file": "trainer-may-walking.png",
+      "sha256": "e395a92f14384aa61693d337ae309a0d9a2631d6551a8a9cbbe3a17a80955331"
+    },
+    {
+      "file": "trainer-may-battle.png",
+      "sha256": "6979eab3e7acefa0fd9a3a81acb977cfd339f24f7ed59e11ab9a647e161f54f9"
+    },
+    {
+      "file": "trainer-may-portrait.png",
+      "sha256": "90f6eac48b6a0b287e615d2d754804c3ff1484a1114a9656c59ef40661a5675c"
+    },
+    {
+      "file": "trainer-brendan-rs-walking.png",
+      "sha256": "33528b03082fc5578f5df8ac0aa8a734d8214fcaa90fe436e8c6b6d33378e4c2"
+    },
+    {
+      "file": "trainer-brendan-rs-battle.png",
+      "sha256": "e5c5473414d859efb5b5a02c4e582018816ac9e995e2b86fb6861cd11a1499f4"
+    },
+    {
+      "file": "trainer-brendan-rs-portrait.png",
+      "sha256": "ce15a7cfa7bc3f4fe6525f04fcbf976e3f84760dd7adf7e7585cda77788666af"
+    },
+    {
+      "file": "trainer-may-rs-walking.png",
+      "sha256": "1230c96b9797c1a091ef68875c56a91c3ca01985f5cd63508d2a9a376e54e352"
+    },
+    {
+      "file": "trainer-may-rs-battle.png",
+      "sha256": "427f448dd5d8b99c142f762676214d3538195e67578432a9b76c2a912014a1a7"
+    },
+    {
+      "file": "trainer-may-rs-portrait.png",
+      "sha256": "ad3ac42fc4ce7db87c4496e4dae31d5597dc9c6ba1422085966252357e6c72ca"
+    },
+    {
+      "file": "trainer-wally-walking.png",
+      "sha256": "c3620258c2fa680243bd122586cd432d6eca8f8d1e45b749d3112047a0128b14"
+    },
+    {
+      "file": "trainer-wally-battle.png",
+      "sha256": "519815e61ffdbdb01998861440740df1f7bcafb4a04a50441ff5cc5c78d35dd8"
+    },
+    {
+      "file": "trainer-wally-portrait.png",
+      "sha256": "3a12db1dfb7802b6d4d73c85991f52c14b72daf73bf06c593106423fa04e09b4"
+    },
+    {
+      "file": "trainer-steven-walking.png",
+      "sha256": "57105a269cee57593facae500a3a125d6d13b2233594b5e52e05f2bf14bf2607"
+    },
+    {
+      "file": "trainer-steven-battle.png",
+      "sha256": "8e6af916faa6e202e396967c7aa640a243541b6f2b36a8937be31d95ae593c59"
+    },
+    {
+      "file": "trainer-steven-portrait.png",
+      "sha256": "951c975cab346e579f0c7c96cf63596dac9c881a76a15385cafc1368a04d171a"
     }
   ]
 }

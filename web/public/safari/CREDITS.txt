@@ -30,7 +30,24 @@ Trainer sprites, battle scenery, window frames and lettering
   https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics
   trainer-walking.png: graphics/object_events/pics/people/red_normal.png
   trainer-battle.png: graphics/trainers/back_pics/red_back_pic.png
-  Both trainer PNGs are unchanged, including native palette transparency.
+  trainer-girl-walking.png: graphics/object_events/pics/people/green_normal.png
+  trainer-girl-battle.png: graphics/trainers/back_pics/leaf_back_pic.png
+  Red and Leaf's original walking and battle PNGs are unchanged.
+  Eight trainer models also include front portraits. Brendan and May's Emerald
+  and Ruby/Sapphire outfits, Wally and Steven use the pinned Emerald archive:
+  graphics/object_events/pics/people, graphics/trainers/back_pics and front_pics.
+  Source paths, sheet layouts, native pose sequences and release hand positions
+  are recorded in web/src/shared/trainer/profiles.json.
+  Portraits and battle sheets are unchanged. Emerald walking sheets retain
+  source pixels and palettes, with palette index 0 marked transparent for CSS.
+  Native pose sequences are retimed to the common PokéSQL throwing tempo.
+  https://github.com/pret/pokeemerald/blob/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/src/data/trainer_graphics/back_pic_anims.h
+  Red and Leaf's throwing poses follow src/data/trainer_graphics/back_pic_anims.h:
+  frames 1, 2, 3, 4, 0 for 20, 6, 6, 24, 1 ticks at 60 ticks per second.
+  https://github.com/pret/pokefirered/blob/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/src/data/trainer_graphics/back_pic_anims.h
+  Profiles and source paths: web/src/shared/trainer/profiles.json.
+  Vendor trainer sheets alone with py scripts/build_trainers.py; the full
+  Safari builder uses the same source manifest.
   battle/{grass,sand,cave,water}.png:
     graphics/battle_terrain/<terrain>/terrain.{png,bin,pal}
     Original tiles, flip bits and palettes reconstruct the 240x160 scene.

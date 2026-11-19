@@ -1,0 +1,10 @@
+.trainer-sprite { display:block; background-repeat:no-repeat; image-rendering:pixelated; }
+.trainer-sprite-battle.is-throwing { animation:trainer-pitch var(--trainer-throw-duration) steps(1,end) both; }
+/* Model-specific native poses share the 57-tick throwing tempo. */
+@keyframes trainer-pitch {
+  0% { background-position:var(--trainer-pose-0); }
+  35.087719% { background-position:var(--trainer-pose-1); }
+  45.614035% { background-position:var(--trainer-pose-2); }
+  56.140351% { background-position:var(--trainer-pose-3); }
+  98.245614%,100% { background-position:var(--trainer-pose-4); }
+}

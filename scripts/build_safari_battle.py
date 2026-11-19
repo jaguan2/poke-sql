@@ -11,6 +11,7 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from PIL import Image, ImageDraw
 
 from safari_sources import ROOT, source
+from build_trainers import build_trainers
 
 firered = partial(source, archive="firered")
 
@@ -154,10 +155,7 @@ def build_battle_assets(output):
     for file, builder in [("dialogue.png", build_dialogue), ("nameplate.png", build_nameplate), ("pixel.woff2", build_font)]:
         builder(battle / file)
         generated.append("battle/" + file)
-    for target, original in [("trainer-walking.png", "graphics/object_events/pics/people/red_normal.png"),
-                             ("trainer-battle.png", "graphics/trainers/back_pics/red_back_pic.png")]:
-        (output / target).write_bytes(firered(original).read_bytes())
-        generated.append(target)
+    generated.extend(build_trainers(output))
     bounds, digest = {}, hashlib.sha256()
     database = ROOT / "web/public/pokemon.sqlite"
     with sqlite3.connect(database.as_uri() + "?mode=ro", uri=True) as db:

@@ -35,7 +35,7 @@
 .mystery-idle { margin: 8px 0 16px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
 .mystery-win-actions { margin-top: 10px; }
 .mystery-encounter { max-width:722px; margin:18px auto; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-.mystery-encounter.is-revealed .encounter-nameplate > i { background:#d5a52b; border-color:#f6dc7c; }
+.mystery-encounter.is-revealed .encounter-hp-fill { background:#d5a52b; border-color:#f6dc7c #d5a52b #97741e; }
 
 @media (max-width: 620px) {
   .mystery-modes .btn { min-height: 40px; font-size: 12px; }

@@ -23,7 +23,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     app = await launch();
     const page = await app.firstWindow();
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
     await page.getByRole('radio', { name: 'Master Ball', exact: true }).check();
     await page.getByRole('switch', { name: 'SQL autocomplete' }).uncheck();
     await page.getByRole('button', { name: 'Done', exact: true }).click();
@@ -91,7 +91,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     app = await launch();
     const reopened = await app.firstWindow();
     await expect(reopened.getByRole('button', { name: /Run/ })).toBeEnabled();
-    await reopened.getByRole('button', { name: 'Settings', exact: true }).click();
+    await reopened.getByRole('button', { name: 'Profiles', exact: true }).click();
     await expect(reopened.getByRole('radio', { name: 'Master Ball', exact: true })).toBeChecked();
     await expect(reopened.getByRole('switch', { name: 'SQL autocomplete' })).not.toBeChecked();
     await reopened.getByRole('button', { name: 'Done', exact: true }).click();
@@ -110,6 +110,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
 });
 
 test('desktop Safari loads its local trainer assets and persists a SQL catch', async ({}, testInfo) => {
+  test.setTimeout(60000); // Profiles navigation, a catch and a persisted-profile reload.
   const data = testInfo.outputPath('profile');
   await mkdir(data, { recursive: true });
   const env = { ...process.env, POKESQL_TEST: '1', POKESQL_TEST_DATA: data };
@@ -128,12 +129,17 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.locator('.safari-events > summary').click();
     await expect(page.getByRole('article', { name: 'Celebi Mythical event', exact: true })).toContainText('Active now');
     await page.locator('.safari-events > summary').click();
-    const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/grass-effect.png', 'safari/trainer-battle.png', 'safari/maps/forest.png', 'safari/maps/tundra.png', 'safari/battle/grass.png', 'safari/battle/dialogue.png', 'safari/battle/nameplate.png', 'safari/battle/pixel.woff2'].map(async file => {
+    const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/trainer-girl-walking.png', 'safari/trainer-girl-battle.png', 'safari/grass-effect.png', 'safari/trainer-battle.png', 'safari/maps/forest.png', 'safari/maps/tundra.png', 'safari/battle/grass.png', 'safari/battle/dialogue.png', 'safari/battle/nameplate.png', 'safari/battle/pixel.woff2'].map(async file => {
       const response = await fetch(file);
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };
     })));
     expect(assets.every(asset => asset.status === 200 && asset.size > 100)).toBe(true);
     await expect(page.getByRole('table', { name: 'Verdant Forest encounter table' })).toBeVisible();
+    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+    await page.getByLabel('Trainer name', { exact: true }).fill('Jason');
+    await page.getByRole('radio', { name: 'Steven', exact: true }).check();
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await expect(page.locator('.safari-player .trainer-sprite')).toHaveAttribute('data-trainer', 'steven');
     await page.getByRole('heading', { name: /Safari Zone/ }).click();
     await page.keyboard.press('a');
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
@@ -150,6 +156,9 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);
     await page.keyboard.press('ControlOrMeta+Enter');
+    await expect(page.locator('.is-catching .safari-catch-ball')).toHaveAttribute('src', /sprites\/items\/poke-ball\.png$/);
+    await expect(page.locator('.encounter-trainer')).toHaveAttribute('data-trainer', 'steven');
+    await expect(page.locator('.safari-pokedex-entry')).toHaveCount(0);
     await expect(page.getByText('Gotcha!', { exact: false })).toBeVisible();
     const entry = page.locator('.safari-pokedex-entry');
     await expect(entry).toContainText('Pokédex data registered!');
@@ -167,10 +176,16 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
     await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
+    await expect(page.locator('.encounter-trainer')).toHaveAttribute('data-trainer', 'steven');
     await expect(caughtMarker).toBeVisible();
     await caughtMarker.evaluate((img: HTMLImageElement) => img.decode());
     await expect(entry).toContainText('Pokédex data registered!');
     await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
+    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+    await expect(page.getByLabel('Trainer name', { exact: true })).toHaveValue('Jason');
+    await expect(page.getByRole('radio', { name: 'Steven', exact: true })).toBeChecked();
+    await expect(page.locator('.profile-statistics dd').nth(1)).toHaveText('1 successful SQL catches');
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');
   } finally {

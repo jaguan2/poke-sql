@@ -3,14 +3,16 @@ import type { MysteryRound } from "./model";
 import { MYSTERY_HISTORY_LIMIT, mysterySolved } from "./model";
 import type { NumberClue, TypeClue } from "./types";
 import { MysteryEncounter } from "./MysteryEncounter";
+import type { TrainerId } from "../../shared/trainer/profile";
 import "./PokemonMystery.css";
 
-export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom, onNew, onLeave }: {
+export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom, onNew, onLeave, trainer }: {
   round: MysteryRound | null;
   busy: boolean;
   mode: "daily" | "random";
   date?: string;
   today: string;
+  trainer: TrainerId;
   onDaily: () => void;
   onRandom: () => void;
   onNew: () => void;
@@ -25,7 +27,7 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
     </div>
     {mode === "daily" && <p className="mystery-date"><time dateTime={date}>{date}</time> · UTC · New challenge daily at 00:00 UTC</p>}
     {mode === "daily" && date && date !== today && <p className="notice" role="status">Today's daily challenge is available. This round stays on {date} so you can finish it. <button className="btn" disabled={busy} onClick={onDaily}>Open today's challenge</button></p>}
-    {round && <MysteryEncounter key={`${mode}:${date ?? "random"}:${round.targetId}`} round={round} daily={mode === "daily"} />}
+    {round && <MysteryEncounter key={`${mode}:${date ?? "random"}:${round.targetId}`} round={round} daily={mode === "daily"} trainer={trainer} />}
     <p>Use the sprite and SQL clues to identify the Pokémon. A correct guess reveals its name.</p>
     <div className="mystery-legend" aria-label="Clue legend"><span>✓ Green: exact</span><span>↔ Yellow: type in the other slot</span><span>↑ / ↓: look higher / lower</span><span>×: no match</span></div>
     <details><summary>How to play</summary>

@@ -11,7 +11,7 @@ for (const width of [1440, 1024, 620, 390, 320]) {
     }, nearSafariGrass());
     await page.goto('/');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-    await page.getByRole('button', { name: 'Move left', exact: true }).click();
+    await page.keyboard.press('ArrowLeft');
     const scene = page.locator('.safari-battle-scene');
     await expect(scene).toBeVisible();
     async function expectGameScreen() {
@@ -26,6 +26,14 @@ for (const width of [1440, 1024, 620, 390, 320]) {
     const level = await scene.locator('.encounter-nameplate small').textContent();
     expect(level).toMatch(/^Lv\.(?:[5-9]|[1-4]\d|50)$/);
     await expect(scene.locator('.encounter-nameplate')).not.toContainText('No.');
+    const plate = (await scene.locator('.encounter-nameplate').boundingBox())!;
+    const identity = (await scene.locator('.encounter-identity').boundingBox())!;
+    const hp = (await scene.locator('.encounter-hp-track').boundingBox())!;
+    await expect(scene.locator('.encounter-hp')).toHaveText('HP');
+    expect(hp.width).toBeGreaterThan(plate.width * 0.35);
+    expect(hp.y).toBeGreaterThanOrEqual(identity.y + identity.height - 1);
+    expect(hp.x + hp.width).toBeLessThan(plate.x + plate.width);
+    expect(hp.y + hp.height).toBeLessThan(plate.y + plate.height);
     await expectGameScreen();
     const caption = (await page.locator('.encounter-caption').boundingBox())!;
     for (const selector of ['.encounter-nameplate', '.encounter-sprite', '.encounter-trainer']) {

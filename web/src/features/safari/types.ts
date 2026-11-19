@@ -15,5 +15,5 @@ export interface SafariSession {
   steps: number; grassSteps: number; catches: number; encounter: SafariEncounter | null;
   draft: string; lastCatch: SafariCatch | null;
 }
-export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "caught" | "fled";
+export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "catching" | "caught" | "fled";
 export interface SafariCheckReply { results?: QueryResult[]; passed?: boolean; safariPokemon?: PokemonProfile; safariFeedback?: string; error?: string }

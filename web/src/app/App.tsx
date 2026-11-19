@@ -1,7 +1,8 @@
 import { QueryResults } from "../shared/ui/QueryResults";
 import { Sidebar } from "./components/Sidebar";
 import { SqlEditor } from "./components/SqlEditor";
-import { Settings } from "../features/settings/Settings";
+import { useRef } from "react";
+import { Profiles } from "../features/profiles/Profiles";
 import { QueryHelp } from "../features/practice/QueryHelp";
 import { MusicPlayer } from "../features/music/MusicPlayer";
 import { MysteryNotebook, MysteryPanel } from "../features/mystery/PokemonMystery";
@@ -10,16 +11,17 @@ import { PersonalPokedex } from "../features/pokedex/PersonalPokedex";
 import { useWorkspace } from "./use-workspace";
 import { SafariZone } from "../features/safari/SafariZone";
 import "./App.css";
-import "../features/settings/themes.css";
+import "../features/profiles/themes.css";
 
 export default function App() {
   const {
     ready, loadError, selection, activeChallenge, isMystery, challenge, sample, practice,
-    query, draftKey, editorSchema, showPokedex, showSafari, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
-    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, autocomplete, safariFleeAfter,
-    settingsSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
+    query, draftKey, editorSchema, showPokedex, showSafari, showProfiles, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
+    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, profileProgress, autocomplete, safariFleeAfter,
+    profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
     saved, queryName, runState, actions,
   } = useWorkspace();
+  const profileButton = useRef<HTMLButtonElement>(null);
 
   if (loadError) return <div className="load-screen"><h1>Could not load PokéSQL</h1><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Try again</button></div>;
   if (!ready) return <div className="load-screen"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={64} height={64} className="spin" /><p>Loading your Pokédex…</p></div>;
@@ -30,11 +32,9 @@ export default function App() {
         <div className="dex-lights" aria-hidden="true"><span className="dex-lens" /><span className="dex-light" /><span className="dex-light" /></div>
         <div><h1>Poké<span className="brand-accent">SQL</span></h1><span className="tagline">Your pocket SQL laboratory</span></div>
       </div>
-      <Settings ballTheme={ballTheme} autocomplete={autocomplete} saveError={settingsSaveError}
-        safariFleeAfter={safariFleeAfter} onSafariFleeAfterChange={actions.changeSafariFleeAfter}
-        onThemeChange={actions.changeTheme} onAutocompleteChange={actions.changeAutocomplete} />
+      <button className="btn btn-secondary profiles-button" ref={profileButton} aria-pressed={showProfiles} disabled={busy} onClick={actions.openProfiles}>Profiles</button>
       <div className="header-actions">
-        {showPokedex || showSafari ? <>
+        {showPokedex || showSafari || showProfiles ? <>
           <button className="btn btn-secondary" disabled={busy} onClick={actions.returnToWorkspace}>Back to workspace</button>
           {busy ? <button className="btn btn-primary" onClick={() => actions.stop()}>■ Stop query</button> : <button className="btn btn-primary" onClick={actions.openDailyMystery}>Today's mystery</button>}
         </> : <>
@@ -44,24 +44,27 @@ export default function App() {
       </div>
     </header>
     <div className="body">
-      <Sidebar schema={editorSchema} busy={busy} history={history} saved={saved} completed={completed} activeChallenge={showSafari ? null : activeChallenge} activeSample={showSafari ? null : sample?.id ?? null} activeMystery={isMystery && !showPokedex && !showSafari}
+      <Sidebar schema={editorSchema} busy={busy} history={history} saved={saved} completed={completed} activeChallenge={showSafari || showProfiles ? null : activeChallenge} activeSample={showSafari || showProfiles ? null : sample?.id ?? null} activeMystery={isMystery && !showPokedex && !showSafari && !showProfiles}
         activeSafari={showSafari} onSafari={actions.openSafari}
         pokedexCount={encounters.length} activePokedex={showPokedex} onPokedex={actions.openPokedex}
         onMystery={actions.openDailyMystery} onSample={actions.selectSample} onLoadSql={actions.loadSql}
         onGuideSql={actions.loadGuideSql} onPreviewSql={actions.previewSql} onChallenge={actions.selectChallenge}
         onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
-      <main className={`main${isMystery && !showPokedex && !showSafari ? " mystery-workspace" : ""}`}>
-        {showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter}
+      <main className={`main${isMystery && !showPokedex && !showSafari && !showProfiles ? " mystery-workspace" : ""}`}>
+        {showProfiles ? <Profiles name={trainerName} trainer={trainer} progress={profileProgress} ballTheme={ballTheme} autocomplete={autocomplete} safariFleeAfter={safariFleeAfter} saveError={profileSaveError}
+          onNameChange={actions.changeTrainerName} onTrainerChange={actions.changeTrainer} onThemeChange={actions.changeTheme} onAutocompleteChange={actions.changeAutocomplete} onSafariFleeAfterChange={actions.changeSafariFleeAfter}
+          onDone={() => { actions.closeProfiles(); profileButton.current?.focus(); }} />
+        : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
           onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex}
           editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
             onChange={safari.actions.editDraft} onRun={() => void safari.actions.submit()} busy={busy} autocomplete={autocomplete} />} />
-        : showPokedex ? <PersonalPokedex encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
+        : showPokedex ? <PersonalPokedex activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
         {datasetUpdateAvailable && !isMystery && !challenge && <div className="notice dataset-update" role="status">
           <strong>New Pokédex fields and forms are available.</strong> Your saved practice database is an older version. Reset DB loads the update and replaces practice database edits. Your SQL drafts, saved queries, and progress stay saved.
           <button className="btn" disabled={busy} onClick={() => void actions.reset()}>Reset DB and load update</button>
         </div>}
-        {isMystery && <MysteryPanel round={mysteryRound} busy={busy} mode={mysteryMode} date={dailyMysteryRound?.date} today={today}
+        {isMystery && <MysteryPanel trainer={trainer} round={mysteryRound} busy={busy} mode={mysteryMode} date={dailyMysteryRound?.date} today={today}
           onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} onNew={() => void actions.newMystery()}
           onLeave={actions.leaveMystery} />}
         {practice && <section className="practice-panel" key={`${selection?.kind}:${practice.id}`} aria-label={challenge ? "Current challenge" : "Get started query"}>

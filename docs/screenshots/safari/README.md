@@ -1,10 +1,47 @@
 # Safari screenshots
 
-Captured November 18, 2026, from the production application using isolated demo
-profiles. This gallery contains 41 PNG images covering all nine habitats, all
+Captured November 18–19, 2026, from the production application using isolated demo
+profiles. This gallery contains 50 PNG images and two catch-animation previews covering all nine habitats, all
 eight Poké Ball themes, encounters, SQL catching, Pokédex registration, and mobile.
 
 [Open the browser gallery](index.html) to browse the images at full resolution.
+
+## Trainer customization and pitching
+
+Settings → Your trainer offers Boy (Red) and Girl (Leaf). The choice appears in
+walking, Safari battles and mystery encounters, and saves on the device.
+A correct catch query triggers the selected trainer's native wind-up,
+release and follow-through before the ball captures the Pokémon.
+
+- [Trainer choices in Settings](trainer-settings.png)
+- [Girl trainer exploring a route](girl-trainer-route.png)
+- [Boy trainer pitching](boy-pitch.png)
+- [Girl trainer pitching](girl-pitch.png)
+- [Play the girl trainer's catch](girl-pokeball-throw.webm)
+- [Play the boy trainer's catch](pokeball-throw.webm)
+
+## Successful SQL catch animation
+
+A correct query triggers a ball throw, capture flash, landing and three shakes
+before the Pokédex entry appears. The ball matches the selected theme. Captures
+are saved immediately; reloads resume at the entry and reduced motion skips
+the sequence.
+
+- [Play the catch animation](pokeball-throw.webm) — recorded from the rendered application
+- [Dusk Ball in flight](ball-throw.png)
+- [Capture flash](ball-capture-flash.png)
+- [Ball shaking on a 320px phone](ball-shakes-mobile.png)
+
+## Updated HP bar and controls
+
+The encounter HP meter now has a frame and HP label. Safari's direction buttons
+have been replaced by an introductory popup; movement uses WASD, arrow keys,
+or swipes on the map. These captures show the updated interface; earlier
+gallery images below may still include the previous controls.
+
+- [Updated Caterpie encounter](caterpie-battle.png)
+- [Controls popup on desktop](safari-controls-desktop.png)
+- [Controls popup at 320px](safari-controls-mobile.png)
 
 ## Overviews
 

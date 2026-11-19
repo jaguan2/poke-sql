@@ -8,8 +8,9 @@ import { PokedexAchievements } from "./PokedexAchievements";
 import "./PersonalPokedex.css";
 
 const PAGE_SIZE = 24;
+export type PokedexView = "collection" | "achievements";
 
-export function PersonalPokedex({ encounters, catalog, saveError, recovered, onDaily, onRandom, onSafari }: {
+export function PersonalPokedex({ encounters, catalog, saveError, recovered, onDaily, onRandom, onSafari, activeView, onViewChange }: {
   encounters: PokemonEncounter[];
   catalog: AchievementCatalog | null;
   saveError: boolean;
@@ -17,12 +18,13 @@ export function PersonalPokedex({ encounters, catalog, saveError, recovered, onD
   onDaily: () => void;
   onRandom: () => void;
   onSafari: () => void;
+  activeView: PokedexView;
+  onViewChange: (view: PokedexView) => void;
 }) {
   const [search, setSearch] = useState("");
   const [generation, setGeneration] = useState("");
   const [sort, setSort] = useState("newest");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [activeView, setActiveView] = useState<'collection' | 'achievements'>('collection');
   const achievements = useMemo(() => catalog ? collectionAchievements(encounters, catalog) : null, [encounters, catalog]);
   const view = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -54,8 +56,8 @@ export function PersonalPokedex({ encounters, catalog, saveError, recovered, onD
     {saveError && <p className="notice" role="status">Your Pokédex is available for this session, but this device could not save it. Keep this window open to retain new discoveries.</p>}
     {recovered && <p className="notice" role="status">Some saved discoveries could not be read. Valid entries were recovered and your previous save was preserved.</p>}
     <nav className="pokedex-view-tabs" aria-label="Pokédex views">
-      <button className="btn" aria-pressed={activeView === 'collection'} onClick={() => setActiveView('collection')}>Collection</button>
-      <button className="btn" aria-pressed={activeView === 'achievements'} disabled={!achievements} onClick={() => setActiveView('achievements')}>Achievements{achievements && <span>{achievements.earnedCount} earned</span>}</button>
+      <button className="btn" aria-pressed={activeView === 'collection'} onClick={() => onViewChange('collection')}>Collection</button>
+      <button className="btn" aria-pressed={activeView === 'achievements'} disabled={!achievements} onClick={() => onViewChange('achievements')}>Achievements{achievements && <span>{achievements.earnedCount} earned</span>}</button>
     </nav>
     {activeView === 'achievements' && achievements ? <PokedexAchievements progress={achievements} /> : <>
     {encounters.length === 0 ? <div className="pokedex-empty">
