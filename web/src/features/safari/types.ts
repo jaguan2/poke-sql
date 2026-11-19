@@ -2,7 +2,8 @@ import type { PokemonProfile } from "../../shared/pokemon/profile";
 import type { Direction, Position, ZoneId } from "./zones";
 import type { QueryResult } from "../../shared/sql/types";
 
-export type AssignmentId = "field-notes" | "stat-scan" | "type-tracker" | "ability-survey";
+export type AssignmentId = "field-notes" | "stat-scan" | "type-tracker" | "ability-survey" | "tracking" | "ranger-survey";
+export type SafariQueryMode = "preview" | "catch";
 export type SafariFleeLimit = null | 5 | 8;
 export interface SafariCatch { encounterId: string; pokemon: PokemonProfile; attempts: number; caughtAt: string }
 export interface SafariEncounter {

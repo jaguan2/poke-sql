@@ -63,8 +63,10 @@ for (const scenario of ['offline', 'tampered', 'downloaded'] as const) {
         await page.locator('.cm-content').focus(); await page.keyboard.press('ControlOrMeta+A');
         await page.keyboard.insertText(sql); await page.getByRole('button', { name: /▶ Run/ }).click();
       };
-      await edit("CREATE TABLE update_save (value TEXT); INSERT INTO update_save VALUES ('Still here');");
-      await expect(page.getByRole('complementary').getByText('update_save', { exact: true })).toBeVisible();
+      const readSavedSql = 'SELECT value FROM update_save;';
+      const savedValue = page.getByRole('cell', { name: 'Still here', exact: true });
+      await edit(`CREATE TABLE update_save (value TEXT); INSERT INTO update_save VALUES ('Still here'); ${readSavedSql}`);
+      await expect(savedValue).toBeVisible();
       if (scenario === 'downloaded') {
         await expect.poll(() => app!.evaluate(() => (globalThis as any).pokesqlUpdateTest.state.announcements), { timeout: 40000 }).toEqual(['99.0.0']);
         const pending = await app.evaluate(() => (globalThis as any).pokesqlUpdateTest.updater.installerPath as string);
@@ -77,14 +79,14 @@ for (const scenario of ['offline', 'tampered', 'downloaded'] as const) {
         if (scenario === 'offline') expect(await app.evaluate(() => (globalThis as any).pokesqlUpdateTest.state.errors[0].message)).toMatch(/CONNECTION_REFUSED|ECONNREFUSED/);
         expect(await app.evaluate(() => (globalThis as any).pokesqlUpdateTest.state.announcements)).toEqual([]);
       }
-      await edit('SELECT value FROM update_save;');
-      await expect(page.getByRole('cell', { name: 'Still here', exact: true })).toBeVisible();
+      await edit(readSavedSql);
+      await expect(savedValue).toBeVisible();
       expect(await page.evaluate(() => typeof (globalThis as any).require)).toBe('undefined');
       expect(await page.evaluate(async feed => { try { await fetch(feed); return 'allowed'; } catch { return 'blocked'; } }, feed)).toBe('blocked');
       await page.reload();
-      await expect(page.locator('.cm-content')).toHaveText('SELECT value FROM update_save;');
+      await expect(page.locator('.cm-content')).toHaveText(readSavedSql);
       await page.getByRole('button', { name: /▶ Run/ }).click();
-      await expect(page.getByRole('cell', { name: 'Still here', exact: true })).toBeVisible();
+      await expect(savedValue).toBeVisible();
     } finally {
       if (app) {
         await app.evaluate(() => { const run = (globalThis as any).pokesqlUpdateTest; if (run) { run.updater.autoInstallOnAppQuit = false; run.stop(); } }).catch(() => {});

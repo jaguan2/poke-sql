@@ -82,9 +82,9 @@ export default function App() {
         : showPc ? <PCBoxes collection={pc.collection} error={pc.error} pendingCount={pc.pendingCount} busy={pc.busy} onCommand={pc.command} onRetry={pc.retry} onSafari={actions.openSafari} onProfile={actions.openProfiles} />
         : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
-          onSubmit={() => void safari.actions.submit()} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
+          onPreview={safari.actions.runDraft} onSubmit={safari.actions.submit} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
           editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
-            onChange={safari.actions.editDraft} onRun={() => void safari.actions.submit()} busy={busy} autocomplete={autocomplete} />} />
+            onChange={safari.actions.editDraft} onRun={safari.actions.runDraft} busy={busy} autocomplete={autocomplete} />} />
         : showPokedex ? <PersonalPokedex activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
         {datasetUpdateAvailable && !isMystery && !challenge && <div className="notice dataset-update" role="status">
           <strong>New Pokédex fields and forms are available.</strong> Your saved practice database is an older version. Reset DB loads the update and replaces practice database edits. Your SQL drafts, saved queries, and progress stay saved.

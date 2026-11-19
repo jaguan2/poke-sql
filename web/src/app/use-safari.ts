@@ -1,21 +1,23 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
+import { isFieldAssignment } from "../features/safari/field-assignments";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
-import type { AssignmentId, SafariCaptureContext, SafariCatch, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariSession } from "../features/safari/types";
+import type { AssignmentId, SafariCaptureContext, SafariCatch, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariQueryMode, SafariSession } from "../features/safari/types";
 import type { Direction, ZoneId } from "../features/safari/zones";
 import { weatherFor, zoneById } from "../features/safari/zones";
 import type { QueryResult } from "../shared/sql/types";
 import { writeLocal } from "../shared/storage/local";
-import { encounterLevel } from "../shared/pokemon/encounter-level";
+import { legacyEncounterLevel } from "../shared/pokemon/encounter-level";
+import { trainerAgeDays } from "../shared/trainer/identity";
 
 interface State { session: SafariSession; phase: SafariPhase; results: QueryResult[]; message: string; error: string }
 type Action =
-  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit }
+  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit; trainerDays: number }
   | { type: "zone"; id: ZoneId }
   | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
-  | { type: "reply"; id: string; reply: SafariCheckReply; at: string }
+  | { type: "reply"; id: string; reply: SafariCheckReply; at: string; mode: SafariQueryMode }
   | { type: "restore-catch"; caught: SafariCatch }
   | { type: "error"; message: string }
   | { type: "leave" };
@@ -30,7 +32,7 @@ function reducer(state: State, action: Action): State {
       if (state.phase !== "roaming") return state;
       const weather = weatherFor(zoneById(state.session.zoneId), action.date);
       const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id,
-        { weather, fleeAfter: action.fleeAfter, date: action.date });
+        { weather, fleeAfter: action.fleeAfter, date: action.date, trainerDays: action.trainerDays });
       return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
@@ -48,11 +50,19 @@ function reducer(state: State, action: Action): State {
       return { ...state, phase: "caught", session: { ...state.session, catches: state.session.catches + 1,
         lastCatch: action.caught, encounter: { ...encounter, outcome: "caught", attempts: action.caught.attempts } } };
     }
-    case "leave": return { ...state, session: { ...state.session, encounter: null, draft: "", grassSteps: 0 }, phase: "roaming", results: [], message: "", error: "" };
+    case "leave": return { ...state, session: { ...state.session, encounter: null, draft: "", grassSteps: 0 }, phase: "roaming", results: [],
+      message: state.session.encounter?.outcome === "active" ? "You got away safely." : "", error: "" };
     case "reply": {
       const encounter = state.session.encounter;
       if (state.phase !== "battle" || !encounter || encounter.id !== action.id || encounter.outcome !== "active") return state;
       if (action.reply.error) return { ...state, error: action.reply.error };
+      if (action.mode === "preview") {
+        const results = action.reply.results ?? [];
+        const count = results[0]?.values.length ?? 0;
+        const rows = `${count}${results[0]?.truncated ? "+" : ""} ${count === 1 ? "row" : "rows"} returned.`;
+        const hint = encounter.assignmentId === "tracking" && count > 1 ? " Use another clue to narrow the search." : "";
+        return { ...state, results, error: "", message: `${rows}${hint}` };
+      }
       const session = recordSafariReply(state.session, action.id, action.reply, action.at);
       if (session === state.session) return { ...state, error: "Could not verify this catch. Please try again; your chances are unchanged." };
       const outcome = session.encounter!.outcome;
@@ -63,7 +73,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export function useSafari(check: (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext) => Promise<SafariCheckReply>, fleeAfter: SafariFleeLimit) {
+export function useSafari(check: (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext, mode: SafariQueryMode) => Promise<SafariCheckReply>, fleeAfter: SafariFleeLimit, trainerIssuedAt: string) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [saveError, setSaveError] = useState(false);
   const checking = useRef(false);
@@ -80,17 +90,19 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const move = (direction: Direction) => {
     if (checking.current || performance.now() - lastMove.current < 110) return;
     lastMove.current = performance.now();
-    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), fleeAfter });
+    const now = new Date();
+    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), id: crypto.randomUUID(),
+      date: now.toISOString().slice(0, 10), fleeAfter, trainerDays: trainerAgeDays(trainerIssuedAt, now.getTime()) });
   };
-  const submit = async () => {
+  const run = async (mode: SafariQueryMode) => {
     const encounter = state.session.encounter;
     if (checking.current || state.phase !== "battle" || !encounter || !state.session.draft.trim()) return;
     checking.current = true;
     try {
       const reply = await check(state.session.draft, encounter.pokemonId, encounter.assignmentId, {
-        id: encounter.id, level: encounter.level ?? encounterLevel(encounter.id), zoneId: state.session.zoneId, attempts: encounter.attempts,
-      });
-      dispatch({ type: "reply", id: encounter.id, reply, at: reply.caughtAt ?? new Date().toISOString() });
+        id: encounter.id, level: encounter.level ?? legacyEncounterLevel(encounter.id), zoneId: state.session.zoneId, attempts: encounter.attempts,
+      }, mode);
+      dispatch({ type: "reply", id: encounter.id, reply, at: reply.caughtAt ?? new Date().toISOString(), mode });
     } catch (error) { dispatch({ type: "error", message: (error as Error).message }); }
     finally { checking.current = false; }
   };
@@ -98,7 +110,8 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     restoreCatch,
     changeZone: (id: ZoneId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "zone", id }); },
     editDraft: (sql: string) => { if (!checking.current) dispatch({ type: "edit", sql }); },
-    submit,
+    submit: () => void run("catch"),
+    runDraft: () => void run(isFieldAssignment(state.session.encounter?.assignmentId) ? "preview" : "catch"),
     leave: () => { if (!checking.current) dispatch({ type: "leave" }); },
   } };
 }

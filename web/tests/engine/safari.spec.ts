@@ -8,6 +8,7 @@ import { recordSafariEncounter, recordSolvedEncounter, isPokemonEncounters } fro
 import { compareMysteryPokemon } from '../../src/features/mystery/model';
 import { entriesFor } from '../fixtures/pokemon-encounters';
 import { nearSafariGrass } from '../fixtures/safari';
+import { RANGER_POSITIONS, rangerSighting } from '../../src/features/safari/ranger';
 
 test('Safari maps have connected safe starts and reachable encounter grass, with biome-appropriate canonical pools', async () => {
   const SQL = await initSqlJs();
@@ -103,6 +104,30 @@ test('the encounter table and actual rolls share rarity weights, weather boosts 
   expect(chooseSpecies(zone, 0.65, 10, 'clear').id).toBe(46);
 });
 
+test('rangers occupy trailhead tiles and have distinct anonymous clues for regular and visiting rares', () => {
+  for (const zone of SAFARI_ZONES) {
+    const point = RANGER_POSITIONS[zone.id];
+    expect(isWalkable(zone, point)).toBe(true);
+    expect(Math.abs(point.x - zone.start.x) + Math.abs(point.y - zone.start.y)).toBeLessThanOrEqual(4);
+    const rareSpecies = zone.species.filter(pokemon => ['Rare', 'Legendary', 'Mythical'].includes(pokemon.rarity));
+    const clues = new Set<string>();
+    for (let day = 0; day < 365; day++) {
+      const date = new Date(Date.UTC(2026, 0, 1 + day)).toISOString().slice(0, 10);
+      const clue = rangerSighting(zone, weatherFor(zone, date), undefined, date);
+      clues.add(clue);
+    }
+    expect(clues.size).toBe(rareSpecies.length);
+    for (const clue of clues) {
+      expect(clue).not.toMatch(/^No rare Pokémon/);
+      for (const pokemon of rareSpecies) expect(clue).not.toContain(pokemon.name);
+    }
+  }
+  const forest = zoneById('forest');
+  expect(rangerSighting(forest, 'clear', 640, '2026-01-02')).toMatch(/same twig snap twice/);
+  expect(rangerSighting(forest, 'clear', 251, '2026-01-02')).toMatch(/horns caught the light/);
+  expect(rangerSighting(zoneById('ridge'), 'clear', 246, '2026-01-08')).toMatch(/^No rare Pokémon/);
+});
+
 test('all Safari assignments grade against canonical rows, preserve NULLs/order, and reject writes and multiple statements', async () => {
   const SQL = await initSqlJs();
   const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
@@ -127,6 +152,39 @@ test('all Safari assignments grade against canonical rows, preserve NULLs/order,
     expect(() => checkSafariQuery(db, 'SELECT 1; SELECT 2;', 10, 'field-notes')).toThrow(/one SELECT/);
     expect(() => checkSafariQuery(db, 'WITH x AS (SELECT 1) DELETE FROM pokemon', 10, 'field-notes')).toThrow();
     expect(() => checkSafariQuery(db, 'SELECT 1', 1025, 'field-notes')).toThrow(/could not be restored/);
+  } finally { db.close(); }
+});
+
+test('Ember Foothills tracking clues identify one species and the ranger survey requires all ranked rows', async () => {
+  const SQL = await initSqlJs();
+  const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
+  try {
+    const zone = zoneById('volcano');
+    const { rows, totalWeight } = encounterTable(zone, 'clear');
+    let firstWeight = 0;
+    for (const { pokemon, weight } of rows) {
+      const pick = (firstWeight + weight / 2) / totalWeight;
+      firstWeight += weight;
+      const session = walkSafari(nearSafariGrass('volcano'), 'left', 0, pick, `ember-${pokemon.id}`);
+      expect(session.encounter?.pokemonId).toBe(pokemon.id);
+      const id = session.encounter!.assignmentId;
+      expect(isSafariSession(session)).toBe(true);
+      if ([58, 77, 607].includes(pokemon.id)) {
+        expect(id).toBe('tracking');
+        const answer = safariAssignment(id, pokemon).sql;
+        expect(db.exec(answer)[0].values).toEqual([[pokemon.id]]);
+        expect(checkSafariQuery(db, answer, pokemon.id, id).passed).toBe(true);
+        expect(checkSafariQuery(db, 'SELECT id FROM pokedex WHERE id = 1', pokemon.id, id).passed).toBe(false);
+      } else if (pokemon.id === 324) {
+        expect(id).toBe('ranger-survey');
+        expect(session.draft).toMatch(/^WITH route AS/);
+        const sql = safariAssignment(id, pokemon).sql;
+        expect(checkSafariQuery(db, sql, pokemon.id, id).results[0].values).toEqual([['Ponyta', 90], ['Salandit', 77], ['Growlithe', 60]]);
+        expect(checkSafariQuery(db, sql, pokemon.id, id).passed).toBe(true);
+        expect(checkSafariQuery(db, sql.replace('DESC', 'ASC'), pokemon.id, id).passed).toBe(false);
+        expect(checkSafariQuery(db, "SELECT name, speed FROM pokedex WHERE name = 'Torkoal'", pokemon.id, id).passed).toBe(false);
+      } else expect(id).toBe('field-notes');
+    }
   } finally { db.close(); }
 });
 

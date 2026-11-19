@@ -7,12 +7,12 @@ test('all nine habitats use local game-tile maps and remain available offline', 
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
   await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-  for (const [id, name, species] of [
-    ['forest', 'Verdant Forest', 'Caterpie'], ['wetlands', 'Willow Wetlands', 'Wooper'],
-    ['ridge', 'Amber Ridge', 'Larvitar'], ['meadow', 'Sunlit Meadow', 'Wooloo'],
-    ['coast', 'Azure Coast', 'Lapras'], ['desert', 'Mirage Dunes', 'Gible'],
-    ['cave', 'Moonstone Caverns', 'Deino'], ['tundra', 'Frostveil Tundra', 'Snom'],
-    ['volcano', 'Ember Foothills', 'Torkoal'],
+  for (const [id, name] of [
+    ['forest', 'Verdant Forest'], ['wetlands', 'Willow Wetlands'],
+    ['ridge', 'Amber Ridge'], ['meadow', 'Sunlit Meadow'],
+    ['coast', 'Azure Coast'], ['desert', 'Mirage Dunes'],
+    ['cave', 'Moonstone Caverns'], ['tundra', 'Frostveil Tundra'],
+    ['volcano', 'Ember Foothills'],
   ]) {
     await page.locator('.safari-area-picker > summary').click();
     await page.getByRole('button', { name: new RegExp(name) }).click();
@@ -20,7 +20,9 @@ test('all nine habitats use local game-tile maps and remain available offline', 
     await expect(page.locator('img.safari-terrain')).toHaveAttribute('src', new RegExp(`safari/maps/${id}\.png$`));
     const zone = zoneById(id as ZoneId);
     await expect.poll(() => page.locator('img.safari-terrain').evaluate((img: HTMLImageElement) => [img.complete, img.naturalWidth, img.naturalHeight])).toEqual([true, zone.map[0].length * 16, zone.map.length * 16]);
-    await expect(page.getByRole('complementary', { name: `${name} encounter pool` })).toContainText(species);
+    const pool = page.getByRole('complementary', { name: `${name} encounter pool` });
+    await expect(pool.locator('img.safari-silhouette')).toHaveCount(zone.species.length);
+    await expect(page.getByRole('button', { name: 'Talk to Safari Ranger' })).toBeVisible();
     await page.screenshot({ path: info.outputPath(`${id}.png`), animations: 'disabled' });
   }
   await page.reload();

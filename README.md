@@ -170,6 +170,9 @@ See [releasing and testing updates](docs/RELEASING.md).
   individuals. Rename boxes, change backgrounds, choose a catch destination,
   search, nickname, favorite, and move or swap Pokémon between boxes. Capture
   details retain the encounter level, ball, location, date and successful SQL.
+  New encounters roll levels 5–10 on a trainer's first day. Both ends of the
+  range rise by one for each full day since the Trainer ID was issued, up to
+  levels 45–50. The Pokémon keeps the level it had when the encounter began.
   Older progress imports one Pokémon per recorded species; unavailable levels,
   balls and historical duplicate catches are not invented. Collection data lives
   in its own IndexedDB database and survives practice database edits and Reset DB.
@@ -193,7 +196,7 @@ See [releasing and testing updates](docs/RELEASING.md).
   totals come from the original bundled database, independent of practice edits.
 - **Who’s That Pokémon?** A daily hidden species and a SQL guessing notebook.
   A Safari-style 3:2 battle scene shows the trainer facing the Pokémon's full-color
-  sprite. A random level from 5–50 appears beside its hidden name, shown as `???`.
+  sprite. Its encounter level appears beside its hidden name, shown as `???`.
   A correct SQL guess reveals the name. Daily and random rounds both use
   this encounter view, and their levels persist with saved progress.
   Everyone using the same app version gets the same Pokémon for a UTC date;

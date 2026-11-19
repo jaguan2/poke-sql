@@ -6,12 +6,14 @@ import { routeCamera, rustlingPatch, tileAt } from "./zones";
 import type { WeatherId } from "./zones";
 import { TrainerSprite } from "../../shared/trainer/TrainerSprite";
 import type { TrainerId } from "../../shared/trainer/profile";
+import { SafariRanger } from "./SafariRanger";
+import { RANGER_POSITIONS, rangerSighting } from "./ranger";
 
 const keyDirection: Record<string, Direction> = { arrowup: "up", w: "up", arrowdown: "down", s: "down", arrowleft: "left", a: "left", arrowright: "right", d: "right" };
 const controlsKey = "pokesql:safari-controls-seen";
 const walkingPaused = () => document.querySelector("dialog:modal, .safari-area-picker[open], .safari-events[open]") !== null;
 
-export function SafariMap({ zone, session, active, rustling, weather, onMove, trainer }: { zone: SafariZoneDefinition; session: SafariSession; active: boolean; rustling: boolean; weather: WeatherId; onMove: (direction: Direction) => void; trainer: TrainerId }) {
+export function SafariMap({ zone, session, active, rustling, weather, date, onMove, trainer }: { zone: SafariZoneDefinition; session: SafariSession; active: boolean; rustling: boolean; weather: WeatherId; date: string; onMove: (direction: Direction) => void; trainer: TrainerId }) {
   const map = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ id: number; x: number; y: number } | null>(null);
   const [showControls, setShowControls] = useState(() => {
@@ -49,6 +51,8 @@ export function SafariMap({ zone, session, active, rustling, weather, onMove, tr
   const inGrass = tileAt(zone, session.position) === "g";
   const width = zone.map[0].length, height = zone.map.length;
   const camera = routeCamera(zone, session.position);
+  const ranger = RANGER_POSITIONS[zone.id];
+  const rangerVisible = ranger.x >= camera.x && ranger.x < camera.x + camera.width && ranger.y >= camera.y && ranger.y < camera.y + camera.height;
   const terrain = `${import.meta.env.BASE_URL}safari/maps/${zone.id}.png`;
   const position = (x: number, y: number): CSSProperties => ({ left: `${(x + 0.5) / width * 100}%`, top: `${(y + 0.5) / height * 100}%` });
   return <>
@@ -76,6 +80,8 @@ export function SafariMap({ zone, session, active, rustling, weather, onMove, tr
         <div className="safari-player" style={position(session.position.x, session.position.y)} data-x={session.position.x} data-y={session.position.y} data-facing={session.direction}>
           <TrainerSprite trainer={trainer} pose="walking" frame={frame} flipped={session.direction === "right"} className="safari-trainer" />
         </div>
+        {rangerVisible && <SafariRanger style={position(ranger.x, ranger.y)} active={active} trainer={trainer}
+          sighting={rangerSighting(zone, weather, session.lastCatch?.pokemon.id, date)} />}
         {inGrass && <span key={session.steps} className="safari-grass-contact" style={position(session.position.x, session.position.y)} aria-hidden="true" />}
       </div>
       <div className={`safari-weather safari-weather-${weather}`} aria-hidden="true" />
@@ -92,9 +98,10 @@ export function SafariMap({ zone, session, active, rustling, weather, onMove, tr
       <div className="safari-route-miniature" style={{ width: Math.min(640, width * 12, 300 * width / height), aspectRatio: `${width}/${height}` }} role="img" aria-label={`${zone.routeName} overview: your position, trailhead, and shaking patch`}>
         <img src={terrain} alt="" width={width * 16} height={height * 16} draggable={false} />
         <span className="safari-mini-start" style={position(zone.start.x, zone.start.y)} aria-hidden="true">⚑</span>
+        <span className="safari-mini-ranger" style={position(ranger.x, ranger.y)} aria-hidden="true">!</span>
         <span className="safari-mini-patch" style={position(patch.x, patch.y)} aria-hidden="true">✦</span>
         <span className="safari-mini-player" style={position(session.position.x, session.position.y)} aria-hidden="true">●</span>
-      </div><p>● You · ⚑ Trailhead · ✦ Shaking patch</p><p className="safari-position" role="status">Trail position {session.position.x + 1}, {session.position.y + 1} · {session.steps} steps</p>
+      </div><p>● You · ⚑ Trailhead · ! Ranger · ✦ Shaking patch</p><p className="safari-position" role="status">Trail position {session.position.x + 1}, {session.position.y + 1} · {session.steps} steps</p>
     </details>
   </>;
 }

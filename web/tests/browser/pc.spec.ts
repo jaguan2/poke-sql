@@ -19,6 +19,51 @@ async function catchPokemon(page: Page) {
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toBeVisible();
 }
 
+test('new Safari and mystery encounters deposit the level rolled for the trainer’s age', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.clock.setFixedTime('2026-11-19T12:00:00Z');
+  await page.addInitScript(value => {
+    Math.random = () => 0;
+    if (sessionStorage.getItem('pc-level-seeded')) return;
+    sessionStorage.setItem('pc-level-seeded', 'yes');
+    localStorage.setItem('pokesql:safari', JSON.stringify(value));
+  }, nearSafariGrass());
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.keyboard.press('a');
+  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  const displayedLevel = page.locator('.encounter-nameplate small');
+  await expect(displayedLevel).toHaveText(/^Lv\.(?:[5-9]|10)$/);
+  const safariLevel = await displayedLevel.textContent();
+
+  // An existing encounter must keep its roll even if the trainer returns much later.
+  await page.clock.setFixedTime('2026-12-03T12:00:00Z');
+  await page.reload();
+  await catchPokemon(page);
+  await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
+  await expect(page.getByRole('button', { name: `Slot 1: Caterpie, level ${safariLevel!.slice(3)}`, exact: true })).toBeVisible();
+
+  const solveMystery = async (storageKey: string, levelPattern: RegExp) => {
+    await expect(displayedLevel).toHaveText(levelPattern);
+    const round = await page.evaluate(key => JSON.parse(localStorage.getItem(`pokesql:${key}`)!), storageKey);
+    await expect(displayedLevel).toHaveText(`Lv.${round.level}`);
+    await page.locator('.cm-content').fill(`SELECT ${round.targetId} AS id;`);
+    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+    await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+    return round.level as number;
+  };
+  await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
+  const dailyLevel = await solveMystery('daily-mystery-round', /^Lv\.(?:19|2[0-4])$/);
+  await page.clock.setFixedTime('2027-01-02T12:00:00Z');
+  await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+  const randomLevel = await solveMystery('mystery-round', /^Lv\.(?:4[5-9]|50)$/);
+  await pc(page);
+  const { captures } = await collectionSnapshot(page);
+  expect(captures.find(capture => capture.source === 'daily')?.level).toBe(dailyLevel);
+  expect(captures.find(capture => capture.source === 'random')?.level).toBe(randomLevel);
+});
+
 test('correct SQL catches deposit individuals once, while wrong queries award nothing', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(value => {

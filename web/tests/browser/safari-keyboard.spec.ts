@@ -96,8 +96,12 @@ test('keyboard grass encounters roll from the visible weighted table and SQL alo
   await page.goto('/');
   await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
   const table = page.getByRole('table', { name: 'Verdant Forest encounter table' });
-  await expect(table.getByRole('row', { name: 'Caterpie: not yet found', exact: true }).getByRole('cell')).toHaveText('14.6%');
-  await expect(table.getByRole('row', { name: 'Exeggcute: not yet found', exact: true }).getByRole('cell')).toHaveText('7.3%');
+  const caterpie = table.getByRole('row').filter({ has: page.locator('img[src$="/10.png"]') });
+  const exeggcute = table.getByRole('row').filter({ has: page.locator('img[src$="/102.png"]') });
+  await expect(caterpie).toHaveAccessibleName('Unknown common Pokémon');
+  await expect(caterpie.getByRole('cell')).toHaveText('14.6%');
+  await expect(caterpie.locator('img')).toHaveCSS('filter', /brightness\(0\)/);
+  await expect(exeggcute.getByRole('cell')).toHaveText('7.3%');
   await page.locator('.safari-field-guide').screenshot({ path: info.outputPath('encounter-table.png'), animations: 'disabled' });
   await table.getByRole('columnheader', { name: 'Next roll', exact: true }).click();
   await page.keyboard.press('a');
@@ -113,6 +117,8 @@ test('keyboard grass encounters roll from the visible weighted table and SQL alo
   await expect(page.getByText('Gotcha! Caterpie was caught!', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(table.getByRole('row', { name: 'Caterpie: registered', exact: true }).getByRole('cell')).toHaveText('Resting');
-  await expect(table.getByRole('row', { name: 'Weedle: not yet found', exact: true }).getByRole('cell')).toHaveText('17.1%');
+  await expect(caterpie.locator('img')).toHaveCSS('filter', 'none');
+  const weedle = table.getByRole('row').filter({ has: page.locator('img[src$="/13.png"]') });
+  await expect(weedle.getByRole('cell')).toHaveText('17.1%');
   await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');
 });

@@ -1,5 +1,6 @@
 import { isPokemonProfile } from "../../shared/pokemon/profile";
 import { encounterLevel, isEncounterLevel } from "../../shared/pokemon/encounter-level";
+import { fieldAssignmentDraft, fieldAssignmentId, isFieldAssignment } from "./field-assignments";
 import { SAFARI_ZONES, chooseSpecies, isWalkable, isZoneId, movePosition, rustlingPatch, tileAt, zoneById } from "./zones";
 import type { Direction, WeatherId, ZoneId } from "./zones";
 import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariSession } from "./types";
@@ -14,9 +15,12 @@ const record = (value: unknown): value is Record<string, unknown> => !!value && 
 export const isSafariFleeLimit = (value: unknown): value is SafariFleeLimit => value === null || value === 5 || value === 8;
 function isSafariEncounter(value: unknown, zoneId: ZoneId): value is SafariEncounter {
   if (!record(value) || typeof value.id !== "string" || !value.id || value.id.length > 80
-    || !zoneById(zoneId).species.some(species => species.id === value.pokemonId)
-    || !ASSIGNMENTS.some(id => id === value.assignmentId)
+    || typeof value.pokemonId !== "number" || !zoneById(zoneId).species.some(species => species.id === value.pokemonId)
     || (value.level !== undefined && !isEncounterLevel(value.level))) return false;
+  const validAssignment = isFieldAssignment(value.assignmentId)
+    ? value.assignmentId === fieldAssignmentId(zoneId, value.pokemonId)
+    : ASSIGNMENTS.some(id => id === value.assignmentId);
+  if (!validAssignment) return false;
   const { attempts, fleeAfter, outcome } = value;
   if (!integer(attempts) || !isSafariFleeLimit(fleeAfter)) return false;
   if (outcome === "fled") return fleeAfter !== null && attempts === fleeAfter;
@@ -64,7 +68,9 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
 // React's repeated updater evaluation cannot roll a different encounter.
 export function walkSafari(
   session: SafariSession, direction: Direction, chance: number, pick: number, encounterId: string,
-  { weather = "clear", fleeAfter = null, date }: { weather?: WeatherId; fleeAfter?: SafariFleeLimit; date?: string } = {},
+  { weather = "clear", fleeAfter = null, date, trainerDays = 0 }: {
+    weather?: WeatherId; fleeAfter?: SafariFleeLimit; date?: string; trainerDays?: number;
+  } = {},
 ): SafariSession {
   if (session.encounter) return session;
   const zone = zoneById(session.zoneId);
@@ -77,8 +83,10 @@ export function walkSafari(
   const encounter = inGrass && (rustling || grassSteps >= 6 || (grassSteps >= 2 && chance < 0.24));
   const next = { ...session, position, direction, steps: session.steps + 1, grassSteps: encounter ? 0 : grassSteps };
   if (!encounter) return next;
-  return { ...next, encounter: { id: encounterId, level: encounterLevel(encounterId), pokemonId: chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather, date).id,
-    assignmentId: ASSIGNMENTS[session.catches % ASSIGNMENTS.length], attempts: 0, outcome: "active", fleeAfter }, draft: "-- Write your catch query here.\nSELECT " };
+  const { id: pokemonId } = chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather, date);
+  const assignmentId = fieldAssignmentId(zone.id, pokemonId) ?? ASSIGNMENTS[session.catches % ASSIGNMENTS.length];
+  return { ...next, encounter: { id: encounterId, level: encounterLevel(encounterId, trainerDays), pokemonId,
+    assignmentId, attempts: 0, outcome: "active", fleeAfter }, draft: isFieldAssignment(assignmentId) ? fieldAssignmentDraft(assignmentId) : "-- Write your catch query here.\nSELECT " };
 }
 
 export function recordSafariReply(session: SafariSession, id: string, reply: SafariCheckReply, at: string): SafariSession {

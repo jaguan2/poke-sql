@@ -74,7 +74,8 @@ test('five chances warn before fleeing, persist through offline reload and allow
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ outcome: 'fled', attempts: 5, fleeAfter: 5 });
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '0');
-  await expect(page.getByRole('row', { name: 'Caterpie: not yet found', exact: true }).getByRole('cell')).toHaveText(/\d+\.\d%/);
+  const caterpie = page.getByRole('row', { name: 'Unknown common Pokémon', exact: true }).filter({ has: page.locator('img[src$="/10.png"]') });
+  await expect(caterpie.getByRole('cell')).toHaveText(/\d+\.\d%/);
   await page.keyboard.press('d'); await page.waitForTimeout(130); await page.keyboard.press('a');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   await expect(chances).toHaveAttribute('value', '8');

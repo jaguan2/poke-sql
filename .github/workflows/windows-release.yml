@@ -48,7 +48,7 @@ jobs:
       - run: npm test
       - run: npm run test:updates
       - name: Package the web installer and offline portable application
-        run: npx electron-builder --win nsis-web portable --x64 --publish never
+        run: npm run desktop:package
       - run: npm run check:release
       - name: Test the packaged application
         env:

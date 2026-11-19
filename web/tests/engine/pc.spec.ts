@@ -2,6 +2,22 @@ import { test, expect } from '@playwright/test';
 import { applyCollectionCommand, createCollection, deposit, importLegacy } from '../../src/features/pc/model';
 import { isCollection } from '../../src/features/pc/validation';
 import type { CaptureReceipt } from '../../src/features/pc/types';
+import { encounterLevel } from '../../src/shared/pokemon/encounter-level';
+import { trainerAgeDays } from '../../src/shared/trainer/identity';
+
+test('encounter levels rise with full days since Trainer ID issuance and retain variation at the cap', () => {
+  const issuedAt = '2026-11-19T12:00:00.000Z';
+  const start = Date.parse(issuedAt);
+  const day = 86_400_000;
+  const age = (offset: number) => trainerAgeDays(issuedAt, start + offset);
+  expect(age(-1)).toBe(0);
+  expect(age(day - 1)).toBe(0);
+  expect(age(day)).toBe(1);
+  for (const [offset, floor] of [[0, 5], [14 * day, 19], [40 * day, 45], [100 * day, 45]]) {
+    const levels = Array.from({ length: 120 }, (_, index) => encounterLevel(`encounter-${index}`, age(offset)));
+    expect([...new Set(levels)].sort((a, b) => a - b)).toEqual(Array.from({ length: 6 }, (_, index) => floor + index));
+  }
+});
 
 const pokemon = { id: 25, name: 'Pikachu', type1: 'electric', type2: null, generationId: 1, heightM: 0.4, weightKg: 6 };
 function receipt(id: string): CaptureReceipt {

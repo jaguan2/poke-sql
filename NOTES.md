@@ -106,7 +106,9 @@ FireRed/LeafGreen tilemaps supply the platforms and lower 48px dialogue
 frame; the supplied reference informs a warm striped grass backdrop, olive
 platform palette and slate/white text window. Sand, water and cave encounters use
 their native scenery; tundra applies a cool palette filter. The native opponent
-nameplate shows the name, a cosmetic random level from 5–50, and encounter status.
+nameplate shows the name, encounter level and encounter status.
+New encounters roll from 5–10 on the first day. The range moves up one level
+per complete 24 hours since Trainer ID issuance, leveling off at 45–50.
 New levels persist with Safari encounters and mystery rounds; older saves derive
 a stable level from their existing identity, preserving progress. Safari levels
 come from the controller's random encounter UUID, keeping movement pure. Mystery

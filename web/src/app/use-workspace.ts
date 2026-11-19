@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { encounterLevel } from "../shared/pokemon/encounter-level";
+import { encounterLevel, legacyEncounterLevel } from "../shared/pokemon/encounter-level";
 import { cancelQuery, checkChallenge, checkSafari, initDb, queryMystery, resetDb, runQuery, startMystery } from "./database/client";
 import type { TableInfo } from "../shared/sql/types";
 import type { AchievementCatalog } from "../features/pokedex/types";
@@ -10,7 +10,7 @@ import type { DailyMysteryRound } from "../features/mystery/daily";
 import { useUtcDay } from "../features/mystery/use-utc-day";
 import { useEncounters } from "../features/pokedex/use-encounters";
 import { useSafari } from "./use-safari";
-import type { AssignmentId, SafariCaptureContext } from "../features/safari/types";
+import type { AssignmentId, SafariCaptureContext, SafariQueryMode } from "../features/safari/types";
 import type { SafariFleeLimit } from "../features/safari/types";
 import { isSafariFleeLimit } from "../features/safari/model";
 import { CHALLENGES } from "../features/practice/challenges";
@@ -21,7 +21,7 @@ import ballThemes from "../shared/pokemon/ball-themes.json" with { type: "json" 
 import { isTrainerId, isTrainerName, MAX_TRAINER_NAME } from "../shared/trainer/profile";
 import { POKEDEX_SPECIES_COUNT } from "../features/pokedex/encounters";
 import type { TrainerId } from "../shared/trainer/profile";
-import { createTrainerIdentity, isTrainerIdentity } from "../shared/trainer/identity";
+import { createTrainerIdentity, isTrainerIdentity, trainerAgeDays } from "../shared/trainer/identity";
 import type { PokedexView } from "../features/pokedex/PersonalPokedex";
 import type { SavedQuery, RunState, PracticeSelection, QueryContext } from "./workspace-types";
 import type { NavigationId, WorkspaceView } from "./navigation";
@@ -132,14 +132,14 @@ export function useWorkspace() {
     return () => { delete document.documentElement.dataset.ballTheme; };
   }, [ballTheme]);
 
-  const runSafariCheck = useCallback(async (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext) => {
+  const runSafariCheck = useCallback(async (sql: string, pokemonId: number, assignmentId: AssignmentId, context: SafariCaptureContext, mode: SafariQueryMode) => {
     if (!ready || busyRef.current) throw new Error("Wait for the current query before checking a catch.");
     busyRef.current = true; setBusy(true);
     setHistory(previous => [sql, ...previous.filter(item => item !== sql)].slice(0, 30));
     try {
-      const reply = await checkSafari(sql, pokemonId, assignmentId);
+      const reply = await checkSafari(sql, pokemonId, assignmentId, mode);
       setSchema(reply.schema);
-      if (!reply.error && reply.passed && reply.safariPokemon?.id === pokemonId) {
+      if (mode === "catch" && !reply.error && reply.passed && reply.safariPokemon?.id === pokemonId) {
         const at = new Date().toISOString();
         await pc.award({ id: `safari:${context.id}`, pokemon: reply.safariPokemon, source: "safari", sources: ["safari"],
           level: context.level, ball: ballTheme, caughtAt: at, firstRecordedAt: at,
@@ -152,7 +152,7 @@ export function useWorkspace() {
       throw error;
     } finally { busyRef.current = false; setBusy(false); }
   }, [ready, pc.award, ballTheme]);
-  const safari = useSafari(runSafariCheck, safariFleeAfter);
+  const safari = useSafari(runSafariCheck, safariFleeAfter, trainerIdentity.issuedAt);
   const discoveries = useMemo(() => collectionDiscoveries(pc.collection), [pc.collection]);
   const { encounters, saveError: encounterSaveError, recovered: encountersRecovered } = useEncounters(dailyMysteryRound, randomMysteryRound, safari.session.lastCatch, discoveries);
   const restoreSafariCatch = safari.actions.restoreCatch;
@@ -214,7 +214,7 @@ export function useWorkspace() {
     if (view !== "workspace") return;
     if (isMystery) {
       if (!mysteryRound || mysterySolved(mysteryRound)) return;
-      const capture = { targetId: mysteryRound.targetId, level: mysteryRound.level ?? encounterLevel(`mystery:${mysteryRound.targetId}`),
+      const capture = { targetId: mysteryRound.targetId, level: mysteryRound.level ?? legacyEncounterLevel(`mystery:${mysteryRound.targetId}`),
         ball: ballTheme, attempts: mysteryRound.guessCount };
       if (mysteryMode === "daily") {
         if (dailyMysteryRound) void execute(query, { kind: "daily-mystery", ...capture, date: dailyMysteryRound.date,
@@ -256,7 +256,9 @@ export function useWorkspace() {
       const reply = await startMystery(randomMysteryRound?.targetId);
       setSchema(reply.schema);
       if (reply.error || reply.mysteryTargetId === undefined) throw new Error(reply.error ?? "Could not start a mystery. Try New Pokémon again.");
-      setRandomMysteryRound({ id: crypto.randomUUID(), targetId: reply.mysteryTargetId, level: encounterLevel(), guessCount: 0, attempts: [] });
+      const id = crypto.randomUUID();
+      setRandomMysteryRound({ id, targetId: reply.mysteryTargetId,
+        level: encounterLevel(id, trainerAgeDays(trainerIdentity.issuedAt)), guessCount: 0, attempts: [] });
       setDrafts(previous => ({ ...previous, mystery: MYSTERY_INITIAL_QUERY }));
       setRunState({ status: "idle", message: "A Pokémon is hiding. Start with a guess, then follow the clues." });
     } catch (error) { setRunState({ status: "error", message: (error as Error).message }); }
@@ -266,10 +268,11 @@ export function useWorkspace() {
   const openDailyMystery = () => {
     if (!ready || busyRef.current) return;
     setView("workspace");
-    const date = utcDateKey();
+    const now = new Date();
+    const date = utcDateKey(now);
     setSelection({ kind: "mystery" }); setMysteryMode("daily"); setNotice(undefined);
     if (dailyMysteryRound?.date !== date) {
-      setDailyMysteryRound(createDailyMysteryRound(date));
+      setDailyMysteryRound(createDailyMysteryRound(date, trainerAgeDays(trainerIdentity.issuedAt, now.getTime())));
       setDrafts(previous => ({ ...previous, "mystery-daily": MYSTERY_INITIAL_QUERY }));
     }
     setRunState({ status: "idle", message: "Today's Pokémon is the same for everyone. Submit a SQL guess and follow the clues." });

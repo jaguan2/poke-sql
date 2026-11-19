@@ -134,10 +134,14 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.reload();
     await page.clock.setFixedTime('2026-01-02T12:00:00Z');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-    await expect(page.getByRole('row', { name: 'Virizion: not yet found', exact: true })).toContainText('1.0%');
+    await expect(page.getByRole('row', { name: 'Unknown legendary Pokémon', exact: true })).toContainText('1.0%');
     await page.locator('.safari-events > summary').click();
-    await expect(page.getByRole('article', { name: 'Celebi Mythical event', exact: true })).toContainText('Active now');
+    await expect(page.getByRole('article', { name: 'Unknown Mythical event', exact: true })).toContainText('Active now');
     await page.locator('.safari-events > summary').click();
+    await page.getByRole('button', { name: 'Talk to Safari Ranger', exact: true }).press('Enter');
+    const rangerDialogue = page.getByRole('dialog', { name: 'Safari Ranger', exact: true });
+    await expect(rangerDialogue).toContainText(/horns caught the light|same twig snap twice/);
+    await page.keyboard.press('Escape');
     const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/trainer-girl-walking.png', 'safari/trainer-girl-battle.png', 'safari/grass-effect.png', 'safari/trainer-battle.png', 'safari/maps/forest.png', 'safari/maps/tundra.png', 'safari/battle/grass.png', 'safari/battle/dialogue.png', 'safari/battle/nameplate.png', 'safari/battle/pixel.woff2'].map(async file => {
       const response = await fetch(file);
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };

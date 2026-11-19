@@ -4,10 +4,11 @@ import { zoneById } from "./zones";
 import type { ZoneId } from "./zones";
 import "./SafariEvents.css";
 
-export function SafariEvents({ date, disabled, previousId, onZone }: {
+export function SafariEvents({ date, disabled, previousId, registeredIds, onZone }: {
   date: string;
   disabled: boolean;
   previousId?: number;
+  registeredIds: readonly number[];
   onZone: (zone: ZoneId) => void;
 }) {
   const panel = useRef<HTMLDetailsElement>(null);
@@ -18,11 +19,12 @@ export function SafariEvents({ date, disabled, previousId, onZone }: {
     <div className="safari-event-list">{events.map(event => {
       const { visitor } = event;
       const zone = zoneById(visitor.zoneId);
+      const known = registeredIds.includes(visitor.id);
       const resting = event.active && visitor.id === previousId;
       const odds = resting ? "Resting after your last catch" : `${(event.chance * 100).toFixed(2)}% per encounter`;
-      return <article className="safari-event" key={visitor.rarity} aria-label={`${visitor.name} ${visitor.rarity} event`}>
-        <img src={`${import.meta.env.BASE_URL}sprites/${visitor.id}.png`} alt="" width={64} height={64} />
-        <div><h3>{visitor.name} <span>{visitor.rarity}</span></h3>
+      return <article className="safari-event" key={visitor.rarity} aria-label={`${known ? visitor.name : "Unknown"} ${visitor.rarity} event`}>
+        <img className={known ? undefined : "safari-silhouette"} src={`${import.meta.env.BASE_URL}sprites/${visitor.id}.png`} alt="" width={64} height={64} />
+        <div><h3>{known ? visitor.name : "Unknown visitor"} <span>{visitor.rarity}</span></h3>
           <p>{event.active ? "Active now" : "Upcoming"} · {zone.name} · {odds}</p>
           <p><time dateTime={`${event.startsOn}T00:00:00Z`}>{event.startsOn}</time> 00:00 → <time dateTime={`${event.endsOn}T00:00:00Z`}>{event.endsOn}</time> 00:00 UTC</p>
           <button className="btn" disabled={disabled} onClick={() => {

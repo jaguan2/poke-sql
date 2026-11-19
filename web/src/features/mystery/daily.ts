@@ -42,8 +42,9 @@ export interface DailyMysteryRound extends MysteryRound {
   scheduleVersion: number;
 }
 
-export function createDailyMysteryRound(date: string): DailyMysteryRound {
-  return { date, scheduleVersion: DAILY_SCHEDULE_VERSION, targetId: dailyPokemonForDate(date), level: encounterLevel(), guessCount: 0, attempts: [] };
+export function createDailyMysteryRound(date: string, trainerDays = 0): DailyMysteryRound {
+  return { date, scheduleVersion: DAILY_SCHEDULE_VERSION, targetId: dailyPokemonForDate(date),
+    level: encounterLevel(crypto.randomUUID(), trainerDays), guessCount: 0, attempts: [] };
 }
 
 export function isDailyMysteryRound(value: unknown): value is DailyMysteryRound | null {

@@ -1,6 +1,6 @@
 import { loadSnapshot, saveSnapshot } from "../../shared/storage/snapshots";
 import type { DbReply, DbRequest } from "./protocol";
-import type { AssignmentId } from "../../features/safari/types";
+import type { AssignmentId, SafariQueryMode } from "../../features/safari/types";
 
 const QUERY_TIMEOUT_MS = 8000;
 let worker: Worker | null = null;
@@ -87,5 +87,6 @@ export const checkChallenge = (sql: string, challengeId: string) => execute({ ac
 export const resetDb = () => execute({ action: "reset" });
 export const startMystery = (previousId?: number) => execute({ action: "mystery-start", previousId });
 export const queryMystery = (sql: string, targetId: number) => execute({ action: "mystery-query", sql, targetId });
-export const checkSafari = (sql: string, pokemonId: number, assignmentId: AssignmentId) => execute({ action: "safari-check", sql, pokemonId, assignmentId });
+export const checkSafari = (sql: string, pokemonId: number, assignmentId: AssignmentId, mode: SafariQueryMode) =>
+  execute({ action: "safari-check", sql, pokemonId, assignmentId, mode });
 

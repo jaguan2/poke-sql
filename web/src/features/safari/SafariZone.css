@@ -34,6 +34,17 @@
 .safari-player { position:absolute; width:calc(100% / var(--route-columns) * .75); aspect-ratio:1/2; transform:translate(-50%,-72%); transition:left 110ms linear,top 110ms linear; pointer-events:none; }
 .safari-player::after { content:""; position:absolute; left:10%; bottom:0; width:80%; height:15%; border-radius:50%; background:#1c382d44; z-index:-1; }
 .safari-trainer { width:100%; height:100%; }
+.safari-ranger-marker { display:grid; place-items:end center; position:absolute; z-index:1; width:max(44px,calc(100% / var(--route-columns))); height:44px; padding:0; transform:translate(-50%,-70%); border:0; border-radius:5px; background:none; cursor:pointer; }
+.safari-ranger-marker .trainer-sprite { position:absolute; bottom:0; width:clamp(16px,55%,32px); aspect-ratio:1/2; filter:hue-rotate(45deg); }
+.safari-ranger-marker:focus-visible { outline:2px solid #fff0a1; outline-offset:2px; }
+.safari-ranger-bubble { position:absolute; bottom:calc(100% - 5px); border:1px solid #3b4d35; border-radius:4px; min-width:16px; padding:1px 3px; background:#fff0a1; color:#292f25; font-size:11px; font-weight:750; line-height:1; }
+.safari-mini-ranger { color:#fff0a1; font-weight:800; }
+.safari-ranger-dialog { width:min(440px,calc(100% - 32px)); padding:22px; border:1px solid var(--border); border-radius:14px; background:var(--panel-raised); color:var(--text); }
+.safari-ranger-dialog::backdrop { background:#12241eb3; }
+.safari-ranger-dialog h3 { margin:0; color:var(--highlight); font-size:18px; }
+.safari-ranger-dialog p { margin:12px 0 18px; font-size:14px; line-height:1.65; }
+.safari-ranger-dialog form { display:flex; justify-content:end; }
+.safari-silhouette { filter:brightness(0) drop-shadow(0 0 1px #9ca99f); }
 .safari-rustle { position:absolute; width:calc(100% / var(--route-columns)); aspect-ratio:1; transform:translate(-50%,-50%); border:2px solid #f1eb9d99; border-radius:50%; box-shadow:0 0 15px #f5e79a44; pointer-events:none; animation:safari-rustle 1.4s ease-in-out infinite; }
 .safari-rustle span { position:absolute; top:-10px; left:30%; color:#fff1ad; font-size:20px; text-shadow:0 2px #38563a; }
 .safari-map { touch-action:none; }

@@ -61,7 +61,10 @@ async function handle(request: DbRequest): Promise<DbReply> {
     const safariDb = new SQL.Database(original);
     try {
       safariDb.run("PRAGMA query_only = ON");
-      return { schema: readSchema(db), ...checkSafariQuery(safariDb, request.sql, request.pokemonId, request.assignmentId), ms: performance.now() - start };
+      const reply = request.mode === "preview"
+        ? { results: runStatements(safariDb, request.sql, true) }
+        : checkSafariQuery(safariDb, request.sql, request.pokemonId, request.assignmentId);
+      return { schema: readSchema(db), ...reply, ms: performance.now() - start };
     } finally { safariDb.close(); }
   }
   if (request.action === "mystery-start" || request.action === "mystery-query") {

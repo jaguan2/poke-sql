@@ -4,6 +4,7 @@ import { SAFARI_ZONES, WEATHER, featuredZone, weatherFor, zoneById } from "./zon
 import type { Direction, ZoneId } from "./zones";
 import type { SafariFleeLimit, SafariPhase, SafariSession } from "./types";
 import { safariAssignment } from "./assignments";
+import { isFieldAssignment } from "./field-assignments";
 import { SAFARI_BALL_ANIMATION_MS, safariThrowTrajectory } from "./animation";
 import { TRAINER_THROW } from "../../shared/trainer/profile";
 import type { TrainerId } from "../../shared/trainer/profile";
@@ -17,10 +18,10 @@ import type { QueryResult } from "../../shared/sql/types";
 import { QueryResults } from "../../shared/ui/QueryResults";
 import "./SafariZone.css";
 
-export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, results, error, message, editor, onMove, onZone, onSubmit, onStop, onLeave, onPokedex, onPc, registeredIds, ballTheme, trainer }: {
+export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, results, error, message, editor, onMove, onZone, onPreview, onSubmit, onStop, onLeave, onPokedex, onPc, registeredIds, ballTheme, trainer }: {
   session: SafariSession; phase: SafariPhase; today: string; busy: boolean; saveError: boolean; fleeAfter: SafariFleeLimit; registeredIds: readonly number[]; ballTheme: string; trainer: TrainerId;
   results: QueryResult[]; error: string; message: string; editor: ReactNode;
-  onMove: (direction: Direction) => void; onZone: (id: ZoneId) => void; onSubmit: () => void;
+  onMove: (direction: Direction) => void; onZone: (id: ZoneId) => void; onPreview: () => void; onSubmit: () => void;
   onStop: () => void; onLeave: () => void; onPokedex: () => void; onPc: () => void;
 }) {
   const zone = zoneById(session.zoneId);
@@ -32,6 +33,8 @@ export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, 
   const roaming = phase === "roaming";
   const exploring = roaming || phase === "rustling";
   const encounter = session.encounter;
+  const fieldwork = isFieldAssignment(encounter?.assignmentId);
+  const canSubmit = session.draft.trim().length > 0;
   const remaining = encounter?.fleeAfter == null ? null : encounter.fleeAfter - encounter.attempts;
   const scene = useRef<HTMLDivElement>(null);
   const caughtSummary = useRef<HTMLDivElement>(null);
@@ -47,22 +50,34 @@ export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, 
     <details className="safari-area-picker" ref={areas}><summary><strong>{zone.icon} {zone.name}</strong><span>Choose from {SAFARI_ZONES.length} habitats</span></summary><nav className="safari-zones" aria-label="Safari areas">{SAFARI_ZONES.map(area => <button key={area.id} aria-pressed={area.id === session.zoneId} disabled={!roaming || busy} onClick={() => { onZone(area.id); if (areas.current) { areas.current.open = false; areas.current.querySelector("summary")?.focus(); } }}><span>{area.icon}</span><strong>{area.name}</strong><small>{area.id === featured ? "★ Featured today" : "Open to explore"}</small></button>)}</nav></details>
     <div className="safari-day-note">All areas stay open. Today's featured area: <strong>{zoneById(featured).name}</strong><span>{today} · UTC</span></div>
     {exploring && <p className="safari-rules">{fleeAfter === null ? "Relaxed practice · Unlimited attempts" : `Wild Pokémon flee after ${fleeAfter} incorrect answers`}. Change this in Settings.</p>}
-    {exploring && <SafariEvents date={today} disabled={!roaming || busy} previousId={session.lastCatch?.pokemon.id} onZone={onZone} />}
-    {exploring ? <div className="safari-expedition"><div className="safari-field"><div className="safari-field-heading"><strong>{zone.routeName}</strong><span className="safari-live">{WEATHER[weather].icon} {WEATHER[weather].name}</span></div><SafariMap trainer={trainer} zone={zone} session={session} active={roaming && !busy} rustling={phase === "rustling"} weather={weather} onMove={onMove} /><div className="safari-ranger-note"><span aria-hidden="true">✦</span><p><strong>{{ grass: "Follow the rustling grass.", sand: "Investigate the shifting sand.", stone: "Look for moving stones.", snow: "Follow tracks in the snow." }[zone.encounterTerrain]}</strong> Follow the trail or explore the wild patches. Walk onto the sparkle for a guaranteed encounter; it moves after each catch. Open Route map to plan your way.</p></div></div>
+    {roaming && message && <p className="notice" role="status">{message}</p>}
+    {exploring && <SafariEvents date={today} disabled={!roaming || busy} previousId={session.lastCatch?.pokemon.id} registeredIds={registeredIds} onZone={onZone} />}
+    {exploring ? <div className="safari-expedition"><div className="safari-field"><div className="safari-field-heading"><strong>{zone.routeName}</strong><span className="safari-live">{WEATHER[weather].icon} {WEATHER[weather].name}</span></div>
+      <SafariMap trainer={trainer} zone={zone} session={session} active={roaming && !busy} rustling={phase === "rustling"} weather={weather} date={today} onMove={onMove} />
+      <div className="safari-ranger-note"><span aria-hidden="true">✦</span><p>Walk onto the sparkle for a guaranteed encounter. Talk to the ranger near the trailhead for a rare sighting. Open Route map to find both.</p></div></div>
       <SafariFieldGuide zone={zone} registeredIds={registeredIds} weather={weather} previousId={session.lastCatch?.pokemon.id} date={today} />
     </div> : species && assignment && encounter && <section className={`safari-encounter is-${phase}`} aria-labelledby="safari-wild-name" style={{ ...safariThrowTrajectory(trainer), "--safari-catch-duration": `${SAFARI_BALL_ANIMATION_MS}ms`, "--safari-release-delay": `${TRAINER_THROW.releaseDelayMs}ms` } as CSSProperties}>
       <SafariBattleScene trainer={trainer} ref={scene} key={encounter.id} species={species} zone={zone} phase={phase} encounter={encounter} registered={registeredIds.includes(species.id)} ballTheme={ballTheme} />
-      {phase === "entering" || phase === "catching" ? <p className="safari-entering-note">{phase === "catching" ? "Catching Pokémon…" : "Starting encounter…"}</p> : phase === "fled" ? <SafariFledSummary name={species.name} attempts={encounter.attempts} assignment={assignment} draft={session.draft} feedback={message} results={results} onLeave={onLeave} /> : phase === "caught" ? <div className="safari-catch-summary" ref={caughtSummary} tabIndex={-1} role="region" aria-label="Caught Pokémon details"><SafariPokedexEntry pokemon={session.lastCatch!.pokemon} /><p>{message || `${species.name} is registered in your collection.`} Completed in {encounter.attempts} {encounter.attempts === 1 ? "query" : "queries"}.</p><div><button className="btn btn-primary" onClick={onLeave}>Keep exploring</button><button className="btn" onClick={onPokedex}>View Pokédex</button><button className="btn" onClick={onPc}>Open PC Boxes</button></div></div> : <div className="safari-assignment"><div className="safari-assignment-heading"><div><span className="eyebrow">{assignment.topic}</span><h3>{assignment.title}</h3></div><button className="btn" disabled={busy} onClick={onLeave}>Return to trail</button></div><p>{assignment.prompt}</p>
+      {phase === "entering" || phase === "catching" ? <div className="safari-entering-note"><p>{phase === "catching" ? "Catching Pokémon…" : "Starting encounter…"}</p>{phase === "entering" && <button className="btn" onClick={onLeave}>Run away</button>}</div>
+        : phase === "fled" ? <SafariFledSummary name={encounter.assignmentId === "tracking" ? undefined : species.name} attempts={encounter.attempts} assignment={assignment} draft={session.draft} feedback={message} results={results} onLeave={onLeave} />
+        : phase === "caught" ? <div className="safari-catch-summary" ref={caughtSummary} tabIndex={-1} role="region" aria-label="Caught Pokémon details"><SafariPokedexEntry pokemon={session.lastCatch!.pokemon} /><p>{message || `${species.name} is registered in your collection.`} Completed in {encounter.attempts} {encounter.attempts === 1 ? "query" : "queries"}.</p><div><button className="btn btn-primary" onClick={onLeave}>Keep exploring</button><button className="btn" onClick={onPokedex}>View Pokédex</button><button className="btn" onClick={onPc}>Open PC Boxes</button></div></div>
+        : <div className="safari-assignment"><div className="safari-assignment-heading"><div><span className="eyebrow">{assignment.topic}</span><h3>{assignment.title}</h3></div><button className="btn" disabled={busy} onClick={onLeave}>Run away</button></div><p>{assignment.prompt}</p>
         <div className="safari-chances" data-urgent={remaining !== null && remaining <= 2} role="status">
           <strong>{remaining === null ? "Unlimited attempts" : `${remaining} ${remaining === 1 ? "chance" : "chances"} remaining`}</strong>
           {remaining !== null && <progress max={encounter.fleeAfter!} value={remaining} aria-label="Catch chances remaining" />}
-          <span>{remaining === null ? "Take your time. This Pokémon will stay while you practice." : `Flees after ${encounter.fleeAfter} incorrect answers. Hints, SQL errors and stopped queries keep your chances.`}</span>
+          <span>{fieldwork ? "Run queries freely. Only an incorrect throw uses a chance." : remaining === null ? "Take your time. This Pokémon will stay while you practice." : `Flees after ${encounter.fleeAfter} incorrect answers. Hints, SQL errors and stopped queries keep your chances.`}</span>
         </div>
         <details><summary>Need a hint?</summary><p>{assignment.hint}</p></details>
         {editor}
-        <div className="safari-query-actions">{busy ? <button className="btn btn-primary" onClick={onStop}>■ Stop catch query</button> : <button className="btn btn-primary" onClick={onSubmit} disabled={!session.draft.trim()}>Check query & catch <kbd>Ctrl+Enter</kbd></button>}<span>{encounter.attempts} checked {encounter.attempts === 1 ? "query" : "queries"}</span></div>
+        <div className="safari-query-actions">
+          {busy ? <button className="btn btn-primary" onClick={onStop}>■ Stop catch query</button> : fieldwork ? <>
+            <button className="btn" disabled={!canSubmit} onClick={onPreview}>Run query <kbd>Ctrl+Enter</kbd></button>
+            <button className="btn btn-primary" disabled={!canSubmit} onClick={onSubmit}>Throw Poké Ball</button>
+          </> : <button className="btn btn-primary" disabled={!canSubmit} onClick={onSubmit}>Check query & catch <kbd>Ctrl+Enter</kbd></button>}
+          <span>{encounter.attempts} {fieldwork ? encounter.attempts === 1 ? "throw" : "throws" : encounter.attempts === 1 ? "checked query" : "checked queries"}</span>
+        </div>
         {error && <p className="error-panel" role="alert">{error}</p>}{message && <p className="notice" role="status">{message}</p>}
-        {results.length > 0 && <div className="safari-query-results"><h4>Last checked query results</h4><QueryResults results={results} /></div>}
+        {results.length > 0 && <div className="safari-query-results"><h4>{fieldwork ? "Query results" : "Last checked query results"}</h4><QueryResults results={results} /></div>}
         <small>Your assignment uses the original Pokédex. Wrong answers and returning to the trail never add discoveries.</small>
       </div>}
     </section>}
