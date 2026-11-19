@@ -2,7 +2,7 @@ import { loadSnapshot, saveSnapshot } from "../../shared/storage/snapshots";
 import type { DbReply, DbRequest } from "./protocol";
 import type { AssignmentId } from "../../features/safari/types";
 
-export const QUERY_TIMEOUT_MS = 8000;
+const QUERY_TIMEOUT_MS = 8000;
 let worker: Worker | null = null;
 let original: Uint8Array;
 let saved: Uint8Array | undefined;

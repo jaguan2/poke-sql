@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { nearSafariGrass } from '../fixtures/safari';
 
-for (const width of [1440, 1024, 620, 390, 320]) {
+for (const width of [1920, 1600, 1440, 1280, 1024, 620, 390, 320]) {
   test(`the encounter and catch retain a 3:2 game screen with usable SQL at ${width}px`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 1200 });
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -17,12 +17,28 @@ for (const width of [1440, 1024, 620, 390, 320]) {
     async function expectGameScreen() {
       const bounds = (await scene.boundingBox())!;
       expect(bounds.width / bounds.height).toBeCloseTo(1.5, 2);
-      expect(bounds.width).toBeLessThanOrEqual(720.5);
-      if (width === 1440) expect(bounds.width).toBeCloseTo(720, 0);
+      const encounter = (await page.locator('.safari-encounter').boundingBox())!;
+      const contentWidth = await page.locator('.safari-zone').evaluate(element => {
+        const style = getComputedStyle(element);
+        return element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      });
+      expect(encounter.width).toBeCloseTo(contentWidth, 0);
+      if (encounter.width >= 960) {
+        expect(bounds.width / (encounter.width - 2)).toBeCloseTo(1.2 / 2.2, 2);
+        const panel = page.locator('.safari-encounter > :last-child');
+        expect((await panel.boundingBox())!.x).toBeGreaterThanOrEqual(bounds.x + bounds.width - 1);
+      } else expect(bounds.width).toBeCloseTo(encounter.width - 2, 0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     }
     await expectGameScreen(); // Entrance uses the same geometry as the finished battle.
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+    if (width === 1280) {
+      await page.getByRole('button', { name: 'Hide menu', exact: true }).click();
+      await expectGameScreen();
+      await page.getByRole('button', { name: 'Show menu', exact: true }).click();
+      await expectGameScreen();
+    }
+    await page.locator('.safari-encounter').screenshot({ path: info.outputPath(`encounter-layout-${width}.png`), animations: 'disabled' });
     const level = await scene.locator('.encounter-nameplate small').textContent();
     expect(level).toMatch(/^Lv\.(?:[5-9]|[1-4]\d|50)$/);
     await expect(scene.locator('.encounter-nameplate')).not.toContainText('No.');
@@ -59,6 +75,7 @@ for (const width of [1440, 1024, 620, 390, 320]) {
     await expect(scene.locator('.encounter-nameplate small')).toHaveText(level!);
     await expectGameScreen();
     await expect(page.locator('.safari-catch-summary')).toContainText('Completed in 2 queries.');
+    await page.locator('.safari-encounter').screenshot({ path: info.outputPath(`catch-layout-${width}.png`), animations: 'disabled' });
     await scene.screenshot({ path: info.outputPath(`catch-${width}.png`), animations: 'disabled' });
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');

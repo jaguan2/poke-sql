@@ -46,7 +46,7 @@ test('WASD and arrows keep walking after clicking outside the map and pause for 
     await expect(page.getByRole('complementary', { name: 'Safari controls', exact: true })).toHaveCount(0);
     await page.waitForTimeout(130);
   }
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('radio', { name: 'Dusk Ball', exact: true }).check();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('radio', { name: 'Luxury Ball', exact: true })).toBeChecked();

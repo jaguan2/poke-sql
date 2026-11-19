@@ -156,4 +156,4 @@ export function weatherFor(zone: SafariZoneDefinition, date: string): WeatherId 
   const offset = [...zone.id].reduce((sum, character) => sum + character.charCodeAt(0), 0);
   return zone.weather[((day + offset) % zone.weather.length + zone.weather.length) % zone.weather.length];
 }
-export const encounterWeight = (species: SafariSpecies, weather: WeatherId): number => species.weight * (species.favoredWeather.includes(weather) ? 2 : 1);
+const encounterWeight = (species: SafariSpecies, weather: WeatherId): number => species.weight * (species.favoredWeather.includes(weather) ? 2 : 1);

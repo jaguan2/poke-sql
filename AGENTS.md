@@ -4,6 +4,11 @@ A SQL practice IDE that runs queries against a Pokédex database — built for
 refreshing SQL skills with data that's actually fun to query. Everything runs
 locally: no cloud database, no backend server.
 
+Primary screens are desktop/laptop browsers and iPads in portrait or landscape.
+Prioritize a comfortable SQL editor, touch controls and keyboard access there.
+Phones are a basic responsive fallback, not a primary SQL-writing experience.
+Use desktop/tablet views for the application gallery and feature verification.
+
 ## Architecture
 
 ```
@@ -142,7 +147,6 @@ Deliberate schema choices — keep these unless there's a reason not to:
 
 ## Roadmap / not yet built
 
-- Native mobile packaging; the responsive web app already supports narrow screens.
 - More exercises, database export/import, and
   workspace sync between devices (currently deliberately local and separate).
 - **Moves data**: PokeAPI has `moves.csv` / `pokemon_moves.csv` (~600k rows) —

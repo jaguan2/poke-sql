@@ -18,6 +18,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('the guide sits below the schema and loads a runnable example without executing it', async ({ page }, testInfo) => {
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   const guide = page.getByRole('region', { name: 'SQL guide', exact: true });
   await guide.scrollIntoViewIfNeeded();
   expect((await guide.boundingBox())!.y).toBeGreaterThan((await page.getByRole('heading', { name: 'Schema', exact: true }).boundingBox())!.y);
@@ -40,17 +41,20 @@ test('loading guide examples preserves the current challenge or mystery and thei
   await edit(page, 'SELECT 42 AS practice_draft;');
   await page.getByRole('button', { name: 'Challenges', exact: true }).click();
   await page.getByRole('button', { name: /First partners/ }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Challenge schema', exact: true })).toBeVisible();
   const filters = topic(page, 'WHERE filters');
   await filters.locator('summary').click();
   await filters.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Current challenge', exact: true })).toContainText('First partners');
-  await expect(page.getByRole('heading', { name: 'Challenge schema', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText("type1 = 'water'");
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await expect(page.getByText(`Training · 0/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Back to free practice', exact: true }).click();
   await expect(page.locator('.cm-content')).toHaveText('SELECT 42 AS practice_draft;');
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await filters.locator('summary').click();
   await filters.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   await expect(page.locator('tbody tr')).toHaveCount(0);
@@ -63,21 +67,18 @@ test('loading guide examples preserves the current challenge or mystery and thei
   await expect(page.locator('.cm-content')).toContainText("type1 = 'water'");
 });
 
-test('guide examples cannot replace SQL while a query is running', async ({ page }) => {
-  const basics = topic(page, 'SELECT & FROM');
-  await basics.locator('summary').click();
+test('the reference page cannot replace SQL while a query is running', async ({ page }) => {
   await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d;');
   await page.getByRole('button', { name: /▶ Run/ }).click();
-  await expect(basics.getByRole('button', { name: 'Load example', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Schema & guide', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '■ Stop query', exact: true }).click();
-  await expect(basics.getByRole('button', { name: 'Load example', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Schema & guide', exact: true })).toBeEnabled();
   await expect(page.locator('.cm-content')).toContainText('CROSS JOIN');
 });
 
 test('the mobile guide wraps examples and returns to the editor without nested scrolling', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 320, height: 844 });
-  const tools = page.getByRole('button', { name: 'Tools & schema' });
-  await tools.click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   const windows = topic(page, 'Window functions');
   await windows.locator('summary').click();
   await windows.locator('pre').scrollIntoViewIfNeeded();
@@ -86,10 +87,9 @@ test('the mobile guide wraps examples and returns to the editor without nested s
   expect(await page.locator('.sidebar, .body').evaluateAll(elements => elements.some(element => /auto|scroll/.test(getComputedStyle(element).overflowY) && element.scrollHeight > element.clientHeight + 1))).toBe(false);
   await page.screenshot({ path: testInfo.outputPath('sql-guide-mobile.png') });
   await windows.getByRole('button', { name: 'Load example', exact: true }).click();
-  await expect(tools).toHaveAttribute('aria-expanded', 'false');
-  await expect(tools).toBeFocused();
   await expect(page.locator('.cm-content')).toContainText('ROW_NUMBER() OVER');
   await expect(page.locator('tbody tr')).toHaveCount(0);
-  await tools.click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await windows.locator('summary').click();
   await expect(windows.locator('pre')).toBeVisible();
 });

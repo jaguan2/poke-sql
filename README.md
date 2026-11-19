@@ -4,14 +4,15 @@ Practice real SQL with 1,025 Pokémon from Generations I–IX. Explore types,
 stats, evolutions, Mega and regional forms, abilities, and the type-effectiveness chart in a web app
 or a Windows desktop application. No account, cloud database, or backend.
 
-See the [application screenshots](docs/screenshots/README.md) for desktop SQL
-practice, daily mysteries, collections, and achievements across all eight themes.
+Browse the [current screenshot gallery](docs/screenshots/README.md) for the
+practice pages, all eight Poké Ball themes, Safari exploration/catches, Trainer ID,
+Pokédex and iPad-sized layouts.
 
-Browse the [Safari screenshot gallery](docs/screenshots/safari/README.md) for
-all nine habitats, encounters, SQL catches, Pokédex entries, and mobile views.
+Designed primarily for desktop/laptop browsers and iPads in portrait or landscape.
+Touch screens get larger editor text and controls. A narrow-screen fallback is
+available, but phones are not the main SQL-writing experience.
 
-The [Profiles gallery](docs/screenshots/profiles/README.md) shows the trainer card,
-eight model choices, saved name, progress counters and new throwing previews.
+![PokéSQL workspace](docs/screenshots/sql-workspace.png)
 
 ## Start the web app
 
@@ -77,11 +78,11 @@ See [releasing and testing updates](docs/RELEASING.md).
   Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
   Move the trainer with arrow keys/WASD while exploring, or swipe the map on a
   touchscreen. A brief controls popup appears when you first explore.
-  **Profiles → Your trainer model** offers eight models: Red, Leaf, Brendan and
+  **Trainer-card icon → Your trainer model** offers eight models: Red, Leaf, Brendan and
   May in Emerald and Ruby/Sapphire outfits, Wally, and Steven. Each has matching
   portraits, walking and battle sprites. Your choice saves on this device and also appears
   in daily/random mystery encounters. Keyboard walking works after clicking
-  around the Safari; typing, Profiles and the habitat picker pause it.
+  around the Safari; typing, Profiles, Settings and the habitat picker pause it.
   All areas stay open, with a featured area rotating
   daily at 00:00 UTC. Each has its own layout and habitat-appropriate species.
   Routes now scroll with the trainer through winding trails, tree clusters,
@@ -107,8 +108,10 @@ See [releasing and testing updates](docs/RELEASING.md).
   successful catch. Grass kicks up around your trainer before a split-screen
   wipe and opposing trainer/Pokémon slide-ins reveal a short SQL catch assignment.
   Encounter and catch screens preserve the Game Boy Advance's **240×160 (3:2)**
-  proportions, scaling up to 720×480 on desktop and fitting smaller screens.
-  A centred SQL notebook sits beneath the game screen. The frame follows
+  proportions. Encounters fill Safari's available width, with the SQL notebook
+  or caught Pokémon's entry beside the battle on wide screens; narrower screens
+  stack both panels at full width. The layout also responds to the navigation
+  rail being expanded or collapsed. The frame follows
   [Nintendo's GBA display specifications](https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html).
   The field guide marks registered species and tracks each habitat's collection.
   A small Poké Ball beside a Pokémon's name means it's already in your Pokédex.
@@ -123,7 +126,7 @@ See [releasing and testing updates](docs/RELEASING.md).
   types, height, weight, generation, and English game description. Keep exploring
   or open your collection afterward. Entries remain available offline and after
   reloading a caught encounter, including older saves.
-  Incorrect queries and leaving an encounter add nothing. Profiles → Safari
+  Incorrect queries and leaving an encounter add nothing. Settings → Safari
   encounters offers **unlimited attempts** (the default), **5 incorrect answers**,
   or **8 incorrect answers** before a Pokémon flees. Remaining chances and warning
   dialogue make the limit clear. Hints, SQL errors, stopped queries and timeouts
@@ -160,7 +163,7 @@ See [releasing and testing updates](docs/RELEASING.md).
 - **SQL guide:** an expandable SQLite reference below the schema browser, from
   SELECT and filtering through joins, grouping, NULLs, CTEs, and window functions.
   **Load example** fills the current editor without running SQL or checking an
-  answer. On phones, open **Tools & schema** to browse the guide.
+  answer. Open **Schema & guide** from the sidebar to browse the reference.
 - **My Pokédex:** a personal collection of Pokémon found by solving daily and
   random mysteries or completing Safari catch assignments. Each species has one entry with its sprite, types, generation,
   height, weight, first registration date (UTC), best guess count, and discovery
@@ -208,36 +211,47 @@ See [releasing and testing updates](docs/RELEASING.md).
   track pauses playback. Track choice, volume, mute, and repeat save locally;
   reopening the app always starts paused. Music works offline after the web
   app finishes caching, and immediately in desktop builds.
-- **Profiles:** open Profiles in the header to name your trainer, choose among
-  eight character models, and see your Pokédex entries, Safari catches, completed
-  SQL challenges and discovered types. Boy/girl style filters help browse the
-  models. Existing trainer choices and collections carry over. Also choose Poké,
+- **Trainer ID:** use the trainer-card icon in the header to name your trainer,
+  choose among eight character models, and see your Pokédex entries, Safari
+  catches, completed SQL challenges and discovered types on a game-inspired card.
+  Its five-digit local ID and issue date stay the same when you rename your
+  trainer or change models. Eight SQL badges mark challenge-completion milestones.
+  Boy/girl style filters help browse models. Existing choices and collections carry over.
+- **Settings:** use the gear icon to choose Poké,
   Great, Ultra, Master, Heal, Dive, Dusk, or Luxury Ball colors. Your choice
   saves on this device and works offline. Ultra, Dusk, and Luxury offer dark
   panels; the other themes keep the softer light panels.
-- **SQL autocomplete:** enable or disable suggestions in Profiles. When enabled,
+- **SQL autocomplete:** enable or disable suggestions in Settings. When enabled,
   the editor suggests table and column names, SQL keywords, and phrases such as
   `LEFT JOIN`, `GROUP BY`, and `ORDER BY`. Use the arrow keys and Enter to accept
   a suggestion, Escape to dismiss, or Ctrl+Space to open the list. The setting
   saves on this device; accepting a suggestion does not execute SQL.
 - **SQL editor:** SQLite syntax highlighting, schema autocomplete,
   Ctrl+Enter / Cmd+Enter, and multiple statements.
-- **Get started:** 25 specific prompts, including Charizard's Pokédex card,
+- **Workspace menu:** sectioned, icon-led navigation opens dedicated pages for
+  practice, discoveries and your saved work. The panel button beside the logo
+  collapses desktop navigation to a compact icon rail and hides it on phones.
+  The choice saves on this device; your SQL draft and current results stay intact.
+- **Get started:** a browsable page of 25 specific prompts, including Charizard's Pokédex card,
   Pikachu and Eevee, a Kanto starter comparison, Eevee's evolutions, and
   Dragonite's family tree, alongside broader Pokédex queries. Each has a SQL hint and
   worked answers, with alternative approaches for many problems. New examples
   cover Mega counts, regional variants, evolution stages, capture rates, and
-  Charizard's default and Mega stats. Selecting a prompt, revealing
+  Charizard's default and Mega stats. Topic tiles, search, difficulty labels and
+  saved-draft filters help you pick a question. Selecting a prompt, revealing
   an answer, or loading it into the editor never runs SQL automatically.
-- **Challenges:** fifteen guided exercises with hints, result checking, and saved
-  completion progress. Answers use a fresh copy of the original Pokédex.
+- **Challenges:** a dedicated page of fifteen exercises with topic/search filters,
+  difficulty labels, hints, result checking and saved completion progress. Filter
+  by completed exercises or saved drafts. Answers use a fresh copy of the original Pokédex.
   Reveal **Hint** for a SQL fragment or **Answer** for worked solutions.
   **Use this answer** loads the chosen approach; only **Check answer** grades it.
   New Pokémon-focused tasks include Charizard's profile and dual-type weaknesses,
   Pikachu's speed club, Lucario's full ability list, Kanto's Mega roster,
   baby evolution stages, and Mega Charizard's changing types.
 - **Saved work:** separate editor drafts for free practice and each challenge,
-  named queries, and the last 30 distinct query runs.
+  named queries, and the last 30 distinct query runs. History and Saved open
+  their own pages. Schema & guide combines the database browser and SQL reference;
+  examples return to the editor you were using, including an active Safari catch.
 - **Database saves:** completed changes persist locally in IndexedDB. Reset DB
   restores and saves the original database, keeping your SQL and progress.
   Older saved databases stay intact after an app update. A notice offers

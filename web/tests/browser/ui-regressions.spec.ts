@@ -1,6 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 
 async function edit(page: Page, sql: string) {
+  await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible();
+  const back = page.getByRole('button', { name: 'Back to workspace', exact: true });
+  if (await back.count()) await back.click();
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
@@ -64,9 +67,11 @@ test('all fetched rows are accessible and a new result starts at the first page'
 
 test('challenge schema survives sandbox changes and a grade clears when the answer changes', async ({ page }) => {
   await run(page, 'DROP TABLE pokemon;');
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name').filter({ hasText: /^pokemon$/ })).toHaveCount(0);
   await page.getByRole('button', { name: 'Challenges', exact: true }).click();
   await page.getByRole('button', { name: /First partners/ }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name').filter({ hasText: /^pokemon$/ })).toHaveCount(1);
   await edit(page, "SELECT name, type1 FROM pokedex WHERE name IN ('Bulbasaur', 'Charmander', 'Squirtle');");
   await page.getByRole('button', { name: /Check answer/ }).click();
@@ -75,6 +80,7 @@ test('challenge schema survives sandbox changes and a grade clears when the answ
   await expect(page.getByText('✓ Correct! Challenge completed.')).toHaveCount(0);
   await expect(page.getByText('Answer changed.', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Back to free practice' }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name').filter({ hasText: /^pokemon$/ })).toHaveCount(0);
 });
 

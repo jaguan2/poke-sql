@@ -1,131 +1,50 @@
-# PokéSQL screenshots
+# PokéSQL screenshot gallery
 
-The [Profiles gallery](profiles/README.md) shows the current trainer card,
-personalization, eight character models, progress counters and throwing previews.
+Fresh application photos captured November 19, 2026, from the production build
+in isolated Chrome contexts. These replace the older galleries and videos.
+The primary gallery targets desktop browsers and iPads. Tablet images use touch
+emulation at portrait/landscape sizes; they are not captures from physical iPad hardware.
 
-Updated November 18, 2026, from the production web app in isolated Chrome
-profiles. All thirteen photos show the desktop interface, using all eight ball themes.
-These are actual application screenshots: SQL examples and guesses ran through
-the worker. Collection previews use demo saves with canonical Pokémon traits;
-no personal workspace was used.
+The demonstration profile has 12 Pokédex entries, 12 Safari catches and four
+completed challenges. The Lapras catch runs a correct SQL statement and raises
+the catch counter to 13. These are demo saves, not a live user's progress.
+The daily mystery uses January 1, 2026, so the gallery does not reveal today's puzzle.
 
-The [latest Safari gallery](safari/README.md) adds all nine habitats, eight
-Poké Ball themes, encounter scenes, Pokédex registration, the caught marker,
-and a mobile view. Its images are stored in `docs/screenshots/safari/`.
-
-The daily puzzle is dated January 1, 2026, so the photos do not reveal today's
-answer. The solved random round uses a demonstration target of Dragonite.
-
-| Photo | Theme | Viewport |
+| View | Theme | Viewport |
 | --- | --- | --- |
-| SQL practice and Poké Radio | Poké Ball | 1440 × 1200 |
-| Charizard's Pokédex card | Great Ball | 1440 × 1100 |
-| Charizard and its Mega forms | Master Ball | 1440 × 1100 |
-| Daily mystery | Dive Ball | 1440 × 1200 |
-| Solved random mystery | Dusk Ball | 1440 × 1200 |
-| Personal Pokédex | Heal Ball | 1440 × 1100 |
-| Generation achievements | Ultra Ball | 1440 × 1100 |
-| Type achievements | Luxury Ball | 1440 × 1100 |
-| Mega Charizard SQL challenge | Great Ball | 1440 × 1250 |
-| SQL guide | Dive Ball | 1440 × 1100 |
-| Safari forest exploration | Dusk Ball | 1440 × 1200 |
-| Safari SQL encounter | Master Ball | 1440 × 1300 |
-| Safari catch complete | Master Ball | 1440 × 1100 |
+| [Get started](get-started.png) | Poké Ball | 1600 × 1100 |
+| [Challenges](challenges.png) | Great Ball | 1600 × 1100 |
+| [SQL workspace](sql-workspace.png) | Master Ball | 1600 × 1100 |
+| [Daily mystery and clues](daily-mystery.png) | Dive Ball | 1600 × 1550 |
+| [Verdant Forest route](safari-route.png) | Dusk Ball | 1600 × 1800 |
+| [Safari SQL encounter](safari-encounter.png) | Ultra Ball | 1600 × 1100 |
+| [Lapras catch and Pokédex entry](safari-catch.png) | Heal Ball | 1600 × 1100 |
+| [Personal Pokédex](pokedex.png) | Heal Ball | 1600 × 1100 |
+| [Achievements](achievements.png) | Luxury Ball | 1600 × 1100 |
+| [Trainer ID and models](trainer-id.png) | Great Ball | 1600 × 1300 |
+| [Settings](settings.png) | Master Ball | 1600 × 1100 |
+| [Schema and guide](schema-guide.png) | Poké Ball | 1600 × 1100 |
+| [Portrait tablet SQL workspace](tablet-workspace.png) | Poké Ball | 820 × 1180, touch |
+| [Landscape tablet Safari](tablet-safari.png) | Dive Ball | 1180 × 820, touch |
 
-## SQL practice and Poké Radio
+## SQL workspace
 
-A saved Kanto team query with six species, bundled sprites, type badges, and
-stats. Poké Radio is playing bundled music. Poké Ball theme.
+![A query returns a team of Pokémon with bundled sprites and stats](sql-workspace.png)
 
-![Kanto team SQL query and Poké Radio in the Poké Ball theme](sql-practice-desktop.png)
+## Full-width Safari catch
 
-## Popular Pokémon problems
+![Lapras caught through SQL with its Pokédex entry beside the battle](safari-catch.png)
 
-Charizard's Pokédex card introduces exact-name filtering and shows its sprite,
-types, and stats. The catalog contains 25 starting prompts and 15 graded
-challenges. Great Ball theme.
+## Trainer ID
 
-![Charizard's Pokédex card in the Great Ball theme](charizard-example-desktop.png)
+![Trainer ID with collection progress, SQL badges and eight model choices](trainer-id.png)
 
-Charizard's default and Mega forms demonstrate a species-to-forms JOIN, with
-separate species and form introduction generations and different battle stats.
-Master Ball theme.
+## Refresh these photos
 
-![Charizard and its Mega forms compared in the Master Ball theme](charizard-forms-desktop.png)
+From `web/`, run `npm.cmd run screenshots`. It builds production assets and uses
+the separate Playwright screenshot project on its own strict port, 4176. The
+normal test suite excludes this project. Captures wait for fonts, sprites and
+offline assets, reset page scrolling, and save these same 14 filenames.
 
-## Daily mystery
-
-Three submitted SQL guesses narrow down a historical daily Pokémon using exact
-matches and higher/lower clues. Dive Ball theme.
-
-![Daily SQL mystery with three guesses in the Dive Ball theme](daily-challenge-desktop.png)
-
-## Solved random mystery
-
-A completed random round shows yellow type-slot clues for Noivern and the final
-all-green Dragonite guess. Dusk Ball theme.
-
-![Solved Dragonite mystery in the Dusk Ball theme](mystery-solved-desktop.png)
-
-## Personal Pokédex
-
-Charizard, Pikachu, and Lucario appear with sprites, types, generation, physical
-traits, first registration, best solve, and discovery mode. Heal Ball theme.
-
-![Personal Pokédex collection in the Heal Ball theme](personal-pokedex-desktop.png)
-
-## Collection achievements
-
-The demo collection contains 12 Gen 1 species and five unique Fire types.
-Generation tracks show completion goals, earned milestones, and the next target.
-Ultra Ball theme.
-
-![Generation achievements showing 12 of 151 Kanto species in the Ultra Ball theme](achievements-generations-desktop.png)
-
-The type view is scrolled to the category controls and Fire milestone, showing
-the earned five-species badge and progress toward ten. Luxury Ball theme.
-
-![Fire collection milestone in the Luxury Ball theme](achievements-types-desktop.png)
-
-## SQL challenge
-
-Mega Charizard's changing types is completed with joins through species, forms,
-form types, and types. The four returned rows show Fire/Dragon for Mega Charizard
-X and Fire/Flying for Mega Charizard Y. Great Ball theme.
-
-![Completed Mega Charizard types challenge in the Great Ball theme](sql-challenge-desktop.png)
-
-## SQL guide
-
-The expanded JOIN reference below the schema sits alongside its executed
-example, which returns one row per Pokémon type. Dive Ball theme.
-
-![SQL JOIN guide and query results in the Dive Ball theme](sql-guide-desktop.png)
-
-## Safari Zone
-
-Verdant Forest shows the walking trainer, original terrain, shaking encounter
-patch, movement controls, and weighted field guide. All areas remain available;
-one is featured per UTC day. Dusk Ball theme.
-
-![Safari forest exploration and encounter pool in the Dusk Ball theme](safari-forest-desktop.png)
-
-A wild encounter slides onto a battle-style scene. The learner writes SQL to
-complete its assignment; an encounter alone does not register a discovery.
-Master Ball theme.
-
-![Safari wild encounter with a SQL catch assignment](safari-sql-encounter-desktop.png)
-
-A correct result completes the catch and registers the canonical species in the
-personal Pokédex and its achievement tracks. Repeat catches stay one species.
-Master Ball theme.
-
-![Safari catch completed after a correct SQL query](safari-caught-desktop.png)
-
-## Mobile verification
-
-Mobile screenshots are kept with test evidence under `web/test-results/`, outside
-this desktop gallery. The refresh checks include widths of 320, 390, and 620 px,
-plus an intermediate 680 px view: single page scrolling, labeled mystery clues,
-horizontal scrolling for wide SQL tables, collection and achievement cards,
-schema tools, guide examples, music controls, theme settings, and Run/Stop access.
+Set `POKESQL_SCREENSHOT_DIR` to stage captures elsewhere before replacing the
+gallery. Test results and failure traces stay in `web/test-results/`.

@@ -1,129 +1,25 @@
-import type { TableInfo } from "../../shared/sql/types";
-import { SAMPLE_QUERIES } from "../../features/practice/samples";
-import { CHALLENGES } from "../../features/practice/challenges";
-import { useRef, useState } from "react";
-import { SqlGuide } from "../../features/practice/SqlGuide";
+import { NAVIGATION } from "../navigation";
+import type { NavigationId } from "../navigation";
+import { NavigationIcon } from "./NavigationIcon";
+import "./Sidebar.css";
 
-import type { SavedQuery } from "../workspace-types";
-
-interface SidebarProps {
-  schema: TableInfo[];
-  onSample: (id: string) => void;
-  onPreviewSql: (sql: string) => void;
-  onGuideSql: (sql: string) => void;
-  onLoadSql: (sql: string) => void;
-  onChallenge: (id: string | null) => void;
-  completed: string[];
-  activeChallenge: string | null;
-  activeSample: string | null;
-  history: string[];
-  saved: SavedQuery[];
-  onDeleteSaved: (id: string) => void;
-  onClearHistory: () => void;
-  busy: boolean;
-  activeMystery: boolean;
-  onMystery: () => void;
-  pokedexCount: number;
-  activePokedex: boolean;
-  onPokedex: () => void;
-  activeSafari: boolean;
-  onSafari: () => void;
+interface Props {
+  collapsed: boolean; active: NavigationId | null; busy: boolean;
+  pokedexCount: number; completedCount: number; challengeCount: number;
+  onNavigate: (destination: NavigationId) => void;
 }
 
-export function Sidebar({ schema, onSample, onPreviewSql, onGuideSql, onLoadSql, onChallenge, completed, activeChallenge, activeSample, history, saved, onDeleteSaved, onClearHistory, busy, activeMystery, onMystery, pokedexCount, activePokedex, onPokedex, activeSafari, onSafari }: SidebarProps) {
-  const [tab, setTab] = useState("Explore");
-  const [expanded, setExpanded] = useState(false);
-  const toolsToggle = useRef<HTMLButtonElement>(null);
-  const choose = (action: () => void) => {
-    action();
-    setExpanded(false);
-    // The mobile browser folds away after a choice. Keep keyboard focus on
-    // its disclosure instead of leaving it inside the now-hidden content.
-    if (toolsToggle.current?.getClientRects().length) toolsToggle.current.focus();
-  };
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-actions">
-        <button className="mystery-entry" aria-pressed={activeMystery} disabled={busy} onClick={() => choose(onMystery)}>Who’s That Pokémon?</button>
-        <button className="sidebar-toggle" ref={toolsToggle} aria-expanded={expanded} aria-controls="practice-browser" onClick={() => setExpanded(value => !value)}>Tools &amp; schema <span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
-      </div>
-      <button className="safari-entry" aria-label="Safari Zone" aria-pressed={activeSafari} disabled={busy} onClick={() => choose(onSafari)}>Safari Zone <span>Explore &amp; catch</span></button>
-      <button className="pokedex-entry" aria-pressed={activePokedex} disabled={busy} onClick={() => choose(onPokedex)}>My Pokédex <span>{pokedexCount} found</span></button>
-      <nav className="sidebar-tabs" aria-label="Practice tools">
-        {["Explore", "Challenges", "History", "Saved"].map(name => <button key={name} className={tab === name ? "active" : ""} onClick={() => { setTab(name); setExpanded(true); }} aria-pressed={tab === name}>{name}</button>)}
-      </nav>
-      <div id="practice-browser" className={`sidebar-content${expanded ? " is-expanded" : ""}`}>
-      {tab === "Explore" &&
-      <section>
-        <h2>Get started</h2>
-        <ul className="sample-list">
-          {SAMPLE_QUERIES.map((q) => (
-            <li key={q.id}>
-              <button className={`sample-btn ${activeSample === q.id ? "selected" : ""}`} aria-pressed={activeSample === q.id} disabled={busy} onClick={() => choose(() => onSample(q.id))}>
-                {q.title}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-      }
-      {tab === "Challenges" && <section>
-        <h2>Training · {completed.filter(id => CHALLENGES.some(c => c.id === id)).length}/{CHALLENGES.length} complete</h2>
-        <button className="sample-btn" disabled={busy} onClick={() => choose(() => onChallenge(null))}>← Free practice</button>
-        {CHALLENGES.map((challenge, index) => <button key={challenge.id} disabled={busy} className={`challenge-link ${activeChallenge === challenge.id ? "selected" : ""}`} onClick={() => choose(() => onChallenge(challenge.id))}>
-          <span>{completed.includes(challenge.id) ? "✓" : index + 1}. {challenge.title}</span><small>{challenge.topic}</small>
-        </button>)}
-      </section>}
-      {tab === "History" && <section>
-        <h2>Last 30 runs</h2>
-        <p className="sidebar-note">Select a query to load it into free practice.</p>
-        {history.length === 0 && <p className="sidebar-note">Your executed SQL will appear here.</p>}
-        {history.map((sql, i) => <button key={i} disabled={busy} className="history-query" title={sql} onClick={() => choose(() => onLoadSql(sql))}>{sql}</button>)}
-        {history.length > 0 && <button className="sample-btn" onClick={onClearHistory}>Clear history</button>}
-      </section>}
-      {tab === "Saved" && <section>
-        <h2>Saved queries</h2>
-        {saved.length === 0 && <p className="sidebar-note">Give your SQL a name above the editor, then save it here.</p>}
-        {saved.map(item => <div className="saved-query" key={item.id}>
-          <button className="sample-btn" disabled={busy} onClick={() => choose(() => onLoadSql(item.sql))}>{item.name}</button>
-          <button className="remove-query" aria-label={`Delete ${item.name}`} onClick={() => onDeleteSaved(item.id)}>×</button>
-        </div>)}
-      </section>}
-
-      <section>
-        <h2>{activeMystery ? "Mystery schema" : activeChallenge ? "Challenge schema" : "Schema"}</h2>
-        {schema.map((t) => (
-          <details key={t.name} open={t.kind === "view"}>
-            {/* summary only toggles; the query action lives outside it so
-                interactive elements are never nested */}
-            <summary>
-              <span className="table-name">{t.name}</span>
-              <span className="table-kind">{t.kind}</span>
-            </summary>
-            <button
-              className="preview-btn"
-              disabled={busy}
-              title={activeMystery ? "Load this query into the mystery editor" : activeChallenge ? "Load this query into your challenge answer" : "Preview this table"}
-              onClick={() => choose(() => onPreviewSql(`SELECT * FROM "${t.name.replace(/"/g, '""')}" LIMIT 25;`))}
-            >
-              ▶ SELECT * FROM {t.name}
-            </button>
-            <ul className="column-list">
-              {t.columns.map((c) => (
-                <li key={c.name}>
-                  <span className="col-name">
-                    {c.name}
-                    {c.pk ? " 🔑" : ""}
-                  </span>
-                  <span className="col-type">{c.type.toLowerCase()}</span>
-                </li>
-              ))}
-            </ul>
-          </details>
-        ))}
-      </section>
-      <SqlGuide busy={busy} onUseExample={sql => choose(() => onGuideSql(sql))} />
-      </div>
-    </aside>
-  );
+export function Sidebar({ collapsed, active, busy, pokedexCount, completedCount, challengeCount, onNavigate }: Props) {
+  return <aside id="workspace-menu" className={`sidebar${collapsed ? " is-collapsed" : ""}`} aria-label="Workspace menu">
+    <div className="sidebar-brand"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={28} height={28} /><span>Your SQL adventure</span></div>
+    <nav aria-label="Main navigation">{NAVIGATION.map(section => <section className="nav-section" key={section.caption}>
+      <h2>{section.caption}</h2>
+      {section.items.map(item => <button key={item.id} className="nav-destination" title={item.label} aria-label={item.label} aria-current={active === item.id ? "page" : undefined} aria-pressed={active === item.id} disabled={busy} onClick={() => onNavigate(item.id)}>
+        <NavigationIcon name={item.icon} /><span className="nav-label">{item.label}</span>
+        {item.id === "pokedex" && <span className="nav-count" aria-hidden="true">{pokedexCount}</span>}
+        {item.id === "challenges" && <span className="nav-count" aria-hidden="true">{completedCount}/{challengeCount}</span>}
+      </button>)}
+    </section>)}</nav>
+    <div className="sidebar-footer"><span className="sidebar-status-dot" /> <span>Local. Offline. Yours.</span></div>
+  </aside>;
 }

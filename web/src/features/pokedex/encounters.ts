@@ -4,7 +4,7 @@ import type { PokemonProfile } from "../../shared/pokemon/profile";
 import type { SafariCatch } from "../safari/types";
 
 export const POKEDEX_SPECIES_COUNT = 1025;
-export type EncounterSource = "daily" | "random" | "safari";
+type EncounterSource = "daily" | "random" | "safari";
 
 export interface PokemonEncounter {
   pokemon: PokemonProfile;

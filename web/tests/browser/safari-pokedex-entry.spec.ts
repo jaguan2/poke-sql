@@ -45,6 +45,8 @@ test('a correct SQL catch reveals canonical Pokédex data and restores it offlin
   await expect(page.getByRole('region', { name: 'Caught Pokémon details', exact: true })).toBeFocused();
   await expect(page.locator('.safari-catch-summary')).toContainText('Completed in 2 queries.');
   await expect(page.locator('.encounter-nameplate small')).toHaveText('Lv.37');
+  await page.locator('.safari-encounter').screenshot({ path: info.outputPath('lapras-wide-catch.png'), animations: 'disabled' });
+  await page.screenshot({ path: info.outputPath('lapras-wide-window.png'), animations: 'disabled' });
   await entry.screenshot({ path: info.outputPath('lapras-pokedex-entry.png'), animations: 'disabled' });
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);

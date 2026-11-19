@@ -51,7 +51,9 @@ test('research and invalid queries do not use guesses or change the practice dat
   await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Mystery schema' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await guess(page, 'SELECT * FROM pokedex LIMIT 10');
   await expect(page.getByText('Research query only', { exact: false })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
@@ -128,6 +130,7 @@ test('new mysteries, schema previews, and storage failures never submit SQL impl
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await page.getByRole('button', { name: '▶ SELECT * FROM pokedex', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('LIMIT 25');
   await expect(page.locator('tbody tr')).toHaveCount(0);

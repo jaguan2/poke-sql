@@ -10,7 +10,7 @@ async function seed(page: Page) {
   }, nearSafariGrass());
 }
 async function limit(page: Page, value: 'unlimited' | '5' | '8') {
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Chances before fleeing', { exact: true }).selectOption(value);
   await page.getByRole('button', { name: 'Done', exact: true }).click();
 }
@@ -131,7 +131,7 @@ test('relaxed practice is the default and keeps the Pokémon after nine wrong an
 test('invalid preferences fall back to relaxed practice and a blocked setting write is explained', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('pokesql:safari-flee-after', JSON.stringify(3)));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByLabel('Chances before fleeing', { exact: true })).toHaveValue('unlimited');
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException('Blocked', 'SecurityError'); }; });
   await page.getByLabel('Chances before fleeing', { exact: true }).selectOption('8');

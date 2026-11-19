@@ -1,5 +1,3 @@
-.mystery-entry { width: 100%; margin-bottom: 12px; padding: 11px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-raised); color: var(--highlight); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
-.mystery-entry[aria-pressed="true"] { border-color: var(--highlight); }
 .practice-panel.mystery-panel { max-height: none; overflow: visible; }
 .mystery-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .mystery-modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }

@@ -23,7 +23,14 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     app = await launch();
     const page = await app.firstWindow();
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
-    await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+    await page.getByRole('button', { name: 'Get started', exact: true }).click();
+    await expect(page.locator('.catalog-question')).toHaveCount(25);
+    await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
+    await page.getByRole('button', { name: 'Hide menu', exact: true }).click();
+    await expect(page.getByRole('complementary', { name: 'Workspace menu' })).toHaveClass(/is-collapsed/);
+    await page.getByRole('button', { name: 'Show menu', exact: true }).click();
+    await expect(page.getByRole('complementary', { name: 'Workspace menu' })).toBeVisible();
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByRole('radio', { name: 'Master Ball', exact: true }).check();
     await page.getByRole('switch', { name: 'SQL autocomplete' }).uncheck();
     await page.getByRole('button', { name: 'Done', exact: true }).click();
@@ -44,6 +51,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     }, tracks[0].file);
     expect(musicRange).toMatchObject({ status: 206, type: 'audio/mpeg', length: 64 });
     expect(musicRange.range).toMatch(/^bytes 0-63\//);
+    await page.getByRole('button', { name: 'Get started', exact: true }).click();
     await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
     await page.getByText('Hint', { exact: true }).click();
     await expect(page.locator('.query-help pre:visible')).toContainText('ORDER BY hp DESC');
@@ -85,13 +93,14 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await page.keyboard.insertText('CREATE TABLE desktop_saved (value TEXT); INSERT INTO desktop_saved VALUES (\'Persisted\');');
     await page.getByRole('button', { name: /Run/ }).click();
     await expect(page.getByRole('button', { name: /Run/ })).toBeEnabled();
-    await expect(page.getByRole('complementary').getByText('desktop_saved', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+    await expect(page.getByText('desktop_saved', { exact: true })).toBeVisible();
     await app.close();
     app = undefined;
     app = await launch();
     const reopened = await app.firstWindow();
     await expect(reopened.getByRole('button', { name: /Run/ })).toBeEnabled();
-    await reopened.getByRole('button', { name: 'Profiles', exact: true }).click();
+    await reopened.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(reopened.getByRole('radio', { name: 'Master Ball', exact: true })).toBeChecked();
     await expect(reopened.getByRole('switch', { name: 'SQL autocomplete' })).not.toBeChecked();
     await reopened.getByRole('button', { name: 'Done', exact: true }).click();
@@ -136,6 +145,8 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     expect(assets.every(asset => asset.status === 200 && asset.size > 100)).toBe(true);
     await expect(page.getByRole('table', { name: 'Verdant Forest encounter table' })).toBeVisible();
     await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+    const trainerNumber = await page.locator('.trainer-card-number strong').innerText();
+    expect(trainerNumber).toMatch(/^\d{5}$/);
     await page.getByLabel('Trainer name', { exact: true }).fill('Jason');
     await page.getByRole('radio', { name: 'Steven', exact: true }).check();
     await page.getByRole('button', { name: 'Done', exact: true }).click();
@@ -150,7 +161,13 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     const level = await page.locator('.encounter-nameplate small').textContent();
     expect(level).toMatch(/^Lv\.(?:[5-9]|[1-4]\d|50)$/);
     expect(battleScreen.width / battleScreen.height).toBeCloseTo(1.5, 2);
-    expect(battleScreen.width).toBeLessThanOrEqual(720.5);
+    const encounterWidth = (await page.locator('.safari-encounter').boundingBox())!.width;
+    const contentWidth = await page.locator('.safari-zone').evaluate(element => {
+      const style = getComputedStyle(element);
+      return element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    });
+    expect(encounterWidth).toBeCloseTo(contentWidth, 0);
+    expect(battleScreen.width).toBeLessThanOrEqual(encounterWidth);
     const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
     await page.locator('.cm-content').focus();
     await page.keyboard.press('ControlOrMeta+A');
@@ -183,8 +200,9 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
     await page.getByRole('button', { name: 'Profiles', exact: true }).click();
     await expect(page.getByLabel('Trainer name', { exact: true })).toHaveValue('Jason');
+    await expect(page.locator('.trainer-card-number strong')).toHaveText(trainerNumber);
     await expect(page.getByRole('radio', { name: 'Steven', exact: true })).toBeChecked();
-    await expect(page.locator('.profile-statistics dd').nth(1)).toHaveText('1 successful SQL catches');
+    await expect(page.locator('.profile-statistics dd').nth(1)).toHaveText('1');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');

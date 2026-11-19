@@ -1,6 +1,6 @@
-import type { SqlAnswer } from "./types";
+import type { PracticeMetadata, SqlAnswer } from "./types";
 
-export interface SampleQuery {
+interface SampleQuery extends PracticeMetadata {
   id: string;
   title: string;
   prompt: string;
@@ -13,7 +13,7 @@ export interface SampleQuery {
 /** Read-only starting points, from familiar Pokémon lookups to recursive SQL. */
 export const SAMPLE_QUERIES: SampleQuery[] = [
   {
-    id: "charizard-card", title: "Charizard's Pokédex card",
+    id: "charizard-card", category: "basics", difficulty: "Beginner", title: "Charizard's Pokédex card",
     prompt: "Return Charizard's name, sprite_url, both types, HP, speed, and total stats. Include sprite_url to show its picture.",
     hint: "Start with pokedex and filter name with an exact equality. Text values go inside single quotes.",
     hintSql: "WHERE name = 'Charizard'",
@@ -25,7 +25,7 @@ FROM pokedex
 WHERE id = 6;` }],
   },
   {
-    id: "pikachu-eevee", title: "Pikachu and Eevee",
+    id: "pikachu-eevee", category: "basics", difficulty: "Beginner", title: "Pikachu and Eevee",
     prompt: "Compare Pikachu and Eevee: return name, primary type, HP, attack, speed, and total stats for both. Sort by National Dex number.",
     hint: "IN matches a list of names without repeating the same equality test.",
     hintSql: "WHERE name IN ('Pikachu', 'Eevee')",
@@ -39,7 +39,7 @@ WHERE name = 'Pikachu' OR name = 'Eevee'
 ORDER BY id;` }],
   },
   {
-    id: "kanto-starter-showdown", title: "Kanto starter showdown",
+    id: "kanto-starter-showdown", category: "sorting", difficulty: "Beginner", title: "Kanto starter showdown",
     prompt: "Return name, both types, special attack, speed, and total stats for Venusaur, Charizard, and Blastoise. Sort by total stats descending, then National Dex number to break ties.",
     hint: "Combine an IN filter with ORDER BY. The special attack column is named special_attack.",
     hintSql: "ORDER BY total_stats DESC, id",
@@ -53,7 +53,7 @@ WHERE id IN (3, 6, 9)
 ORDER BY total_stats DESC, id;` }],
   },
   {
-    id: "top-hp", title: "Top 10 Pok\u00e9mon by HP",
+    id: "top-hp", category: "sorting", difficulty: "Beginner", title: "Top 10 Pok\u00e9mon by HP",
     prompt: "Return name, HP, and both types for the 10 Pok\u00e9mon with the most HP. Sort by HP descending, then National Dex number to break ties.",
     hint: "Sort largest HP first and limit the number of returned rows.",
     hintSql: "ORDER BY hp DESC, id\nLIMIT 10",
@@ -71,7 +71,7 @@ WHERE position <= 10
 ORDER BY position;` }],
   },
   {
-    id: "gen-one", title: "All Pok\u00e9mon from Gen 1",
+    id: "gen-one", category: "basics", difficulty: "Beginner", title: "All Pok\u00e9mon from Gen 1",
     prompt: "Return National Dex number, name, and both types for every Gen 1 Pok\u00e9mon, in National Dex order.",
     hint: "generation_id is numeric, so Gen 1 is an equality filter.",
     hintSql: "WHERE generation_id = 1",
@@ -85,7 +85,7 @@ WHERE generation = 'Generation I'
 ORDER BY id;` }],
   },
   {
-    id: "gen-two-fire", title: "All Fire-type Pok\u00e9mon from Gen 2",
+    id: "gen-two-fire", category: "basics", difficulty: "Beginner", title: "All Fire-type Pok\u00e9mon from Gen 2",
     prompt: "Return name, both types, and total stats for every Gen 2 Pok\u00e9mon with Fire in either type slot. Sort by National Dex number.",
     hint: "Combine the generation filter with a parenthesized OR for both type slots.",
     hintSql: "AND (type1 = 'fire' OR type2 = 'fire')",
@@ -100,7 +100,7 @@ WHERE generation_id = 2 AND 'fire' IN (type1, type2)
 ORDER BY id;` }],
   },
   {
-    id: "top-speed", title: "Top 10 fastest Pok\u00e9mon",
+    id: "top-speed", category: "sorting", difficulty: "Beginner", title: "Top 10 fastest Pok\u00e9mon",
     prompt: "Return name, speed, and both types for the 10 fastest Pok\u00e9mon. Break speed ties by National Dex number.",
     hint: "Use a descending sort on speed, with id as the second sort key.",
     hintSql: "ORDER BY speed DESC, id",
@@ -118,7 +118,7 @@ WHERE position <= 10
 ORDER BY position;` }],
   },
   {
-    id: "single-type", title: "All Pok\u00e9mon with only one type",
+    id: "single-type", category: "basics", difficulty: "Beginner", title: "All Pok\u00e9mon with only one type",
     prompt: "Return name, type1, and type2 for every single-type Pok\u00e9mon, in National Dex order. Keep the missing second type as NULL.",
     hint: "A missing second type is NULL, not an empty string.",
     hintSql: "WHERE type2 IS NULL",
@@ -135,7 +135,7 @@ WHERE NOT EXISTS (
 ORDER BY d.id;` }],
   },
   {
-    id: "heavy-legends", title: "10 heaviest legendary Pok\u00e9mon",
+    id: "heavy-legends", category: "sorting", difficulty: "Beginner", title: "10 heaviest legendary Pok\u00e9mon",
     prompt: "Return name, weight in kg, and height in m for the 10 heaviest legendary Pok\u00e9mon. Break weight ties by National Dex number.",
     hint: "Legendary is a 0/1 flag. Filter before sorting and limiting.",
     hintSql: "WHERE is_legendary = 1",
@@ -151,7 +151,7 @@ ORDER BY weight_kg DESC, id
 LIMIT 10;` }],
   },
   {
-    id: "heavier-than-snorlax", title: "Heavier than Snorlax",
+    id: "heavier-than-snorlax", category: "advanced", difficulty: "Intermediate", title: "Heavier than Snorlax",
     prompt: "Find the 10 heaviest Pokémon that weigh more than Snorlax. Return name and weight in kg, sorted by weight descending, then National Dex number. Look up Snorlax's weight in SQL instead of typing a fixed number.",
     hint: "A subquery can return Snorlax's weight for the outer WHERE comparison.",
     hintSql: "WHERE weight_kg > (SELECT weight_kg FROM pokedex WHERE name = 'Snorlax')",
@@ -170,7 +170,7 @@ ORDER BY rival.weight_kg DESC, rival.id
 LIMIT 10;` }],
   },
   {
-    id: "gengar-rivals", title: "Faster ghosts than Gengar",
+    id: "gengar-rivals", category: "advanced", difficulty: "Intermediate", title: "Faster ghosts than Gengar",
     prompt: "Return name and speed for every Ghost-type Pokémon that is faster than Gengar. Check both type slots, sort by speed descending, and break ties by National Dex number. Look up Gengar's speed in SQL.",
     hint: "Parenthesize the two type checks, then compare speed with a scalar subquery.",
     hintSql: "AND speed > (SELECT speed FROM pokedex WHERE name = 'Gengar')",
@@ -188,7 +188,7 @@ WHERE 'ghost' IN (p.type1, p.type2) AND p.speed > g.speed
 ORDER BY p.speed DESC, p.id;` }],
   },
   {
-    id: "generation-counts", title: "Number of Pok\u00e9mon in each generation",
+    id: "generation-counts", category: "aggregation", difficulty: "Beginner", title: "Number of Pok\u00e9mon in each generation",
     prompt: "Return generation name, region, and Pok\u00e9mon count for each generation. Sort chronologically.",
     hint: "COUNT(*) counts rows in each group. Use generation_id for chronological sorting.",
     hintSql: "GROUP BY generation_id, generation, region",
@@ -203,7 +203,7 @@ GROUP BY g.id, g.name, g.region
 ORDER BY g.id;` }],
   },
   {
-    id: "dragon-counters", title: "Types that are strong against Dragon",
+    id: "dragon-counters", category: "joins", difficulty: "Intermediate", title: "Types that are strong against Dragon",
     prompt: "Return each type that is super-effective against Dragon and its damage multiplier. Sort alphabetically by attacking type.",
     hint: "Join types twice to name both ends of each matchup. Super-effective means greater than 1.",
     hintSql: "JOIN types defender ON defender.id = m.defending_type_id",
@@ -221,7 +221,7 @@ WHERE m.defending_type_id = (SELECT id FROM types WHERE name = 'dragon')
 ORDER BY a.name;` }],
   },
   {
-    id: "bulbasaur-line", title: "Bulbasaur's evolution line",
+    id: "bulbasaur-line", category: "joins", difficulty: "Intermediate", title: "Bulbasaur's evolution line",
     prompt: "Return Bulbasaur, its direct evolution, and that evolution's evolution as three columns in one row.",
     hint: "Join pokemon to itself twice, following evolves_from_id. Bulbasaur has id 1.",
     hintSql: "LEFT JOIN pokemon mid ON mid.evolves_from_id = base.id",
@@ -243,7 +243,7 @@ SELECT MAX(CASE WHEN stage = 1 THEN name END) AS first_stage,
 FROM line;` }],
   },
   {
-    id: "eevee-choices", title: "Eevee's evolution choices",
+    id: "eevee-choices", category: "joins", difficulty: "Intermediate", title: "Eevee's evolution choices",
     prompt: "Compare Eevee's direct evolutions. Return name, primary type, HP, special attack, and speed, sorted by speed descending and then National Dex number.",
     hint: "The pokedex view already names each Pokémon's previous evolution in evolves_from.",
     hintSql: "WHERE evolves_from = 'Eevee'",
@@ -259,7 +259,7 @@ WHERE parent.name = 'Eevee'
 ORDER BY d.speed DESC, d.id;` }],
   },
   {
-    id: "charizard-abilities", title: "Charizard's abilities",
+    id: "charizard-abilities", category: "joins", difficulty: "Intermediate", title: "Charizard's abilities",
     prompt: "Return Charizard's name, each ability name, and the is_hidden flag for all its abilities. Put normal abilities before hidden ones, then sort by ability name.",
     hint: "pokemon_abilities connects pokemon to abilities and stores the is_hidden flag.",
     hintSql: "JOIN abilities a ON a.id = pa.ability_id",
@@ -278,7 +278,7 @@ WHERE p.name = 'Charizard'
 ORDER BY pa.is_hidden, ability;` }],
   },
   {
-    id: "hidden-abilities", title: "Gen 1 Pok\u00e9mon with hidden abilities",
+    id: "hidden-abilities", category: "joins", difficulty: "Intermediate", title: "Gen 1 Pok\u00e9mon with hidden abilities",
     prompt: "Return the name and hidden ability of each Gen 1 Pok\u00e9mon that has one. Sort by National Dex number.",
     hint: "pokemon_abilities is the link table; is_hidden marks the hidden ability.",
     hintSql: "WHERE p.generation_id = 1 AND pa.is_hidden = 1",
@@ -296,7 +296,7 @@ WHERE p.generation_id = 1 AND pa.is_hidden = 1
 ORDER BY p.id;` }],
   },
   {
-    id: "generation-speed", title: "3 fastest Pok\u00e9mon from every generation",
+    id: "generation-speed", category: "advanced", difficulty: "Advanced", title: "3 fastest Pok\u00e9mon from every generation",
     prompt: "Return name, generation, speed, and position for exactly three Pok\u00e9mon per generation. Break speed ties by National Dex number, and sort by generation then position.",
     hint: "ROW_NUMBER assigns unique positions within each generation. Filter positions in an outer query.",
     hintSql: "ROW_NUMBER() OVER (PARTITION BY generation_id ORDER BY speed DESC, id)",
@@ -325,7 +325,7 @@ WHERE position <= 3
 ORDER BY generation_id, position;` }],
   },
   {
-    id: "dragonite-family", title: "Dragonite's family tree",
+    id: "dragonite-family", category: "advanced", difficulty: "Advanced", title: "Dragonite's family tree",
     prompt: "Return evolution stage and name for Dratini, Dragonair, and Dragonite, in evolution order. Start with Dratini and follow evolves_from_id instead of listing all three names.",
     hint: "A recursive CTE starts with Dratini, then repeatedly joins children to the previous stage.",
     hintSql: "JOIN family ON child.evolves_from_id = family.id",
@@ -353,7 +353,7 @@ UNION ALL SELECT 3, third_stage FROM family
 ORDER BY stage;` }],
   },
   {
-    id: "kanto-megas", title: "Gen 1 Mega Evolutions",
+    id: "kanto-megas", category: "basics", difficulty: "Beginner", title: "Gen 1 Mega Evolutions",
     prompt: "Return name and Mega form count for Gen 1 species with a Mega Evolution, in National Dex order. Keep one row per species.",
     hint: "has_mega_evolution is a 0/1 species flag; mega_form_count counts its linked Mega forms.",
     hintSql: "WHERE generation_id = 1 AND has_mega_evolution = 1",
@@ -363,7 +363,7 @@ WHERE generation_id = 1 AND has_mega_evolution = 1
 ORDER BY id;`,
   },
   {
-    id: "multiple-megas", title: "More than one Mega form",
+    id: "multiple-megas", category: "sorting", difficulty: "Beginner", title: "More than one Mega form",
     prompt: "Return name and Mega form count for species with multiple Mega forms. Sort by count descending, then National Dex number.",
     hint: "Use mega_form_count > 1. Mega forms are separate from ordinary evolution stages.",
     hintSql: "WHERE mega_form_count > 1",
@@ -373,7 +373,7 @@ WHERE mega_form_count > 1
 ORDER BY mega_form_count DESC, id;`,
   },
   {
-    id: "regional-species", title: "Pokémon with regional variants",
+    id: "regional-species", category: "basics", difficulty: "Beginner", title: "Pokémon with regional variants",
     prompt: "Return name and species debut generation for every species with a named regional form, in National Dex order. Costumes such as Pikachu's Alola cap do not count.",
     hint: "has_regional_form summarizes named Alolan, Galarian, Hisuian, and Paldean variants; generation_id is the species debut.",
     hintSql: "WHERE has_regional_form = 1",
@@ -383,7 +383,7 @@ WHERE has_regional_form = 1
 ORDER BY id;`,
   },
   {
-    id: "terminal-low-stats", title: "End of the family tree",
+    id: "terminal-low-stats", category: "sorting", difficulty: "Beginner", title: "End of the family tree",
     prompt: "Find the 10 lowest-stat species with no further species evolution. Return name, evolution stage, and total stats, sorted by total stats then National Dex number. Include single-stage species.",
     hint: "can_evolve follows species family links, including regional-only branches. It is not a game-specific rule for each form. Babies start at stage 1; Mega transformations do not add a stage.",
     hintSql: "WHERE can_evolve = 0",
@@ -394,7 +394,7 @@ ORDER BY total_stats, id
 LIMIT 10;`,
   },
   {
-    id: "elusive-legends", title: "Hard-to-catch legends",
+    id: "elusive-legends", category: "sorting", difficulty: "Beginner", title: "Hard-to-catch legends",
     prompt: "Return name, capture rate, color, and habitat for the 10 legendary species with the lowest capture_rate. Break ties by National Dex number and keep missing habitats as NULL.",
     hint: "capture_rate is the game's catch-rate parameter, not a percentage or a complete catch probability. Lower values are harder under otherwise equal conditions.",
     hintSql: "ORDER BY capture_rate, id",
@@ -405,7 +405,7 @@ ORDER BY capture_rate, id
 LIMIT 10;`,
   },
   {
-    id: "charizard-forms", title: "Charizard and its Mega forms",
+    id: "charizard-forms", category: "joins", difficulty: "Intermediate", title: "Charizard and its Mega forms",
     prompt: "Compare Charizard's default and Mega forms. Return form name, species debut generation, form introduction generation, attack, special attack, and total stats. Sort by form ID; exclude Gigantamax.",
     hint: "Join pokemon_forms.species_id to pokemon.id. Form IDs and source_pokemon_id are not National Dex numbers. Stats and abilities come from the source variety; form types use pokemon_form_types.",
     hintSql: "AND (f.is_species_default = 1 OR f.is_mega = 1)",

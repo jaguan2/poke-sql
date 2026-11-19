@@ -12,6 +12,7 @@ async function run(page: Page, sql: string) {
 
 test('expanded form example and challenges work on desktop and mobile', async ({ page }, testInfo) => {
   await page.goto('/');
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Charizard and its Mega forms', exact: true }).click();
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await page.getByText('Answer', { exact: true }).click();
@@ -100,6 +101,7 @@ test('older saved databases retain edits until explicit reset loads the expanded
   await expect(page.locator('.cm-content')).toHaveText(draft);
   await run(page, 'SELECT name, mega_form_count FROM pokedex WHERE id=6;');
   await expect(page.locator('tbody tr').locator('td')).toHaveText(['Charizard', '2']);
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name', { hasText: /^pokemon_forms$/ })).toBeVisible();
   await page.reload();
   await expect(update).toHaveCount(0);

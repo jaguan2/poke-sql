@@ -1,6 +1,3 @@
-.pokedex-entry { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); color: var(--highlight); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
-.pokedex-entry[aria-pressed="true"] { border-color: var(--highlight); background: var(--panel-raised); }
-.pokedex-entry span { color: var(--text-dim); font-size: 11px; font-weight: 400; }
 .personal-pokedex { flex: 1; padding: 24px; min-width: 0; }
 .pokedex-heading h2 { margin: 8px 0; font-size: 30px; letter-spacing: -.7px; }
 .pokedex-heading > p { max-width: 640px; color: var(--text-dim); font-size: 14px; line-height: 1.6; }
@@ -33,7 +30,6 @@
 @media (max-width: 850px) { .pokedex-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .pokedex-filters > div:first-child { grid-column: 1 / -1; } }
 @media (max-width: 620px) {
   .personal-pokedex { padding: 18px 12px; }
-  .pokedex-entry { margin-bottom: 8px; min-height: 40px; }
   .pokedex-heading h2 { font-size: 26px; }
   .pokedex-filters input, .pokedex-filters select { font-size: 16px; }
   .personal-pokedex .btn { min-height: 40px; }

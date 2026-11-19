@@ -14,17 +14,18 @@ web/
       App.tsx               Screen composition and app layout styles
       use-workspace.ts      Workspace state, commands, persistence, async results
       workspace-types.ts    Selection, submitted query contexts, saved queries
-      components/           Sidebar and schema-aware SQL editor
+      navigation.ts         Typed sectioned navigation destinations
+      components/           Sidebar, workspace library and schema-aware SQL editor
       database/
         client.ts           Worker lifecycle, timeout, cancellation, snapshots
         worker.ts           Feature-aware SQL command dispatcher
         protocol.ts         Typed worker request/reply contract
     features/
-      practice/             Samples, challenges, worked answers, SQL guide
+      practice/             Question catalogs, samples, challenges, worked answers, SQL guide
       mystery/              Random/daily rounds, grading, clues, UTC rollover
       pokedex/              Encounters, journal, achievement goals and UI
       music/                Player, styles, curated track manifest
-      profiles/             Trainer card, model selection, preferences and palettes
+      profiles/             Trainer ID card, model selection, settings and palettes
       safari/               Maps, encounter pools, movement and SQL catch tasks
     shared/
       sql/                  Statement execution, schema reading, result types,

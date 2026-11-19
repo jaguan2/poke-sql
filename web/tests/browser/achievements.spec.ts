@@ -100,7 +100,7 @@ test('achievement progress and milestone badges fit desktop and mobile without n
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     if (width === 390) {
-      await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+      await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await page.getByRole('radio', { name: 'Ultra Ball', exact: true }).check();
       await page.getByRole('button', { name: 'Done', exact: true }).click();
     }
@@ -110,7 +110,7 @@ test('achievement progress and milestone badges fit desktop and mobile without n
     await expect(genOne).toBeInViewport();
     if (width === 1440) {
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
-      await expect(page.getByRole('button', { name: 'Profiles', exact: true })).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole('button', { name: 'Settings', exact: true })).toBeInViewport({ ratio: 1 });
     }
     await page.screenshot({ path: testInfo.outputPath(`generations-${width}.png`) });
     await page.getByRole('button', { name: 'Types', exact: true }).click();

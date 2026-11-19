@@ -77,12 +77,12 @@ test('phrase suggestions work alongside schema completion and ignore strings and
 });
 
 test('autocomplete can be disabled, stays disabled after reload, and can be enabled again', async ({ page }) => {
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('switch', { name: 'SQL autocomplete' })).toBeChecked();
   await page.getByRole('switch', { name: 'SQL autocomplete' }).uncheck();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.reload();
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('switch', { name: 'SQL autocomplete' })).not.toBeChecked();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await typeAfter(page, 'SELECT * FROM pokemon ', 'LEFT');
@@ -90,24 +90,24 @@ test('autocomplete can be disabled, stays disabled after reload, and can be enab
   // Wait beyond CodeMirror's typing delay before asserting that no list opens.
   await page.waitForTimeout(400);
   await expect(page.getByRole('listbox')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('switch', { name: 'SQL autocomplete' }).check();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await typeAfter(page, 'SELECT * FROM pokemon ', 'LEFT');
   await expect(page.getByRole('option', { name: 'LEFT JOIN', exact: true })).toBeVisible();
 });
 
-test('Profiles replaces the settings dialog, preserves the draft and never runs hidden SQL', async ({ page }, testInfo) => {
+test('the settings icon opens a page, preserves the draft and never runs hidden SQL', async ({ page }, testInfo) => {
   await typeAfter(page, '', 'SELECT 42;');
   await page.keyboard.press('Escape');
-  const open = page.getByRole('button', { name: 'Profiles', exact: true });
+  const open = page.getByRole('button', { name: 'Settings', exact: true });
   await open.click();
-  await expect(page.getByRole('heading', { name: 'Profiles', exact: true })).toBeFocused();
+  await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeFocused();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.locator('.cm-content')).toHaveCount(0);
   await page.getByRole('radio', { name: 'Dive Ball', exact: true }).check();
   await page.screenshot({ path: testInfo.outputPath('settings-desktop.png'), fullPage: true });
-  await page.getByLabel('Trainer name', { exact: true }).fill('Jason');
+  await page.getByRole('switch', { name: 'SQL autocomplete' }).uncheck();
   await page.keyboard.press('ControlOrMeta+Enter');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(open).toBeFocused();
@@ -118,7 +118,7 @@ test('Profiles replaces the settings dialog, preserves the draft and never runs 
 test('invalid autocomplete preferences fall back to enabled and failed writes are explained in settings', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('pokesql:autocomplete', JSON.stringify('false')));
   await page.reload();
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByRole('switch', { name: 'SQL autocomplete' })).toBeChecked();
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException('Blocked', 'SecurityError'); }; });
   await page.getByRole('switch', { name: 'SQL autocomplete' }).uncheck();

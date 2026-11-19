@@ -1,6 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 
 async function edit(page: Page, sql: string) {
+  await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible();
+  const back = page.getByRole('button', { name: 'Back to workspace', exact: true });
+  if (await back.count()) await back.click();
   const editor = page.locator('.cm-content');
   await editor.click(); await page.keyboard.press('ControlOrMeta+A'); await page.keyboard.insertText(sql);
 }
@@ -25,6 +28,7 @@ test('saves editor, database, named queries, and history without rerunning SQL o
   await expect(page.getByRole('button', { name: 'My first edit', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'History', exact: true }).click();
   await expect(page.locator('.history-query')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await page.getByRole('button', { name: 'Reset DB' }).click();
   await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
   await page.reload(); await run(page, 'SELECT name FROM pokemon WHERE id = 1;');
@@ -85,6 +89,7 @@ test('works offline after caching, including sprites and reload', async ({ page,
 test('broken views and unusual identifiers do not break the schema browser', async ({ page }) => {
   await run(page, 'CREATE TABLE "team names" (name TEXT); DROP TABLE pokemon;');
   await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name', { hasText: 'team names' })).toBeVisible();
   await page.getByText('team names', { exact: true }).click();
   await page.getByRole('button', { name: '▶ SELECT * FROM team names', exact: true }).click();

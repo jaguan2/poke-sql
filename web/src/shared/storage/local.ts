@@ -10,5 +10,5 @@ export function writeLocal(key: string, value: unknown): boolean {
   catch { return false; }
 }
 
-export const isString = (v: unknown): v is string => typeof v === "string";
+const isString = (v: unknown): v is string => typeof v === "string";
 export const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString);

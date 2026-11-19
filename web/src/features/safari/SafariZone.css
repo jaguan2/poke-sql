@@ -1,7 +1,4 @@
-.safari-entry { display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; padding:12px; margin:0 0 12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-raised); color:var(--highlight); font:inherit; font-size:12px; font-weight:650; text-align:left; cursor:pointer; }
-.safari-entry span { font-size:10px; font-weight:400; color:var(--text-dim); }
-.safari-entry[aria-pressed=true] { border-color:var(--highlight); }
-.safari-zone { flex:1; padding:24px; min-width:0; }
+.safari-zone { flex:1; padding:24px; min-width:0; container-type:inline-size; }
 .safari-heading { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:22px; }
 .safari-heading h2 { font-size:34px; letter-spacing:-1px; margin:8px 0; }
 .safari-heading h2 > span { display:block; font-size:12px; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-dim); margin-top:8px; }
@@ -61,7 +58,8 @@
 .safari-pool img { width:36px; height:36px; image-rendering:pixelated; flex-shrink:0; }
 .safari-pool span { min-width:0; }.safari-pool strong { display:block; font-size:10px; overflow-wrap:anywhere; }.safari-pool small { font-size:9px; color:var(--text-dim); }
 .safari-guide-note { display:block; color:var(--text-dim); font-size:10px; line-height:1.8; border-top:1px solid var(--border); padding-top:12px; }
-.safari-encounter { width:100%; max-width:calc(240px * 3 + 2px); margin-inline:auto; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.safari-encounter { display:grid; grid-template-columns:minmax(0,1fr); align-items:start; width:100%; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--panel-raised); }
+.safari-encounter > * { min-width:0; }
 .safari-entering-note { font-size:12px; text-align:center; padding:20px; color:var(--text-dim); }
 .safari-rules { margin:-10px 0 18px; color:var(--text-dim); font-size:11px; line-height:1.7; }
 .safari-chances { display:grid; grid-template-columns:1fr auto; gap:8px 14px; padding:12px; margin:16px 0 6px; border:1px solid var(--border); border-radius:10px; background:var(--panel-raised); font-size:12px; }
@@ -80,7 +78,7 @@
 @keyframes safari-rustle { 0%,70%,100% { rotate:0deg; opacity:.75; } 78% { rotate:-10deg; translate:-2px 0; opacity:1; } 86% { rotate:10deg; translate:2px 0; } 94% { rotate:-5deg; } }
 @media(min-width:1500px) { .safari-expedition { grid-template-columns:minmax(0,1fr) 280px; }.safari-pool img { width:44px;height:44px; }.safari-pool strong { font-size:11px; } }
 @media(max-width:1100px) { .safari-expedition { grid-template-columns:minmax(0,1fr); }.safari-field-guide { padding:14px; }.safari-field-guide > p { max-width:600px; } }
-@media(max-width:620px) { .safari-zone { padding:18px 12px; }.safari-heading { gap:10px; }.safari-heading h2 { font-size:28px; }.safari-heading h2 > span { font-size:10px; }.safari-heading p { font-size:12px; }.safari-pass { padding:10px; }.safari-pass > span { font-size:7px; }.safari-pass strong { font-size:26px; }.safari-zones { gap:6px; }.safari-zones button { display:flex; flex-direction:column; align-items:start; padding:10px 8px; }.safari-zones button > span { font-size:22px; }.safari-zones strong { font-size:11px; }.safari-zones small { font-size:9px; }.safari-day-note > span { margin-left:0; width:100%; }.safari-field-heading { padding:10px; }.safari-assignment,.safari-catch-summary { padding:16px 12px; }.safari-assignment-heading { flex-wrap:wrap; }.safari-assignment .editor-wrap { height:240px;margin-inline:0; }.safari-query-results .table-scroll { max-height:none; }.safari-query-actions > .btn { width:100%; min-height:44px; }.safari-assignment .cm-editor { font-size:16px; }.safari-entry { min-height:44px; margin-bottom:8px; } }
+@media(max-width:620px) { .safari-zone { padding:18px 12px; }.safari-heading { gap:10px; }.safari-heading h2 { font-size:28px; }.safari-heading h2 > span { font-size:10px; }.safari-heading p { font-size:12px; }.safari-pass { padding:10px; }.safari-pass > span { font-size:7px; }.safari-pass strong { font-size:26px; }.safari-zones { gap:6px; }.safari-zones button { display:flex; flex-direction:column; align-items:start; padding:10px 8px; }.safari-zones button > span { font-size:22px; }.safari-zones strong { font-size:11px; }.safari-zones small { font-size:9px; }.safari-day-note > span { margin-left:0; width:100%; }.safari-field-heading { padding:10px; }.safari-assignment,.safari-catch-summary { padding:16px 12px; }.safari-assignment-heading { flex-wrap:wrap; }.safari-assignment .editor-wrap { height:240px;margin-inline:0; }.safari-query-results .table-scroll { max-height:none; }.safari-query-actions > .btn { width:100%; min-height:44px; }.safari-assignment .cm-editor { font-size:16px; }}
 @media(prefers-reduced-motion:reduce) { .safari-zone *, .safari-zone *::before,.safari-zone *::after { animation:none!important; transition:none!important; } }
 
 
@@ -118,3 +116,11 @@
 .safari-weather-favored { display:block; font-size:8px; color:var(--highlight); font-weight:650; }
 .safari-field-guide .safari-weather-note { font-size:10px; }
 @media(max-width:620px) { .safari-area-picker .safari-zones { grid-template-columns:repeat(2,minmax(0,1fr)); }.safari-area-picker > summary span { margin-left:0; } }
+
+/* Use the actual Safari content width, including when the navigation rail changes. */
+@container (min-width:960px) {
+  .safari-encounter { grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); }
+  .safari-encounter > :not(.safari-battle-scene) { border-left:1px solid var(--border); }
+  .safari-entering-note { align-self:center; }
+  .safari-catch-summary { padding:20px; }
+}

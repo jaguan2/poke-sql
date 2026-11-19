@@ -120,7 +120,7 @@ test('walking controls, collisions, biome pools and featured areas work with key
   await expect(page.locator('.safari-zones')).toContainText('Featured today');
   await page.locator('.safari-area-picker > summary').click();
   await page.getByRole('button', { name: /Verdant Forest/ }).click();
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('radio', { name: 'Dusk Ball', exact: true }).check();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
@@ -129,7 +129,7 @@ test('walking controls, collisions, biome pools and featured areas work with key
 
 test('rustling grass opens a sliding encounter; only a correct SQL assignment registers the catch', async ({ page }, info) => {
   await seed(page); await page.setViewportSize({ width: 1440, height: 1300 }); await open(page);
-  await page.getByRole('button', { name: 'Profiles', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('radio', { name: 'Master Ball', exact: true }).check();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.keyboard.press('ArrowLeft');
@@ -268,6 +268,10 @@ test('walking and SQL catches advance all four assignments without duplicating r
 
 test('guide examples fill the active catch draft without grading, while roaming examples open free practice', async ({ page }) => {
   await seed(page); await open(page); const id = await encounter(page);
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   const guide = page.getByRole('region', { name: 'SQL guide', exact: true });
   const joins = guide.locator('details').filter({ has: page.getByText('JOIN tables', { exact: true }) });
   await joins.locator('summary').click();
@@ -276,6 +280,8 @@ test('guide examples fill the active catch draft without grading, while roaming 
   await expect(page.locator('.cm-content')).toContainText('JOIN pokemon_types AS pt');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ pokemonId: id, attempts: 0, outcome: "active", fleeAfter: null });
   await page.getByRole('button', { name: 'Return to trail', exact: true }).click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
+  await joins.locator('summary').click();
   await joins.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('JOIN pokemon_types AS pt');

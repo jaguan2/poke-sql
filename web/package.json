@@ -19,6 +19,7 @@
     "desktop:build": "npm run build && node node_modules/electron/install.js && electron-builder --win nsis-web portable --x64 --publish never && npm run check:release",
     "test": "npm run build && playwright test",
     "test:desktop": "playwright test --config playwright.desktop.config.ts",
+    "screenshots": "npm run build && playwright test --config playwright.screenshots.config.ts",
     "check:release": "node scripts/check-release.mjs",
     "test:updates": "node --test tests/updates/*.test.cjs"
   },

@@ -26,7 +26,7 @@ const MYTHICAL_VISITORS = [
 ];
 export const SAFARI_EVENT_VISITORS: readonly EventVisitor[] = [...LEGENDARY_VISITORS, ...MYTHICAL_VISITORS];
 
-export interface SafariEvent {
+interface SafariEvent {
   visitor: EventVisitor;
   startsOn: string;
   endsOn: string;

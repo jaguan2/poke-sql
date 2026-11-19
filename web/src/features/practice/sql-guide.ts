@@ -1,4 +1,4 @@
-export interface SqlGuideTopic {
+interface SqlGuideTopic {
   title: string;
   explanation: string;
   sql: string;

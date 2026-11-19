@@ -13,7 +13,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('specific Get started prompts reveal help without executing and return the promised Pokémon', async ({ page }) => {
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Get started', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('-- Top 10 Pokémon by HP');
   await page.getByText('Hint', { exact: true }).click();
@@ -25,6 +27,7 @@ test('specific Get started prompts reveal help without executing and return the 
   await expect(page.locator('tbody tr').first().locator('td')).toHaveText(['Blissey', '255', 'normal', 'NULL']);
   await expect(page.locator('tbody tr').nth(1)).toContainText('Chansey');
 
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'All Pokémon from Gen 1', exact: true }).click();
   await loadDirectAnswer(page);
   await page.getByRole('button', { name: /▶ Run/ }).click();
@@ -32,6 +35,7 @@ test('specific Get started prompts reveal help without executing and return the 
   await expect(page.locator('tbody tr').first()).toContainText('Bulbasaur');
   await expect(page.locator('tbody tr').last()).toContainText('Mew');
 
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'All Fire-type Pokémon from Gen 2', exact: true }).click();
   await loadDirectAnswer(page);
   await page.getByRole('button', { name: /▶ Run/ }).click();
@@ -41,15 +45,19 @@ test('specific Get started prompts reveal help without executing and return the 
 });
 
 test('sample drafts stay separate and hint and answer disclosures reset for a new prompt', async ({ page }) => {
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
   await loadDirectAnswer(page);
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'All Pokémon from Gen 1', exact: true }).click();
   await expect(page.locator('.cm-content')).not.toContainText('ORDER BY hp');
   await expect(page.getByRole('article', { name: 'Direct approach' })).not.toBeVisible();
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('ORDER BY hp DESC, id');
   await expect(page.getByRole('article', { name: 'Direct approach' })).not.toBeVisible();
   await page.reload();
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('ORDER BY hp DESC, id');
   await expect(page.locator('tbody tr')).toHaveCount(0);
@@ -75,6 +83,7 @@ test('challenge alternative answers are revealable, load without grading, and pa
 });
 
 test('worked answers and their controls stay usable on desktop and mobile', async ({ page }, testInfo) => {
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'Top 10 Pokémon by HP', exact: true }).click();
   await page.getByText('Answer', { exact: true }).click();
   for (const width of [1280, 390]) {
@@ -90,6 +99,7 @@ test('worked answers and their controls stay usable on desktop and mobile', asyn
 });
 
 test('Charizard lookup loads without running and shows its sprite on desktop and mobile', async ({ page }, testInfo) => {
+  await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: "Charizard's Pokédex card", exact: true }).click();
   await page.getByText('Hint', { exact: true }).click();
   await expect(page.locator('.query-help pre:visible')).toHaveText("WHERE name = 'Charizard'");
@@ -121,6 +131,7 @@ test('new popular Pokémon challenges grade correctly and retain existing comple
   await expect(page.getByText(`Training · 1/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Check answer/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
+  await page.getByRole('button', { name: 'Challenges', exact: true }).click();
   await page.getByRole('button', { name: /Charizard's type weaknesses/ }).click();
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');

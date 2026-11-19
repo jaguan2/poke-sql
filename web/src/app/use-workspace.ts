@@ -21,8 +21,11 @@ import ballThemes from "../features/profiles/themes.json";
 import { isTrainerId, isTrainerName, MAX_TRAINER_NAME } from "../shared/trainer/profile";
 import { POKEDEX_SPECIES_COUNT } from "../features/pokedex/encounters";
 import type { TrainerId } from "../shared/trainer/profile";
+import { createTrainerIdentity, isTrainerIdentity } from "../shared/trainer/identity";
 import type { PokedexView } from "../features/pokedex/PersonalPokedex";
 import type { SavedQuery, RunState, PracticeSelection, QueryContext } from "./workspace-types";
+import type { NavigationId, WorkspaceView } from "./navigation";
+import type { CatalogFilters, CatalogKind } from "../features/practice/types";
 
 const INITIAL_QUERY = "SELECT * FROM pokedex LIMIT 15;";
 const isBallTheme = (value: unknown): value is string => typeof value === "string" && ballThemes.some(theme => theme.id === value);
@@ -37,12 +40,20 @@ export function useWorkspace() {
   const [selection, setSelection] = useState<PracticeSelection>(null);
   const [randomMysteryRound, setRandomMysteryRound] = useState<MysteryRound | null>(() => readLocal("mystery-round", null, isMysteryRound));
   const [dailyMysteryRound, setDailyMysteryRound] = useState<DailyMysteryRound | null>(() => readLocal("daily-mystery-round", null, isDailyMysteryRound));
-  const [view, setView] = useState<"workspace" | "pokedex" | "safari" | "profiles">("workspace");
-  const profileReturn = useRef<Exclude<typeof view, "profiles">>("workspace");
+  const [view, setView] = useState<WorkspaceView>("workspace");
+  const referenceContext = useRef<"workspace" | "safari">("workspace");
+  const [catalogFilters, setCatalogFilters] = useState<Record<CatalogKind, CatalogFilters>>({ samples: { search: "", category: "all", status: "all" }, challenges: { search: "", category: "all", status: "all" } });
+  const personalizationReturn = useRef<Exclude<typeof view, "profiles" | "settings">>("workspace");
   const showPokedex = view === "pokedex";
   const [pokedexView, setPokedexView] = useState<PokedexView>("collection");
   const showSafari = view === "safari";
   const showProfiles = view === "profiles";
+  const showSettings = view === "settings";
+  const showPersonalization = showProfiles || showSettings;
+  const showWorkspace = view === "workspace";
+  const catalogKind: CatalogKind | null = view === "get-started" ? "samples" : view === "challenges" ? "challenges" : null;
+  const libraryView = view === "schema" || view === "history" || view === "saved" ? view : null;
+  const safariContext = showSafari || (view === "schema" && referenceContext.current === "safari");
   const [mysteryMode, setMysteryMode] = useState<"daily" | "random">("daily");
   const today = useUtcDay();
   const mysteryRound = mysteryMode === "daily" ? dailyMysteryRound : randomMysteryRound;
@@ -63,6 +74,7 @@ export function useWorkspace() {
   const [ballTheme, setBallTheme] = useState(() => readLocal("ball-theme", "poke-ball", isBallTheme));
   const [trainer, setTrainer] = useState<TrainerId>(() => readLocal("trainer", "red", isTrainerId));
   const [trainerName, setTrainerName] = useState(() => readLocal("trainer-name", "", isTrainerName));
+  const [trainerIdentity] = useState(() => readLocal("trainer-id", createTrainerIdentity(), isTrainerIdentity));
   const [autocomplete, setAutocomplete] = useState(() => readLocal("autocomplete", true, isBoolean));
   const [safariFleeAfter, setSafariFleeAfter] = useState<SafariFleeLimit>(() => readLocal("safari-flee-after", null, isSafariFleeLimit));
   const [profileSaveError, setProfileSaveError] = useState(false);
@@ -71,7 +83,9 @@ export function useWorkspace() {
   const challenge = CHALLENGES.find(c => c.id === activeChallenge);
   const sample = selection?.kind === "sample" ? SAMPLE_QUERIES.find(s => s.id === selection.id) : undefined;
   const practice = challenge ? { ...challenge, sql: challenge.solution } : sample;
-  const editorSchema = challenge || isMystery || showSafari ? challengeSchema : schema;
+  const editorSchema = challenge || isMystery || safariContext ? challengeSchema : schema;
+  const activeNavigation: NavigationId | null = view === "profiles" || view === "settings" ? null : view !== "workspace" ? view : isMystery ? "mystery" : challenge ? "challenges" : sample ? "get-started" : "workspace";
+  const completedCount = CHALLENGES.filter(item => completed.includes(item.id)).length;
   const draftKey = isMystery ? (mysteryMode === "daily" ? "mystery-daily" : "mystery") : activeChallenge ?? (sample ? `sample:${sample.id}` : "sandbox");
   const query = drafts[draftKey] ?? (isMystery ? MYSTERY_INITIAL_QUERY : practice ? `-- ${practice.title}\nSELECT ` : INITIAL_QUERY);
 
@@ -96,6 +110,7 @@ export function useWorkspace() {
   useEffect(() => { persist("completed", completed); }, [completed, persist]);
   useEffect(() => { persist("mystery-round", randomMysteryRound); }, [randomMysteryRound, persist]);
   useEffect(() => { persist("daily-mystery-round", dailyMysteryRound); }, [dailyMysteryRound, persist]);
+  useEffect(() => { if (!writeLocal("trainer-id", trainerIdentity)) setProfileSaveError(true); }, [trainerIdentity]);
 
   useEffect(() => {
     let disposed = false;
@@ -197,7 +212,7 @@ export function useWorkspace() {
     if (!query.trim() || !queryName.trim()) return;
     const next = [{ id: crypto.randomUUID(), name: queryName.trim(), sql: query }, ...saved];
     setSaved(next); const stored = persist("saved", next); setQueryName("");
-    setNotice(stored ? "Query saved. Find it in the Saved tab." : "Query kept for this session only. This device could not save it.");
+    setNotice(stored ? "Query saved. Find it in Saved." : "Query kept for this session only. This device could not save it.");
   };
 
   const handleNewMystery = async () => {
@@ -251,8 +266,8 @@ export function useWorkspace() {
   };
   const loadGuideSql = (sql: string) => {
     if (busyRef.current) return;
-    if (showSafari) {
-      if (safari.phase === "battle") safari.actions.editDraft(sql); else loadSql(sql);
+    if (safariContext) {
+      if (safari.phase === "battle") { setView("safari"); safari.actions.editDraft(sql); } else loadSql(sql);
       return;
     }
     setView("workspace"); editQuery(sql); setNotice(undefined);
@@ -260,8 +275,8 @@ export function useWorkspace() {
   };
   const previewSql = (sql: string) => {
     if (busyRef.current) return;
-    if (showSafari) {
-      if (safari.phase === "battle") safari.actions.editDraft(sql); else loadSql(sql);
+    if (safariContext) {
+      if (safari.phase === "battle") { setView("safari"); safari.actions.editDraft(sql); } else loadSql(sql);
       return;
     }
     setView("workspace");
@@ -309,13 +324,27 @@ export function useWorkspace() {
     setSafariFleeAfter(limit);
     if (!writeLocal("safari-flee-after", limit)) setProfileSaveError(true);
   };
+  const openPersonalization = (next: "profiles" | "settings") => {
+    if (busyRef.current) return;
+    if (view !== "profiles" && view !== "settings") personalizationReturn.current = view;
+    setView(next);
+  };
+  const navigate = (destination: NavigationId) => {
+    if (busyRef.current) return;
+    if (destination === "mystery") { openDailyMystery(); return; }
+    if (destination === "pokedex") { openPokedex(); return; }
+    if (destination === "workspace") { if (selection) selectChallenge(null); else setView("workspace"); return; }
+    const origin = showPersonalization ? personalizationReturn.current : view;
+    if (destination === "schema" && origin !== "schema") referenceContext.current = origin === "safari" ? "safari" : "workspace";
+    setView(destination);
+  };
 
   return {
-    ready, loadError, selection, activeChallenge, isMystery, challenge, sample, practice,
-    query, draftKey, editorSchema, showPokedex, showSafari, showProfiles, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
-    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, autocomplete, safariFleeAfter,
+    ready, loadError, selection, isMystery, challenge, practice,
+    query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount: CHALLENGES.length, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
+    datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, autocomplete, safariFleeAfter,
     profileProgress: { entries: encounters.length, species: achievementCatalog?.speciesCount ?? POKEDEX_SPECIES_COUNT, catches: safari.session.catches,
-      challenges: CHALLENGES.filter(challenge => completed.includes(challenge.id)).length, challengeTotal: CHALLENGES.length,
+      challenges: completedCount, challengeTotal: CHALLENGES.length,
       types: new Set(encounters.flatMap(entry => [entry.pokemon.type1, entry.pokemon.type2].filter((type): type is string => type !== null))).size,
       typeTotal: achievementCatalog?.types.length ?? 18 },
     profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
@@ -323,8 +352,9 @@ export function useWorkspace() {
     actions: {
       run, stop: cancelQuery, reset: handleReset, newMystery: handleNewMystery,
       saveQuery, setQueryName, editQuery: onEditorChange, changeTheme, changeTrainer, changeTrainerName, changeAutocomplete, changeSafariFleeAfter, setPokedexView,
-      openProfiles: () => { if (!busyRef.current && view !== "profiles") { profileReturn.current = view; setView("profiles"); } },
-      closeProfiles: () => { if (!busyRef.current) setView(profileReturn.current); },
+      openProfiles: () => openPersonalization("profiles"), openSettings: () => openPersonalization("settings"),
+      navigate, setCatalogFilters: (kind: CatalogKind, filters: CatalogFilters) => setCatalogFilters(previous => ({ ...previous, [kind]: filters })),
+      closePersonalization: () => { if (!busyRef.current) setView(personalizationReturn.current); },
       openPokedex, openSafari: () => { if (!busyRef.current) setView("safari"); },
       returnToWorkspace: () => { if (!busyRef.current) setView("workspace"); }, openDailyMystery, openRandomMystery,
       selectSample, selectChallenge, loadSql, loadGuideSql, previewSql, loadAnswer, leaveMystery,

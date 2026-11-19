@@ -10,7 +10,7 @@ async function edit(page: Page, sql: string) {
 }
 
 async function expectPageScroll(page: Page) {
-  const nested = await page.locator('.app, .body, .sidebar, .sidebar-content, .main, .practice-panel, .results, .table-scroll, .mystery-table-scroll').evaluateAll(elements =>
+  const nested = await page.locator('.app, .body, .sidebar, .main, .practice-panel, .results, .table-scroll, .mystery-table-scroll').evaluateAll(elements =>
     elements.filter(element => /auto|scroll/.test(getComputedStyle(element).overflowY)
       && element.scrollHeight > element.clientHeight + 1).map(element => element.className));
   expect(nested).toEqual([]);
@@ -50,34 +50,27 @@ for (const width of [320, 390, 620]) {
   });
 }
 
-test('mobile tools fold away after choices and preserve drafts across the desktop breakpoint', async ({ page }) => {
+test('mobile navigation opens pages and preserves challenge drafts across the desktop breakpoint', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const tools = page.getByRole('button', { name: 'Tools & schema' });
-  await expect(tools).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByRole('heading', { name: 'Get started', exact: true })).not.toBeVisible();
   await page.getByRole('button', { name: 'Challenges', exact: true }).click();
-  await expect(tools).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('heading', { name: 'Challenges', exact: true })).toBeFocused();
   await expectPageScroll(page);
   await page.getByRole('button', { name: /First partners/ }).click();
-  await expect(tools).toHaveAttribute('aria-expanded', 'false');
-  await expect(tools).toBeFocused();
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await edit(page, "SELECT name, type1 FROM pokedex WHERE name IN ('Bulbasaur', 'Charmander', 'Squirtle');");
   await page.getByRole('button', { name: /Check answer/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
-  await tools.click();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await page.getByRole('button', { name: '▶ SELECT * FROM pokedex', exact: true }).click();
-  await expect(tools).toHaveAttribute('aria-expanded', 'false');
-  await expect(tools).toBeFocused();
   await expect(page.locator('.cm-content')).toContainText('LIMIT 25');
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 860 });
-  await expect(tools).not.toBeVisible();
+  await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Challenge schema', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('LIMIT 25');
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(tools).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await expectPageScroll(page);
 });
