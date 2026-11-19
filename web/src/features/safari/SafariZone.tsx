@@ -7,6 +7,8 @@ import { safariAssignment } from "./assignments";
 import { SafariMap } from "./SafariMap";
 import { SafariFieldGuide } from "./SafariFieldGuide";
 import { SafariBattleScene } from "./SafariBattleScene";
+import { SafariPokedexEntry } from "./SafariPokedexEntry";
+import { SafariEvents } from "./SafariEvents";
 import { SafariFledSummary } from "./SafariFledSummary";
 import type { QueryResult } from "../../shared/sql/types";
 import { QueryResults } from "../../shared/ui/QueryResults";
@@ -34,7 +36,10 @@ export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, 
     // Touch controls sit below the map. Bring the encounter into view when
     // it replaces that map, rather than playing the entrance off-screen.
     if (phase === "entering" || phase === "battle" || phase === "fled") scene.current?.scrollIntoView({ block: "nearest" });
-    if (phase === "caught") caughtSummary.current?.scrollIntoView({ block: "nearest" });
+    if (phase === "caught") {
+      caughtSummary.current?.scrollIntoView({ block: "nearest" });
+      caughtSummary.current?.focus({ preventScroll: true });
+    }
   }, [phase]);
   return <section className={`safari-zone safari-${zone.id}`} style={{ "--safari-accent": zone.accent, "--safari-canopy": zone.canopy, "--safari-ground": zone.ground } as CSSProperties} aria-labelledby="safari-title">
     <header className="safari-heading"><div><span className="eyebrow">A little SQL. A little adventure.</span><h2 id="safari-title">Safari Zone<span>Wild area expeditions</span></h2><p>Follow winding routes. Meet a Pokémon. Complete its SQL assignment to make the catch.</p></div><div className="safari-pass"><span>EXPLORER PASS</span><strong>{session.catches.toString().padStart(2, "0")}</strong><small>SQL catches</small></div></header>
@@ -42,11 +47,12 @@ export function SafariZone({ session, phase, today, busy, saveError, fleeAfter, 
     <details className="safari-area-picker" ref={areas}><summary><strong>{zone.icon} {zone.name}</strong><span>Choose from {SAFARI_ZONES.length} habitats</span></summary><nav className="safari-zones" aria-label="Safari areas">{SAFARI_ZONES.map(area => <button key={area.id} aria-pressed={area.id === session.zoneId} disabled={!roaming || busy} onClick={() => { onZone(area.id); if (areas.current) { areas.current.open = false; areas.current.querySelector("summary")?.focus(); } }}><span>{area.icon}</span><strong>{area.name}</strong><small>{area.id === featured ? "★ Featured today" : "Open to explore"}</small></button>)}</nav></details>
     <div className="safari-day-note">All areas stay open. Today's featured area: <strong>{zoneById(featured).name}</strong><span>{today} · UTC</span></div>
     {exploring && <p className="safari-rules">{fleeAfter === null ? "Relaxed practice · Unlimited attempts" : `Wild Pokémon flee after ${fleeAfter} incorrect answers`}. Change this in Settings.</p>}
+    {exploring && <SafariEvents date={today} disabled={!roaming || busy} previousId={session.lastCatch?.pokemon.id} onZone={onZone} />}
     {exploring ? <div className="safari-expedition"><div className="safari-field"><div className="safari-field-heading"><span>01 / EXPLORE</span><strong>{zone.routeName}</strong><span className="safari-live">{WEATHER[weather].icon} {WEATHER[weather].name}</span></div><SafariMap zone={zone} session={session} active={roaming && !busy} rustling={phase === "rustling"} weather={weather} onMove={onMove} /><div className="safari-ranger-note"><span aria-hidden="true">✦</span><p><strong>{{ grass: "Follow the rustling grass.", sand: "Investigate the shifting sand.", stone: "Look for moving stones.", snow: "Follow tracks in the snow." }[zone.encounterTerrain]}</strong> Follow the trail or explore the wild patches. Walk onto the sparkle for a guaranteed encounter; it moves after each catch. Open Route map to plan your way.</p></div></div>
-      <SafariFieldGuide zone={zone} registeredIds={registeredIds} weather={weather} previousId={session.lastCatch?.pokemon.id} />
+      <SafariFieldGuide zone={zone} registeredIds={registeredIds} weather={weather} previousId={session.lastCatch?.pokemon.id} date={today} />
     </div> : species && assignment && encounter && <section className={`safari-encounter ${phase === "entering" ? "is-entering" : ""} ${phase === "caught" ? "is-caught" : ""} ${phase === "fled" ? "is-fled" : ""}`} aria-labelledby="safari-wild-name">
-      <SafariBattleScene ref={scene} key={encounter.id} species={species} zone={zone} phase={phase} encounter={encounter} />
-      {phase === "entering" ? <p className="safari-entering-note">Opening your field notebook…</p> : phase === "fled" ? <SafariFledSummary name={species.name} attempts={encounter.attempts} assignment={assignment} draft={session.draft} feedback={message} results={results} onLeave={onLeave} /> : phase === "caught" ? <div className="safari-catch-summary" ref={caughtSummary}><span className="eyebrow">Assignment complete</span><h3>A new story for your Pokédex.</h3><p>{message || `${species.name} is registered in your collection.`} Completed in {encounter.attempts} {encounter.attempts === 1 ? "query" : "queries"}.</p><div><button className="btn btn-primary" onClick={onLeave}>Keep exploring</button><button className="btn" onClick={onPokedex}>View Pokédex</button></div></div> : <div className="safari-assignment"><div className="safari-assignment-heading"><div><span className="eyebrow">03 / MAKE THE CATCH · {assignment.topic}</span><h3>{assignment.title}</h3></div><button className="btn" disabled={busy} onClick={onLeave}>Return to trail</button></div><p>{assignment.prompt}</p>
+      <SafariBattleScene ref={scene} key={encounter.id} species={species} zone={zone} phase={phase} encounter={encounter} registered={registeredIds.includes(species.id)} />
+      {phase === "entering" ? <p className="safari-entering-note">Opening your field notebook…</p> : phase === "fled" ? <SafariFledSummary name={species.name} attempts={encounter.attempts} assignment={assignment} draft={session.draft} feedback={message} results={results} onLeave={onLeave} /> : phase === "caught" ? <div className="safari-catch-summary" ref={caughtSummary} tabIndex={-1} role="region" aria-label="Caught Pokémon details"><SafariPokedexEntry pokemon={session.lastCatch!.pokemon} /><p>{message || `${species.name} is registered in your collection.`} Completed in {encounter.attempts} {encounter.attempts === 1 ? "query" : "queries"}.</p><div><button className="btn btn-primary" onClick={onLeave}>Keep exploring</button><button className="btn" onClick={onPokedex}>View Pokédex</button></div></div> : <div className="safari-assignment"><div className="safari-assignment-heading"><div><span className="eyebrow">03 / MAKE THE CATCH · {assignment.topic}</span><h3>{assignment.title}</h3></div><button className="btn" disabled={busy} onClick={onLeave}>Return to trail</button></div><p>{assignment.prompt}</p>
         <div className="safari-chances" data-urgent={remaining !== null && remaining <= 2} role="status">
           <strong>{remaining === null ? "Unlimited attempts" : `${remaining} ${remaining === 1 ? "chance" : "chances"} remaining`}</strong>
           {remaining !== null && <progress max={encounter.fleeAfter!} value={remaining} aria-label="Catch chances remaining" />}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { encounterLevel } from "../shared/pokemon/encounter-level";
 import { cancelQuery, checkChallenge, checkSafari, initDb, queryMystery, resetDb, runQuery, startMystery } from "./database/client";
 import type { TableInfo } from "../shared/sql/types";
 import type { AchievementCatalog } from "../features/pokedex/types";
@@ -197,7 +198,7 @@ export function useWorkspace() {
       const reply = await startMystery(randomMysteryRound?.targetId);
       setSchema(reply.schema);
       if (reply.error || reply.mysteryTargetId === undefined) throw new Error(reply.error ?? "Could not start a mystery. Try New Pokémon again.");
-      setRandomMysteryRound({ targetId: reply.mysteryTargetId, guessCount: 0, attempts: [] });
+      setRandomMysteryRound({ targetId: reply.mysteryTargetId, level: encounterLevel(), guessCount: 0, attempts: [] });
       setDrafts(previous => ({ ...previous, mystery: MYSTERY_INITIAL_QUERY }));
       setRunState({ status: "idle", message: "A Pokémon is hiding. Start with a guess, then follow the clues." });
     } catch (error) { setRunState({ status: "error", message: (error as Error).message }); }

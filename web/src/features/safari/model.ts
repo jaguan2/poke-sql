@@ -1,4 +1,5 @@
 import { isPokemonProfile } from "../../shared/pokemon/profile";
+import { encounterLevel, isEncounterLevel } from "../../shared/pokemon/encounter-level";
 import { SAFARI_ZONES, chooseSpecies, isWalkable, isZoneId, movePosition, rustlingPatch, tileAt, zoneById } from "./zones";
 import type { Direction, WeatherId, ZoneId } from "./zones";
 import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariSession } from "./types";
@@ -14,7 +15,8 @@ export const isSafariFleeLimit = (value: unknown): value is SafariFleeLimit => v
 function isSafariEncounter(value: unknown, zoneId: ZoneId): value is SafariEncounter {
   if (!record(value) || typeof value.id !== "string" || !value.id || value.id.length > 80
     || !zoneById(zoneId).species.some(species => species.id === value.pokemonId)
-    || !ASSIGNMENTS.some(id => id === value.assignmentId)) return false;
+    || !ASSIGNMENTS.some(id => id === value.assignmentId)
+    || (value.level !== undefined && !isEncounterLevel(value.level))) return false;
   const { attempts, fleeAfter, outcome } = value;
   if (!integer(attempts) || !isSafariFleeLimit(fleeAfter)) return false;
   if (outcome === "fled") return fleeAfter !== null && attempts === fleeAfter;
@@ -60,7 +62,10 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
 
 // Random values/IDs are supplied by the controller so movement stays pure and
 // React's repeated updater evaluation cannot roll a different encounter.
-export function walkSafari(session: SafariSession, direction: Direction, chance: number, pick: number, encounterId: string, weather: WeatherId = "clear", fleeAfter: SafariFleeLimit = null): SafariSession {
+export function walkSafari(
+  session: SafariSession, direction: Direction, chance: number, pick: number, encounterId: string,
+  { weather = "clear", fleeAfter = null, date }: { weather?: WeatherId; fleeAfter?: SafariFleeLimit; date?: string } = {},
+): SafariSession {
   if (session.encounter) return session;
   const zone = zoneById(session.zoneId);
   const position = movePosition(zone, session.position, direction);
@@ -72,7 +77,7 @@ export function walkSafari(session: SafariSession, direction: Direction, chance:
   const encounter = inGrass && (rustling || grassSteps >= 6 || (grassSteps >= 2 && chance < 0.24));
   const next = { ...session, position, direction, steps: session.steps + 1, grassSteps: encounter ? 0 : grassSteps };
   if (!encounter) return next;
-  return { ...next, encounter: { id: encounterId, pokemonId: chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather).id,
+  return { ...next, encounter: { id: encounterId, level: encounterLevel(encounterId), pokemonId: chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather, date).id,
     assignmentId: ASSIGNMENTS[session.catches % ASSIGNMENTS.length], attempts: 0, outcome: "active", fleeAfter }, draft: "-- Write your catch query here.\nSELECT " };
 }
 

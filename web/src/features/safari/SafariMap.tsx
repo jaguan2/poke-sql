@@ -22,7 +22,7 @@ export function SafariMap({ zone, session, active, rustling, weather, onMove }: 
     const walk = (event: KeyboardEvent) => {
       const direction = keyDirection[event.key.toLowerCase()];
       if (!direction || event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey
-        || document.querySelector("dialog:modal, .safari-area-picker[open]")) return;
+        || document.querySelector("dialog:modal, .safari-area-picker[open], .safari-events[open]")) return;
       const target = event.target;
       if (target instanceof Element && target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='combobox'], [role='slider'], audio, video")) return;
       event.preventDefault();

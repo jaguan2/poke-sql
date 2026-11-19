@@ -1,5 +1,6 @@
 .mystery-entry { width: 100%; margin-bottom: 12px; padding: 11px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-raised); color: var(--highlight); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
 .mystery-entry[aria-pressed="true"] { border-color: var(--highlight); }
+.practice-panel.mystery-panel { max-height: none; overflow: visible; }
 .mystery-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .mystery-modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
 .mystery-modes .btn { padding: 6px 10px; font-size: 11px; }
@@ -9,7 +10,7 @@
 .mystery-panel > details { margin: 10px 0; }
 .mystery-panel code { overflow-wrap: anywhere; }
 .mystery-workspace .editor-wrap { height: 160px; }
-.mystery-workspace .results { min-height: 220px; }
+.mystery-workspace .results { flex: none; min-height: 220px; overflow: visible; }
 .mystery-query-results { margin: 8px 0; }
 .mystery-query-results > summary { width: fit-content; color: var(--highlight); cursor: pointer; font-size: 12px; margin-bottom: 10px; }
 .mystery-notebook { min-width: 0; }
@@ -33,6 +34,8 @@
 .mystery-pokemon pre { width: 200px; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
 .mystery-idle { margin: 8px 0 16px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
 .mystery-win-actions { margin-top: 10px; }
+.mystery-encounter { max-width:722px; margin:18px auto; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.mystery-encounter.is-revealed .encounter-nameplate > i { background:#d5a52b; border-color:#f6dc7c; }
 
 @media (max-width: 620px) {
   .mystery-modes .btn { min-height: 40px; font-size: 12px; }

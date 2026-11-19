@@ -122,7 +122,12 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
     await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
     await page.reload();
+    await page.clock.setFixedTime('2026-01-02T12:00:00Z');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await expect(page.getByRole('row', { name: 'Virizion: not yet found', exact: true })).toContainText('1.0%');
+    await page.locator('.safari-events > summary').click();
+    await expect(page.getByRole('article', { name: 'Celebi Mythical event', exact: true })).toContainText('Active now');
+    await page.locator('.safari-events > summary').click();
     const assets = await page.evaluate(async () => Promise.all(['safari/trainer-walking.png', 'safari/grass-effect.png', 'safari/trainer-battle.png', 'safari/maps/forest.png', 'safari/maps/tundra.png', 'safari/battle/grass.png', 'safari/battle/dialogue.png', 'safari/battle/nameplate.png', 'safari/battle/pixel.woff2'].map(async file => {
       const response = await fetch(file);
       return { status: response.status, size: (await response.arrayBuffer()).byteLength };
@@ -134,6 +139,10 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
     expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
     const battleScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
+    const caughtMarker = page.getByRole('img', { name: 'Already in your Pokédex', exact: true });
+    await expect(caughtMarker).toHaveCount(0);
+    const level = await page.locator('.encounter-nameplate small').textContent();
+    expect(level).toMatch(/^Lv\.(?:[5-9]|[1-4]\d|50)$/);
     expect(battleScreen.width / battleScreen.height).toBeCloseTo(1.5, 2);
     expect(battleScreen.width).toBeLessThanOrEqual(720.5);
     const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
@@ -142,6 +151,11 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('Gotcha!', { exact: false })).toBeVisible();
+    const entry = page.locator('.safari-pokedex-entry');
+    await expect(entry).toContainText('Pokédex data registered!');
+    await expect(entry.locator('.safari-entry-description')).not.toBeEmpty();
+    await expect(entry.getByRole('img')).toHaveAttribute('src', new RegExp(`/sprites/${id}\\.png$`));
+    await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
     const caughtScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
     expect(caughtScreen.width).toBeCloseTo(battleScreen.width, 1);
     expect(caughtScreen.height).toBeCloseTo(battleScreen.height, 1);
@@ -152,7 +166,11 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.locator('.encounter-card')).toHaveCount(1);
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
     await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-    await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
+    await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
+    await expect(caughtMarker).toBeVisible();
+    await caughtMarker.evaluate((img: HTMLImageElement) => img.decode());
+    await expect(entry).toContainText('Pokédex data registered!');
+    await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '1');
   } finally {
@@ -181,14 +199,27 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.reload();
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     const dailyTarget = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:daily-mystery-round')!).targetId);
+    const scene = page.getByRole('group', { name: 'Mystery Pokémon encounter', exact: true });
+    await expect(scene.getByRole('img', { name: 'Mystery Pokémon', exact: true })).toBeVisible();
+    await expect(scene.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
+    const level = await scene.locator('.encounter-nameplate small').textContent();
+    expect(level).toMatch(/^Lv\.(?:[5-9]|[1-4]\d|50)$/);
+    await expect(scene.locator('.encounter-nameplate')).not.toContainText('No.');
+    const bounds = (await scene.boundingBox())!;
+    expect(bounds.width / bounds.height).toBeCloseTo(1.5, 2);
     await page.locator('.cm-editor').click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText(`SELECT id FROM pokedex WHERE id = ${dailyTarget}`);
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
+    await expect(scene.getByRole('img', { name: /^Revealed / })).toBeVisible();
+    await expect(scene.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
     await page.reload();
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
+    await expect(scene.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
+    expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
+    await expect(scene.locator('.encounter-nameplate small')).toHaveText(level!);
     await page.getByRole('button', { name: 'Random practice', exact: true }).click();
     await page.locator('.cm-editor').click();
     await page.keyboard.press('ControlOrMeta+A');

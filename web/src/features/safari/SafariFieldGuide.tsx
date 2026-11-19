@@ -1,10 +1,10 @@
 import { encounterTable, WEATHER } from "./zones";
 import type { SafariZoneDefinition, WeatherId } from "./zones";
 
-export function SafariFieldGuide({ zone, registeredIds, weather, previousId }: { zone: SafariZoneDefinition; registeredIds: readonly number[]; weather: WeatherId; previousId?: number }) {
+export function SafariFieldGuide({ zone, registeredIds, weather, previousId, date }: { zone: SafariZoneDefinition; registeredIds: readonly number[]; weather: WeatherId; previousId?: number; date: string }) {
   const registered = new Set(registeredIds);
   const found = zone.species.filter(species => registered.has(species.id)).length;
-  const { rows } = encounterTable(zone, weather, previousId);
+  const { rows } = encounterTable(zone, weather, previousId, date);
   const chances = new Map(rows.map(row => [row.pokemon.id, row.chance]));
   return <aside className="safari-field-guide" aria-label={`${zone.name} encounter pool`}>
     <span className="eyebrow">02 / FIELD GUIDE</span>
@@ -18,6 +18,8 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId }: {
       <thead><tr><th scope="col">Pokémon</th><th scope="col">Next roll</th></tr></thead>
       <tbody>{zone.species.map(pokemon => {
         const chance = chances.get(pokemon.id);
+        const unavailable = pokemon.id === previousId ? "Resting" : "Event only";
+        const nextRoll = chance === undefined ? unavailable : `${(chance * 100).toFixed(chance < 0.01 ? 2 : 1)}%`;
         return <tr key={pokemon.id}
         aria-label={`${pokemon.name}: ${registered.has(pokemon.id) ? "registered" : "not yet found"}`}
         className={registered.has(pokemon.id) ? "is-registered" : undefined}>
@@ -26,7 +28,7 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId }: {
           {chance !== undefined && pokemon.favoredWeather.includes(weather) && <small className="safari-weather-favored">More likely today</small>}
           <small className="safari-registration">{registered.has(pokemon.id) ? "Registered" : "Not yet found"}</small>
         </span></div></th>
-        <td>{chance === undefined ? "Resting" : `${(chance * 100).toFixed(1)}%`}</td>
+        <td>{nextRoll}</td>
       </tr>;
       })}</tbody>
     </table>

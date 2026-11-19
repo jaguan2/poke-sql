@@ -85,9 +85,9 @@ def evolution_metadata(species_rows: list[dict]) -> dict[str, tuple[int, int]]:
     return {species_id: (stage(species_id), int(species_id in children)) for species_id in parents}
 
 
-def download_csvs(refresh: bool) -> None:
+def download_csvs(refresh: bool, files: list[str] = CSV_FILES) -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    for name in CSV_FILES:
+    for name in files:
         dest = RAW_DIR / name
         if dest.exists() and not refresh:
             continue

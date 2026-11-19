@@ -1,0 +1,21 @@
+@font-face { font-family:"PokeSQL Battle"; src:url('/safari/battle/pixel.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+
+/* The original 240x160 screen scales as one unit, including bitmap lettering.
+   Reference: https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html */
+.encounter-scene { position:relative; width:100%; aspect-ratio:3/2; container-type:inline-size; overflow:hidden; background:#263d35; color:#414149; isolation:isolate; font-family:"PokeSQL Battle",monospace; font-weight:400; font-synthesis:none; }
+.encounter-nameplate,.encounter-caption { text-shadow:.416667cqw .416667cqw #d5d5d0; }
+.encounter-background { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+.encounter-nameplate { position:absolute; left:0; top:11.25%; width:46.6667%; height:20%; background:url('/safari/battle/nameplate.png') 0 0 / 100% 100%; image-rendering:pixelated; }
+.encounter-identity { position:absolute; inset:12.5% 14.3% auto 6.25%; display:flex; align-items:center; justify-content:space-between; gap:.416667cqw; }
+.encounter-name { display:flex; align-items:center; min-width:0; }
+.encounter-name h3 { min-width:0; margin:0; font:inherit; font-size:5.83333cqw; line-height:1; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.encounter-registered-ball { width:5.83333cqw; height:auto; flex:none; image-rendering:pixelated; }
+.encounter-scene .encounter-identity small { flex:none; font-size:4.16667cqw; line-height:1; color:inherit; }
+.encounter-nameplate > span { position:absolute; left:31.25%; top:53.125%; font-size:4.16667cqw; line-height:1; text-shadow:none; }
+.encounter-nameplate > i { position:absolute; left:56.25%; top:59.375%; width:32.14%; height:9.375%; border-block:.416667cqw solid #9be380; background:#48a838; }
+.encounter-sprite { position:absolute; left:73.3333%; bottom:55%; transform:translateX(-50%); overflow:hidden; image-rendering:pixelated; }
+.encounter-sprite img { position:absolute; max-width:none; image-rendering:pixelated; }
+.encounter-trainer { position:absolute; left:10%; bottom:30%; width:26.6667%; aspect-ratio:4/3; background:url('/safari/trainer-battle.png') 0 -6.66667cqw / 100% auto; image-rendering:pixelated; }
+.encounter-caption { position:absolute; inset:auto 0 0; z-index:2; width:100%; height:30%; padding:3.33333cqw; background:url('/safari/battle/dialogue.png') 0 0 / 100% 100%; image-rendering:pixelated; font-size:6.66667cqw; line-height:1; }
+.encounter-caption > span > span { text-transform:uppercase; }
+@media(prefers-reduced-motion:reduce) { .encounter-scene *, .encounter-scene *::before,.encounter-scene *::after { animation:none!important; transition:none!important; } }

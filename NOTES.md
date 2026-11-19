@@ -2,6 +2,36 @@
 
 ## Safari Zone (2026-11-18)
 
+Legendary and Mythical Safari visitors use deterministic UTC events in
+`features/safari/events.ts`. Nine Legendary visitors rotate weekly from Friday
+00:00 to Monday 00:00, at 1% per encounter in the visiting habitat. Six Mythical
+visitors rotate monthly from day 1 00:00 through day 8 00:00, at 0.25%. End times
+are exclusive. The event panel displays the current or next window for each
+class and links to the habitat. These are local game events that work offline.
+
+`encounterTable` combines weather-weighted ordinary species with eligible event
+visitors. Event weights scale with the ordinary total to preserve their exact
+probability after weather boosts and last-catch exclusions. Movement receives
+the same UTC date as the field guide. Event visitors remain in each habitat's
+species registry with zero ordinary weight, allowing saved encounters, SQL
+grading, catches and journal recovery to work after a window closes. Opening
+the event panel pauses keyboard walking. Tests compare every pool member's
+Legendary/Mythical classification with the bundled database.
+
+Successful SQL catches automatically reveal `SafariPokedexEntry` within the saved
+caught state, before returning to the trail. The registration card shows the
+sprite, species category, types, original height/weight, debut generation and an
+English Pokédex description with its source game. The existing catch transition,
+collection registration and Keep exploring/View Pokédex actions remain the owners
+of progress. Reloading a caught encounter restores the entry without executing SQL;
+repeat catches show the entry while preserving species deduplication.
+`scripts/build_pokedex_entries.py` generates descriptions for all 1,025 species in
+the bundled database using the shared CSV cache. It selects the highest available
+English version ID, normalizes whitespace and writes a committed local JSON
+catalogue in `shared/pokemon/`. The build checks coverage/category agreement.
+No database schema change, live API call, additional saved state or timed reveal
+phase is required. The descriptions and species artwork remain available offline.
+
 Nine areas stay open. Verdant Forest (10 forest species), Willow Wetlands
 (nine Water species) and Amber Ridge (eight Ground/Rock/Steel species) are joined
 by meadow, coast, desert, cave, tundra and volcanic habitats (eight species each). The
@@ -66,13 +96,22 @@ It reaches 720×480 (3×) on desktop, with the SQL notebook and catch summary in
 the same centred column. A fixed 250px/220px height previously made desktop
 battles stretch into a banner. Sprite positions, platform dimensions and entrance
 travel now scale inside the screen; mobile no longer overrides the battle's
-shape. `SafariBattleScene` owns the pixel renderer separately from the SQL
-notebook. FireRed/LeafGreen tilemaps supply the platforms and lower 48px dialogue
+shape. The shared `EncounterScene` owns the pixel renderer separately from the
+SQL notebook. Safari supplies its phases, messages and entrance/catch effects;
+the daily and random mysteries show the full-color sprite with its name as `???`
+until the exact species is guessed, then reveal its name.
+Sprite alpha bounds live in `shared/pokemon/sprite-bounds.json`, generated from
+the unchanged bundled PNGs and tied to their source digest by the asset check.
+FireRed/LeafGreen tilemaps supply the platforms and lower 48px dialogue
 frame; the supplied reference informs a warm striped grass backdrop, olive
 platform palette and slate/white text window. Sand, water and cave encounters use
 their native scenery; tundra applies a cool palette filter. The native opponent
-nameplate is widened for Dex identity/status, with its original level removed.
-There are no invented levels or HP mechanics. A local WOFF2 font traces the dark
+nameplate shows the name, a cosmetic random level from 5–50, and encounter status.
+New levels persist with Safari encounters and mystery rounds; older saves derive
+a stable level from their existing identity, preserving progress. Safari levels
+come from the controller's random encounter UUID, keeping movement pure. Mystery
+levels roll once when the round is created. Levels leave SQL grading unchanged;
+the decorative bar has no HP mechanics. A local WOFF2 font traces the dark
 pixels in the game's normal Latin glyph sheet and retains its advance widths;
 CSS adds its pixel shadow. All lettering scales with the 240px game coordinate system.
 Generated alpha bounds align unchanged PokéAPI sprites to the far platform,

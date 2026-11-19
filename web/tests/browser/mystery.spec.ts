@@ -71,6 +71,7 @@ test('research and invalid queries do not use guesses or change the practice dat
 
 test('mystery target, notebook, and draft survive offline reload without replaying SQL', async ({ page, context }) => {
   await seedRound(page);
+  const level = await page.locator('.encounter-nameplate small').textContent();
   await guess(page, 'SELECT id FROM pokedex WHERE id = 5');
   await edit(page, 'SELECT id FROM pokedex WHERE id = 6;');
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
@@ -78,7 +79,10 @@ test('mystery target, notebook, and draft survive offline reload without replayi
   await page.reload();
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+  await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(page.locator('.cm-content')).toContainText('WHERE id = 6');
+  await expect(page.locator('.encounter-nameplate h3')).toHaveText('???');
+  await expect(page.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
   await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toBeVisible();
   await expect(page.getByText('You found Charizard', { exact: false })).toHaveCount(0);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:mystery-round')!).targetId)).toBe(6);
@@ -98,6 +102,8 @@ test('matching every trait still requires the correct Pokémon', async ({ page }
   await expect(page.locator('.mystery-table .clue-correct')).toHaveCount(5);
   await expect(page.getByText('All five traits match, but this is a different species.', { exact: false })).toBeVisible();
   await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
+  await expect(page.getByRole('img', { name: 'Mystery Pokémon', exact: true })).toBeVisible();
+  await expect(page.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
 });
 
 test('cancellation preserves the mystery and does not add a guess', async ({ page }) => {

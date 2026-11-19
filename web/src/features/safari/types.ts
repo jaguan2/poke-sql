@@ -5,7 +5,11 @@ import type { QueryResult } from "../../shared/sql/types";
 export type AssignmentId = "field-notes" | "stat-scan" | "type-tracker" | "ability-survey";
 export type SafariFleeLimit = null | 5 | 8;
 export interface SafariCatch { encounterId: string; pokemon: PokemonProfile; attempts: number; caughtAt: string }
-export interface SafariEncounter { id: string; pokemonId: number; assignmentId: AssignmentId; attempts: number; outcome: "active" | "caught" | "fled"; fleeAfter: SafariFleeLimit }
+export interface SafariEncounter {
+  id: string; pokemonId: number; assignmentId: AssignmentId; attempts: number;
+  outcome: "active" | "caught" | "fled"; fleeAfter: SafariFleeLimit;
+  level?: number; // Absent in saves created before encounter levels.
+}
 export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
   steps: number; grassSteps: number; catches: number; encounter: SafariEncounter | null;

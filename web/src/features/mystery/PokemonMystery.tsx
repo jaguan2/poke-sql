@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { MysteryRound } from "./model";
 import { MYSTERY_HISTORY_LIMIT, mysterySolved } from "./model";
 import type { NumberClue, TypeClue } from "./types";
+import { MysteryEncounter } from "./MysteryEncounter";
 import "./PokemonMystery.css";
 
 export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom, onNew, onLeave }: {
@@ -24,7 +25,8 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
     </div>
     {mode === "daily" && <p className="mystery-date"><time dateTime={date}>{date}</time> · UTC · New challenge daily at 00:00 UTC</p>}
     {mode === "daily" && date && date !== today && <p className="notice" role="status">Today's daily challenge is available. This round stays on {date} so you can finish it. <button className="btn" disabled={busy} onClick={onDaily}>Open today's challenge</button></p>}
-    <p>One Pokémon is hiding in the original Pokédex. Use SQL to choose a Pokémon and compare its traits with the hidden answer.</p>
+    {round && <MysteryEncounter key={`${mode}:${date ?? "random"}:${round.targetId}`} round={round} daily={mode === "daily"} />}
+    <p>Use the sprite and SQL clues to identify the Pokémon. A correct guess reveals its name.</p>
     <div className="mystery-legend" aria-label="Clue legend"><span>✓ Green: exact</span><span>↔ Yellow: type in the other slot</span><span>↑ / ↓: look higher / lower</span><span>×: no match</span></div>
     <details><summary>How to play</summary>
       <p>Return exactly one row with an <code>id</code> or <code>name</code> column to submit a guess. Try <code>SELECT * FROM pokedex WHERE name = 'Pikachu';</code>, then use the clues to refine your next query.</p>
@@ -42,10 +44,10 @@ function ClueCell({ label, value, clue, higher, lower }: { label: string; value:
 
 export function MysteryNotebook({ round, daily = false, onOpenPokedex }: { round: MysteryRound; daily?: boolean; onOpenPokedex: () => void }) {
   const notebook = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (round.guessCount > 0) notebook.current?.scrollIntoView({ block: "nearest" });
-  }, [round.guessCount]);
   const solved = round.attempts.find(attempt => attempt.feedback.matched);
+  useEffect(() => {
+    if (round.guessCount > 0 && !solved) notebook.current?.scrollIntoView({ block: "nearest" });
+  }, [round.guessCount, solved]);
   const latest = round.attempts[round.attempts.length - 1]?.feedback;
   const sharedTraits = latest && !latest.matched && [latest.type1, latest.type2, latest.generation, latest.height, latest.weight].every(clue => clue === "correct");
   return <section ref={notebook} className="mystery-notebook" aria-label="Mystery notebook">

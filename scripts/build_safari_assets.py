@@ -140,7 +140,10 @@ def build():
             entry["recipeSha256"] = hashlib.sha256(json.dumps(recipe, separators=(",", ":")).encode()).hexdigest()
             entry["layoutSha256"] = hashlib.sha256(json.dumps(maps[Path(name).stem], separators=(",", ":")).encode()).hexdigest()
         manifest.append(entry)
-    metadata = {"spriteSourceSha256": sprite_source_hash, "spriteBounds": sprite_bounds, "assets": manifest}
+    bounds_file = ROOT / "web/src/shared/pokemon/sprite-bounds.json"
+    bounds_file.write_text(json.dumps(sprite_bounds, indent=2) + "\n", encoding="utf-8")
+    bounds_hash = hashlib.sha256(json.dumps(sprite_bounds, separators=(",", ":")).encode()).hexdigest()
+    metadata = {"spriteSourceSha256": sprite_source_hash, "spriteBoundsSha256": bounds_hash, "assets": manifest}
     (FEATURE / "assets.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     print(f"Built {len(recipes)} Emerald route maps, FireRed battle art/font/trainers, and {len(sprite_bounds)} sprite bounds.")
 

@@ -7,6 +7,9 @@ or a Windows desktop application. No account, cloud database, or backend.
 See the [application screenshots](docs/screenshots/README.md) for desktop SQL
 practice, daily mysteries, collections, and achievements across all eight themes.
 
+Browse the [Safari screenshot gallery](docs/screenshots/safari/README.md) for
+all nine habitats, encounters, SQL catches, Pokédex entries, and mobile views.
+
 ## Start the web app
 
 Use Node.js 22.12 or newer (Node 24 recommended).
@@ -82,6 +85,15 @@ See [releasing and testing updates](docs/RELEASING.md).
   The **Encounter table** shows the actual next-roll chances, including weather
   and the last caught species being skipped until you catch something different. Walking encounters draw
   from that same weighted table.
+  **Special events** lists active and upcoming Legendary and Mythical visitors,
+  their habitats, UTC start/end times, and exact encounter odds. A rotating
+  Legendary visits Friday–Sunday with a **1%** chance per encounter in its
+  habitat. A rotating Mythical visits on days **1–7 of each month** with a
+  **0.25%** chance. These visitors enter the encounter table during their event
+  window. Weather and shaking patches preserve their advertised odds. An
+  encounter already in progress can still be caught after the event ends,
+  including after an offline reload. Daily mystery date assignments continue
+  using their published schedule.
   Walk through tall grass, sand, snow, or cave patches for a chance encounter, or investigate the sparkling,
   shaking patch for a guaranteed encounter; it moves to fresh grass after each
   successful catch. Grass kicks up around your trainer before a split-screen
@@ -91,10 +103,15 @@ See [releasing and testing updates](docs/RELEASING.md).
   A centred SQL notebook sits beneath the game screen. The frame follows
   [Nintendo's GBA display specifications](https://www.nintendo.com/en-gb/Support/Legacy-system/Technical-data-619479.html).
   The field guide marks registered species and tracks each habitat's collection.
+  A small Poké Ball beside a Pokémon's name means it's already in your Pokédex.
   Saved encounters resume without replaying their entrance. Assignments progress
   through filtering, selecting stats, joining types, and surveying abilities,
-  then cycle. Correct results register a catch in your Pokédex and achievements;
-  incorrect queries and leaving an encounter add nothing. Settings → Safari
+  then cycle. Correct results register a catch in your Pokédex and achievements.
+  A Pokédex entry automatically reveals the caught Pokémon's sprite, category,
+  types, height, weight, generation, and English game description. Keep exploring
+  or open your collection afterward. Entries remain available offline and after
+  reloading a caught encounter, including older saves.
+  Incorrect queries and leaving an encounter add nothing. Settings → Safari
   encounters offers **unlimited attempts** (the default), **5 incorrect answers**,
   or **8 incorrect answers** before a Pokémon flees. Remaining chances and warning
   dialogue make the limit clear. Hints, SQL errors, stopped queries and timeouts
@@ -112,7 +129,9 @@ See [releasing and testing updates](docs/RELEASING.md).
   Grass encounters pair native platforms with a warm striped backdrop; a light
   dialogue window and compact Dex/status plate follow the supplied game references.
   Pokémon keep their native proportions, with transparent margins removed at display time
-  so their feet sit on the platform. The plate shows Dex identity and catch status.
+  so their feet sit on the platform. The plate shows the name, a random level
+  from 5–50, and catch status. Levels stay fixed for an encounter through guesses
+  and reloads; they are cosmetic and leave SQL grading unchanged.
   Route sections use Emerald's original layouts and metatiles, adapted to the
   Safari walking game. Existing clearing saves retain their catches, active
   assignments and SQL drafts; the trainer moves to the new route's trailhead.
@@ -149,6 +168,10 @@ See [releasing and testing updates](docs/RELEASING.md).
   Existing discoveries count automatically, and progress works offline. Goal
   totals come from the original bundled database, independent of practice edits.
 - **Who’s That Pokémon?** A daily hidden species and a SQL guessing notebook.
+  A Safari-style 3:2 battle scene shows the trainer facing the Pokémon's full-color
+  sprite. A random level from 5–50 appears beside its hidden name, shown as `???`.
+  A correct SQL guess reveals the name. Daily and random rounds both use
+  this encounter view, and their levels persist with saved progress.
   Everyone using the same app version gets the same Pokémon for a UTC date;
   the next challenge becomes available at **00:00 UTC**. The fixed shuffled
   schedule visits all 1,025 species before repeating, so no calendar year has
@@ -248,13 +271,14 @@ close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
 
-Safari offers 72 distinct species across nine habitats (75 encounter-pool slots,
+Safari offers 72 regular species plus nine Legendary and six Mythical event
+visitors across nine habitats (87 distinct species and 90 habitat slots,
 including species shared by habitats). Route graphics and field effects come
 from the [Pokémon Emerald archive](https://github.com/pret/pokeemerald); Red's trainer
 sprites, battle graphics and lettering come from the
 [FireRed/LeafGreen archive](https://github.com/pret/pokefirered).
 Trainer PNGs are unchanged, with native transparency. Battle palettes and frames
-are adapted for the Safari interface. See the
+are adapted for the Safari and mystery encounter interfaces. See the
 [Safari asset credits](web/public/safari/CREDITS.txt). Assets ship locally and
 their hashes are checked by the build.
 
@@ -312,6 +336,7 @@ is only required to rebuild the dataset:
 
 ```powershell
 py scripts/build_db.py --refresh
+py scripts/build_pokedex_entries.py --refresh
 cd web
 npm run sprites          # download any missing sprites for the rebuilt DB
 ```
@@ -319,6 +344,11 @@ npm run sprites          # download any missing sprites for the rebuilt DB
 The sprite downloader validates PNG headers, retries failures, and uses atomic
 file replacement. `npm run sprites -- --refresh` re-downloads existing sprites.
 Every production build verifies that all database species have a local sprite.
+It also verifies the bundled Pokédex descriptions cover every species and match
+the database's categories. `scripts/build_pokedex_entries.py` reads the existing
+database without modifying it, uses cached PokéAPI species flavor text and version
+names, chooses the English entry with the highest available version ID, and
+normalizes the game's line and page breaks. Game versions are shown on each entry.
 
 ## Code organization
 

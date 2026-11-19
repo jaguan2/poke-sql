@@ -1,0 +1,14 @@
+.safari-events { margin:0 0 18px; border:1px solid var(--border); border-radius:12px; background:var(--panel-raised); }
+.safari-events > summary { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; color:var(--highlight); font-size:13px; font-weight:650; }
+.safari-events > summary > span { font-size:11px; font-weight:400; }
+.safari-event-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:0 14px 14px; }
+.safari-event { display:flex; align-items:start; gap:12px; min-width:0; padding:14px; border:1px solid var(--border); border-radius:12px; background:var(--panel); }
+.safari-event img { flex:none; image-rendering:pixelated; }
+.safari-event > div { min-width:0; }
+.safari-event h3 { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 8px; font-size:17px; }
+.safari-event h3 span { color:var(--highlight); font-size:10px; font-weight:500; }
+.safari-event p { color:var(--text-dim); font-size:11px; line-height:1.6; overflow-wrap:anywhere; }
+.safari-event .btn { margin-top:6px; font-size:11px; }
+.safari-event-note { margin:0 14px 14px; color:var(--text-dim); font-size:11px; line-height:1.6; }
+@media(max-width:1100px) { .safari-event-list { grid-template-columns:1fr; } }
+@media(max-width:620px) { .safari-event-list { padding-inline:10px; }.safari-event { padding:10px;gap:8px; }.safari-event img { width:48px;height:48px; }.safari-event .btn { min-height:40px;max-width:100%;white-space:normal; } }

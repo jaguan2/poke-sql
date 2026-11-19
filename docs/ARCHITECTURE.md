@@ -54,6 +54,17 @@ web/
   when multiple consumers need it and it has no application-specific ownership.
   For example, both the mystery notebook and collection use `PokemonProfile`;
   the collection and SQL results use the same type badge.
+  Safari and the mystery share `shared/ui/EncounterScene` and generated sprite
+  bounds in `shared/pokemon/`. Each feature owns its reveal/encounter behavior;
+  the shared renderer receives identity, sprite visibility and dialogue.
+  `shared/pokemon/pokedex-entries.json` is generated from PokéAPI CSVs by
+  `scripts/build_pokedex_entries.py`; its categories and coverage are checked
+  against the bundled database. Safari's catch screen combines this local
+  catalogue with the verified catch profile to display the registered entry.
+  Safari event windows and visitor definitions live in `features/safari/events.ts`.
+  The encounter table supplies eligibility and odds to both the field guide and
+  movement rolls. The full habitat registry also retains event species for
+  saved encounter validation and SQL grading after their window closes.
 - **Cross-feature contracts are explicit and type-only.** The Pokédex accepts
   the mystery round contract to register solved targets. Runtime coordination
   lives in `use-workspace.ts` and `app/database/worker.ts`.

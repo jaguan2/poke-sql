@@ -6,6 +6,10 @@ These are actual application screenshots: SQL examples and guesses ran through
 the worker. Collection previews use demo saves with canonical Pokémon traits;
 no personal workspace was used.
 
+The [latest Safari gallery](safari/README.md) adds all nine habitats, eight
+Poké Ball themes, encounter scenes, Pokédex registration, the caught marker,
+and a mobile view. Its images are stored in `docs/screenshots/safari/`.
+
 The daily puzzle is dated January 1, 2026, so the photos do not reveal today's
 answer. The solved random round uses a demonstration target of Dragonite.
 

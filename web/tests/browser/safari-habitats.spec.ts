@@ -39,7 +39,7 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
   await page.getByRole('button', { name: 'Move left', exact: true }).click();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
-  await expect(page.locator('.safari-battle-trainer')).toHaveCSS('background-image', /trainer-battle\.png/);
+  await expect(page.locator('.encounter-trainer')).toHaveCSS('background-image', /trainer-battle\.png/);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);

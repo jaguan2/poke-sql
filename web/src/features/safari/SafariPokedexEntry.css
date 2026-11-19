@@ -1,0 +1,23 @@
+.safari-pokedex-entry { overflow:hidden; border:1px solid var(--border); border-radius:16px; background:var(--panel); text-align:left; }
+.safari-pokedex-entry > header { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--panel-raised); color:var(--highlight); font-size:13px; font-weight:650; }
+.safari-entry-light { width:12px; height:12px; flex-shrink:0; border-radius:50%; background:#53b8ce; box-shadow:inset 0 0 0 3px #ffffff70,0 0 0 1px #287d8e; }
+.safari-entry-profile { display:grid; grid-template-columns:192px minmax(0,1fr); align-items:center; gap:24px; padding:22px; }
+.safari-entry-portrait { display:grid; place-items:center; aspect-ratio:1; border:1px solid var(--border); border-radius:14px; background:repeating-linear-gradient(0deg,transparent 0 15px,#78948012 15px 16px),var(--panel-raised); }
+.safari-entry-portrait img { display:block; width:100%; height:auto; image-rendering:pixelated; }
+.safari-entry-identity h3 { margin:0 0 4px; color:var(--text); font-size:28px; overflow-wrap:anywhere; }
+.safari-pokedex-entry .safari-entry-identity p { margin:0 0 12px; color:var(--text-dim); font-size:13px; }
+.safari-entry-types { display:flex; flex-wrap:wrap; gap:6px; }
+.safari-entry-identity dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:18px 0 0; }
+.safari-entry-identity dt { color:var(--text-dim); font-size:10px; }
+.safari-entry-identity dd { margin:5px 0 0; color:var(--text); font-size:14px; font-weight:600; }
+.safari-pokedex-entry .safari-entry-description { margin:0 22px; padding:18px 0; border-top:1px solid var(--border); color:var(--text); font-size:15px; line-height:1.8; }
+.safari-pokedex-entry > footer { padding:0 22px 18px; color:var(--text-dim); font-size:10px; line-height:1.5; }
+@media(max-width:620px) {
+  .safari-entry-profile { grid-template-columns:1fr; gap:16px; padding:18px; }
+  .safari-entry-portrait { width:min(192px,100%); margin:auto; }
+  .safari-entry-identity { text-align:center; }.safari-entry-identity h3 { font-size:25px; }
+  .safari-entry-types { justify-content:center; }
+  .safari-entry-identity dl { gap:6px; }.safari-entry-identity dd { font-size:13px; }
+  .safari-pokedex-entry .safari-entry-description { margin-inline:18px; font-size:14px; }
+  .safari-pokedex-entry > footer { padding-inline:18px; }
+}

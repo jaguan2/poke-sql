@@ -2,6 +2,7 @@ import type { Database } from "sql.js";
 import { runStatements } from "../../shared/sql/engine";
 import type { QueryResult } from "../../shared/sql/types";
 import { isPokemonProfile } from "../../shared/pokemon/profile";
+import { isEncounterLevel } from "../../shared/pokemon/encounter-level";
 import type { MysteryGuess, NumberClue, TypeClue } from "./types";
 import type { PokemonProfile } from "../../shared/pokemon/profile";
 
@@ -9,6 +10,7 @@ export const MYSTERY_INITIAL_QUERY = "-- Return one Pokémon to make a guess.\nS
 export const MYSTERY_HISTORY_LIMIT = 30;
 export interface MysteryRound {
   targetId: number;
+  level?: number; // Absent in saves created before encounter levels.
   guessCount: number;
   attempts: { sql: string; feedback: MysteryGuess }[];
 }
@@ -84,7 +86,8 @@ const isPositiveInteger = (value: unknown): value is number => typeof value === 
 // their nested clues, while keeping the rest of the workspace usable.
 export function isMysteryRound(value: unknown): value is MysteryRound | null {
   if (value === null) return true;
-  if (!isRecord(value) || !isPositiveInteger(value.targetId) || !Number.isSafeInteger(value.guessCount) || Number(value.guessCount) < 0
+  if (!isRecord(value) || !isPositiveInteger(value.targetId) || value.targetId > 1025
+    || (value.level !== undefined && !isEncounterLevel(value.level)) || !Number.isSafeInteger(value.guessCount) || Number(value.guessCount) < 0
     || !Array.isArray(value.attempts) || value.attempts.length > MYSTERY_HISTORY_LIMIT || value.attempts.length > Number(value.guessCount)) return false;
   return value.attempts.every(attempt => {
     if (!isRecord(attempt) || typeof attempt.sql !== "string" || attempt.sql.length > 100_000 || !isRecord(attempt.feedback)) return false;

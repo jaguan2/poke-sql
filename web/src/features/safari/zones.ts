@@ -1,10 +1,11 @@
 import maps from "./maps.json" with { type: "json" };
+import { SAFARI_EVENT_VISITORS, safariEvents } from "./events";
 
 export type ZoneId = keyof typeof maps;
 export type WeatherId = "clear" | "rain" | "fog" | "sandstorm" | "snow" | "sun";
 export type Direction = "up" | "down" | "left" | "right";
 export interface Position { x: number; y: number }
-export interface SafariSpecies { id: number; name: string; weight: number; rarity: "Common" | "Uncommon" | "Rare"; favoredWeather: readonly WeatherId[] }
+export interface SafariSpecies { id: number; name: string; weight: number; rarity: "Common" | "Uncommon" | "Rare" | "Legendary" | "Mythical"; favoredWeather: readonly WeatherId[] }
 export interface SafariZoneDefinition {
   id: ZoneId; name: string; subtitle: string; description: string;
   accent: string; ground: string; canopy: string; icon: string;
@@ -19,7 +20,7 @@ const common = (id: number, name: string, ...favoredWeather: WeatherId[]): Safar
 const uncommon = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 3, rarity: "Uncommon", favoredWeather });
 const rare = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 1, rarity: "Rare", favoredWeather });
 
-export const SAFARI_ZONES: readonly SafariZoneDefinition[] = [
+const REGULAR_ZONES: readonly SafariZoneDefinition[] = [
   {
     id: "forest", battleTerrain: "grass", name: "Verdant Forest", subtitle: "Bug & Grass country",
     description: "Sunlight catches the canopy. Bug Pokémon shelter in the grass, with a few elusive forest neighbours.",
@@ -94,6 +95,10 @@ export const SAFARI_ZONES: readonly SafariZoneDefinition[] = [
   },
 ];
 
+export const SAFARI_ZONES: readonly SafariZoneDefinition[] = REGULAR_ZONES.map(zone => ({
+  ...zone, species: [...zone.species, ...SAFARI_EVENT_VISITORS.filter(visitor => visitor.zoneId === zone.id)],
+}));
+
 export const zoneById = (id: ZoneId): SafariZoneDefinition => SAFARI_ZONES.find(zone => zone.id === id)!;
 export const isZoneId = (id: unknown): id is ZoneId => SAFARI_ZONES.some(zone => zone.id === id);
 export const tileAt = (zone: SafariZoneDefinition, position: Position): string | undefined => zone.map[position.y]?.[position.x];
@@ -116,14 +121,23 @@ export function movePosition(zone: SafariZoneDefinition, position: Position, dir
   const next = { x: position.x + delta[0], y: position.y + delta[1] };
   return isWalkable(zone, next) ? next : position;
 }
-export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number, weather: WeatherId = "clear"): SafariSpecies {
-  const { rows, totalWeight } = encounterTable(zone, weather, previousId);
+export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number, weather: WeatherId = "clear", date?: string): SafariSpecies {
+  const { rows, totalWeight } = encounterTable(zone, weather, previousId, date);
   let remaining = Math.max(0, Math.min(roll, 0.999999)) * totalWeight;
   return (rows.find(row => (remaining -= row.weight) < 0) ?? rows[rows.length - 1]).pokemon;
 }
-export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = "clear", previousId?: number) {
-  const eligible = zone.species.filter(pokemon => pokemon.id !== previousId)
+export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = "clear", previousId?: number, date?: string) {
+  const eligible = zone.species.filter(pokemon => pokemon.id !== previousId && pokemon.weight > 0)
     .map(pokemon => ({ pokemon, weight: encounterWeight(pokemon, weather) }));
+  const ordinaryWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
+  const visits = date ? safariEvents(date).filter(event => event.active && event.visitor.zoneId === zone.id
+    && event.visitor.id !== previousId && zone.species.some(pokemon => pokemon.id === event.visitor.id)) : [];
+  const visitorChance = visits.reduce((sum, event) => sum + event.chance, 0);
+  // Scale from the ordinary pool so weather and last-catch exclusions preserve
+  // each visitor's advertised probability.
+  for (const event of visits) {
+    eligible.push({ pokemon: event.visitor, weight: ordinaryWeight * event.chance / (1 - visitorChance) });
+  }
   const totalWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
   return { totalWeight, rows: eligible.map(row => ({ ...row, chance: row.weight / totalWeight })) };
 }

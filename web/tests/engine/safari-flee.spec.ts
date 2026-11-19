@@ -13,7 +13,7 @@ for (const limit of [5, 8] as const) {
     const SQL = await initSqlJs();
     const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
     try {
-      let session = walkSafari(nearSafariGrass(), 'left', 0, 0, 'wild', 'clear', limit);
+      let session = walkSafari(nearSafariGrass(), 'left', 0, 0, 'wild', { weather: 'clear', fleeAfter: limit });
       const wrong = checkSafariQuery(db, 'SELECT 1;', 10, 'field-notes');
       const right = checkSafariQuery(db, correct, 10, 'field-notes');
       for (let attempt = 1; attempt < limit; attempt++) {
@@ -50,7 +50,7 @@ test('query errors, stale replies and unverified successes preserve chances and 
   const SQL = await initSqlJs();
   const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
   try {
-    const session = walkSafari(nearSafariGrass(), 'left', 0, 0, 'current', 'clear', 5);
+    const session = walkSafari(nearSafariGrass(), 'left', 0, 0, 'current', { weather: 'clear', fleeAfter: 5 });
     const right = checkSafariQuery(db, correct, 10, 'field-notes');
     for (const reply of [{ error: 'Query stopped.' }, { error: 'near SELEC: syntax error' }, {},
       { passed: true }, { ...right, safariPokemon: { ...right.safariPokemon, id: 13 } }]) {
@@ -59,8 +59,8 @@ test('query errors, stale replies and unverified successes preserve chances and 
     expect(recordSafariReply(session, 'older-encounter', right, at)).toEqual(session);
     const caught = recordSafariReply(session, 'current', right, at);
     expect(caught).toMatchObject({ catches: 1, encounter: { attempts: 1, outcome: 'caught' } });
-    let next = walkSafari({ ...caught, encounter: null }, 'right', 0, 0, 'walk', 'clear', 5);
-    next = walkSafari(next, 'left', 0, 0, 'next', 'clear', 5);
+    let next = walkSafari({ ...caught, encounter: null }, 'right', 0, 0, 'walk', { weather: 'clear', fleeAfter: 5 });
+    next = walkSafari(next, 'left', 0, 0, 'next', { weather: 'clear', fleeAfter: 5 });
     const target = next.encounter!;
     for (let attempt = 0; attempt < 5; attempt++) {
       const wrong = checkSafariQuery(db, 'SELECT 1;', target.pokemonId, target.assignmentId);
@@ -88,7 +88,7 @@ test('version 2 tasks migrate with unlimited chances, their existing draft and c
 });
 
 test('saved outcomes reject impossible counters and preserve a genuine fled state', () => {
-  const active = walkSafari(nearSafariGrass(), 'left', 0, 0, 'wild', 'clear', 5);
+  const active = walkSafari(nearSafariGrass(), 'left', 0, 0, 'wild', { weather: 'clear', fleeAfter: 5 });
   for (const encounter of [
     { ...active.encounter, outcome: 'fled', attempts: 4 }, { ...active.encounter, outcome: 'fled', attempts: 5, fleeAfter: null },
     { ...active.encounter, attempts: 5 }, { ...active.encounter, fleeAfter: 3 }, { ...active.encounter, outcome: 'unknown' },

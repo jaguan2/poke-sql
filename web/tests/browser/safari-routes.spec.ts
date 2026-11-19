@@ -70,7 +70,7 @@ test('old clearing saves retain catches, active SQL, and attempts when moved to 
   await expect(page.locator('.cm-content')).toHaveText('SELECT name, hp, attack, speed FROM pokemon WHERE id=13;');
   await expect(page.locator('.safari-query-actions')).toContainText('2 checked queries');
   await expect(page.locator('.safari-pass strong')).toHaveText('01');
-  await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!))).toMatchObject({
     version: 3, position: { x: 10, y: 17 }, steps: 47, catches: 1,
     encounter: { id: 'old-grass', attempts: 2, outcome: 'active', fleeAfter: null },

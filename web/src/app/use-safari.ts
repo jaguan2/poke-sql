@@ -26,7 +26,8 @@ function reducer(state: State, action: Action): State {
     case "move": {
       if (state.phase !== "roaming") return state;
       const weather = weatherFor(zoneById(state.session.zoneId), action.date);
-      const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id, weather, action.fleeAfter);
+      const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id,
+        { weather, fleeAfter: action.fleeAfter, date: action.date });
       return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };

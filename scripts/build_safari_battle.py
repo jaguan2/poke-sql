@@ -99,7 +99,7 @@ def build_nameplate(target):
         rgba.putdata([colors[value] + (255 if value else 0,) for value in tile.getdata()])
         image.alpha_composite(rgba, ((index // 32) * 64 + index % 8 * 8, index % 32 // 8 * 8))
     image = image.crop((0, 0, 104, 32))
-    # Safari shows real Dex identity/status instead of inventing a battle level.
+    # Clear the baked-in level label; the renderer supplies scalable level text.
     ImageDraw.Draw(image).rectangle((56, 8, 66, 15), fill=colors[2] + (255,))
     extended = Image.new("RGBA", (112, 32))
     extended.alpha_composite(image.crop((0, 0, 48, 32)))

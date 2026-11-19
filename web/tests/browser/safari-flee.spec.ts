@@ -33,6 +33,7 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await seed(page); await page.goto('/'); await limit(page, '5');
   await page.reload();
   await encounter(page);
+  const level = await page.locator('.encounter-nameplate small').textContent();
   const chances = page.getByRole('progressbar', { name: 'Catch chances remaining' });
   await expect(chances).toHaveAttribute('value', '5');
   await page.getByText('Need a hint?', { exact: true }).click();
@@ -44,7 +45,8 @@ test('five chances warn before fleeing, persist through offline reload and allow
     await submit(page);
     await expect(chances).toHaveAttribute('value', String(remaining));
   }
-  await expect(page.locator('.safari-encounter-caption')).toHaveText('Caterpie seems wary…');
+  await expect(page.locator('.encounter-caption')).toHaveText('Caterpie seems wary…');
+  await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true); await page.reload();
   await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
@@ -52,10 +54,11 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await expect(chances).toHaveAttribute('max', '5');
   await submit(page);
   await expect(chances).toHaveAttribute('value', '1');
-  await expect(page.locator('.safari-encounter-caption')).toHaveText('Caterpie looks ready to flee!');
+  await expect(page.locator('.encounter-caption')).toHaveText('Caterpie looks ready to flee!');
   await page.locator('.safari-battle-scene').screenshot({ path: info.outputPath('last-chance.png'), animations: 'disabled' });
   await submit(page);
-  await expect(page.locator('.safari-encounter-caption')).toHaveText('Oh no! Caterpie fled!');
+  await expect(page.locator('.encounter-caption')).toHaveText('Oh no! Caterpie fled!');
+  await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(page.getByRole('heading', { name: 'Caterpie slipped away.' })).toBeVisible();
   await expect(page.locator('.safari-fled-summary')).toContainText('Return exactly 4 columns');
   await expect(page.locator('.safari-pass strong')).toHaveText('00');
@@ -75,7 +78,7 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await page.keyboard.press('d'); await page.waitForTimeout(130); await page.keyboard.press('a');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   await expect(chances).toHaveAttribute('value', '8');
-  await expect(page.locator('.safari-encounter-caption')).toHaveText('A wild Caterpie appeared!');
+  await expect(page.locator('.encounter-caption')).toHaveText('A wild Caterpie appeared!');
   await submit(page, correct);
   await expect(page.getByText('Gotcha! Caterpie was caught!', { exact: true })).toBeVisible();
 });

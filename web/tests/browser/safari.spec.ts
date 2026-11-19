@@ -40,11 +40,11 @@ test('restored encounters do not replay the battle entrance', async ({ page }) =
   await seed(page, saved);
   await open(page);
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
-  await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
-  await expect(page.locator('.safari-battle-trainer')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-trainer')).toHaveCSS('animation-name', 'none');
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
-  await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
 });
 
 test('fresh encounters rustle on the map, slide into battle, and then unlock the SQL catch', async ({ page }, info) => {
@@ -55,12 +55,12 @@ test('fresh encounters rustle on the map, slide into battle, and then unlock the
   await expect(page.getByText('Something is moving in the grass!', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Move left', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
-  await expect(page.locator('.is-entering .safari-wild-sprite')).toHaveCSS('animation-name', 'safari-slide-wild');
-  await expect(page.locator('.is-entering .safari-battle-trainer')).toHaveCSS('animation-name', 'safari-slide-trainer');
+  await expect(page.locator('.is-entering .encounter-sprite')).toHaveCSS('animation-name', 'safari-slide-wild');
+  await expect(page.locator('.is-entering .encounter-trainer')).toHaveCSS('animation-name', 'safari-slide-trainer');
   await expect(page.locator('.safari-battle-wipe span').first()).toHaveCSS('animation-name', 'safari-wipe-left');
   await page.screenshot({ path: info.outputPath('sliding-encounter.png') });
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeEnabled();
-  await expect(page.locator('.safari-wild-sprite')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
 });
 
 test('successful catches register habitat progress and move the shaking patch; leaving does neither', async ({ page }, info) => {
@@ -132,7 +132,7 @@ test('rustling grass opens a sliding encounter; only a correct SQL assignment re
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.getByRole('button', { name: 'Move left', exact: true }).click();
   await expect(page.locator('.safari-encounter')).toHaveClass(/is-entering/);
-  expect(await page.locator('.safari-wild-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('safari-slide-wild');
+  expect(await page.locator('.encounter-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('safari-slide-wild');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId as number);
   await edit(page, `SELECT id, name, type1, type2\nFROM pokedex\nWHERE id = ${id};`);
@@ -349,7 +349,7 @@ test('mobile Safari controls and SQL catch layout fit without nested page scroll
     if (width === 320) {
       await encounter(page);
       await expect(page.locator('.safari-battle-scene')).toBeInViewport();
-      expect(await page.locator('.safari-wild-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+      expect(await page.locator('.encounter-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
       await page.locator('.safari-query-actions').scrollIntoViewIfNeeded();
       await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeInViewport();
       const nested = await page.locator('.app,.body,.main,.safari-zone,.safari-assignment').evaluateAll(elements => elements.some(el => /auto|scroll/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1));

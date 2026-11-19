@@ -24,6 +24,7 @@ Terrain maps and field effects
   web/src/features/safari/maps.json and the matching PNGs together.
 
 Trainer sprites, battle scenery, window frames and lettering
+  Shared by Safari battles and daily/random mystery encounter scenes.
   Pokemon FireRed/LeafGreen assets archived by https://github.com/pret/pokefirered
   Pinned revision: ce6406d8c2eaf46d543c8a2606de0c3cb1951982
   https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics
@@ -40,15 +41,16 @@ Trainer sprites, battle scenery, window frames and lettering
     Native 240x48 dialogue geometry with an adapted slate/white palette.
   battle/nameplate.png:
     graphics/battle_interface/healthbox_singles_opponent.png, healthbox.pal
-    Reassembled OAM tiles; widened 8px and the level label removed to display
-    actual Dex identity and WILD/CAUGHT status instead of invented battle stats.
+    Reassembled OAM tiles; widened 8px and the baked-in level label cleared.
+    The renderer displays the name, a cosmetic random level and encounter status.
   battle/pixel.woff2:
     graphics/fonts/latin_normal.png, charmap.txt, src/text.c
     Glyph outlines follow dark source pixels; advance widths follow the original
     normal Latin font. Generated locally with FontTools, without an external font.
   Build implementation: scripts/build_safari_battle.py, scripts/safari_sources.py.
-  Generated sprite alpha bounds use unchanged bundled PokeAPI PNGs. The manifest
-  binds those bounds to the original files with a combined SHA-256 digest.
+  Generated sprite alpha bounds in web/src/shared/pokemon/sprite-bounds.json use
+  unchanged bundled PokeAPI PNGs. The Safari manifest binds the bounds to their
+  original files with source and canonical-JSON SHA-256 digests.
 
 Field interface, weather overlays, and transition animation
   CSS/UI made for PokeSQL, inspired by classic Pokemon and the Wild Area.
@@ -56,6 +58,15 @@ Field interface, weather overlays, and transition animation
 Pokemon portraits reuse the existing bundled PokeAPI default species sprites:
 https://github.com/PokeAPI/sprites
 No external sprite, terrain or font requests are made at runtime.
+
+Registered Pokédex entries
+  English game descriptions and version names are from the PokeAPI CSV dumps:
+  https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv
+  pokemon_species_flavor_text.csv and version_names.csv.
+  Species categories use pokemon_species_names.csv through the bundled database.
+  Rebuild with scripts/build_pokedex_entries.py. Highest available English version
+  ID per species; game line/page breaks are normalized to spaces. Source games
+  are shown with the descriptions. This catalogue is bundled for offline use.
 Game artwork and lettering belong to Nintendo, Game Freak and Creatures.
 The pret archives are decompilation sources, not asset licenses from those owners.
 This is an unofficial educational fan project with no affiliation or endorsement.

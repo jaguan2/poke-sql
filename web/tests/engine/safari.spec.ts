@@ -42,7 +42,7 @@ test('Safari maps have connected safe starts and reachable encounter grass, with
       for (const species of zone.species) {
         const row = db.exec('SELECT name, type1, type2 FROM pokedex WHERE id=?', [species.id])[0].values[0];
         expect(row[0]).toBe(species.name);
-        const expected = { forest: ['bug', 'grass', 'electric'], wetlands: ['water'], ridge: ['rock', 'ground', 'steel'], meadow: ['normal', 'flying', 'fairy', 'psychic'], coast: ['water', 'flying'], desert: ['ground', 'grass', 'dragon'], cave: ['rock', 'ground', 'dark', 'ghost', 'poison', 'flying'], tundra: ['ice'], volcano: ['fire', 'rock'] }[zone.id];
+        const expected = { forest: ['bug', 'grass', 'electric'], wetlands: ['water'], ridge: ['rock', 'ground', 'steel'], meadow: ['normal', 'flying', 'fairy', 'psychic', 'grass'], coast: ['water', 'flying'], desert: ['ground', 'grass', 'dragon'], cave: ['rock', 'ground', 'dark', 'ghost', 'poison', 'flying', 'psychic'], tundra: ['ice'], volcano: ['fire', 'rock'] }[zone.id];
         expect(expected.some(type => row.slice(1).includes(type))).toBe(true);
       }
     }
@@ -150,9 +150,13 @@ test('Safari save validation rejects impossible positions, forged pools and brok
   expect(isSafariSession(JSON.parse(JSON.stringify(initial)))).toBe(true);
   const active = walkSafari(nearSafariGrass(), 'left', 0, 0, 'encounter');
   expect(isSafariSession(active)).toBe(true);
+  expect(active.encounter!.level).toBeGreaterThanOrEqual(5);
+  expect(active.encounter!.level).toBeLessThanOrEqual(50);
+  expect(isSafariSession({ ...active, encounter: { ...active.encounter, level: undefined } })).toBe(true);
   for (const value of [null, {}, { ...initial, position: { x: 0, y: 0 } }, { ...initial, zoneId: 'unknown' },
     { ...initial, steps: -1 }, { ...active, encounter: { ...active.encounter, pokemonId: 1025 } },
     { ...active, encounter: { ...active.encounter, assignmentId: 'unknown' } },
+    ...[null, '12', 4, 51, 12.5].map(level => ({ ...active, encounter: { ...active.encounter, level } })),
     { ...active, encounter: { ...active.encounter, outcome: "caught", fleeAfter: null } }]) expect(isSafariSession(value)).toBe(false);
   const [entry] = await entriesFor([10]);
   const caught = { ...active, encounter: { ...active.encounter!, outcome: "caught", fleeAfter: null, attempts: 1 }, catches: 1,

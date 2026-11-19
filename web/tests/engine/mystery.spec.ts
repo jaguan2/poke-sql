@@ -87,7 +87,8 @@ test('round persistence validates nested data, retains recent guesses, and freez
   expect(mysterySolved(solved)).toBe(true);
   expect(recordMysteryGuess(solved, 'SELECT 1 AS id', feedback)).toBe(solved);
   for (const invalid of [
-    {}, { ...round, targetId: -1 }, { ...round, guessCount: '32' }, { ...round, attempts: [null] },
+    {}, { ...round, targetId: -1 }, { ...round, targetId: 1026 }, { ...round, guessCount: '32' }, { ...round, attempts: [null] },
+    ...[null, '12', 4, 51, 12.5].map(level => ({ ...round, level })),
     { ...round, attempts: [{ sql: 'SELECT 1', feedback: { ...feedback, height: 'bogus' } }] },
     { ...round, attempts: [{ sql: 'SELECT 1', feedback: { ...feedback, pokemon: { ...pokemon, heightM: '0.7' } } }] },
   ]) expect(isMysteryRound(invalid)).toBe(false);

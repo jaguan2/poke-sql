@@ -1,4 +1,5 @@
 import { isMysteryRound } from "./model";
+import { encounterLevel } from "../../shared/pokemon/encounter-level";
 import type { MysteryRound } from "./model";
 
 export const DAILY_SCHEDULE_VERSION = 1;
@@ -42,7 +43,7 @@ export interface DailyMysteryRound extends MysteryRound {
 }
 
 export function createDailyMysteryRound(date: string): DailyMysteryRound {
-  return { date, scheduleVersion: DAILY_SCHEDULE_VERSION, targetId: dailyPokemonForDate(date), guessCount: 0, attempts: [] };
+  return { date, scheduleVersion: DAILY_SCHEDULE_VERSION, targetId: dailyPokemonForDate(date), level: encounterLevel(), guessCount: 0, attempts: [] };
 }
 
 export function isDailyMysteryRound(value: unknown): value is DailyMysteryRound | null {
