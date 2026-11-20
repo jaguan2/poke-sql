@@ -2,13 +2,14 @@ import { test, expect } from '@playwright/test';
 import initSqlJs from 'sql.js';
 import { readFileSync } from 'node:fs';
 import { SAFARI_ZONES, chooseSpecies, encounterTable, featuredZone, isWalkable, movePosition, rustlingPatch, tileAt, weatherFor, zoneById } from '../../src/features/safari/zones';
-import { ASSIGNMENTS, changeSafariZone, createSafariSession, isSafariSession, walkSafari } from '../../src/features/safari/model';
+import { ASSIGNMENTS, SHINY_ODDS, changeSafariZone, createSafariSession, isSafariSession, restoreSafariSession, walkSafari } from '../../src/features/safari/model';
 import { checkSafariQuery, safariAssignment } from '../../src/features/safari/assignments';
 import { recordSafariEncounter, recordSolvedEncounter, isPokemonEncounters } from '../../src/features/pokedex/encounters';
 import { compareMysteryPokemon } from '../../src/features/mystery/model';
 import { entriesFor } from '../fixtures/pokemon-encounters';
 import { nearSafariGrass } from '../fixtures/safari';
 import { RANGER_POSITIONS, rangerSighting } from '../../src/features/safari/ranger';
+import { hasShinySprite } from '../../src/shared/pokemon/sprites';
 
 test('Safari maps have connected safe starts and reachable encounter grass, with biome-appropriate canonical pools', async () => {
   const SQL = await initSqlJs();
@@ -102,6 +103,22 @@ test('the encounter table and actual rolls share rarity weights, weather boosts 
   expect(rain.rows.map(row => [row.pokemon.id, row.chance])).toEqual([[46, 0.6], [25, 0.4]]);
   expect(chooseSpecies(zone, 0.65, 10, 'rain').id).toBe(25);
   expect(chooseSpecies(zone, 0.65, 10, 'clear').id).toBe(46);
+});
+
+test('the separate shiny roll covers the entire Safari pool and is fixed at the encounter', () => {
+  const ids = new Set(SAFARI_ZONES.flatMap(zone => zone.species.map(pokemon => pokemon.id)));
+  expect([...ids].filter(id => !hasShinySprite(id))).toEqual([]);
+
+  const near = nearSafariGrass();
+  const shiny = walkSafari(near, 'left', 1, 0, 'roll', { shinyRoll: 1 / SHINY_ODDS - Number.EPSILON });
+  const normal = walkSafari(near, 'left', 1, 0, 'roll', { shinyRoll: 1 / SHINY_ODDS });
+  expect(shiny.encounter).toMatchObject({ pokemonId: 10, shiny: true });
+  expect(normal.encounter).toEqual({ ...shiny.encounter, shiny: false });
+  expect(restoreSafariSession(JSON.parse(JSON.stringify(shiny)))).toEqual(shiny);
+  expect(restoreSafariSession({ ...normal, encounter: { ...normal.encounter, shiny: undefined } })).not.toBeNull();
+  expect(restoreSafariSession({ ...normal, encounter: { ...normal.encounter, shiny: 'yes' } })).toBeNull();
+  const event = walkSafari(near, 'left', 1, 0.999, 'visitor', { date: '2026-01-02', shinyRoll: 0 });
+  expect(event.encounter).toMatchObject({ pokemonId: 251, shiny: true });
 });
 
 test('rangers occupy trailhead tiles and have distinct anonymous clues for regular and visiting rares', () => {

@@ -1,4 +1,5 @@
 import { TypeBadge } from "../../shared/pokemon/TypeBadge";
+import { pokemonSprite } from "../../shared/pokemon/sprites";
 import type { CapturedPokemon, Collection, CollectionCommand } from "./types";
 
 export function CaptureDetails({ capture, collection, busy, moving, onCommand, onMove, onProfile }: {
@@ -8,10 +9,10 @@ export function CaptureDetails({ capture, collection, busy, moving, onCommand, o
   const featured = collection.featuredIds.includes(capture.id);
   const toggleFeatured = () => onCommand({ type: "featured", ids: featured ? collection.featuredIds.filter(id => id !== capture.id) : [...collection.featuredIds, capture.id] });
   return <section className="pc-summary" aria-label="Selected Pokémon">
-    <div className="pc-portrait"><img src={`${import.meta.env.BASE_URL}sprites/${capture.pokemon.id}.png`} alt={capture.pokemon.name} width={144} height={144} /></div>
+    <div className="pc-portrait"><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt={capture.shiny ? `Shiny ${capture.pokemon.name}` : capture.pokemon.name} width={144} height={144} /></div>
     <h3>{capture.nickname || capture.pokemon.name}</h3>
     {capture.nickname && <p>{capture.pokemon.name}</p>}
-    <p>{capture.level === null ? "Level unknown" : `Lv. ${capture.level}`}{capture.favorite && " · ★ Favorite"}</p>
+    <p>{capture.level === null ? "Level unknown" : `Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}{capture.favorite && " · ★ Favorite"}</p>
     <div className="pc-types"><TypeBadge type={capture.pokemon.type1} />{capture.pokemon.type2 && <TypeBadge type={capture.pokemon.type2} />}</div>
     <dl className="pc-capture-facts">
       <div><dt>Box</dt><dd>{collection.boxes.find(box => box.id === capture.boxId)?.name} · slot {capture.slot + 1}</dd></div>

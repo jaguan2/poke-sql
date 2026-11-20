@@ -21,6 +21,7 @@ export function isCaptureReceipt(v: unknown): v is CaptureReceipt {
     && v.sources.every(isDiscoverySource) && new Set(v.sources).size === v.sources.length
     && (v.source === "legacy" || (v.sources.length === 1 && v.sources[0] === v.source))
     && (v.level === null || isEncounterLevel(v.level))
+    && (v.shiny === undefined || typeof v.shiny === "boolean")
     && (v.ball === null || balls.some(ball => ball.id === v.ball))
     && date(v.firstRecordedAt) && (v.caughtAt === null || date(v.caughtAt))
     && (v.source === "legacy" || (v.caughtAt !== null && v.ball !== null && v.level !== null))

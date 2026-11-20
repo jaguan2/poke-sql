@@ -1,4 +1,5 @@
 import { encounterTable, WEATHER } from "./zones";
+import { SHINY_ODDS } from "./model";
 import type { SafariZoneDefinition, WeatherId } from "./zones";
 
 export function SafariFieldGuide({ zone, registeredIds, weather, previousId, date }: { zone: SafariZoneDefinition; registeredIds: readonly number[]; weather: WeatherId; previousId?: number; date: string }) {
@@ -32,6 +33,6 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId, dat
       </tr>;
       })}</tbody>
     </table>
-    <small className="safari-guide-note">Register a Pokémon to reveal it here. Chances include today’s weather. Your last catch rests so you meet a different Pokémon.</small>
+    <small className="safari-guide-note">Register a Pokémon to reveal it here. Chances include today’s weather. Your last catch rests so you meet a different Pokémon. Each encounter has a 1 in {SHINY_ODDS} chance to be shiny.</small>
   </aside>;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { pokemonSprite } from "../../shared/pokemon/sprites";
 import { CaptureDetails } from "./CaptureDetails";
 import { WALLPAPERS } from "./validation";
 import type { Collection, CollectionCommand } from "./types";
@@ -60,21 +61,21 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
         <div>{search.trim() ? <section className="pc-search-results" aria-label="Caught Pokémon search results"><h3>{matches.length} matching Pokémon</h3>
           {matches.slice(0, visibleCount).map(capture => <button className="pc-search-result" key={capture.id} onClick={() => {
             changeBox(capture.boxId); if (!movingId) setSelectedId(capture.id); setSearch(""); setActiveSlot(capture.slot);
-          }}><img src={`${import.meta.env.BASE_URL}sprites/${capture.pokemon.id}.png`} alt="" width={48} height={48} /><span>{capture.nickname || capture.pokemon.name}<small>{collection.boxes.find(item => item.id === capture.boxId)?.name} · slot {capture.slot + 1}{capture.level !== null && ` · Lv. ${capture.level}`}</small></span></button>)}
+          }}><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt="" width={48} height={48} /><span>{capture.nickname || capture.pokemon.name}<small>{collection.boxes.find(item => item.id === capture.boxId)?.name} · slot {capture.slot + 1}{capture.level !== null && ` · Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}</small></span></button>)}
           {matches.length > visibleCount && <button className="btn" onClick={() => setVisibleCount(count => count + 60)}>Show more</button>}
         </section> : <div className="pc-box" data-wallpaper={box.wallpaper}>
           <div className="pc-box-heading"><h3>{box.name}</h3><span>{collection.captures.filter(capture => capture.boxId === box.id).length}/30</span></div>
           <div className="pc-grid" role="group" aria-label={`${box.name} slots`}>{Array.from({ length: 30 }, (_, slot) => {
             const capture = collection.captures.find(item => item.boxId === box.id && item.slot === slot);
             return <button key={slot} ref={element => { cells.current[slot] = element; }} className={`pc-slot${capture ? " is-occupied" : ""}`}
-              aria-label={`Slot ${slot + 1}: ${capture ? `${capture.nickname || capture.pokemon.name}${capture.level === null ? "" : `, level ${capture.level}`}` : "Empty"}`}
+              aria-label={`Slot ${slot + 1}: ${capture ? `${capture.nickname || capture.pokemon.name}${capture.level === null ? "" : `, level ${capture.level}`}${capture.shiny ? ", shiny" : ""}` : "Empty"}`}
               aria-pressed={!!capture && capture.id === selectedId} tabIndex={activeSlot === slot ? 0 : -1} disabled={locked}
               onFocus={() => setActiveSlot(slot)} onClick={() => void chooseSlot(slot)} onKeyDown={event => {
                 const offsets: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 6, ArrowUp: -6 };
                 if (event.key in offsets) { event.preventDefault(); const next = Math.max(0, Math.min(29, slot + offsets[event.key])); cells.current[next]?.focus(); }
                 if (event.key === "Escape") setMovingId(null);
               }}>
-              {capture ? <><img src={`${import.meta.env.BASE_URL}sprites/${capture.pokemon.id}.png`} alt="" width={72} height={72} /><span>{capture.nickname || capture.pokemon.name}</span><small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`}{capture.favorite && " ★"}{collection.featuredIds.includes(capture.id) && " · Featured"}</small></> : <span className="pc-empty-slot">{slot + 1}</span>}
+              {capture ? <><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt="" width={72} height={72} /><span>{capture.nickname || capture.pokemon.name}</span><small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}{capture.favorite && " ★"}{collection.featuredIds.includes(capture.id) && " · Featured"}</small></> : <span className="pc-empty-slot">{slot + 1}</span>}
             </button>;
           })}</div>
         </div>}</div>

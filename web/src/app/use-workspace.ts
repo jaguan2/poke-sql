@@ -142,7 +142,7 @@ export function useWorkspace() {
       if (mode === "catch" && !reply.error && reply.passed && reply.safariPokemon?.id === pokemonId) {
         const at = new Date().toISOString();
         await pc.award({ id: `safari:${context.id}`, pokemon: reply.safariPokemon, source: "safari", sources: ["safari"],
-          level: context.level, ball: ballTheme, caughtAt: at, firstRecordedAt: at,
+          level: context.level, shiny: context.shiny, ball: ballTheme, caughtAt: at, firstRecordedAt: at,
           location: zoneById(context.zoneId).name, attempts: context.attempts + 1, sql });
         return { ...reply, caughtAt: at };
       }
@@ -165,7 +165,7 @@ export function useWorkspace() {
     const capture = encounter?.outcome === "active" ? captures.find(item => item.id === `safari:${encounter.id}` && item.source === "safari") : undefined;
     if (capture?.caughtAt && encounter && (encounter.fleeAfter === null || capture.attempts <= encounter.fleeAfter)) restoreSafariCatch({
       encounterId: encounter.id, pokemon: capture.pokemon, attempts: capture.attempts, caughtAt: capture.caughtAt,
-    });
+    }, capture.shiny === true);
   }, [pc.collection, busy, safari.session.encounter, restoreSafariCatch]);
 
   const execute = useCallback(async (sql: string, context: QueryContext) => {

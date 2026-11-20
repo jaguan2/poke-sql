@@ -1,11 +1,13 @@
 import { isPokemonProfile } from "../../shared/pokemon/profile";
 import { encounterLevel, isEncounterLevel } from "../../shared/pokemon/encounter-level";
+import { hasShinySprite } from "../../shared/pokemon/sprites";
 import { fieldAssignmentDraft, fieldAssignmentId, isFieldAssignment } from "./field-assignments";
 import { SAFARI_ZONES, chooseSpecies, isWalkable, isZoneId, movePosition, rustlingPatch, tileAt, zoneById } from "./zones";
 import type { Direction, WeatherId, ZoneId } from "./zones";
 import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariSession } from "./types";
 
 export const ASSIGNMENTS: readonly AssignmentId[] = ["field-notes", "stat-scan", "type-tracker", "ability-survey"];
+export const SHINY_ODDS = 128;
 export function createSafariSession(): SafariSession {
   return { version: 3, zoneId: "forest", position: { ...zoneById("forest").start }, direction: "up", steps: 0,
     grassSteps: 0, catches: 0, encounter: null, draft: "", lastCatch: null };
@@ -16,7 +18,8 @@ export const isSafariFleeLimit = (value: unknown): value is SafariFleeLimit => v
 function isSafariEncounter(value: unknown, zoneId: ZoneId): value is SafariEncounter {
   if (!record(value) || typeof value.id !== "string" || !value.id || value.id.length > 80
     || typeof value.pokemonId !== "number" || !zoneById(zoneId).species.some(species => species.id === value.pokemonId)
-    || (value.level !== undefined && !isEncounterLevel(value.level))) return false;
+    || (value.level !== undefined && !isEncounterLevel(value.level))
+    || (value.shiny !== undefined && typeof value.shiny !== "boolean")) return false;
   const validAssignment = isFieldAssignment(value.assignmentId)
     ? value.assignmentId === fieldAssignmentId(zoneId, value.pokemonId)
     : ASSIGNMENTS.some(id => id === value.assignmentId);
@@ -68,8 +71,8 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
 // React's repeated updater evaluation cannot roll a different encounter.
 export function walkSafari(
   session: SafariSession, direction: Direction, chance: number, pick: number, encounterId: string,
-  { weather = "clear", fleeAfter = null, date, trainerDays = 0 }: {
-    weather?: WeatherId; fleeAfter?: SafariFleeLimit; date?: string; trainerDays?: number;
+  { weather = "clear", fleeAfter = null, date, trainerDays = 0, shinyRoll = 1 }: {
+    weather?: WeatherId; fleeAfter?: SafariFleeLimit; date?: string; trainerDays?: number; shinyRoll?: number;
   } = {},
 ): SafariSession {
   if (session.encounter) return session;
@@ -86,6 +89,7 @@ export function walkSafari(
   const { id: pokemonId } = chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather, date);
   const assignmentId = fieldAssignmentId(zone.id, pokemonId) ?? ASSIGNMENTS[session.catches % ASSIGNMENTS.length];
   return { ...next, encounter: { id: encounterId, level: encounterLevel(encounterId, trainerDays), pokemonId,
+    shiny: shinyRoll < 1 / SHINY_ODDS && hasShinySprite(pokemonId),
     assignmentId, attempts: 0, outcome: "active", fleeAfter }, draft: isFieldAssignment(assignmentId) ? fieldAssignmentDraft(assignmentId) : "-- Write your catch query here.\nSELECT " };
 }
 

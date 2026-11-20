@@ -41,3 +41,6 @@
   24% { opacity:1; scale:1; }
   34%,100% { opacity:0; scale:1.8; }
 }
+.safari-shiny-badge { position:absolute; right:4%; top:4%; z-index:1; padding:.8cqw 1.6cqw; border:1px solid #e8be56; border-radius:6px; background:#2b251bf2; color:#ffe08a; font:700 clamp(11px,3.4cqw,18px)/1.2 system-ui,sans-serif; }
+.is-entering .safari-shiny-badge > span { display:inline-block; animation:safari-shiny-glint 700ms ease-out both; }
+@keyframes safari-shiny-glint { 0%,100% { scale:1; } 55% { scale:1.65; text-shadow:0 0 .5em #ffec9b; } }

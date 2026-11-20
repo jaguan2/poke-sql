@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { pokemonSprite } from "../../shared/pokemon/sprites";
 import type { Collection, CollectionCommand } from "./types";
 import "./FeaturedPokemon.css";
 
@@ -23,8 +24,8 @@ export function FeaturedPokemon({ collection, busy, error, onCommand, onRetry, o
     <ol className="featured-slots" aria-label="Featured Pokémon lineup">{Array.from({ length: 6 }, (_, index) => {
       const capture = captures.find(item => item.id === ids[index]);
       return <li key={index} className={capture ? "" : "featured-empty"}>{capture ? <>
-        <img src={`${import.meta.env.BASE_URL}sprites/${capture.pokemon.id}.png`} alt={capture.pokemon.name} width={96} height={96} />
-        <strong>{capture.nickname || capture.pokemon.name}</strong><small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`}</small>
+        <img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt={capture.shiny ? `Shiny ${capture.pokemon.name}` : capture.pokemon.name} width={96} height={96} />
+        <strong>{capture.nickname || capture.pokemon.name}</strong><small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}</small>
         <div className="featured-slot-actions">
           <button className="btn" disabled={busy || index === 0} aria-label={`Move ${capture.nickname || capture.pokemon.name} left`} onClick={() => reorder(index, -1)}>←</button>
           <button className="btn" disabled={busy || index === ids.length - 1} aria-label={`Move ${capture.nickname || capture.pokemon.name} right`} onClick={() => reorder(index, 1)}>→</button>
@@ -39,8 +40,8 @@ export function FeaturedPokemon({ collection, busy, error, onCommand, onRetry, o
       <div className="featured-picker-results" role="group" aria-label="Caught Pokémon choices">{matches.slice(0, visibleCount).map(capture => {
         const selected = ids.includes(capture.id);
         return <button key={capture.id} disabled={busy || (!selected && ids.length >= 6)} aria-pressed={selected} onClick={() => void onCommand({ type: "featured", ids: selected ? ids.filter(id => id !== capture.id) : [...ids, capture.id] })}>
-          <img src={`${import.meta.env.BASE_URL}sprites/${capture.pokemon.id}.png`} alt="" width={64} height={64} /><strong>{capture.nickname || capture.pokemon.name}</strong>
-          <small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`} · {collection?.boxes.find(box => box.id === capture.boxId)?.name} · slot {capture.slot + 1}</small>
+          <img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt="" width={64} height={64} /><strong>{capture.nickname || capture.pokemon.name}</strong>
+          <small>{capture.level === null ? "Imported" : `Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"} · {collection?.boxes.find(box => box.id === capture.boxId)?.name} · slot {capture.slot + 1}</small>
         </button>;
       })}</div>
       {matches.length === 0 && <p>No caught Pokémon match this search.</p>}

@@ -3,6 +3,7 @@ import safariMaps from '../src/features/safari/maps.json' with { type: 'json' };
 import safariRoutes from '../src/features/safari/routes.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
 import ballThemes from '../src/shared/pokemon/ball-themes.json' with { type: 'json' };
+import shinyIds from '../src/shared/pokemon/shiny-sprites.json' with { type: 'json' };
 import tracks from '../src/features/music/tracks.json' with { type: 'json' };
 import trainers from '../src/shared/trainer/profiles.json' with { type: 'json' };
 import safariManifest from '../src/features/safari/assets.json' with { type: 'json' };
@@ -42,6 +43,15 @@ for (const sprite of sprites) {
 if (missing.length) throw new Error(`${missing.length} sprites missing or invalid. Run npm run sprites before building.`);
 if (spriteDigest.digest('hex') !== safariManifest.spriteSourceSha256) throw new Error('Safari sprite geometry is stale. Run py scripts/build_safari_assets.py from the repository root.');
 if (createHash('sha256').update(JSON.stringify(spriteBounds)).digest('hex') !== safariManifest.spriteBoundsSha256) throw new Error('Sprite geometry changed. Run py scripts/build_safari_assets.py from the repository root.');
+for (const id of shinyIds) {
+  const file = `shiny/${id}.png`;
+  const data = await readFile(new URL(`../public/sprites/${file}`, import.meta.url)).catch(() => null);
+  const bounds = spriteBounds[id];
+  if (!data || data.length < 32 || data.readUInt32BE(0) !== 0x89504e47 || !bounds
+    || bounds.canvasWidth !== data.readUInt32BE(16) || bounds.canvasHeight !== data.readUInt32BE(20)) {
+    throw new Error(`Missing or invalid shiny sprite ${file}. Run npm run sprites before building.`);
+  }
+}
 const safariAssets = safariManifest.assets;
 for (const trainer of Object.values(trainers)) {
   if (trainer.battle.throwFrames.length !== 5) throw new Error(`${trainer.label} must define five throwing poses in shared/trainer/profiles.json.`);
@@ -56,7 +66,7 @@ for (const trainer of Object.values(trainers)) {
     if (pose === 'battle' && [sheet.idleFrame, ...sheet.throwFrames].some(frame => !Number.isInteger(frame) || frame < 0 || frame >= sheet.columns * sheet.rows)) throw new Error(`Invalid battle poses in ${file}. Check shared/trainer/profiles.json.`);
   }
 }
-console.log(`Verified ${ids.length} species and ${ballThemes.length} bundled item sprites.`);
+console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length} bundled item sprites.`);
 // OC ReMix permits redistribution of the original MP3s, without retagging or
 // transcoding. Hash checks keep that constraint part of every production build.
 for (const track of tracks) {

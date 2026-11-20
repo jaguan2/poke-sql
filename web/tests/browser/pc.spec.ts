@@ -42,7 +42,7 @@ test('new Safari and mystery encounters deposit the level rolled for the trainer
   await page.reload();
   await catchPokemon(page);
   await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
-  await expect(page.getByRole('button', { name: `Slot 1: Caterpie, level ${safariLevel!.slice(3)}`, exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: new RegExp(`^Slot 1: Caterpie, level ${safariLevel!.slice(3)}(?:, shiny)?$`) })).toBeVisible();
 
   const solveMystery = async (storageKey: string, levelPattern: RegExp) => {
     await expect(displayedLevel).toHaveText(levelPattern);
@@ -62,6 +62,61 @@ test('new Safari and mystery encounters deposit the level rolled for the trainer
   const { captures } = await collectionSnapshot(page);
   expect(captures.find(capture => capture.source === 'daily')?.level).toBe(dailyLevel);
   expect(captures.find(capture => capture.source === 'random')?.level).toBe(randomLevel);
+});
+
+test('a shiny Safari roll survives offline reload, catch recovery and featuring on the Trainer ID', async ({ page, context }) => {
+  test.setTimeout(60000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(value => {
+    const restored = sessionStorage.getItem('pc-shiny-seeded') === 'yes';
+    const randomValues = crypto.getRandomValues.bind(crypto);
+    crypto.getRandomValues = values => {
+      if (values instanceof Uint16Array && values.length === 1) {
+        values[0] = restored ? 65535 : 0;
+        return values;
+      }
+      return randomValues(values);
+    };
+    Math.random = () => 0;
+    if (restored) return;
+    sessionStorage.setItem('pc-shiny-seeded', 'yes');
+    localStorage.setItem('pokesql:safari', JSON.stringify(value));
+  }, nearSafariGrass());
+  await page.goto('/');
+  const safari = page.getByRole('button', { name: 'Safari Zone', exact: true });
+  await safari.click();
+  await page.keyboard.press('a');
+  const badge = page.locator('.safari-shiny-badge');
+  const sprite = page.getByRole('img', { name: 'Wild Caterpie', exact: true }).locator('img');
+  await expect(badge).toContainText('Shiny');
+  await expect(sprite).toHaveAttribute('src', /\/sprites\/shiny\/10\.png$/);
+  const active = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!));
+  expect(active.encounter.shiny).toBe(true);
+  await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
+  await context.setOffline(true);
+  await page.reload();
+  await catchPokemon(page);
+  const caughtSprite = page.getByRole('img', { name: 'Shiny Caterpie', exact: true });
+  await expect(caughtSprite).toHaveAttribute('src', /\/sprites\/shiny\/10\.png$/);
+  await caughtSprite.evaluate((img: HTMLImageElement) => img.decode());
+
+  // Restore an encounter snapshot from before the PC commit was reflected in Safari.
+  await page.evaluate(value => localStorage.setItem('pokesql:safari', JSON.stringify(value)), {
+    ...active, encounter: { ...active.encounter, shiny: undefined },
+  });
+  await page.reload();
+  await safari.click();
+  await expect(caughtSprite).toBeVisible();
+  await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
+  await page.getByRole('button', { name: /^Slot 1: Caterpie, level \d+, shiny$/ }).click();
+  expect((await collectionSnapshot(page)).captures).toMatchObject([{ shiny: true, level: active.encounter.level }]);
+  const details = page.getByRole('region', { name: 'Selected Pokémon', exact: true });
+  await expect(details.getByRole('img', { name: 'Shiny Caterpie', exact: true })).toBeVisible();
+  await details.getByRole('button', { name: 'Feature on profile', exact: true }).click();
+  await expect(details.getByRole('button', { name: 'Remove from profile', exact: true })).toBeVisible();
+  await details.getByRole('button', { name: 'View Trainer ID', exact: true }).click();
+  const lineup = page.getByRole('list', { name: 'Featured Pokémon lineup' });
+  await expect(lineup.getByRole('img', { name: 'Shiny Caterpie', exact: true })).toHaveAttribute('src', /\/sprites\/shiny\/10\.png$/);
 });
 
 test('correct SQL catches deposit individuals once, while wrong queries award nothing', async ({ page }) => {

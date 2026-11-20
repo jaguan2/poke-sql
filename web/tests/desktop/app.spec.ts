@@ -184,7 +184,7 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     const entry = page.locator('.safari-pokedex-entry');
     await expect(entry).toContainText('Pokédex data registered!');
     await expect(entry.locator('.safari-entry-description')).not.toBeEmpty();
-    await expect(entry.getByRole('img')).toHaveAttribute('src', new RegExp(`/sprites/${id}\\.png$`));
+    await expect(entry.getByRole('img')).toHaveAttribute('src', new RegExp(`/sprites/(?:shiny/)?${id}\\.png$`));
     await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
     const caughtScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
     expect(caughtScreen.width).toBeCloseTo(battleScreen.width, 1);

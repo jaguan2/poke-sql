@@ -10,6 +10,7 @@ export interface SafariEncounter {
   id: string; pokemonId: number; assignmentId: AssignmentId; attempts: number;
   outcome: "active" | "caught" | "fled"; fleeAfter: SafariFleeLimit;
   level?: number; // Absent in saves created before encounter levels.
+  shiny?: boolean; // Older encounters default to their normal colors.
 }
 export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
@@ -17,5 +18,5 @@ export interface SafariSession {
   draft: string; lastCatch: SafariCatch | null;
 }
 export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "catching" | "caught" | "fled";
-export interface SafariCaptureContext { id: string; level: number; zoneId: ZoneId; attempts: number }
+export interface SafariCaptureContext { id: string; level: number; shiny: boolean; zoneId: ZoneId; attempts: number }
 export interface SafariCheckReply { results?: QueryResult[]; passed?: boolean; safariPokemon?: PokemonProfile; safariFeedback?: string; error?: string; caughtAt?: string }

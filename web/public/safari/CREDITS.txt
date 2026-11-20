@@ -72,8 +72,8 @@ Trainer sprites, battle scenery, window frames and lettering
 Field interface, weather overlays, and transition animation
   CSS/UI made for PokeSQL, inspired by classic Pokemon and the Wild Area.
 
-Pokemon portraits reuse the existing bundled PokeAPI default species sprites:
-https://github.com/PokeAPI/sprites
+Pokemon portraits use the bundled PokeAPI default and shiny species sprites:
+https://github.com/PokeAPI/sprites (sprites/pokemon and sprites/pokemon/shiny).
 No external sprite, terrain or font requests are made at runtime.
 
 Registered Pokédex entries

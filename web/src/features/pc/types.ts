@@ -9,6 +9,7 @@ export interface CaptureReceipt {
   source: DiscoverySource | "legacy";
   sources: DiscoverySource[];
   level: number | null;
+  shiny?: boolean;
   ball: string | null;
   caughtAt: string | null;
   firstRecordedAt: string;

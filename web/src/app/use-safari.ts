@@ -13,12 +13,12 @@ import { trainerAgeDays } from "../shared/trainer/identity";
 
 interface State { session: SafariSession; phase: SafariPhase; results: QueryResult[]; message: string; error: string }
 type Action =
-  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit; trainerDays: number }
+  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit; trainerDays: number; shinyRoll: number }
   | { type: "zone"; id: ZoneId }
   | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string; mode: SafariQueryMode }
-  | { type: "restore-catch"; caught: SafariCatch }
+  | { type: "restore-catch"; caught: SafariCatch; shiny: boolean }
   | { type: "error"; message: string }
   | { type: "leave" };
 
@@ -32,7 +32,7 @@ function reducer(state: State, action: Action): State {
       if (state.phase !== "roaming") return state;
       const weather = weatherFor(zoneById(state.session.zoneId), action.date);
       const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id,
-        { weather, fleeAfter: action.fleeAfter, date: action.date, trainerDays: action.trainerDays });
+        { weather, fleeAfter: action.fleeAfter, date: action.date, trainerDays: action.trainerDays, shinyRoll: action.shinyRoll });
       return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
@@ -48,7 +48,7 @@ function reducer(state: State, action: Action): State {
       const encounter = state.session.encounter;
       if (!encounter || encounter.outcome !== "active" || encounter.id !== action.caught.encounterId || encounter.pokemonId !== action.caught.pokemon.id) return state;
       return { ...state, phase: "caught", session: { ...state.session, catches: state.session.catches + 1,
-        lastCatch: action.caught, encounter: { ...encounter, outcome: "caught", attempts: action.caught.attempts } } };
+        lastCatch: action.caught, encounter: { ...encounter, shiny: action.shiny, outcome: "caught", attempts: action.caught.attempts } } };
     }
     case "leave": return { ...state, session: { ...state.session, encounter: null, draft: "", grassSteps: 0 }, phase: "roaming", results: [],
       message: state.session.encounter?.outcome === "active" ? "You got away safely." : "", error: "" };
@@ -78,7 +78,7 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const [saveError, setSaveError] = useState(false);
   const checking = useRef(false);
   const lastMove = useRef(-Infinity);
-  const restoreCatch = useCallback((caught: SafariCatch) => dispatch({ type: "restore-catch", caught }), []);
+  const restoreCatch = useCallback((caught: SafariCatch, shiny: boolean) => dispatch({ type: "restore-catch", caught, shiny }), []);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
     const transition = SAFARI_TRANSITIONS[state.phase];
@@ -91,7 +91,8 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     if (checking.current || performance.now() - lastMove.current < 110) return;
     lastMove.current = performance.now();
     const now = new Date();
-    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), id: crypto.randomUUID(),
+    const shinyRoll = crypto.getRandomValues(new Uint16Array(1))[0] / 2 ** 16;
+    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), shinyRoll, id: crypto.randomUUID(),
       date: now.toISOString().slice(0, 10), fleeAfter, trainerDays: trainerAgeDays(trainerIssuedAt, now.getTime()) });
   };
   const run = async (mode: SafariQueryMode) => {
@@ -100,7 +101,8 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     checking.current = true;
     try {
       const reply = await check(state.session.draft, encounter.pokemonId, encounter.assignmentId, {
-        id: encounter.id, level: encounter.level ?? legacyEncounterLevel(encounter.id), zoneId: state.session.zoneId, attempts: encounter.attempts,
+        id: encounter.id, level: encounter.level ?? legacyEncounterLevel(encounter.id), shiny: encounter.shiny === true,
+        zoneId: state.session.zoneId, attempts: encounter.attempts,
       }, mode);
       dispatch({ type: "reply", id: encounter.id, reply, at: reply.caughtAt ?? new Date().toISOString(), mode });
     } catch (error) { dispatch({ type: "error", message: (error as Error).message }); }
