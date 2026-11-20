@@ -77,6 +77,13 @@ PC validation and the asset scripts.
   Safari and the mystery share `shared/ui/EncounterScene` and generated sprite
   bounds in `shared/pokemon/`. Each feature owns its reveal/encounter behavior;
   the shared renderer receives identity, sprite visibility and dialogue.
+  `shared/ui/encounter-capture.ts` owns the trainer-based ball trajectory and
+  common catch duration; `EncounterScene` owns ball/flash rendering and CSS.
+  Safari's controller keeps its existing visual phases. Mystery uses a local,
+  round-keyed presentation timer when unsolved becomes solved. A solved round
+  mounted from storage starts settled; navigation cancels the timer. Capture
+  commits and solved-round persistence remain independent of visual timing,
+  so replay/reload cannot award another Pokémon. Both honor reduced motion.
   `shared/pokemon/pokedex-entries.json` is generated from PokéAPI CSVs by
   `scripts/build_pokedex_entries.py`; its categories and coverage are checked
   against the bundled database. Safari's catch screen combines this local
@@ -85,6 +92,36 @@ PC validation and the asset scripts.
   The encounter table supplies eligibility and odds to both the field guide and
   movement rolls. The full habitat registry also retains event species for
   saved encounter validation and SQL grading after their window closes.
+- **Exploration uses one location registry.** `features/safari/regions.ts`
+  adds 15 native FireRed, 14 native Emerald and 17 native Crystal maps to `EXPLORATION_LOCATIONS`; original Safari
+  habitats remain in `SAFARI_ZONES`. Movement, saved encounters, SQL grading
+  and PC capture locations resolve through the complete registry. A native
+  next-tile portal changes the location, arrival coordinate and visited set in
+  one pure state update. No encounter or reward is rolled during that crossing.
+  `canTravelTo` permits direct drops at any included area; active encounters
+  block all travel. Area options include gates and cave floors absent from
+  the schematic overview. Region switching bookmarks the exact location, position
+  and direction independently for each region. Additive `visited` and
+  `regionPositions` fields leave older version-3 Safari saves intact. Bookmark
+  validation checks region membership and walkable coordinates. Town/gate maps
+  have empty encounter pools; a one-species pool stays available after a catch.
+  `scripts/build_region_assets.py <region>` vendors art and collision/portal
+  data together from pinned FireRed/Emerald/Crystal sources. `crystal_maps.py`
+  owns the GBC block/palette adapter. All regions share the global flood and
+  integrity manifest. Crystal ledges use walkable floor tokens 0–7 and jump
+  from the current tile; GBA tokens ><^v jump across the next tile. U marks a
+  walkable cell with a north wall. Cut trees are cleared in the Crystal export
+  without changing permanent tree or water collisions. The global flood includes linked cave rooms;
+  runtime shaking patches stay within the trainer's reachable chamber.
+- **Music follows native area IDs through app composition.** Generated regional
+  map data retains each game's music ID. `App` passes the current exploration
+  ID into the music player; the features do not import each other's runtime
+  code. The music catalogue resolves seven Kanto, nine Hoenn and ten Johto local themes. Manual track choice
+  stays separate from the derived area theme, and older saved preferences keep
+  volume/mute/repeat while enabling area following by default. Source changes
+  snapshot actual playback before replacing the media URL; shared themes do not
+  reload. The audio element uses CORS mode for service-worker range playback,
+  including same-origin URLs. No application state restores autoplay on reload.
 - **Cross-feature contracts are explicit and type-only.** The Pokédex accepts
   the mystery round contract to register solved targets. Runtime coordination
   lives in `use-workspace.ts` and `app/database/worker.ts`.
@@ -108,8 +145,12 @@ and mystery queries use isolated, read-only original databases; free practice
 uses the saved mutable database.
 
 `App.tsx` renders state and calls workspace commands. `SqlEditor` owns CodeMirror
-configuration, keyboard bindings and schema completion. Each draft retains its
-own editor identity so delayed editor updates cannot overwrite another draft.
+configuration, keyboard bindings, schema completion and CodeMirror's text undo
+history. Undo/Redo and the caller's Run/Stop controls share a footer below the
+editor. Each draft retains its own editor identity so delayed editor updates
+cannot overwrite another draft or undo into another round. Editing history
+never reverses SQL or PC ownership; busy editors are read-only. Previously saved
+queries remain readable, while drafts and run history save automatically.
 Submitted query contexts retain their challenge ID or mystery date/target until
 completion, including across midnight.
 

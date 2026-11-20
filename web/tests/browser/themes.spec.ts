@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 });
 
 test('ball themes change the visible palette and use bundled icons offline', async ({ page, context }, testInfo) => {
@@ -34,7 +34,7 @@ test('ball themes change the visible palette and use bundled icons offline', asy
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('SELECT name FROM pokemon WHERE id = 1;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Reset DB' }).click();
   await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
@@ -79,7 +79,7 @@ test('the picker and run controls fit narrow and intermediate screens', async ({
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Challenges', exact: true }).click();
     await page.getByRole('button', { name: /First partners/ }).click();
-    for (const control of [page.getByRole('button', { name: 'Settings', exact: true }), page.getByRole('button', { name: 'Reset DB' }), page.getByRole('button', { name: /Check answer/ })]) {
+    for (const control of [page.getByRole('button', { name: 'Settings', exact: true }), page.getByRole('button', { name: 'Reset DB' }), page.getByRole('button', { name: /Run query/ })]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);

@@ -1,0 +1,89 @@
+{
+  "revision": "9103e529c2fbdd7add4a1ff3350c6c1f92112c42",
+  "assets": [
+    {
+      "file": "littleroot-town.png",
+      "sha256": "207fe04b77d5a18e1e6c574b3b0681eb31be4a2ff0a10ded91a6d569353e3811",
+      "recipeSha256": "d6062602246823eb14afa3bae046088ab9469d5f48b32f209b287da05f7a3ab4",
+      "layoutSha256": "107ddd2939a2060c0d056ffd2ecd3e694233d019e9f34554255473f623032d47"
+    },
+    {
+      "file": "route-101.png",
+      "sha256": "93d63b236a1e71602d803bbf4185899bb6cc20c5f3b8ba4078fab998c1ef1cbb",
+      "recipeSha256": "b01126b4940b632a6a11ed90af9c9977617d090fdb1348a8b746afb29bcbfef9",
+      "layoutSha256": "7a2b2ea989c1d34f85657ac6f2c9e6ddd6235d03e3c1e191a6a6319f0eefe384"
+    },
+    {
+      "file": "oldale-town.png",
+      "sha256": "91c88175518c8b836b48717fafe980bce863877852269da0a21c1e5526a6d723",
+      "recipeSha256": "87373e5f28ebfe3c7be96a9086bd5d5ae3822dd44d1e3befdaedeb8e1353319b",
+      "layoutSha256": "e3ae21cc926a0a7dc7edeac1e65a69bc655dbb1a5a5371a2bbc5aee20f89a4ce"
+    },
+    {
+      "file": "route-103.png",
+      "sha256": "bee0c85d34042e28a42ed600f99812c14b0dae88ef883e55750e613b25e35eeb",
+      "recipeSha256": "d44e57fc8ac7ed112536de2903bfb3aabff94f4397853ce083b97763d2809b8e",
+      "layoutSha256": "16bcb2d27d685aca3785815b2c3d6fd976e8c8d006ad2d62a857bca6ebaed90d"
+    },
+    {
+      "file": "route-102.png",
+      "sha256": "e6877f17411b66f452771d4d52eb54d7aaba24cebec5a4e975d7dc89cb2ae46c",
+      "recipeSha256": "a4e85eec33c05b43e819f361ba5a3aab9d9da95968d68d3eb37ee2c0e57ea527",
+      "layoutSha256": "649091a71b30eaacd5740dd54e03f07c46bd51f555de4db39a6bedba967ccb7d"
+    },
+    {
+      "file": "petalburg-city.png",
+      "sha256": "5141b05e0d58ca12b37e9486fd6c28bc96bc151c9df4bd5ad053e9934ecd645d",
+      "recipeSha256": "815305a90df9598f4d5f7b97c1383cf5b1392d32878303bcdaba73233832ff3d",
+      "layoutSha256": "085e92f6b8cc14ad7d2db05044e2093fd173a9dc71219a01a967fdaa7fdd7180"
+    },
+    {
+      "file": "route-104.png",
+      "sha256": "e0f89fce4b5eaad323b513b0bb0c65f2bd6d8da358b7019f0e41dac8760361d7",
+      "recipeSha256": "c440ee78977904cc5bc2f71fd9864118fa7fa11a0c060f967fe228acd9a5b78a",
+      "layoutSha256": "00eb586c6b0459d8e9ee1d61b1b543ccacdf79d973d7f349ff16d2b64624839b"
+    },
+    {
+      "file": "petalburg-woods.png",
+      "sha256": "6aa2408bf0419f85f59f37db5bf423e7d92782c5629ddaa2a38385f18a3fbcd5",
+      "recipeSha256": "bb205a288247ac169a55b1296aff980ee48b7d33e3888bd34a8e81be2a83502a",
+      "layoutSha256": "66e19c887906adfd9af8c0ec1477c9e2e61589d0072b00b6327c34daff4fdd08"
+    },
+    {
+      "file": "rustboro-city.png",
+      "sha256": "c5fe12d4208af2cbb1b0d2e713eafa1ffea12a5d2472686bed2fe015389083b6",
+      "recipeSha256": "2becad11ed6ee4b09f5059848e784df2182aba0bd2bbb11e31dd17bd72b36988",
+      "layoutSha256": "75ea55e40ee0a32469f35637fad175bc0e1ef350fa833f32011d970653529b10"
+    },
+    {
+      "file": "route-116.png",
+      "sha256": "3d8224ff93b0cab08c33d19a518b76d952ede21abe7b69e95d6db0bffa865a46",
+      "recipeSha256": "c936993378d060214cd1359a4078a084d3c22d871cfbf18a89cc10d1ea59eb60",
+      "layoutSha256": "81677185434597205f5a95b0ead7c4365f5b04b5b619c6dd14dd2ac3776c7110"
+    },
+    {
+      "file": "rusturf-tunnel.png",
+      "sha256": "38fc4cd85c0b3f9cc13113becc0ed21e1366bce08dbe87ede8eb53bd70fc2439",
+      "recipeSha256": "7e8f4c28d1409dae72e92d6807e9478df05397d4c46764fe58ecacd9979191c2",
+      "layoutSha256": "e18b5ea242efa3cea5f261800edfb47db43e7cbe65fc8e4ee0be9657f694f754"
+    },
+    {
+      "file": "verdanturf-town.png",
+      "sha256": "6ecf0e1534838f6dc102035785f05792d02e09894946f1b32d7d40f9895bb3d8",
+      "recipeSha256": "412e4663ea0686cbac646d4caaa660f8b1a3e77feab286a1f06b1c101a1cfbe4",
+      "layoutSha256": "c60f9be4fe3f753b4bbfc62859f0cb5f0f1b3e4a275f70b7e3f22d11022d2980"
+    },
+    {
+      "file": "route-117.png",
+      "sha256": "2680cf23d34ed30645d7940e2d247cf3f5a9c03c72e048f0621450542aff7f38",
+      "recipeSha256": "f63dfd4f8cc8b9ef44cd832183f7e4cec1eb7a5422e32a666e9e2d3314bb9653",
+      "layoutSha256": "049839b51c7366d922c5045761e0d35055f78b4e1ad84adffdf69613aa75f2b3"
+    },
+    {
+      "file": "mauville-city.png",
+      "sha256": "77029b25616455645d7a67a104674efcdec22e7eaf3e30cded3e19a704a93ccb",
+      "recipeSha256": "1ef5cc6f34756e9d7db059d698e7906d6a778455ac23698b9515e083f3b132fc",
+      "layoutSha256": "90c03bbf0510db14b90d2f477e62fb58734160fdf2f14ddc15b8fd017a4427de"
+    }
+  ]
+}

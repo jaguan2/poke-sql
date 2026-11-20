@@ -4,7 +4,7 @@ import { matchesResults } from "../../shared/sql/compare-results";
 import { fieldAssignmentId, isFieldAssignment, rangerSurvey, trackingAssignment } from "./field-assignments";
 import type { PokemonProfile } from "../../shared/pokemon/profile";
 import type { AssignmentId } from "./types";
-import { SAFARI_ZONES } from "./zones";
+import { EXPLORATION_LOCATIONS } from "./zones";
 
 export function safariAssignment(id: AssignmentId, pokemon: { id: number; name: string }) {
   if (isFieldAssignment(id)) {
@@ -28,7 +28,7 @@ export function safariAssignment(id: AssignmentId, pokemon: { id: number; name: 
 }
 
 export function checkSafariQuery(db: Database, sql: string, pokemonId: number, assignmentId: AssignmentId) {
-  const species = SAFARI_ZONES.flatMap(zone => zone.species).find(species => species.id === pokemonId);
+  const species = EXPLORATION_LOCATIONS.flatMap(zone => zone.species).find(species => species.id === pokemonId);
   if (!species) throw new Error("This Safari assignment could not be restored. Return to the trail and try again.");
   const row = db.exec("SELECT id, name, type1, type2, generation_id, height_m, weight_kg FROM pokedex WHERE id = ?", [pokemonId])[0]?.values[0];
   if (!row) throw new Error("This Pokémon is missing from the original Pokédex.");

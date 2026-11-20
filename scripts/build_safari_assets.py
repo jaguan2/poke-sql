@@ -12,7 +12,6 @@ from functools import cache
 from pathlib import Path
 
 from PIL import Image
-from build_safari_battle import build_battle_assets
 from safari_sources import ROOT, EMERALD_REVISION as REVISION, source
 
 OUTPUT = ROOT / "web/public/safari"
@@ -20,26 +19,32 @@ FEATURE = ROOT / "web/src/features/safari"
 
 
 class Tileset:
-    def __init__(self, secondary):
-        primary = "data/tilesets/primary/general"
+    def __init__(self, secondary, archive="emerald", primary_name="general"):
+        load = lambda path: source(path, archive)
+        self.split = 640 if archive == "firered" else 512
+        primary = f"data/tilesets/primary/{primary_name}"
         extra = f"data/tilesets/secondary/{secondary}" if secondary else None
-        self.sheets = [Image.open(source(primary + "/tiles.png")),
-                       Image.open(source(extra + "/tiles.png")) if extra else None]
-        self.blocks = [source(primary + "/metatiles.bin").read_bytes(),
-                       source(extra + "/metatiles.bin").read_bytes() if extra else None]
-        self.attributes = [source(primary + "/metatile_attributes.bin").read_bytes(),
-                           source(extra + "/metatile_attributes.bin").read_bytes() if extra else None]
+        self.sheets = [Image.open(load(primary + "/tiles.png")),
+                       Image.open(load(extra + "/tiles.png")) if extra else None]
+        self.blocks = [load(primary + "/metatiles.bin").read_bytes(),
+                       load(extra + "/metatiles.bin").read_bytes() if extra else None]
+        self.attributes = [load(primary + "/metatile_attributes.bin").read_bytes(),
+                           load(extra + "/metatile_attributes.bin").read_bytes() if extra else None]
         self.palettes = []
         for index in range(16):
-            directory = extra if extra and 6 <= index <= 12 else primary
-            lines = source(f"{directory}/palettes/{index:02}.pal").read_text().splitlines()
+            secondary_palette = 7 <= index <= 12 if archive == "firered" else 6 <= index <= 12
+            directory = extra if extra and secondary_palette else primary
+            lines = load(f"{directory}/palettes/{index:02}.pal").read_text().splitlines()
             self.palettes.append([tuple(map(int, line.split())) for line in lines[3:19]])
         # These tiles are loaded into VRAM by the game's animation callbacks,
         # rather than stored in tiles.png. Use the original first frame.
         self.sheets[0] = self.sheets[0].copy()
-        for name, offset in [("water", 432), ("sand_water_edge", 464),
-                             ("land_water_edge", 480), ("waterfall", 496), ("flower", 508)]:
-            frame = Image.open(source(f"{primary}/anim/{name}/0.png"))
+        animations = [("water", 432), ("sand_water_edge", 464),
+                             ("land_water_edge", 480), ("waterfall", 496), ("flower", 508)]
+        if archive == "firered":
+            animations = [("water_current_landwatersedge", 416), ("sandwatersedge", 464), ("flower", 508)] if primary_name == "general" else []
+        for name, offset in animations:
+            frame = Image.open(load(f"{primary}/anim/{name}/0.png"))
             for index in range(frame.width // 8 * (frame.height // 8)):
                 tile = frame.crop((index % (frame.width // 8) * 8, index // (frame.width // 8) * 8,
                                    index % (frame.width // 8) * 8 + 8, index // (frame.width // 8) * 8 + 8))
@@ -52,10 +57,12 @@ class Tileset:
         result = Image.new("RGBA", (16, 16))
         for cell, entry in enumerate(struct.unpack_from("<8H", self.blocks[1 if bank == "S" else 0], int(number) * 16)):
             tile_id, palette = entry & 0x3FF, entry >> 12
-            sheet = self.sheets[1 if tile_id >= 512 else 0]
+            secondary = tile_id >= self.split
+            sheet = self.sheets[1 if secondary else 0]
             if sheet is None:
                 raise ValueError(f"Secondary tile required for {reference}")
-            tile_id %= 512
+            if secondary:
+                tile_id -= self.split
             x, y = tile_id % 16 * 8, tile_id // 16 * 8
             tile = sheet.crop((x, y, x + 8, y + 8))
             pixels = Image.new("RGBA", (8, 8))
@@ -113,6 +120,8 @@ def build_route(recipe, layout):
 
 
 def build():
+    from build_safari_battle import build_battle_assets
+
     recipes = json.loads((FEATURE / "routes.json").read_text(encoding="utf-8"))
     layouts = {entry["name"].removesuffix("_Layout"): entry for entry in json.loads(source("data/layouts/layouts.json").read_text())["layouts"]}
     (OUTPUT / "maps").mkdir(parents=True, exist_ok=True)

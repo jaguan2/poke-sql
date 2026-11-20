@@ -1,38 +1,68 @@
-Poké Radio — bundled offline Pokémon arrangements
+Pokémon game soundtracks — bundled offline recordings
 
-Photosynthesis — halc
-Eterna Forest, Pokémon Diamond Version
-https://ocremix.org/remix/OCR02731
+Kanto area music — Pokemon FireRed / LeafGreen
+Original game soundtrack: Game Freak / Nintendo / The Pokemon Company.
+Their compositions and recordings remain the property of their respective
+owners.
 
-On the Shores of Canalave — Emunator
-Canalave City (Day), Pokémon Diamond Version
-https://ocremix.org/remix/OCR04128
+Source FireRed recording pack:
+https://github.com/AlucardTheFirstHunter/MusicReplacementMod
+Pinned revision: 3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b
+SFXMusicReplacementMod/assets/music/firered/
+  Pallet Town: pallettownnew.ogg
+  Route 1 / Route 2: routes1new.ogg
+  Pewter City / Viridian City / forest gates: cities1new.ogg
+  Viridian Forest: dungeon2new.ogg
+  Route 3 / Route 4 / Route 22: routes3new.ogg
+  Mt. Moon, all floors: dungeon3new.ogg
+  Cerulean City / Fuchsia City theme: cities2new.ogg
 
-Snowflakes in Her Hair — NoTuX (originally credited as Blue Magic)
-Snowpoint City (Day), Pokémon Diamond Version
-https://ocremix.org/remix/OCR02801
+Native map music assignments:
+https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/data/maps
+OGG sources are converted to 128 kbps, 44.1 kHz stereo MP3 for browser/iPad
+playback, using FFmpeg 9.0.2 and libmp3lame. Source and MP3 hashes are recorded
+in web/src/features/music/kanto-tracks.json. Rebuild with
+py scripts/vendor_region_music.py kanto. These assets are bundled for this personal project.
 
-All three recordings: the named ReMixer, OverClocked ReMix (https://ocremix.org).
-Original game soundtrack credited to Go Ichinose, Hitomi Sato, Junichi Masuda,
-and Morikazu Aoki. Compositions and recordings belong to their respective owners.
-No affiliation with or endorsement by the artists, OC ReMix, or Pokémon is implied.
+Hoenn area music — Pokemon Ruby / Sapphire / Emerald
+Original game soundtrack: Game Freak / Nintendo / The Pokemon Company.
+Shared Ruby/Sapphire themes used by Emerald, recorded from the Sapphire GSF
+soundtrack archive.
+Source archive: https://www.zophar.net/music/gameboy-advance-gsf/pokemon-sapphire
+  105 Littleroot Town: Littleroot Town
+  111 Route 101: Routes 101, 102, 103
+  112 Oldale Town: Oldale Town
+  120 Petalburg City: Petalburg City
+  122 Route 104: Routes 104, 116
+  123 Petalburg Forest: Petalburg Woods, Rusturf Tunnel
+  127 Rustboro City: Rustboro City, Mauville City
+  134 Route 110: Route 117
+  141 Verdanturf Town: Verdanturf Town
+Native map music assignments:
+https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/maps
+Original MP3 recordings are converted to 128 kbps, 44.1 kHz stereo MP3 with
+FFmpeg 9.0.2 / libmp3lame to reduce the offline download size. Exact source URLs,
+source SHA-256 hashes and output SHA-256 hashes are recorded in
+web/src/features/music/hoenn-tracks.json. Rebuild with
+py scripts/vendor_region_music.py hoenn --refresh.
 
-Source and distribution conditions
-https://ocremix.org/info/Content_Policy
-Reviewed 2026-11-17.
-
-These are the unchanged MP3 files downloaded from OC ReMix's official mirror:
-https://ocrmirror.org/files/music/remixes/
-The filenames, audio, and ID3 tags have not been changed. SHA-256 hashes are
-recorded in web/src/features/music/tracks.json and checked by the production build.
-
-OC ReMix's policy permits noncommercial redistribution/incorporation with
-attribution to the artist and OC ReMix. It requires that redistributed MP3s
-remain unmodified. It excludes profit-making redistribution, commercial works,
-advertising use, and specified donation/name-your-price arrangements. OC ReMix
-reserves the right to terminate its license; see the live policy for full terms.
-This permission does not transfer ownership or clear third-party composition
-rights. Reassess the music before commercializing or changing distribution.
-
-PokéSQL bundles these recordings for its free, noncommercial educational app.
-They are not public-domain music and are not covered by any code license.
+Johto area music — Pokemon Gold / Silver / Crystal
+Original game soundtrack: Game Freak / Nintendo / The Pokemon Company.
+Shared Gold/Silver themes used by Crystal, recorded from the Gold GBS archive.
+Source archive: https://www.zophar.net/music/gameboy-gbs/pokemon-gold
+  60 New Bark Town's Theme: New Bark Town
+  52 Road to Cherrygrove City: Route 29
+  38 Cherrygrove City's Theme: Cherrygrove City
+  43 Road to Violet City: Routes 30, 31, 32, 33 and Violet Gate
+  45 Violet City's Theme: Violet City
+  40 Union Cave: Union Cave 1F and Ilex Forest
+  37 Azalea Town's Theme: Azalea Town
+  51 Dark Cave: Slowpoke Well B1F
+  53 Road to Goldenrod City: Route 34 and both Ilex Forest gates
+  61 Goldenrod City's Theme: Goldenrod City
+Native map music assignments:
+https://github.com/pret/pokecrystal/blob/9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482/data/maps/maps.asm
+Original MP3 recordings are converted to 128 kbps, 44.1 kHz stereo MP3 with
+FFmpeg 9.0.2 / libmp3lame. Exact URLs and source/output SHA-256 hashes are in
+web/src/features/music/johto-tracks.json. Rebuild with
+py scripts/vendor_region_music.py johto --refresh.

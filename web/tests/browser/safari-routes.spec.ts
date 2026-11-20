@@ -1,9 +1,16 @@
 import { test, expect } from '@playwright/test';
 import { entriesFor } from '../fixtures/pokemon-encounters';
+import { createSafariSession } from '../../src/features/safari/model';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(session => {
+    if (!localStorage.getItem('pokesql:safari')) localStorage.setItem('pokesql:safari', JSON.stringify(session));
+  }, createSafariSession('forest'));
+});
 
 test('the wetlands route crosses the bridge between its two banks', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.safari-area-picker > summary').click();
   await page.getByRole('button', { name: /Willow Wetlands/ }).click();
   const map = page.getByRole('group', { name: 'Willow Wetlands exploration map' });
@@ -21,7 +28,7 @@ test('the wetlands route crosses the bridge between its two banks', async ({ pag
 test('a route scrolls with the trainer, shows an overview, and restores the same trail position', async ({ page }, info) => {
   await page.setViewportSize({ width: 1440, height: 1200 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   const map = page.getByRole('group', { name: 'Verdant Forest exploration map' });
   await expect(map).toHaveAttribute('data-camera-y', '10');
   const before = await page.locator('.safari-terrain').boundingBox();
@@ -41,7 +48,7 @@ test('a route scrolls with the trainer, shows an overview, and restores the same
   await expect(page.getByRole('img', { name: /Canopy Trail overview/ })).toBeVisible();
   await page.locator('.safari-route-overview').screenshot({ path: info.outputPath('route-overview.png') });
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.locator('.safari-player')).toHaveAttribute('data-y', '8');
   await expect(map).toHaveAttribute('data-camera-y', '3');
   await page.setViewportSize({ width: 320, height: 844 });
@@ -65,7 +72,7 @@ test('old clearing saves retain catches, active SQL, and attempts when moved to 
     }));
   }, entry.pokemon);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Stat scan', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toHaveText('SELECT name, hp, attack, speed FROM pokemon WHERE id=13;');
   await expect(page.locator('.safari-query-actions')).toContainText('2 checked queries');

@@ -13,7 +13,7 @@ async function pc(page: Page) {
   await expect(page.getByRole('group', { name: 'Box 1 slots', exact: true })).toBeVisible();
 }
 async function catchPokemon(page: Page) {
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.cm-content').fill(catchSql);
   await page.getByRole('button', { name: /Check query & catch/ }).click();
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toBeVisible();
@@ -30,7 +30,7 @@ test('new Safari and mystery encounters deposit the level rolled for the trainer
     localStorage.setItem('pokesql:safari', JSON.stringify(value));
   }, nearSafariGrass());
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('a');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   const displayedLevel = page.locator('.encounter-nameplate small');
@@ -49,8 +49,8 @@ test('new Safari and mystery encounters deposit the level rolled for the trainer
     const round = await page.evaluate(key => JSON.parse(localStorage.getItem(`pokesql:${key}`)!), storageKey);
     await expect(displayedLevel).toHaveText(`Lv.${round.level}`);
     await page.locator('.cm-content').fill(`SELECT ${round.targetId} AS id;`);
-    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-    await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+    await page.getByRole('button', { name: /Run query/ }).click();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
     return round.level as number;
   };
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
@@ -83,7 +83,7 @@ test('a shiny Safari roll survives offline reload, catch recovery and featuring 
     localStorage.setItem('pokesql:safari', JSON.stringify(value));
   }, nearSafariGrass());
   await page.goto('/');
-  const safari = page.getByRole('button', { name: 'Safari Zone', exact: true });
+  const safari = page.getByRole('button', { name: 'Explore', exact: true });
   await safari.click();
   await page.keyboard.press('a');
   const badge = page.locator('.safari-shiny-badge');
@@ -126,7 +126,7 @@ test('correct SQL catches deposit individuals once, while wrong queries award no
     sessionStorage.setItem('pc-seeded', 'yes'); localStorage.setItem('pokesql:safari', JSON.stringify(value));
   }, session('pc-first'));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.cm-content').fill("SELECT name FROM pokedex WHERE name = 'Caterpie';");
   await page.getByRole('button', { name: /Check query & catch/ }).click();
   await expect(page.getByText('7 chances remaining', { exact: true })).toBeVisible();
@@ -142,7 +142,7 @@ test('correct SQL catches deposit individuals once, while wrong queries award no
   // Simulates a reload between the PC commit and the older Safari session save.
   await page.evaluate(value => localStorage.setItem('pokesql:safari', JSON.stringify(value)), session('pc-first'));
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toBeVisible();
   await pc(page);
   await expect(page.getByRole('button', { name: /^Slot \d+: Caterpie/ })).toHaveCount(1);
@@ -186,8 +186,8 @@ test('legacy imports keep their backup, fill thirty slots per box and allow movi
   await expect(page.getByRole('option', { name: 'Box 65', exact: true })).toHaveCount(1);
   await page.getByRole('button', { name: 'Free practice', exact: true }).click();
   await page.locator('.cm-content').fill('DROP TABLE pokemon;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeEnabled();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeEnabled();
   await page.getByRole('button', { name: 'Reset DB', exact: true }).click();
   await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
   await pc(page);
@@ -232,14 +232,14 @@ test('distinct random mystery rounds award separate individuals and restored win
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await page.locator('.cm-content').fill('SELECT 25 AS id;');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('Mystery solved', { exact: false })).toBeVisible();
   await pc(page); await expect(page.getByRole('button', { name: 'Slot 1: Pikachu, level 17', exact: true })).toBeVisible();
   await page.evaluate(value => localStorage.setItem('pokesql:mystery-round', JSON.stringify(value)), round);
   await page.reload();
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   await expect(page.locator('.status-bar')).toHaveCount(0);
   await expect(page.locator('.mystery-query-results')).toHaveCount(0);
   await pc(page); await expect(page.getByRole('button', { name: /^Slot \d+: Pikachu/ })).toHaveCount(1);
@@ -248,8 +248,8 @@ test('distinct random mystery rounds award separate individuals and restored win
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await page.locator('.cm-content').fill('SELECT 25 AS id;');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   await pc(page); await expect(page.getByRole('button', { name: /^Slot \d+: Pikachu/ })).toHaveCount(2);
 });
 
@@ -303,8 +303,8 @@ test('daily rewards are awarded once per UTC date and survive new daily rounds',
     await page.clock.setFixedTime(`${date}T12:00:00Z`); await page.reload();
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     await page.locator('.cm-content').fill(`SELECT ${dailyPokemonForDate(date)} AS id;`);
-    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-    await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+    await page.getByRole('button', { name: /Run query/ }).click();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   }
   await page.reload(); await pc(page);
   expect((await collectionSnapshot(page)).captures.map(capture => capture.id)).toEqual(['daily:1:2026-01-01', 'daily:1:2026-01-02']);
@@ -328,7 +328,7 @@ test('unreadable PC metadata stays untouched and does not disable SQL practice',
   expect((await collectionSnapshot(page)).destinationBoxId).toBe('unreadable');
   await page.getByRole('button', { name: 'Free practice', exact: true }).click();
   await page.locator('.cm-content').fill('SELECT name FROM pokemon WHERE id = 1;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
 });
 

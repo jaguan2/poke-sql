@@ -14,8 +14,8 @@ async function edit(page: Page, sql: string) {
 
 async function guess(page: Page, id: number) {
   await edit(page, `SELECT id FROM pokedex WHERE id = ${id};`);
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeVisible();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 }
 
 test('the same UTC date gets the same puzzle across time zones and independent profiles', async ({ browser }) => {
@@ -60,13 +60,13 @@ test('daily and random rounds keep independent drafts and progress, including of
   await page.locator('.cm-editor').click();
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
   await page.reload();
   await openDaily(page);
   await expect(page.getByText('Daily challenge completed.', { exact: false })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('WHERE id = 6;');
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('1 guess');
@@ -83,7 +83,7 @@ test('midnight does not retarget an in-flight round and opening today resets onl
   const target = dailyPokemonForDate('2026-11-17');
   await guess(page, target === 5 ? 6 : 5);
   await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await page.clock.setFixedTime('2026-11-18T00:00:02Z');
   await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   const openToday = page.getByRole('button', { name: "Open today's challenge", exact: true });

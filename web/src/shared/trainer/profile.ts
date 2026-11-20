@@ -1,4 +1,4 @@
-import profiles from "./profiles.json";
+import profiles from "./profiles.json" with { type: "json" };
 
 export const TRAINERS = profiles;
 export type TrainerId = keyof typeof profiles;

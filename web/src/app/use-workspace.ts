@@ -63,7 +63,6 @@ export function useWorkspace() {
   const [completed, setCompleted] = useState(() => readLocal("completed", [], isStringArray));
   const [history, setHistory] = useState(() => readLocal("history", [], isStringArray).slice(0, 30));
   const [saved, setSaved] = useState(() => readLocal("saved", [], isSaved));
-  const [queryName, setQueryName] = useState("");
   const [runState, setRunState] = useState<RunState>({ status: "idle", message: "Choose a Get started question, or write SQL above and select Run." });
   const [schema, setSchema] = useState<TableInfo[]>([]);
   const [challengeSchema, setChallengeSchema] = useState<TableInfo[]>([]);
@@ -242,13 +241,6 @@ export function useWorkspace() {
     } catch (error) { setRunState({ status: "error", message: (error as Error).message }); }
     finally { busyRef.current = false; setBusy(false); }
   };
-  const saveQuery = () => {
-    if (!query.trim() || !queryName.trim()) return;
-    const next = [{ id: crypto.randomUUID(), name: queryName.trim(), sql: query }, ...saved];
-    setSaved(next); const stored = persist("saved", next); setQueryName("");
-    setNotice(stored ? "Query saved. Find it in Saved." : "Query kept for this session only. This device could not save it.");
-  };
-
   const handleNewMystery = async () => {
     if (!ready || busyRef.current) return;
     busyRef.current = true; setBusy(true); setNotice(undefined);
@@ -385,10 +377,10 @@ export function useWorkspace() {
       types: new Set(encounters.flatMap(entry => [entry.pokemon.type1, entry.pokemon.type2].filter((type): type is string => type !== null))).size,
       typeTotal: achievementCatalog?.types.length ?? 18 },
     profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
-    saved, queryName, runState,
+    saved, runState,
     actions: {
       run, stop: cancelQuery, reset: handleReset, newMystery: handleNewMystery,
-      saveQuery, setQueryName, editQuery: onEditorChange, changeTheme, changeTrainer, changeTrainerName, changeAutocomplete, changeSafariFleeAfter, setPokedexView,
+      editQuery: onEditorChange, changeTheme, changeTrainer, changeTrainerName, changeAutocomplete, changeSafariFleeAfter, setPokedexView,
       openProfiles: () => openPersonalization("profiles"), openSettings: () => openPersonalization("settings"),
       navigate, setCatalogFilters: (kind: CatalogKind, filters: CatalogFilters) => setCatalogFilters(previous => ({ ...previous, [kind]: filters })),
       closePersonalization: () => { if (!busyRef.current) setView(personalizationReturn.current); },

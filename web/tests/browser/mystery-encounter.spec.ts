@@ -9,7 +9,7 @@ async function guess(page: Page, id: number) {
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(`SELECT id FROM pokedex WHERE id = ${id};`);
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
 }
 
 test('daily encounter shows its sprite, reveals its name on a correct SQL guess, and resumes offline', async ({ page, context }, info) => {
@@ -42,7 +42,9 @@ test('daily encounter shows its sprite, reveals its name on a correct SQL guess,
   await expect(scene.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(scene).toBeInViewport();
   const revealedName = (await scene.locator('h3').textContent())!;
-  await expect(scene.locator('.encounter-caption')).toHaveText(`It’s ${revealedName}!`);
+  await expect(scene.locator('.encounter-caption')).toHaveText(`Gotcha! ${revealedName} was caught!`);
+  await expect(scene.locator('.encounter-catch-ball')).toBeVisible();
+  await expect(scene.locator('.encounter-sprite')).toHaveCSS('opacity', '0');
   await scene.screenshot({ path: info.outputPath('daily-revealed.png'), animations: 'disabled' });
   await page.screenshot({ path: info.outputPath('daily-workspace.png') });
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
@@ -53,11 +55,11 @@ test('daily encounter shows its sprite, reveals its name on a correct SQL guess,
   await expect(scene.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(scene.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
   await expect(page.locator('.mystery-table tbody tr')).toHaveCount(2);
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
   expect(await scene.locator('img').evaluateAll(async images => {
     await Promise.all(images.map(img => (img as HTMLImageElement).decode()));
-    return images.map(img => (img as HTMLImageElement).naturalWidth > 0);
-  })).toEqual([true, true]);
+    return images.every(img => (img as HTMLImageElement).naturalWidth > 0);
+  })).toBe(true);
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await expect(scene.getByRole('heading', { name: '???', exact: true })).toBeVisible();
   const randomLevel = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:mystery-round')!).level);
@@ -85,6 +87,7 @@ for (const width of [1440, 620, 390, 320]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     await expect(scene.locator('.encounter-sprite img')).toHaveCSS('transition-duration', '0s');
     await guess(page, 6);
+    await expect(scene).toHaveClass(/is-caught/);
     await expect(scene.getByRole('img', { name: 'Revealed Charizard', exact: true })).toBeVisible();
     const textFits = await scene.locator('.encounter-caption').evaluate(element => {
       const box = element.getBoundingClientRect(), range = document.createRange();
@@ -101,7 +104,7 @@ for (const width of [1440, 620, 390, 320]) {
     await page.getByRole('button', { name: 'New Pokémon', exact: true }).click();
     await expect(scene.getByRole('img', { name: 'Mystery Pokémon', exact: true })).toBeVisible();
     await expect(page.locator('.mystery-table tbody tr')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeEnabled();
   });
 }
 

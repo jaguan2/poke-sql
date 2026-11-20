@@ -23,13 +23,11 @@ export const SafariBattleScene = forwardRef<HTMLDivElement, {
     label={hidden ? "Wild Pokémon encounter" : `Wild ${species.name} encounter`} titleId="safari-wild-name" terrain={zone.battleTerrain}
     identity={{ name: hidden ? "???" : species.name, level: encounter.level ?? legacyEncounterLevel(encounter.id), badge: caught ? "CAUGHT" : fled ? "FLED" : null, registered: !hidden && (caught || previouslyRegistered) }}
     pokemon={hidden ? null : { id: species.id, label: `Wild ${species.name}`, shiny: encounter.shiny }}
-    trainer={trainer} throwing={catching}
+    trainer={trainer} capture={catching || caught ? { phase: catching ? "catching" : "caught", ball: ballTheme } : undefined}
     caption={phase === "entering" ? "The grass is stirring…" : catching ? "Nice query! Making the catch…" : caught
       ? <>Gotcha! <span>{name}</span> was caught!</> : fled ? <>Oh no! <span>{name}</span> fled!</>
         : warning ? <><span>{name}</span> {warning}</> : hidden ? "Something is hiding in the grass." : <>A wild <span>{name}</span> appeared!</>}>
     {phase === "entering" && <div className="safari-battle-wipe" aria-hidden="true"><span /><span /></div>}
     {encounter.shiny && <span className="safari-shiny-badge"><span aria-hidden="true">✦</span> Shiny</span>}
-    {(catching || caught) && <img className="safari-catch-ball" src={`${import.meta.env.BASE_URL}sprites/items/${ballTheme}.png`} alt="" width={30} height={30} />}
-    {catching && <span className="safari-catch-flash" aria-hidden="true" />}
   </EncounterScene>;
 });

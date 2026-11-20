@@ -3,7 +3,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import tracks from '../../src/features/music/tracks.json' with { type: 'json' };
+import { MUSIC_TRACKS as tracks } from '../../src/features/music/catalog';
 import { nearSafariGrass } from '../fixtures/safari';
 
 test('desktop loads bundled SQL and sprites without Node access in the page', async ({}, testInfo) => {
@@ -22,7 +22,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
   try {
     app = await launch();
     const page = await app.firstWindow();
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await page.getByRole('button', { name: 'Get started', exact: true }).click();
     await expect(page.locator('.catalog-question')).toHaveCount(25);
     await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
@@ -58,7 +58,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await page.getByText('Answer', { exact: true }).click();
     await page.getByRole('article', { name: 'Direct approach' }).getByRole('button', { name: 'Use this answer' }).click();
     await expect(page.locator('tbody tr')).toHaveCount(0);
-    await page.getByRole('button', { name: /▶ Run/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     await expect(page.locator('tbody tr')).toHaveCount(10);
     await expect(page.locator('tbody tr').first()).toContainText('Blissey');
     await page.getByRole('button', { name: 'Back to free practice' }).click();
@@ -66,7 +66,7 @@ test('desktop loads bundled SQL and sprites without Node access in the page', as
     await page.keyboard.insertText(`SELECT p.name, p.sprite_url, p.mega_form_count,
       (SELECT COUNT(*) FROM pokemon_forms f WHERE f.species_id=p.id AND f.is_mega=1) AS linked_megas
       FROM pokedex p WHERE p.id=6;`);
-    await page.getByRole('button', { name: /▶ Run/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     await expect(page.getByRole('cell', { name: 'Charizard', exact: true })).toBeVisible();
     await expect(page.getByRole('cell', { name: '2', exact: true })).toHaveCount(2);
     await expect.poll(() => page.locator('img.sprite').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth === 96)).toBe(true);
@@ -129,11 +129,11 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     app = await electron.launch({ executablePath: process.env.POKESQL_EXECUTABLE,
       args: process.env.POKESQL_EXECUTABLE ? [] : ['.'], env });
     const page = await app.firstWindow();
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
     await page.reload();
     await page.clock.setFixedTime('2026-01-02T12:00:00Z');
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(page.getByRole('row', { name: 'Unknown legendary Pokémon', exact: true })).toContainText('1.0%');
     await page.locator('.safari-events > summary').click();
     await expect(page.getByRole('article', { name: 'Unknown Mythical event', exact: true })).toContainText('Active now');
@@ -177,7 +177,7 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);
     await page.keyboard.press('ControlOrMeta+Enter');
-    await expect(page.locator('.is-catching .safari-catch-ball')).toHaveAttribute('src', /sprites\/items\/poke-ball\.png$/);
+    await expect(page.locator('.is-catching .encounter-catch-ball')).toHaveAttribute('src', /sprites\/items\/poke-ball\.png$/);
     await expect(page.locator('.encounter-trainer')).toHaveAttribute('data-trainer', 'steven');
     await expect(page.locator('.safari-pokedex-entry')).toHaveCount(0);
     await expect(page.getByText('Gotcha!', { exact: false })).toBeVisible();
@@ -195,7 +195,7 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
     await expect(page.locator('.encounter-card')).toHaveCount(1);
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
     await expect(page.locator('.encounter-trainer')).toHaveAttribute('data-trainer', 'steven');
     await expect(caughtMarker).toBeVisible();
@@ -231,7 +231,7 @@ test('desktop mystery uses original data and resumes its notebook after reload',
       args: process.env.POKESQL_EXECUTABLE ? [] : ['.'], env,
     });
     const page = await app.firstWindow();
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await page.evaluate(() => localStorage.setItem('pokesql:mystery-round', JSON.stringify({ targetId: 6, guessCount: 0, attempts: [] })));
     await page.reload();
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
@@ -261,7 +261,7 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.locator('.cm-editor').click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText('SELECT id FROM pokedex WHERE id = 5');
-    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toContainText('↑ Taller');
     await page.reload();
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();

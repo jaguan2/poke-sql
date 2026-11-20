@@ -33,6 +33,6 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId, dat
       </tr>;
       })}</tbody>
     </table>
-    <small className="safari-guide-note">Register a Pokémon to reveal it here. Chances include today’s weather. Your last catch rests so you meet a different Pokémon. Each encounter has a 1 in {SHINY_ODDS} chance to be shiny.</small>
+    <small className="safari-guide-note">Register a Pokémon to reveal it here. Chances include today’s weather. Your last catch rests when other species are available. Each encounter has a 1 in {SHINY_ODDS} chance to be shiny.</small>
   </aside>;
 }

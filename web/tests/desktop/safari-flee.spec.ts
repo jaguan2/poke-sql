@@ -13,13 +13,13 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     app = await electron.launch({ executablePath: process.env.POKESQL_EXECUTABLE,
       args: process.env.POKESQL_EXECUTABLE ? [] : ['.'], env });
     const page = await app.firstWindow();
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
     await page.reload();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByLabel('Chances before fleeing', { exact: true }).selectOption('5');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.keyboard.press('a');
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
     await expect(page.getByRole('progressbar', { name: 'Catch chances remaining' })).toHaveAttribute('value', '5');
@@ -36,7 +36,7 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await expect(page.getByLabel('Chances before fleeing', { exact: true })).toHaveValue('5');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(page.locator('.safari-fled-summary')).toContainText('After 5 incorrect answers');
     await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
     await page.getByText('Review a solution', { exact: true }).click();

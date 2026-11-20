@@ -56,7 +56,7 @@ test('guaranteed encounters follow the new patch after a catch instead of the ol
   const patch = rustlingPatch(zone, 1);
   const approach = (['up', 'down', 'left', 'right'] as const).map(direction => ({ direction, position: movePosition(zone, patch, direction) })).find(entry => entry.position !== patch)!;
   const reverse = { up: 'down', down: 'up', left: 'right', right: 'left' } as const;
-  const session = { ...createSafariSession(), catches: 1, position: approach.position };
+  const session = { ...createSafariSession('forest'), catches: 1, position: approach.position };
   const encounter = walkSafari(session, reverse[approach.direction], 1, 0, 'new-hotspot');
   expect(encounter.position).toEqual(patch);
   expect(encounter.encounter?.pokemonId).toBe(10);
@@ -66,7 +66,7 @@ test('guaranteed encounters follow the new patch after a catch instead of the ol
 });
 
 test('movement blocks obstacles, encounters require walking in grass, and rustles and pity steps work', () => {
-  const initial = createSafariSession();
+  const initial = createSafariSession('forest');
   const wall = { ...initial, position: { x: 2, y: 8 } };
   expect(walkSafari(wall, 'left', 0, 0, 'wall')).toMatchObject({ position: wall.position, steps: 0, encounter: null });
   expect(walkSafari(initial, 'up', 0, 0, 'path').encounter).toBeNull();
@@ -215,13 +215,13 @@ test('weather changes actual encounter outcomes and rotates within each habitat'
 
 test('catches from expanded habitats restore without resetting the expedition', async () => {
   const [entry] = await entriesFor([872]);
-  const session = changeSafariZone(createSafariSession(), 'tundra');
+  const session = changeSafariZone(createSafariSession('forest'), 'tundra');
   const caught = { encounterId: 'snow-catch', pokemon: entry.pokemon, attempts: 1, caughtAt: '2026-11-18T12:00:00.000Z' };
   expect(isSafariSession({ ...session, catches: 1, encounter: { id: 'snow-catch', pokemonId: 872, assignmentId: 'field-notes', attempts: 1, outcome: "caught", fleeAfter: null }, lastCatch: caught })).toBe(true);
 });
 
 test('Safari save validation rejects impossible positions, forged pools and broken caught state', async () => {
-  const initial = createSafariSession();
+  const initial = createSafariSession('forest');
   expect(isSafariSession(JSON.parse(JSON.stringify(initial)))).toBe(true);
   const active = walkSafari(nearSafariGrass(), 'left', 0, 0, 'encounter');
   expect(isSafariSession(active)).toBe(true);

@@ -352,7 +352,7 @@ tbody tr:hover {
 .result-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--text-dim); }
 .result-pagination select { max-width: 100%; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 6px; }
 .result-pagination select:focus-visible { outline: 2px solid var(--highlight); outline-offset: 2px; }
-.editor-toolbar, .workspace-status { flex-shrink: 0; }
+.editor-label, .editor-actions, .workspace-status { flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
 /* ---------- loading ---------- */
@@ -393,9 +393,12 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .saved-query { display: flex; align-items: center; }
 .saved-query .sample-btn { overflow: hidden; text-overflow: ellipsis; }
 .remove-query { background: transparent; border: 0; color: var(--text-dim); font-size: 22px; cursor: pointer; }
-.editor-toolbar { display: flex; align-items: center; gap: 8px; padding: 16px; background: var(--panel); }
-.editor-label { margin-right: auto; font-size: 12px; color: var(--highlight); white-space: nowrap; }
-.editor-toolbar input { width: 175px; min-width: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); color: var(--text); padding: 7px 9px; }
+.editor-label { margin: 12px 16px 8px; font-size: 12px; color: var(--highlight); }
+.editor-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 0 16px; padding: 8px 0 12px; }
+.editor-history { display: flex; gap: 8px; }
+.editor-actions .btn { min-height: 44px; }
+.editor-history .btn { display: inline-flex; align-items: center; gap: 6px; }
+.editor-history .btn span { font-size: 21px; line-height: 1; }
 .practice-panel { padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--border); max-height: 32vh; overflow: auto; flex-shrink: 0; }
 .challenge-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .challenge-heading button { width: auto; font-size: 11px; }
@@ -437,12 +440,11 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
   .main > :first-child { border-radius: 19px 19px 0 0; }
   .header { position: sticky; top: 0; z-index: 20; grid-template-columns: 1fr auto; gap: 10px; padding: 10px; background: var(--shell); border-radius: 21px 21px 0 0; }
   .header-personalization { grid-column: 2; grid-row: 1; justify-self: end; }
-  .header-actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 2fr; }
+  .header-actions { grid-column: 1 / -1; flex-wrap: wrap; }
   .brand { gap: 10px; } .brand h1 { font-size: 19px; }
   .header .btn { min-height: 40px; padding: 8px 10px; font-size: 12px; }
-  .editor-toolbar { flex-wrap: wrap; padding: 12px; } .editor-label { width: 100%; }
-  .editor-toolbar input { flex: 1; font-size: 16px; }
-  .editor-toolbar .btn { min-height: 40px; padding: 8px 10px; }
+  .editor-label { margin-inline: 10px; }
+  .editor-actions { margin-inline: 10px; }
   .editor-wrap { height: 200px; margin: 0 10px; }
   .editor-wrap .cm-editor { font-size: 16px; }
   .practice-panel { max-height: none; overflow: visible; padding: 14px 12px; }
@@ -463,7 +465,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 
 /* Keep the desktop workspace comfortable on iPads and other touch computers. */
 @media (pointer: coarse) {
-  .editor-wrap .cm-editor,.editor-toolbar input { font-size:16px; }
+  .editor-wrap .cm-editor { font-size:16px; }
   .btn,.header .btn { min-height:44px; }
   .header .header-icon { width:44px; height:44px; }
 }

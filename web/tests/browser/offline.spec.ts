@@ -25,7 +25,7 @@ test('failed offline installation cleans partial files and succeeds after retry'
   if (!address || typeof address === 'string') throw new Error('Missing test server port');
   try {
     await page.goto(`http://127.0.0.1:${address.port}/practice/`);
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await expect(page.getByText('Offline download failed — reload to retry')).toBeVisible({ timeout: 20000 });
     expect(await page.evaluate(() => caches.keys())).toEqual([]);
     failSprite = false;
@@ -37,7 +37,7 @@ test('failed offline installation cleans partial files and succeeds after retry'
     await page.locator('.cm-content').click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText('SELECT name, sprite_url FROM pokedex WHERE id = 1;');
-    await page.getByRole('button', { name: /▶ Run/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     await expect(page.locator('tbody tr').first().getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
     await expect.poll(() => page.locator('img.sprite').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth === 96)).toBe(true);
   } finally {

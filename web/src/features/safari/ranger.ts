@@ -1,7 +1,7 @@
 import { encounterTable } from "./zones";
-import type { Position, SafariZoneDefinition, WeatherId, ZoneId } from "./zones";
+import type { Position, SafariZoneDefinition, SafariHabitatId, WeatherId } from "./zones";
 
-export const RANGER_POSITIONS: Readonly<Record<ZoneId, Position>> = {
+export const RANGER_POSITIONS: Readonly<Record<SafariHabitatId, Position>> = {
   forest: { x: 8, y: 16 },
   wetlands: { x: 36, y: 22 },
   ridge: { x: 20, y: 30 },

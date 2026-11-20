@@ -9,7 +9,7 @@ async function loadDirectAnswer(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 });
 
 test('specific Get started prompts reveal help without executing and return the promised Pokémon', async ({ page }) => {
@@ -22,7 +22,7 @@ test('specific Get started prompts reveal help without executing and return the 
   await expect(page.locator('.query-help pre:visible')).toHaveText('ORDER BY hp DESC, id\nLIMIT 10');
   await expect(page.locator('.cm-line')).toHaveText(['-- Top 10 Pokémon by HP', 'SELECT ']);
   await loadDirectAnswer(page);
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(10);
   await expect(page.locator('tbody tr').first().locator('td')).toHaveText(['Blissey', '255', 'normal', 'NULL']);
   await expect(page.locator('tbody tr').nth(1)).toContainText('Chansey');
@@ -30,7 +30,7 @@ test('specific Get started prompts reveal help without executing and return the 
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'All Pokémon from Gen 1', exact: true }).click();
   await loadDirectAnswer(page);
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(151);
   await expect(page.locator('tbody tr').first()).toContainText('Bulbasaur');
   await expect(page.locator('tbody tr').last()).toContainText('Mew');
@@ -38,7 +38,7 @@ test('specific Get started prompts reveal help without executing and return the 
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await page.getByRole('button', { name: 'All Fire-type Pokémon from Gen 2', exact: true }).click();
   await loadDirectAnswer(page);
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(10);
   await expect(page.locator('tbody tr').first()).toContainText('Cyndaquil');
   await expect(page.locator('tbody tr').last().locator('td')).toHaveText(['Ho-Oh', 'fire', 'flying', '680']);
@@ -75,7 +75,7 @@ test('challenge alternative answers are revealable, load without grading, and pa
   await expect(page.locator('.cm-content')).toContainText("OR name = 'Charmander'");
   await expect(page.getByText(`Training · 0/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
   await expect(page.locator('tbody tr')).toHaveCount(0);
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await page.getByRole('article', { name: 'Direct approach' }).getByRole('button', { name: 'Use this answer' }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toHaveCount(0);
@@ -105,7 +105,7 @@ test('Charizard lookup loads without running and shows its sprite on desktop and
   await expect(page.locator('.query-help pre:visible')).toHaveText("WHERE name = 'Charizard'");
   await loadDirectAnswer(page);
   await expect(page.locator('.cm-content')).toContainText("WHERE name = 'Charizard'");
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.getByRole('cell', { name: 'Charizard', exact: true })).toBeVisible();
   await expect(page.locator('.type-badge')).toHaveText(['fire', 'flying']);
@@ -129,20 +129,20 @@ test('new popular Pokémon challenges grade correctly and retain existing comple
   await page.getByRole('button', { name: /Meet Charizard/ }).click();
   await loadDirectAnswer(page);
   await expect(page.getByText(`Training · 1/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await page.getByRole('button', { name: 'Challenges', exact: true }).click();
   await page.getByRole('button', { name: /Charizard's type weaknesses/ }).click();
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText("SELECT 'rock', 2 UNION ALL SELECT 'electric', 2 UNION ALL SELECT 'water', 2;");
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('Not quite yet.', { exact: false })).toBeVisible();
   await expect(page.getByText(`Training · 2/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();
   await page.getByText('Answer', { exact: true }).click();
   await page.getByRole('article', { name: 'Naming each defense with a CTE' }).getByRole('button', { name: 'Use this answer' }).click();
   await expect(page.locator('tbody tr')).toHaveCount(0);
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await expect(page.locator('tbody tr').first().locator('td')).toHaveText(['rock', '4']);
   await expect(page.getByText(`Training · 3/${CHALLENGES.length} complete`, { exact: true })).toBeVisible();

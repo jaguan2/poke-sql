@@ -16,6 +16,7 @@
 .safari-expedition { display:grid; grid-template-columns:minmax(0,1fr) 230px; gap:18px; align-items:start; }
 .safari-field { border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--panel-raised); }
 .safari-field-heading { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 14px; font-size:11px; }
+.safari-field-heading > a { color:var(--highlight); font-size:11px; padding:6px; text-underline-offset:3px; }
 .safari-live { margin-left:auto; color:var(--highlight); font-size:10px; }
 .safari-map { image-rendering:pixelated; position:relative; aspect-ratio:15/10; overflow:hidden; isolation:isolate; border-block:4px solid var(--safari-canopy); background:var(--safari-canopy); }
 .safari-map:focus-visible { outline:3px solid var(--safari-accent); outline-offset:-4px; }
@@ -80,7 +81,8 @@
 .safari-fled-summary h4 { margin:16px 0 8px; font-size:12px; }
 .safari-fled-summary pre { max-width:100%; overflow:auto; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--panel-raised); font-size:12px; line-height:1.7; text-align:left; }
 .safari-assignment,.safari-catch-summary { padding:20px; }.safari-assignment-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; }.safari-assignment h3 { font-size:23px; margin:7px 0; }.safari-assignment > p { font-size:13px; line-height:1.7; max-width:720px; }.safari-assignment details { padding:10px 0; color:var(--text-dim); font-size:12px; }.safari-assignment details p { line-height:1.7; }.safari-assignment summary { cursor:pointer; color:var(--highlight); }.safari-assignment .editor-wrap { height:230px; min-height:180px; margin:12px 0; }.safari-assignment > small { font-size:10px; color:var(--text-dim); line-height:1.8; display:block; margin-top:16px; }
-.safari-query-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:14px 0; }.safari-query-actions > span { font-size:11px; color:var(--text-dim); }.safari-query-results { margin-top:18px; }.safari-query-results .table-scroll { max-height:280px; }
+.safari-assignment .editor-actions { margin:0; padding:0 0 12px; }
+.safari-query-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0; }.safari-query-actions > span { font-size:11px; color:var(--text-dim); }.safari-query-results { margin-top:18px; }.safari-query-results .table-scroll { max-height:280px; }
 .safari-catch-summary { text-align:center; padding:20px 16px; }.safari-catch-summary h3 { font-size:26px; margin:10px 0; }.safari-catch-summary p { color:var(--text-dim); font-size:13px; line-height:1.7; }.safari-catch-summary > div { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-top:20px; }
 .safari-credits { margin-top:18px; font-size:10px; color:var(--text-dim); }.safari-credits summary { cursor:pointer; }.safari-credits p { line-height:1.8; max-width:700px; }.safari-credits a { color:var(--highlight); }
 @keyframes safari-rustle { 0%,70%,100% { rotate:0deg; opacity:.75; } 78% { rotate:-10deg; translate:-2px 0; opacity:1; } 86% { rotate:10deg; translate:2px 0; } 94% { rotate:-5deg; } }

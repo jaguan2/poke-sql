@@ -5,7 +5,7 @@ stats, evolutions, Mega and regional forms, abilities, and the type-effectivenes
 or a Windows desktop application. No account, cloud database, or backend.
 
 Browse the [current screenshot gallery](docs/screenshots/README.md) for the
-practice pages, all eight Poké Ball themes, Safari exploration/catches, Trainer ID,
+practice pages, all eight Poké Ball themes, Kanto, Hoenn and Johto exploration, Safari catches, Trainer ID,
 Pokédex and iPad-sized layouts.
 
 Designed primarily for desktop/laptop browsers and iPads in portrait or landscape.
@@ -73,6 +73,40 @@ See [releasing and testing updates](docs/RELEASING.md).
 
 ## Practice tools
 
+- **Explore Kanto:** begin in Pallet Town and walk between 15 connected places:
+  Route 1, Viridian City, Route 22, Route 2, both Viridian Forest gates,
+  Viridian Forest, Pewter City, Route 3, Route 4, all three Mt. Moon floors,
+  and Cerulean City. This is the first Kanto journey, not the entire region.
+  Original FireRed map geometry, doors, ladders and one-way ledges connect the
+  locations. Walk with WASD/arrow keys or swipe on a touchscreen. Open **Region
+  map** to choose a region and any included **Area**, then select **Travel to**
+  to drop there. Towns and forest gates have no encounters, and town
+  guides provide PC/Pokédex access. Routes, forest and caves have curated
+  Generation I encounter tables. Correct SQL catches enter your PC with the
+  actual route name; entering a new map never grants a catch. Visited places
+  and your exact position save locally and work offline. Existing Safari saves
+  keep their habitat, active encounter, draft and catches. **Safari habitats**
+  retains the nine original areas and their scheduled event visitors.
+- **Explore Hoenn:** start in Littleroot Town and walk through Route 101,
+  Oldale Town, Route 103, Route 102, Petalburg City, Route 104, Petalburg Woods,
+  Rustboro City, Route 116, Rusturf Tunnel, Verdanturf Town, Route 117 and
+  Mauville City. These 14 native Emerald maps form the first Hoenn journey.
+  Open **Region map → Hoenn**, choose an **Area**, then **Travel to**. Each region remembers
+  your exact location and position; use **Continue** to return. All regions
+  share your trainer, catches and PC collection. Towns are safe; routes,
+  woods and the tunnel have their own encounter tables and SQL catch tasks.
+- **Explore Johto:** 17 connected Crystal maps run from New Bark Town through
+  Routes 29–34, Cherrygrove, Violet and Azalea to Goldenrod City, including
+  Union Cave 1F, Slowpoke Well B1F, Ilex Forest and three connecting gates.
+  Choose **Region map → Johto → Area → Travel to** to start at any included
+  location, including unvisited routes and caves. Travel grants no catches
+  and stays disabled during encounters. Native floor ledges and cliff edges
+  retain their movement rules; Cut trees are cleared for free exploration.
+  Towns are safe. Johto pools combine Crystal's daytime and nighttime land
+  tables equally, with 30 ordinary Generation I–II species; cave and forest
+  encounters can occur throughout the walkable floor. The first journey ends
+  in Goldenrod; later towns, surfing, NPC battles and story progression are
+  not included.
 - **Safari Zone:** explore nine habitats: Verdant Forest, Willow Wetlands,
   Amber Ridge, Sunlit Meadow, Azure Coast, Mirage Dunes, Moonstone Caverns,
   Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
@@ -197,8 +231,11 @@ See [releasing and testing updates](docs/RELEASING.md).
 - **Who’s That Pokémon?** A daily hidden species and a SQL guessing notebook.
   A Safari-style 3:2 battle scene shows the trainer facing the Pokémon's full-color
   sprite. Its encounter level appears beside its hidden name, shown as `???`.
-  A correct SQL guess reveals the name. Daily and random rounds both use
-  this encounter view, and their levels persist with saved progress.
+  A correct SQL guess reveals the name and plays the trainer's pitching pose,
+  themed Poké Ball throw, absorption and ball-shake sequence used in Safari.
+  Daily and random rounds both use this encounter view, and their levels persist
+  with saved progress. Restored wins show the settled catch without replaying
+  the animation; reduced motion skips straight to that state.
   Everyone using the same app version gets the same Pokémon for a UTC date;
   the next challenge becomes available at **00:00 UTC**. The fixed shuffled
   schedule visits all 1,025 species before repeating, so no calendar year has
@@ -217,10 +254,18 @@ See [releasing and testing updates](docs/RELEASING.md).
   **New Pokémon** starts another random round. Both modes work offline, using
   the device's UTC clock for the daily schedule. Only the latest opened daily
   round is retained; past-day puzzle archives are not included.
-- **Poké Radio:** three bundled Pokémon arrangements from OverClocked ReMix,
-  with playback, volume, track selection, and repeat controls below the results.
+- **Game music:** seven FireRed/LeafGreen themes cover all 15 Kanto locations
+  and nine Ruby/Sapphire/Emerald themes cover the first 14 Hoenn locations.
+  Ten Gold/Silver/Crystal themes cover Johto's 17 included maps. **Follow
+  area music** is enabled initially: Viridian Forest plays its own theme;
+  towns, routes, forest gates and Mt. Moon use their original shared themes.
+  Press Play once in the music player; the **♫ Music** link on the map opens its
+  controls. Area changes keep playback, pause, mute and volume; moving between
+  locations with the same theme does not restart it. Area themes repeat.
+  Selecting a track switches to the manual playlist and pauses playback.
+  Playback, volume, track selection, and repeat controls sit below the results.
   Tracks advance in playlist order and return to the first track. Selecting a
-  track pauses playback. Track choice, volume, mute, and repeat save locally;
+  track pauses playback. Track choice, area following, volume, mute and repeat save locally;
   reopening the app always starts paused. Music works offline after the web
   app finishes caching, and immediately in desktop builds.
 - **Trainer ID:** use the trainer-card icon in the header to name your trainer,
@@ -240,8 +285,10 @@ See [releasing and testing updates](docs/RELEASING.md).
   `LEFT JOIN`, `GROUP BY`, and `ORDER BY`. Use the arrow keys and Enter to accept
   a suggestion, Escape to dismiss, or Ctrl+Space to open the list. The setting
   saves on this device; accepting a suggestion does not execute SQL.
-- **SQL editor:** SQLite syntax highlighting, schema autocomplete,
-  Ctrl+Enter / Cmd+Enter, and multiple statements.
+- **SQL editor:** SQLite syntax highlighting, schema autocomplete and multiple
+  statements. Run query sits below the editor alongside Undo and Redo for text
+  edits. Ctrl+Enter / Cmd+Enter runs SQL; Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z undo and
+  redo edits. These controls also work in mystery rounds and Safari encounters.
 - **Workspace menu:** sectioned, icon-led navigation opens dedicated pages for
   practice, discoveries and your saved work. The panel button beside the logo
   collapses desktop navigation to a compact icon rail and hides it on phones.
@@ -258,12 +305,12 @@ See [releasing and testing updates](docs/RELEASING.md).
   difficulty labels, hints, result checking and saved completion progress. Filter
   by completed exercises or saved drafts. Answers use a fresh copy of the original Pokédex.
   Reveal **Hint** for a SQL fragment or **Answer** for worked solutions.
-  **Use this answer** loads the chosen approach; only **Check answer** grades it.
+  **Use this answer** loads the chosen approach; **Run query** grades it.
   New Pokémon-focused tasks include Charizard's profile and dual-type weaknesses,
   Pikachu's speed club, Lucario's full ability list, Kanto's Mega roster,
   baby evolution stages, and Mega Charizard's changing types.
 - **Saved work:** separate editor drafts for free practice and each challenge,
-  named queries, and the last 30 distinct query runs. History and Saved open
+  previously saved queries, and the last 30 distinct query runs. History and Saved open
   their own pages. Schema & guide combines the database browser and SQL reference;
   examples return to the editor you were using, including an active Safari catch.
 - **Database saves:** completed changes persist locally in IndexedDB. Reset DB
@@ -314,6 +361,33 @@ close all PokéSQL tabs and reopen the site.
 
 ## Data and assets
 
+The first Kanto journey vendors 15 complete maps from the pinned
+[FireRed reconstruction](https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/data/maps).
+Art, collisions and native connections are generated together by
+`py scripts/build_region_assets.py kanto` from `kanto-routes.json`; Pillow is required.
+No ROM or runtime download is required. Water remains impassable and buildings
+without a connected interior stay closed. NPC battles and story progression
+are outside this first journey. Encounter weights combine familiar early
+Kanto species for SQL practice rather than reproducing a particular game's
+version-exclusive encounter table. Every available Kanto species has a local
+normal and shiny sprite from [PokeAPI/sprites](https://github.com/PokeAPI/sprites).
+
+Hoenn adds 14 complete maps from the pinned
+[Emerald reconstruction](https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/maps).
+Run `py scripts/build_region_assets.py hoenn` to regenerate their art and
+geometry from `hoenn-routes.json`. The first journey ends in Mauville; later
+towns, surfing, story events and NPC battles are not included. Encounter
+tables combine Generation I–III species, with local normal and shiny sprites.
+Rusturf Tunnel contains only Whismur, which remains available after a catch.
+
+Johto's 17 complete maps come from the pinned
+[Crystal disassembly](https://github.com/pret/pokecrystal/tree/9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482).
+Run `py scripts/build_region_assets.py johto` (Pillow required). The Crystal
+adapter decodes native block maps, tiles, palette maps, per-town roofs and
+16-pixel collision quadrants, then feeds the same connected-map validation
+and asset manifest as Kanto/Hoenn. Recipes live in `johto-routes.json`.
+All Johto encounter species have bundled normal and shiny sprites.
+
 Safari offers 72 regular species plus nine Legendary and six Mythical event
 visitors across nine habitats (87 distinct species and 90 habitat slots,
 including species shared by habitats). Route graphics and field effects come
@@ -349,14 +423,26 @@ excluding region-themed costumes such as Pikachu's Alola cap. `capture_rate`
 is a catch-rate parameter, not a percentage. Missing habitats remain NULL.
 Form metadata comes from [PokéAPI's form data](https://pokeapi.co/docs/v2/#pokemon-forms).
 
-Poké Radio bundles unchanged MP3 arrangements by halc, Emunator, and NoTuX
-(formerly Blue Magic), from [OverClocked ReMix](https://ocremix.org).
-The recordings are used under its [noncommercial content policy](https://ocremix.org/info/Content_Policy),
-which requires attribution and forbids changing redistributed MP3s, including
-their tags. See [music credits and distribution conditions](web/public/music/CREDITS.txt).
-The three tracks add approximately 17.7 MB to the download and offline cache.
-Their hashes are checked during every production build. Music rights are
-separate from the code; reassess them before commercialization or fundraising.
+Kanto game recordings come from the pinned FireRed pack in
+[MusicReplacementMod](https://github.com/AlucardTheFirstHunter/MusicReplacementMod/tree/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered).
+`kanto-tracks.json` records source and output SHA-256 hashes. Regenerate the
+local 128 kbps MP3s with `py scripts/vendor_region_music.py kanto --refresh`, using
+FFmpeg 9.0.2 (`--ffmpeg PATH`) or `imageio-ffmpeg`. These seven tracks add about 14 MB. Area assignments are
+generated directly from the pinned FireRed map music IDs, and every Kanto map
+must resolve exactly one theme before a production build can pass.
+
+Hoenn's nine matching area themes use the shared Ruby/Sapphire/Emerald
+soundtrack recordings from [Zophar's Sapphire archive](https://www.zophar.net/music/gameboy-advance-gsf/pokemon-sapphire).
+`hoenn-tracks.json` pins the source URLs and source/output hashes. Rebuild with
+`py scripts/vendor_region_music.py hoenn --refresh`; these recordings use the
+same 128 kbps MP3 conversion and add about 14 MB. Native Emerald map music IDs
+select the themes, including Petalburg Woods and Rusturf Tunnel's shared music.
+
+Johto's ten area themes use shared Gold/Silver/Crystal recordings from
+[Zophar's Gold archive](https://www.zophar.net/music/gameboy-gbs/pokemon-gold),
+selected by native Crystal map music IDs. `johto-tracks.json` pins source URLs
+and both hashes. Rebuild with `py scripts/vendor_region_music.py johto --refresh`;
+the same 128 kbps MP3 conversion keeps playback local and offline.
 
 Pokémon sprites come from the [PokeAPI sprites collection](https://github.com/PokeAPI/sprites).
 The theme picker's eight ball icons also come from that repository's

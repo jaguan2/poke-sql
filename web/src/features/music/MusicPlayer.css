@@ -18,6 +18,10 @@
 .music-about ul { padding-left: 20px; }
 .music-message { margin: 8px 0 0; line-height: 1.6; }
 .music-message button { border: 0; background: transparent; padding: 0; font: inherit; text-decoration: underline; cursor: pointer; }
+@media (pointer:coarse) {
+  .music-repeat, .music-track select { min-height:44px; }
+  .music-player audio { height:44px; }
+}
 @media (max-width: 620px) {
   .music-controls { gap: 8px; }
   .music-heading { width: 100%; }

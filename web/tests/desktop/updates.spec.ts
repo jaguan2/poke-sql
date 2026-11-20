@@ -42,7 +42,7 @@ for (const scenario of ['offline', 'tampered', 'downloaded'] as const) {
     try {
       app = await electron.launch({ executablePath: process.env.POKESQL_EXECUTABLE ?? path.resolve('release/win-unpacked/PokeSQL.exe'), args: [], env });
       const page = await app.firstWindow();
-      await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
       expect(await app.evaluate(({ app }) => app.getName())).toBe('poke-sql-web');
       await app.evaluate(({ app }, feed) => {
         const load = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
@@ -61,7 +61,7 @@ for (const scenario of ['offline', 'tampered', 'downloaded'] as const) {
       }, feed);
       const edit = async (sql: string) => {
         await page.locator('.cm-content').focus(); await page.keyboard.press('ControlOrMeta+A');
-        await page.keyboard.insertText(sql); await page.getByRole('button', { name: /▶ Run/ }).click();
+        await page.keyboard.insertText(sql); await page.getByRole('button', { name: /Run query/ }).click();
       };
       const readSavedSql = 'SELECT value FROM update_save;';
       const savedValue = page.getByRole('cell', { name: 'Still here', exact: true });
@@ -85,7 +85,7 @@ for (const scenario of ['offline', 'tampered', 'downloaded'] as const) {
       expect(await page.evaluate(async feed => { try { await fetch(feed); return 'allowed'; } catch { return 'blocked'; } }, feed)).toBe('blocked');
       await page.reload();
       await expect(page.locator('.cm-content')).toHaveText(readSavedSql);
-      await page.getByRole('button', { name: /▶ Run/ }).click();
+      await page.getByRole('button', { name: /Run query/ }).click();
       await expect(savedValue).toBeVisible();
     } finally {
       if (app) {

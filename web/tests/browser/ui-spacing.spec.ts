@@ -20,7 +20,7 @@ for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 118
       for (const [destination, content] of [
         ['Schema & guide', '.workspace-library'], ['Get started', '.practice-catalog'], ['Challenges', '.practice-catalog'],
         ['Profiles', '.profiles-page'], ['Settings', '.profiles-page'], ['My Pokédex', '.personal-pokedex'],
-        ['Safari Zone', '.safari-zone'], ['History', '.workspace-library'], ['Saved', '.workspace-library'],
+        ['Explore', '.safari-zone'], ['History', '.workspace-library'], ['Saved', '.workspace-library'],
       ]) {
         await page.getByRole('button', { name: destination, exact: true }).click();
         const heading = page.locator(content).getByRole('heading', { level: 2 }).first();

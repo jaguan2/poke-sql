@@ -13,13 +13,13 @@ test('desktop captures and featured Pokémon persist across a native application
   let app: Awaited<ReturnType<typeof launch>> | undefined;
   try {
     app = await launch(); let page = await app.firstWindow();
-    await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.evaluate(value => localStorage.setItem('pokesql:safari', JSON.stringify(value)), {
       ...nearSafariGrass(), encounter: { id: 'desktop-pc', pokemonId: 10, level: 24, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
     });
     await page.reload();
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.locator('.cm-content').fill('SELECT id, name, type1, type2 FROM pokedex WHERE id = 10;');
     await page.getByRole('button', { name: /Check query & catch/ }).click();
     await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();

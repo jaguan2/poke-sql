@@ -5,6 +5,7 @@ import { entriesFor } from '../fixtures/pokemon-encounters';
 import { createSafariSession } from '../../src/features/safari/model';
 import { nearSafariGrass } from '../fixtures/safari';
 import type { SafariSession } from '../../src/features/safari/types';
+import { TRAINER_THROW } from '../../src/shared/trainer/profile';
 
 const output = path.resolve(process.env.POKESQL_SCREENSHOT_DIR ?? '../docs/screenshots');
 const demoIds = [1, 4, 6, 7, 10, 25, 38, 131, 133, 150, 151, 181];
@@ -23,9 +24,9 @@ async function open(page: Page, theme: string, safari?: SafariSession, date = '2
     localStorage.setItem('pokesql:completed', '["first-partners","charizard-profile","fast-ghosts","generation-counts"]');
     localStorage.setItem('pokesql:safari', JSON.stringify(safari));
     localStorage.setItem('pokesql:history', JSON.stringify(['SELECT name, hp FROM pokedex ORDER BY hp DESC LIMIT 10;', "SELECT name, type1, type2 FROM pokedex WHERE generation_id = 1;", "SELECT name FROM pokemon WHERE name = 'Charizard';"]));
-  }, { theme, entries, safari: safari ?? { ...createSafariSession(), catches: 12 } });
+  }, { theme, entries, safari: safari ?? { ...createSafariSession('forest'), catches: 12 } });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
 }
 
@@ -41,7 +42,7 @@ async function shoot(page: Page, name: string, fullPage = false) {
   await page.screenshot({ path: path.join(output, name), fullPage, animations: 'disabled' });
 }
 
-async function sql(page: Page, text: string, action = /▶ Run/) {
+async function sql(page: Page, text: string, action = /Run query/) {
   await page.locator('.cm-content').fill(text);
   await page.getByRole('button', { name: action }).click();
 }
@@ -51,6 +52,72 @@ test('get started', async ({ page }) => {
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await expect(page.locator('.catalog-question')).toHaveCount(25);
   await shoot(page, 'get-started.png');
+});
+
+test('Kanto town and region map', async ({ page }) => {
+  await open(page, 'poke-ball', createSafariSession('pallet-town'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'Pallet Town exploration map' })).toBeVisible();
+  await shoot(page, 'kanto-pallet-town.png');
+  await page.locator('.region-map > summary').click();
+  await shoot(page, 'kanto-region-map.png');
+});
+
+test('Kanto forest', async ({ page }) => {
+  await open(page, 'dusk-ball', createSafariSession('viridian-forest'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Viridian Forest encounter table' })).toBeVisible();
+  await shoot(page, 'kanto-viridian-forest.png');
+});
+
+test('Hoenn town and region map', async ({ page }) => {
+  await open(page, 'poke-ball', createSafariSession('littleroot-town'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'Littleroot Town exploration map' })).toBeVisible();
+  await shoot(page, 'hoenn-littleroot-town.png');
+  await page.locator('.region-map > summary').click();
+  await shoot(page, 'hoenn-region-map.png');
+});
+
+test('Hoenn woods', async ({ page }) => {
+  await open(page, 'dusk-ball', createSafariSession('petalburg-woods'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Petalburg Woods encounter table' })).toBeVisible();
+  await shoot(page, 'hoenn-petalburg-woods.png');
+});
+
+test('Johto town and area selector', async ({ page }) => {
+  await open(page, 'poke-ball', createSafariSession('new-bark-town'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'New Bark Town exploration map' })).toBeVisible();
+  await shoot(page, 'johto-new-bark-town.png');
+  await page.locator('.region-map > summary').click();
+  await page.getByRole('combobox', { name: 'Area', exact: true }).selectOption('slowpoke-well-b1f');
+  await shoot(page, 'johto-region-map.png');
+});
+
+test('Johto forest', async ({ page }) => {
+  await open(page, 'dusk-ball', createSafariSession('ilex-forest'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('table', { name: 'Ilex Forest encounter table' })).toBeVisible();
+  await shoot(page, 'johto-ilex-forest.png');
+});
+
+test('Kanto music player', async ({ page }) => {
+  await open(page, 'dusk-ball', createSafariSession('viridian-forest'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await page.getByRole('link', { name: '♫ Music', exact: true }).click();
+  await expect(page.getByLabel('Music track')).toHaveValue('kanto-viridian-forest');
+  await expect(page.getByLabel('Follow area music')).toBeChecked();
+  await page.evaluate(async () => { await document.fonts.ready; });
+  await page.screenshot({ path: path.join(output, 'kanto-area-music.png'), animations: 'disabled' });
 });
 
 test('challenges', async ({ page }) => {
@@ -73,16 +140,35 @@ test('daily mystery', async ({ page }) => {
   await open(page, 'dive-ball', undefined, '2026-01-01T12:00:00Z');
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   for (const [index, name] of ['Pikachu', 'Ampharos', 'Jolteon'].entries()) {
-    await sql(page, `SELECT id, name FROM pokedex WHERE name = '${name}';`, /Guess Pokémon/);
+    await sql(page, `SELECT id, name FROM pokedex WHERE name = '${name}';`, /Run query/);
     await expect(page.locator('.mystery-table tbody tr')).toHaveCount(index + 1);
   }
   await shoot(page, 'daily-mystery.png');
 });
 
+test('mystery throw and caught scene', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('pokesql:mystery-round', JSON.stringify({ id: 'gallery-wailord', targetId: 321, level: 36, guessCount: 0, attempts: [] })));
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await open(page, 'master-ball');
+  await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
+  await page.getByRole('button', { name: 'Random practice', exact: true }).click();
+  await sql(page, 'SELECT id FROM pokedex WHERE id = 321;', /Run query/);
+  const scene = page.getByRole('group', { name: 'Mystery Pokémon encounter', exact: true });
+  await expect(scene).toHaveClass(/is-catching/);
+  await scene.evaluate((element, time) => element.getAnimations({ subtree: true }).forEach(animation => {
+    animation.pause(); animation.currentTime = time;
+  }), TRAINER_THROW.releaseDelayMs + 100);
+  await scene.screenshot({ path: path.join(output, 'mystery-catch-throw.png'), animations: 'allow' });
+  await scene.evaluate(element => element.getAnimations({ subtree: true }).forEach(animation => animation.play()));
+  await expect(scene).toHaveClass(/is-caught/);
+  await expect(scene.locator('.encounter-caption')).toHaveText('Gotcha! Wailord was caught!');
+  await scene.screenshot({ path: path.join(output, 'mystery-caught.png'), animations: 'disabled' });
+});
+
 test('forest route', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1800 });
   await open(page, 'dusk-ball');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.getByRole('button', { name: 'Got it', exact: true }).click();
   await expect(page.getByRole('group', { name: 'Verdant Forest exploration map' })).toBeVisible();
   await shoot(page, 'safari-route.png');
@@ -93,7 +179,7 @@ test('SQL encounter', async ({ page }) => {
     encounter: { id: 'gallery-caterpie', pokemonId: 10, level: 14, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
     draft: 'SELECT id, name, type1, type2\nFROM pokedex\nWHERE name = \'Caterpie\';',
   });
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   await shoot(page, 'safari-encounter.png');
 });
@@ -103,7 +189,7 @@ test('Lapras catch', async ({ page }) => {
     encounter: { id: 'gallery-lapras', pokemonId: 131, level: 37, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await sql(page, 'SELECT id, name, type1, type2 FROM pokedex WHERE id = 131;', /Check query & catch/);
   await expect(page.getByRole('article', { name: 'Lapras Pokédex entry', exact: true })).toBeVisible();
   await shoot(page, 'safari-catch.png');
@@ -163,6 +249,42 @@ test.describe('tablet gallery', () => {
   test.use({ isMobile: true, hasTouch: true });
 
 for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`tablet Johto at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await open(page, 'dive-ball', createSafariSession('new-bark-town'));
+    await page.getByRole('button', { name: 'Explore', exact: true }).tap();
+    await page.getByRole('button', { name: 'Got it', exact: true }).tap();
+    await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
+    await page.locator('.region-map > summary').tap();
+    await page.getByRole('combobox', { name: 'Area', exact: true }).selectOption('ilex-forest');
+    await shoot(page, `tablet-johto-${viewport.width}.png`);
+  });
+}
+
+for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`tablet Hoenn at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await open(page, 'dive-ball', createSafariSession('littleroot-town'));
+    await page.getByRole('button', { name: 'Explore', exact: true }).tap();
+    await page.getByRole('button', { name: 'Got it', exact: true }).tap();
+    await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
+    await page.locator('.region-map > summary').tap();
+    await shoot(page, `tablet-hoenn-${viewport.width}.png`);
+  });
+}
+
+for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`tablet Kanto at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await open(page, 'dive-ball', createSafariSession('pallet-town'));
+    await page.getByRole('button', { name: 'Explore', exact: true }).tap();
+    await page.getByRole('button', { name: 'Got it', exact: true }).tap();
+    await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
+    await shoot(page, `tablet-kanto-${viewport.width}.png`);
+  });
+}
+
+for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
   test(`tablet PC at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await open(page, 'poke-ball');
@@ -198,7 +320,7 @@ test('landscape tablet Safari', async ({ page }) => {
     encounter: { id: 'gallery-tablet', pokemonId: 131, level: 37, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
     draft: 'SELECT id, name, type1, type2\nFROM pokedex\nWHERE name = \'Lapras\';',
   });
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).tap();
+  await page.getByRole('button', { name: 'Explore', exact: true }).tap();
   await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   await shoot(page, 'tablet-safari.png');

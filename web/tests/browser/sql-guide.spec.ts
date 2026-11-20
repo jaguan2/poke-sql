@@ -14,7 +14,7 @@ function topic(page: Page, name: string) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 });
 
 test('the schema picker shows a selected table and previews its rows', async ({ page }) => {
@@ -62,7 +62,7 @@ test('the guide sits below the schema and loads a runnable example without execu
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await expect(page.locator('.history-query')).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath('sql-guide-desktop.png') });
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(10);
   await expect(page.locator('tbody tr').first()).toContainText('Bulbasaur');
 });
@@ -88,7 +88,7 @@ test('loading guide examples preserves the current challenge or mystery and thei
   await filters.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   await expect(page.locator('tbody tr')).toHaveCount(0);
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('Research query only', { exact: false })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   await page.getByRole('button', { name: 'Back to free practice', exact: true }).click();
@@ -99,7 +99,7 @@ test('loading guide examples preserves the current challenge or mystery and thei
 
 test('the reference page cannot replace SQL while a query is running', async ({ page }) => {
   await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('button', { name: 'Schema & guide', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '■ Stop query', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Schema & guide', exact: true })).toBeEnabled();

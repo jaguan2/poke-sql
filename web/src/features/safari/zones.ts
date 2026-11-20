@@ -1,7 +1,10 @@
 import maps from "./maps.json" with { type: "json" };
 import { SAFARI_EVENT_VISITORS, safariEvents } from "./events";
+import { DIRECTION_STEP, REGIONS, isRegionLocation, regionTravel } from "./regions";
+import type { RegionLocationId } from "./regions";
 
-export type ZoneId = keyof typeof maps;
+export type SafariHabitatId = keyof typeof maps;
+export type ZoneId = SafariHabitatId | RegionLocationId;
 export type WeatherId = "clear" | "rain" | "fog" | "sandstorm" | "snow" | "sun";
 export type Direction = "up" | "down" | "left" | "right";
 export interface Position { x: number; y: number }
@@ -13,6 +16,7 @@ export interface SafariZoneDefinition {
   battleTerrain: "grass" | "sand" | "cave" | "water";
   map: readonly string[]; start: Position; rustle: Position; routeName: string;
   species: readonly SafariSpecies[];
+  music?: string;
 }
 
 // Native route geometry and art are generated together from the pinned game maps.
@@ -20,7 +24,7 @@ const common = (id: number, name: string, ...favoredWeather: WeatherId[]): Safar
 const uncommon = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 3, rarity: "Uncommon", favoredWeather });
 const rare = (id: number, name: string, ...favoredWeather: WeatherId[]): SafariSpecies => ({ id, name, weight: 1, rarity: "Rare", favoredWeather });
 
-const REGULAR_ZONES: readonly SafariZoneDefinition[] = [
+const REGULAR_ZONES: readonly (SafariZoneDefinition & { id: SafariHabitatId })[] = [
   {
     id: "forest", battleTerrain: "grass", name: "Verdant Forest", subtitle: "Bug & Grass country",
     description: "Sunlight catches the canopy. Bug Pokémon shelter in the grass, with a few elusive forest neighbours.",
@@ -95,30 +99,57 @@ const REGULAR_ZONES: readonly SafariZoneDefinition[] = [
   },
 ];
 
-export const SAFARI_ZONES: readonly SafariZoneDefinition[] = REGULAR_ZONES.map(zone => ({
+export const SAFARI_ZONES = REGULAR_ZONES.map(zone => ({
   ...zone, species: [...zone.species, ...SAFARI_EVENT_VISITORS.filter(visitor => visitor.zoneId === zone.id)],
 }));
+export const EXPLORATION_LOCATIONS: readonly SafariZoneDefinition[] = [...REGIONS.flatMap(region => region.locations), ...SAFARI_ZONES];
 
-export const zoneById = (id: ZoneId): SafariZoneDefinition => SAFARI_ZONES.find(zone => zone.id === id)!;
-export const isZoneId = (id: unknown): id is ZoneId => SAFARI_ZONES.some(zone => zone.id === id);
+export const zoneById = (id: ZoneId): SafariZoneDefinition => EXPLORATION_LOCATIONS.find(zone => zone.id === id)!;
+export const isZoneId = (id: unknown): id is ZoneId => EXPLORATION_LOCATIONS.some(zone => zone.id === id);
 export const tileAt = (zone: SafariZoneDefinition, position: Position): string | undefined => zone.map[position.y]?.[position.x];
 export function routeCamera(zone: SafariZoneDefinition, position: Position) {
-  const width = Math.min(15, zone.map[0].length), height = Math.min(10, zone.map.length);
+  const width = Math.min(isRegionLocation(zone.id) ? 20 : 15, zone.map[0].length), height = Math.min(isRegionLocation(zone.id) ? 13 : 10, zone.map.length);
   return { width, height,
     x: Math.max(0, Math.min(position.x - Math.floor(width / 2), zone.map[0].length - width)),
     y: Math.max(0, Math.min(position.y - Math.floor(height / 2), zone.map.length - height)) };
 }
 /** A stable hotspot for this expedition, moving to fresh grass after each catch.
  * Derived from existing saved progress so older sessions need no migration. */
-export function rustlingPatch(zone: SafariZoneDefinition, catches: number): Position {
-  const grass = zone.map.flatMap((row, y) => [...row].flatMap((tile, x) => tile === "g" ? [{ x, y }] : []));
-  const start = grass.findIndex(tile => tile.x === zone.rustle.x && tile.y === zone.rustle.y);
+export function rustlingPatch(zone: SafariZoneDefinition, catches: number, position: Position = zone.start): Position | null {
+  // Native caves have separate chambers, and ledges are one-way. Keep the
+  // guaranteed encounter in the trainer's currently reachable component.
+  let reachable: Set<string> | undefined;
+  if (isRegionLocation(zone.id)) {
+    reachable = new Set([`${position.x},${position.y}`]);
+    const queue = [position];
+    for (const point of queue) for (const direction of ["up", "down", "left", "right"] as const) {
+      if (regionTravel(zone.id, point, direction)) continue;
+      const next = movePosition(zone, point, direction), key = `${next.x},${next.y}`;
+      if (!reachable.has(key)) { reachable.add(key); queue.push(next); }
+    }
+  }
+  const grass = zone.map.flatMap((row, y) => [...row].flatMap((tile, x) => tile === "g" && (!reachable || reachable.has(`${x},${y}`)) ? [{ x, y }] : []));
+  if (grass.length === 0) return null;
+  const start = Math.max(0, grass.findIndex(tile => tile.x === zone.rustle.x && tile.y === zone.rustle.y));
   return grass[(start + (catches % grass.length) * 17) % grass.length];
 }
-export const isWalkable = (zone: SafariZoneDefinition, position: Position): boolean => [".", "g", "S"].includes(tileAt(zone, position) ?? "");
+// Crystal's native ledge low bits (0-7) mark walkable floor: jump from the
+// current cell. Advance ledges (><^v) instead jump across the next cell.
+const FLOOR_LEDGES: Readonly<Record<string, readonly Direction[]>> = {
+  "0": ["right"], "1": ["left"], "2": ["up"], "3": ["down"],
+  "4": ["right", "down"], "5": ["left", "down"], "6": ["up", "right"], "7": ["up", "left"],
+};
+const WALKABLE_TILES = [".", "g", "S", "U", ...Object.keys(FLOOR_LEDGES)];
+export const isWalkable = (zone: SafariZoneDefinition, position: Position): boolean => WALKABLE_TILES.includes(tileAt(zone, position) ?? "");
 export function movePosition(zone: SafariZoneDefinition, position: Position, direction: Direction): Position {
-  const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[direction];
-  const next = { x: position.x + delta[0], y: position.y + delta[1] };
+  const delta = DIRECTION_STEP[direction];
+  let next = { x: position.x + delta.x, y: position.y + delta.y };
+  // U is walkable beside a wall on its north edge; crossing that edge is blocked.
+  if (direction === "up" && tileAt(zone, position) === "U" || direction === "down" && tileAt(zone, next) === "U") return position;
+  if (FLOOR_LEDGES[tileAt(zone, position) ?? ""]?.includes(direction)) next = { x: next.x + delta.x, y: next.y + delta.y };
+  if (tileAt(zone, next) === { up: "^", down: "v", left: "<", right: ">" }[direction]) {
+    next = { x: next.x + delta.x, y: next.y + delta.y };
+  }
   return isWalkable(zone, next) ? next : position;
 }
 export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number, weather: WeatherId = "clear", date?: string): SafariSpecies {
@@ -127,7 +158,8 @@ export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previous
   return (rows.find(row => (remaining -= row.weight) < 0) ?? rows[rows.length - 1]).pokemon;
 }
 export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = "clear", previousId?: number, date?: string) {
-  const eligible = zone.species.filter(pokemon => pokemon.id !== previousId && pokemon.weight > 0)
+  const ordinary = zone.species.filter(pokemon => pokemon.weight > 0);
+  const eligible = ordinary.filter(pokemon => ordinary.length === 1 || pokemon.id !== previousId)
     .map(pokemon => ({ pokemon, weight: encounterWeight(pokemon, weather) }));
   const ordinaryWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
   const visits = date ? safariEvents(date).filter(event => event.active && event.visitor.zoneId === zone.id

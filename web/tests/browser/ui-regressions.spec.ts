@@ -11,13 +11,13 @@ async function edit(page: Page, sql: string) {
 
 async function run(page: Page, sql: string) {
   await edit(page, sql);
-  await page.getByRole('button', { name: /▶ Run/ }).click();
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 });
 
 test('storage failures do not claim a durable save or break the editor', async ({ page }) => {
@@ -27,9 +27,6 @@ test('storage failures do not claim a durable save or break the editor', async (
   });
   await edit(page, 'SELECT 42;');
   await expect(page.getByText('This device could not save your SQL or progress.', { exact: false })).toBeVisible();
-  await page.getByLabel('Query name').fill('Session only');
-  await page.getByRole('button', { name: 'Save query', exact: true }).click();
-  await expect(page.getByText('Query kept for this session only.', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Reset DB' }).click();
   await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
   await expect(page.getByText('Could not save the database on this device.', { exact: false })).toBeVisible();
@@ -74,7 +71,7 @@ test('challenge schema survives sandbox changes and a grade clears when the answ
   await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await expect(page.locator('.table-name').filter({ hasText: /^pokemon$/ })).toHaveCount(1);
   await edit(page, "SELECT name, type1 FROM pokedex WHERE name IN ('Bulbasaur', 'Charmander', 'Squirtle');");
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await edit(page, 'SELECT 1;');
   await expect(page.getByText('✓ Correct! Challenge completed.')).toHaveCount(0);

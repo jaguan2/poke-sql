@@ -1,10 +1,21 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import safariMaps from '../src/features/safari/maps.json' with { type: 'json' };
 import safariRoutes from '../src/features/safari/routes.json' with { type: 'json' };
+import kantoMaps from '../src/features/safari/kanto-maps.json' with { type: 'json' };
+import kantoRoutes from '../src/features/safari/kanto-routes.json' with { type: 'json' };
+import kantoManifest from '../src/features/safari/kanto-assets.json' with { type: 'json' };
+import hoennMaps from '../src/features/safari/hoenn-maps.json' with { type: 'json' };
+import hoennRoutes from '../src/features/safari/hoenn-routes.json' with { type: 'json' };
+import hoennManifest from '../src/features/safari/hoenn-assets.json' with { type: 'json' };
+import johtoMaps from '../src/features/safari/johto-maps.json' with { type: 'json' };
+import johtoRoutes from '../src/features/safari/johto-routes.json' with { type: 'json' };
+import johtoManifest from '../src/features/safari/johto-assets.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
 import ballThemes from '../src/shared/pokemon/ball-themes.json' with { type: 'json' };
 import shinyIds from '../src/shared/pokemon/shiny-sprites.json' with { type: 'json' };
-import tracks from '../src/features/music/tracks.json' with { type: 'json' };
+import kantoTracks from '../src/features/music/kanto-tracks.json' with { type: 'json' };
+import hoennTracks from '../src/features/music/hoenn-tracks.json' with { type: 'json' };
+import johtoTracks from '../src/features/music/johto-tracks.json' with { type: 'json' };
 import trainers from '../src/shared/trainer/profiles.json' with { type: 'json' };
 import safariManifest from '../src/features/safari/assets.json' with { type: 'json' };
 import spriteBounds from '../src/shared/pokemon/sprite-bounds.json' with { type: 'json' };
@@ -67,15 +78,22 @@ for (const trainer of Object.values(trainers)) {
   }
 }
 console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length} bundled item sprites.`);
-// OC ReMix permits redistribution of the original MP3s, without retagging or
-// transcoding. Hash checks keep that constraint part of every production build.
-for (const track of tracks) {
+const regionalTracks = [...kantoTracks, ...hoennTracks, ...johtoTracks];
+const musicFiles = (await readdir(new URL('../public/music/', import.meta.url), { recursive: true }))
+  .filter(file => file.endsWith('.mp3')).map(file => file.replaceAll('\\', '/')).sort();
+if (JSON.stringify(musicFiles) !== JSON.stringify(regionalTracks.map(track => track.file).sort())) {
+  throw new Error('Bundled MP3 files must match the game soundtrack catalogue. Remove unused music files or register their source and hash.');
+}
+for (const track of regionalTracks) {
   const data = await readFile(new URL(`../public/music/${track.file}`, import.meta.url));
   if (createHash('sha256').update(data).digest('hex') !== track.sha256) {
-    throw new Error(`Bundled music changed: ${track.file}. Restore the unchanged MP3 from ${track.source}.`);
+    throw new Error(`Bundled music changed: ${track.file}. Restore the checked-in asset or follow its rebuild instructions in public/music/CREDITS.txt.`);
   }
 }
-console.log(`Verified ${tracks.length} unchanged bundled music tracks.`);
+console.log(`Verified ${regionalTracks.length} game soundtrack recordings; no unused MP3 files.`);
+for (const [id, layout] of Object.entries({ ...kantoMaps, ...hoennMaps, ...johtoMaps })) {
+  if (regionalTracks.filter(track => track.nativeMusic === layout.music).length !== 1) throw new Error(`Regional location ${id} needs exactly one matching music theme.`);
+}
 for (const [id, recipe] of Object.entries(safariRoutes)) {
   const asset = safariAssets.find(asset => asset.file === `maps/${id}.png`);
   if (!asset || asset.recipeSha256 !== createHash('sha256').update(JSON.stringify(recipe)).digest('hex')
@@ -88,3 +106,19 @@ for (const asset of safariAssets) {
   if (createHash('sha256').update(data).digest('hex') !== asset.sha256) throw new Error(`Safari asset changed: ${asset.file}. Check the asset and its source credits before updating its hash.`);
 }
 console.log(`Verified ${safariAssets.length} bundled Safari assets.`);
+async function verifyRegion(name, routes, maps, manifest) {
+for (const [id, recipe] of Object.entries(routes)) {
+  const asset = manifest.assets.find(asset => asset.file === `${id}.png`);
+  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  if (!asset || asset.recipeSha256 !== digest(recipe) || asset.layoutSha256 !== digest(maps[id])) {
+    throw new Error(`Regional map ${id} is stale. Run py scripts/build_region_assets.py ${name} from the repository root.`);
+  }
+  const data = await readFile(new URL(`../public/safari/${name}/${asset.file}`, import.meta.url));
+  if (createHash('sha256').update(data).digest('hex') !== asset.sha256
+    || data.readUInt32BE(16) !== maps[id].rows[0].length * 16 || data.readUInt32BE(20) !== maps[id].rows.length * 16) {
+    throw new Error(`Regional art must match its collision map: ${id}. Run py scripts/build_region_assets.py ${name} from the repository root.`);
+  }
+}
+console.log(`Verified ${manifest.assets.length} bundled ${name} maps.`);
+}
+await Promise.all([verifyRegion('kanto', kantoRoutes, kantoMaps, kantoManifest), verifyRegion('hoenn', hoennRoutes, hoennMaps, hoennManifest), verifyRegion('johto', johtoRoutes, johtoMaps, johtoManifest)]);

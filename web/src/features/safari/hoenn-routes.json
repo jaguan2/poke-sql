@@ -1,0 +1,414 @@
+{
+  "littleroot-town": {
+    "native": "LittlerootTown",
+    "name": "Littleroot Town",
+    "kind": "town",
+    "entrance": [
+      10,
+      12
+    ],
+    "point": [
+      72,
+      88
+    ],
+    "description": "Begin in Littleroot Town. Route 101 leads north to Oldale Town.",
+    "pool": []
+  },
+  "route-101": {
+    "native": "Route101",
+    "name": "Route 101",
+    "kind": "route",
+    "entrance": [
+      10,
+      26
+    ],
+    "point": [
+      72,
+      76
+    ],
+    "description": "Poochyena, Zigzagoon and Wurmple live in the grass north of Littleroot.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        45
+      ],
+      [
+        263,
+        "Zigzagoon",
+        45
+      ],
+      [
+        265,
+        "Wurmple",
+        10
+      ]
+    ],
+    "label": "above"
+  },
+  "oldale-town": {
+    "native": "OldaleTown",
+    "name": "Oldale Town",
+    "kind": "town",
+    "entrance": [
+      10,
+      16
+    ],
+    "point": [
+      72,
+      64
+    ],
+    "description": "Continue west along Route 102, or explore Route 103 to the north.",
+    "pool": []
+  },
+  "route-103": {
+    "native": "Route103",
+    "name": "Route 103",
+    "kind": "route",
+    "entrance": [
+      10,
+      22
+    ],
+    "point": [
+      72,
+      52
+    ],
+    "description": "Explore the riverbank north of Oldale. Wingull appear among the grassland Pokémon.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        40
+      ],
+      [
+        263,
+        "Zigzagoon",
+        40
+      ],
+      [
+        278,
+        "Wingull",
+        20
+      ]
+    ],
+    "label": "above"
+  },
+  "route-102": {
+    "native": "Route102",
+    "name": "Route 102",
+    "kind": "route",
+    "entrance": [
+      27,
+      10
+    ],
+    "point": [
+      54,
+      64
+    ],
+    "description": "The wooded path to Petalburg City. Ralts and Surskit are rare encounters.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        25
+      ],
+      [
+        263,
+        "Zigzagoon",
+        25
+      ],
+      [
+        265,
+        "Wurmple",
+        20
+      ],
+      [
+        270,
+        "Lotad",
+        10
+      ],
+      [
+        273,
+        "Seedot",
+        10
+      ],
+      [
+        280,
+        "Ralts",
+        5
+      ],
+      [
+        283,
+        "Surskit",
+        5
+      ]
+    ]
+  },
+  "petalburg-city": {
+    "native": "PetalburgCity",
+    "name": "Petalburg City",
+    "kind": "town",
+    "entrance": [
+      22,
+      20
+    ],
+    "point": [
+      34,
+      64
+    ],
+    "description": "Head west to Route 104 and Petalburg Woods. Your PC is available here.",
+    "pool": []
+  },
+  "route-104": {
+    "native": "Route104",
+    "name": "Route 104",
+    "kind": "route",
+    "entrance": [
+      27,
+      62
+    ],
+    "point": [
+      14,
+      64
+    ],
+    "description": "The coastal path passes through Petalburg Woods and continues north toward Rustboro City.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        30
+      ],
+      [
+        263,
+        "Zigzagoon",
+        30
+      ],
+      [
+        265,
+        "Wurmple",
+        20
+      ],
+      [
+        276,
+        "Taillow",
+        15
+      ],
+      [
+        278,
+        "Wingull",
+        5
+      ]
+    ]
+  },
+  "petalburg-woods": {
+    "native": "PetalburgWoods",
+    "name": "Petalburg Woods",
+    "kind": "forest",
+    "entrance": [
+      8,
+      28
+    ],
+    "point": [
+      14,
+      47
+    ],
+    "description": "Shroomish shelter under the trees. Slakoth is a rare sighting among the Bug Pokémon.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        25
+      ],
+      [
+        265,
+        "Wurmple",
+        25
+      ],
+      [
+        266,
+        "Silcoon",
+        10
+      ],
+      [
+        268,
+        "Cascoon",
+        10
+      ],
+      [
+        276,
+        "Taillow",
+        10
+      ],
+      [
+        285,
+        "Shroomish",
+        15
+      ],
+      [
+        287,
+        "Slakoth",
+        5
+      ]
+    ]
+  },
+  "rustboro-city": {
+    "native": "RustboroCity",
+    "name": "Rustboro City",
+    "kind": "town",
+    "entrance": [
+      16,
+      36
+    ],
+    "point": [
+      14,
+      28
+    ],
+    "description": "Route 116 leads east toward Rusturf Tunnel and Verdanturf Town.",
+    "pool": []
+  },
+  "route-116": {
+    "native": "Route116",
+    "name": "Route 116",
+    "kind": "route",
+    "entrance": [
+      1,
+      12
+    ],
+    "point": [
+      37,
+      28
+    ],
+    "description": "Nincada and Whismur live along this rocky route. Look for the tunnel entrance at the eastern end.",
+    "pool": [
+      [
+        261,
+        "Poochyena",
+        25
+      ],
+      [
+        263,
+        "Zigzagoon",
+        20
+      ],
+      [
+        276,
+        "Taillow",
+        20
+      ],
+      [
+        290,
+        "Nincada",
+        20
+      ],
+      [
+        293,
+        "Whismur",
+        10
+      ],
+      [
+        300,
+        "Skitty",
+        5
+      ]
+    ]
+  },
+  "rusturf-tunnel": {
+    "label": "above",
+    "native": "RusturfTunnel",
+    "name": "Rusturf Tunnel",
+    "kind": "cave",
+    "entrance": [
+      6,
+      13
+    ],
+    "point": [
+      58,
+      28
+    ],
+    "description": "Whismur inhabit this quiet tunnel linking Rustboro's outskirts with Verdanturf Town.",
+    "pool": [
+      [
+        293,
+        "Whismur",
+        100
+      ]
+    ]
+  },
+  "verdanturf-town": {
+    "native": "VerdanturfTown",
+    "name": "Verdanturf Town",
+    "kind": "town",
+    "entrance": [
+      14,
+      10
+    ],
+    "point": [
+      58,
+      43
+    ],
+    "description": "A safe stop beside Rusturf Tunnel. Route 117 continues east to Mauville City.",
+    "pool": []
+  },
+  "route-117": {
+    "label": "above",
+    "native": "Route117",
+    "name": "Route 117",
+    "kind": "route",
+    "entrance": [
+      1,
+      10
+    ],
+    "point": [
+      76,
+      43
+    ],
+    "description": "Flower-filled grassland between Verdanturf and Mauville. Roselia, Volbeat and Illumise can appear.",
+    "pool": [
+      [
+        43,
+        "Oddish",
+        30
+      ],
+      [
+        183,
+        "Marill",
+        20
+      ],
+      [
+        315,
+        "Roselia",
+        20
+      ],
+      [
+        263,
+        "Zigzagoon",
+        10
+      ],
+      [
+        313,
+        "Volbeat",
+        10
+      ],
+      [
+        314,
+        "Illumise",
+        10
+      ]
+    ]
+  },
+  "mauville-city": {
+    "native": "MauvilleCity",
+    "name": "Mauville City",
+    "kind": "town",
+    "entrance": [
+      2,
+      12
+    ],
+    "point": [
+      91,
+      43
+    ],
+    "description": "The final town in this first Hoenn journey. Visit your PC or return to a place you've explored.",
+    "pool": []
+  }
+}

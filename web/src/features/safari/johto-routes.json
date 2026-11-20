@@ -1,0 +1,599 @@
+{
+  "new-bark-town": {
+    "native": "NewBarkTown",
+    "name": "New Bark Town",
+    "kind": "town",
+    "entrance": [
+      10,
+      9
+    ],
+    "point": [
+      85,
+      77
+    ],
+    "description": "Begin in New Bark Town. Route 29 leads west to Cherrygrove City.",
+    "pool": [],
+    "label": "above"
+  },
+  "route-29": {
+    "native": "Route29",
+    "name": "Route 29",
+    "kind": "route",
+    "entrance": [
+      56,
+      8
+    ],
+    "point": [
+      68,
+      77
+    ],
+    "description": "Sentret and Hoothoot share the grass along the path to Cherrygrove City.",
+    "pool": [
+      [
+        16,
+        "Pidgey",
+        25
+      ],
+      [
+        161,
+        "Sentret",
+        20
+      ],
+      [
+        19,
+        "Rattata",
+        25
+      ],
+      [
+        187,
+        "Hoppip",
+        2.5
+      ],
+      [
+        163,
+        "Hoothoot",
+        27.5
+      ]
+    ]
+  },
+  "cherrygrove-city": {
+    "native": "CherrygroveCity",
+    "name": "Cherrygrove City",
+    "kind": "town",
+    "entrance": [
+      15,
+      10
+    ],
+    "point": [
+      51,
+      77
+    ],
+    "description": "Route 30 heads north toward Violet City. Your PC is available here.",
+    "pool": [],
+    "label": "above"
+  },
+  "route-30": {
+    "native": "Route30",
+    "name": "Route 30",
+    "kind": "route",
+    "entrance": [
+      10,
+      48
+    ],
+    "point": [
+      51,
+      52
+    ],
+    "description": "Walk north through wooded grasslands toward Route 31.",
+    "pool": [
+      [
+        16,
+        "Pidgey",
+        20
+      ],
+      [
+        10,
+        "Caterpie",
+        25
+      ],
+      [
+        13,
+        "Weedle",
+        2.5
+      ],
+      [
+        187,
+        "Hoppip",
+        2.5
+      ],
+      [
+        167,
+        "Spinarak",
+        15
+      ],
+      [
+        163,
+        "Hoothoot",
+        22.5
+      ],
+      [
+        60,
+        "Poliwag",
+        10
+      ],
+      [
+        41,
+        "Zubat",
+        2.5
+      ]
+    ]
+  },
+  "route-31": {
+    "native": "Route31",
+    "name": "Route 31",
+    "kind": "route",
+    "entrance": [
+      25,
+      12
+    ],
+    "point": [
+      51,
+      26
+    ],
+    "description": "The western gate connects this route with Violet City.",
+    "pool": [
+      [
+        16,
+        "Pidgey",
+        20
+      ],
+      [
+        10,
+        "Caterpie",
+        15
+      ],
+      [
+        69,
+        "Bellsprout",
+        20
+      ],
+      [
+        13,
+        "Weedle",
+        2.5
+      ],
+      [
+        187,
+        "Hoppip",
+        2.5
+      ],
+      [
+        167,
+        "Spinarak",
+        15
+      ],
+      [
+        60,
+        "Poliwag",
+        15
+      ],
+      [
+        163,
+        "Hoothoot",
+        5
+      ],
+      [
+        41,
+        "Zubat",
+        2.5
+      ],
+      [
+        92,
+        "Gastly",
+        2.5
+      ]
+    ]
+  },
+  "violet-gate": {
+    "native": "Route31VioletGate",
+    "name": "Violet Gate",
+    "kind": "gate",
+    "entrance": [
+      8,
+      4
+    ],
+    "point": [
+      40,
+      26
+    ],
+    "description": "Pass through the gate between Route 31 and Violet City.",
+    "pool": [],
+    "overview": false,
+    "landmark": "violet-city"
+  },
+  "violet-city": {
+    "native": "VioletCity",
+    "name": "Violet City",
+    "kind": "town",
+    "entrance": [
+      26,
+      18
+    ],
+    "point": [
+      30,
+      26
+    ],
+    "description": "Head south along Route 32 to Union Cave. Your PC is available here.",
+    "pool": [],
+    "label": "above"
+  },
+  "route-32": {
+    "native": "Route32",
+    "name": "Route 32",
+    "kind": "route",
+    "entrance": [
+      10,
+      5
+    ],
+    "point": [
+      30,
+      49
+    ],
+    "description": "A long path runs south beside the water to Union Cave.",
+    "pool": [
+      [
+        23,
+        "Ekans",
+        15
+      ],
+      [
+        19,
+        "Rattata",
+        30
+      ],
+      [
+        69,
+        "Bellsprout",
+        20
+      ],
+      [
+        187,
+        "Hoppip",
+        7.5
+      ],
+      [
+        16,
+        "Pidgey",
+        2.5
+      ],
+      [
+        194,
+        "Wooper",
+        15
+      ],
+      [
+        41,
+        "Zubat",
+        5
+      ],
+      [
+        163,
+        "Hoothoot",
+        2.5
+      ],
+      [
+        92,
+        "Gastly",
+        2.5
+      ]
+    ]
+  },
+  "union-cave-1f": {
+    "native": "UnionCave1F",
+    "name": "Union Cave 1F",
+    "kind": "cave",
+    "entrance": [
+      3,
+      4
+    ],
+    "point": [
+      30,
+      77
+    ],
+    "description": "Cross the cave to reach Route 33. Rock and Ground Pokemon appear here.",
+    "pool": [
+      [
+        74,
+        "Geodude",
+        30
+      ],
+      [
+        27,
+        "Sandshrew",
+        15
+      ],
+      [
+        41,
+        "Zubat",
+        15
+      ],
+      [
+        19,
+        "Rattata",
+        25
+      ],
+      [
+        95,
+        "Onix",
+        5
+      ],
+      [
+        194,
+        "Wooper",
+        10
+      ]
+    ],
+    "label": "above"
+  },
+  "route-33": {
+    "native": "Route33",
+    "name": "Route 33",
+    "kind": "route",
+    "entrance": [
+      11,
+      9
+    ],
+    "point": [
+      20,
+      77
+    ],
+    "description": "The short route west leads into Azalea Town.",
+    "pool": [
+      [
+        19,
+        "Rattata",
+        35
+      ],
+      [
+        21,
+        "Spearow",
+        15
+      ],
+      [
+        74,
+        "Geodude",
+        20
+      ],
+      [
+        187,
+        "Hoppip",
+        7.5
+      ],
+      [
+        23,
+        "Ekans",
+        2.5
+      ],
+      [
+        41,
+        "Zubat",
+        20
+      ]
+    ]
+  },
+  "azalea-town": {
+    "native": "AzaleaTown",
+    "name": "Azalea Town",
+    "kind": "town",
+    "entrance": [
+      15,
+      10
+    ],
+    "point": [
+      10,
+      77
+    ],
+    "description": "Visit Slowpoke Well or head west through the gate to Ilex Forest.",
+    "pool": [],
+    "label": "above"
+  },
+  "slowpoke-well-b1f": {
+    "native": "SlowpokeWellB1F",
+    "name": "Slowpoke Well B1F",
+    "kind": "cave",
+    "entrance": [
+      7,
+      11
+    ],
+    "point": [
+      14,
+      96
+    ],
+    "description": "Look for Slowpoke in the walkable upper chamber. Deep water remains closed.",
+    "pool": [
+      [
+        41,
+        "Zubat",
+        85
+      ],
+      [
+        79,
+        "Slowpoke",
+        15
+      ]
+    ],
+    "label": "above"
+  },
+  "ilex-south-gate": {
+    "native": "IlexForestAzaleaGate",
+    "name": "Ilex South Gate",
+    "kind": "gate",
+    "entrance": [
+      8,
+      4
+    ],
+    "point": [
+      10,
+      67
+    ],
+    "description": "The passage between Azalea Town and Ilex Forest.",
+    "pool": [],
+    "overview": false,
+    "landmark": "ilex-forest"
+  },
+  "ilex-forest": {
+    "native": "IlexForest",
+    "name": "Ilex Forest",
+    "kind": "forest",
+    "entrance": [
+      3,
+      43
+    ],
+    "point": [
+      10,
+      52
+    ],
+    "description": "Bug Pokemon and Oddish hide beneath the trees. Encounters can occur throughout the forest floor.",
+    "pool": [
+      [
+        10,
+        "Caterpie",
+        15
+      ],
+      [
+        13,
+        "Weedle",
+        15
+      ],
+      [
+        11,
+        "Metapod",
+        10
+      ],
+      [
+        14,
+        "Kakuna",
+        5
+      ],
+      [
+        16,
+        "Pidgey",
+        2.5
+      ],
+      [
+        46,
+        "Paras",
+        5
+      ],
+      [
+        43,
+        "Oddish",
+        25
+      ],
+      [
+        48,
+        "Venonat",
+        15
+      ],
+      [
+        54,
+        "Psyduck",
+        5
+      ],
+      [
+        163,
+        "Hoothoot",
+        2.5
+      ]
+    ]
+  },
+  "ilex-north-gate": {
+    "native": "Route34IlexForestGate",
+    "name": "Ilex North Gate",
+    "kind": "gate",
+    "entrance": [
+      4,
+      6
+    ],
+    "point": [
+      10,
+      40
+    ],
+    "description": "Leave the forest for Route 34 and Goldenrod City.",
+    "pool": [],
+    "overview": false,
+    "landmark": "ilex-forest"
+  },
+  "route-34": {
+    "native": "Route34",
+    "name": "Route 34",
+    "kind": "route",
+    "entrance": [
+      10,
+      44
+    ],
+    "point": [
+      10,
+      29
+    ],
+    "description": "The route north to Goldenrod has Drowzee, Abra and Ditto in its grass.",
+    "pool": [
+      [
+        209,
+        "Snubbull",
+        15
+      ],
+      [
+        19,
+        "Rattata",
+        30
+      ],
+      [
+        16,
+        "Pidgey",
+        10
+      ],
+      [
+        63,
+        "Abra",
+        10
+      ],
+      [
+        39,
+        "Jigglypuff",
+        5
+      ],
+      [
+        132,
+        "Ditto",
+        5
+      ],
+      [
+        96,
+        "Drowzee",
+        15
+      ],
+      [
+        163,
+        "Hoothoot",
+        10
+      ]
+    ]
+  },
+  "goldenrod-city": {
+    "native": "GoldenrodCity",
+    "name": "Goldenrod City",
+    "kind": "town",
+    "entrance": [
+      20,
+      25
+    ],
+    "point": [
+      10,
+      9
+    ],
+    "description": "The final city in this first Johto journey. Visit your PC or choose another area.",
+    "pool": [],
+    "label": "above"
+  }
+}

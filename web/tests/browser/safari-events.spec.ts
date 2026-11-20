@@ -10,7 +10,7 @@ async function prepare(page: Page, date: string, roll = 0.999) {
     localStorage.setItem('pokesql:safari', JSON.stringify(session));
   }, { session: nearSafariGrass(), roll });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
 }
 
 test('the event board and encounter table lead to a Mythical catch that survives the window ending offline', async ({ page, context }, info) => {
@@ -37,7 +37,7 @@ test('the event board and encounter table lead to a Mythical catch that survives
   await page.clock.setFixedTime('2026-01-08T12:00:00Z');
   await context.setOffline(true);
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('img', { name: 'Wild Celebi', exact: true })).toBeVisible();
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');

@@ -1,0 +1,95 @@
+{
+  "revision": "ce6406d8c2eaf46d543c8a2606de0c3cb1951982",
+  "assets": [
+    {
+      "file": "pallet-town.png",
+      "sha256": "576229c55d9472e1252343aed200a09c1c950c1d532346ee0bcbe7d0e166393a",
+      "recipeSha256": "8fedcbc93a322feb0b4f099e4ac7352fbba0a086174192176a06e0d4cecb7e3a",
+      "layoutSha256": "1e9149d4faccaf0ea28ea7ef23d35310a26c05ed5d9e793c2bdc7a2a4819483d"
+    },
+    {
+      "file": "route-1.png",
+      "sha256": "44667f6af68273d59722dec18b7e8de0dd321dba8fff1782c8b5d54a86831ad0",
+      "recipeSha256": "56c8ed9aa9f68e19a1a84d57313a6f1373d31629ed78d0f29a7716d91f928cf8",
+      "layoutSha256": "119ba4e42ace200f49c6a0b3137e792955143b521bbc37e7d54a69f73e2dac39"
+    },
+    {
+      "file": "viridian-city.png",
+      "sha256": "e0d0965575b7f58d4a047515154429abb3cfdf806b7630f9990b6b6194dac32f",
+      "recipeSha256": "5d9cb5b557a4e46f2b43d2f1d7823e9a382da01f50d1326d3d4605612294fa4a",
+      "layoutSha256": "fb7ff8997c076a0eed867b87bf20543376de2393bb5087ab2e6ace7c374be130"
+    },
+    {
+      "file": "route-22.png",
+      "sha256": "f5cd8f422d63747467828cbfbc9ed8dfc1d01ae115ee87eaaf32718abc86d865",
+      "recipeSha256": "570732656bd8c11e7eb0f644f46630ec42456fca674b8aa543f87d16ad619f9a",
+      "layoutSha256": "24ead57da3df9be566b2212a2e9dbfe4a10abaa7ddd89252eb4dda1cbb2e8a38"
+    },
+    {
+      "file": "route-2.png",
+      "sha256": "1a31ec86079d014d656b7df7806932b999a8de769a515db42870fe2e913ebd5f",
+      "recipeSha256": "0a64145721bb6e62ac5d015654dcdbb2aed42bf95c20d9e50c5bc8adb18779ea",
+      "layoutSha256": "0170cb65906bd5e48d14197915e51ccce2e2837c271b106615bf28cf42cc13ed"
+    },
+    {
+      "file": "forest-south-gate.png",
+      "sha256": "320a73f107030655ff654bfa56723620713efd8c6e03ee1d774e726ce8a712c3",
+      "recipeSha256": "87bb1d203890886e3f2d4a2387ed304f6f8efd54ba03c366e435669dec9188a9",
+      "layoutSha256": "c9ce964391fff0ad2ad6cff7805e68413b686ddaa4ad0abf65a9d99b43a8d52b"
+    },
+    {
+      "file": "viridian-forest.png",
+      "sha256": "a7eb9149d20a9cf1a1f77e78699815d2dd0e8dad93f185730f0656d03c5f53ff",
+      "recipeSha256": "1614624d49a78095745a0ccd8a5755cd06bada19e043057b3f9ded8391b8ca19",
+      "layoutSha256": "448612950d3e4aceca5709cae98eedb1afa12b1dae1a1f4a1b13c983885580da"
+    },
+    {
+      "file": "forest-north-gate.png",
+      "sha256": "320a73f107030655ff654bfa56723620713efd8c6e03ee1d774e726ce8a712c3",
+      "recipeSha256": "f0d425afea9f30182444513382033868187755fbf7aaa65bf18ca76152d657c5",
+      "layoutSha256": "3a9ffd7dda1f0840c3995b58b0fa90adb53ac36ec548dc7647992dc5dba9d82f"
+    },
+    {
+      "file": "pewter-city.png",
+      "sha256": "21c82f079b1675a79d30f7579c7d09fecff0e69d1af24280c353c8cf5a7fba44",
+      "recipeSha256": "5f64094c6c635b106a2ff1f22cbfa8c857c87093efa7d861f236a4645a0849fd",
+      "layoutSha256": "ef53c15fccca7d14165477a79e63f5d01b4f8e37862816cfeba0d0bb481048f0"
+    },
+    {
+      "file": "route-3.png",
+      "sha256": "947ca01aa8d6f580263ad6c48d148103cae905fb985d18838459350aaa0fa510",
+      "recipeSha256": "ee354e4334a66e75c4037d33a8607f7ae2f1cff20354a0bd696c315a5023daaa",
+      "layoutSha256": "bd0e7aa1cd281004814b16606b7e9689ade934924d3cfd41b8b59b3d58294371"
+    },
+    {
+      "file": "route-4.png",
+      "sha256": "0f38688fb7f1c127f6b8594e47c6dde32c8687b9c4ea9deed5c41c2f60ebea42",
+      "recipeSha256": "fe29fbe8fd48e8fa0a672f1aa1dfb599e4d2584f8fface53c836d1cf365630d8",
+      "layoutSha256": "b453e3bc65ecd29a0ba66a34df115d2961a8e0a1de46d0a926b52209fe968192"
+    },
+    {
+      "file": "mt-moon-1f.png",
+      "sha256": "142018f2b763165a893bd8e7fcef92152a533b98f0f07010b3c79b383f30b3c1",
+      "recipeSha256": "aea3c09858087f3f382c9840eb607455bf9bceb4eb80e9584b551ffbe8ced807",
+      "layoutSha256": "3c5ab3d8854ba6c7cd51212cc8334801003b712ff021c7f032195338b7b72df2"
+    },
+    {
+      "file": "mt-moon-b1f.png",
+      "sha256": "1379fe40690b81e5145a1deb8cabedd1bc879a5d1e19a58c464e5e43a5b7f9e4",
+      "recipeSha256": "da9e62f60155102a39723aeb5cc21174522ed43398c62e4e968807c5eaff9917",
+      "layoutSha256": "cceba454b7cce217708156d80456169a7c8e5f38d4dbc81e8d0737d923704409"
+    },
+    {
+      "file": "mt-moon-b2f.png",
+      "sha256": "23e615a0eebd35f2c4f24775a30660605bed6af9defece93759b15e243a680d9",
+      "recipeSha256": "4d110238298d06ca4a3df0e41246054ffc835c4fd88065318c776ae757294462",
+      "layoutSha256": "136aa0c17c245e66aabfa79ae01ec0f5192aed4e9aa677817ed67d5d93516811"
+    },
+    {
+      "file": "cerulean-city.png",
+      "sha256": "9e88a12af73a9f9b1c649b0ae6ed484b18cb49b8cb9e863a21cfdd6726c0e538",
+      "recipeSha256": "f36b2e1458858bc2a1847d555a10d06802925e0ea0f854392029c898ca35f84b",
+      "layoutSha256": "fa706effafe552259666203a5ded56f5d633d05dd1cb55f2fad22f48b014fa47"
+    }
+  ]
+}

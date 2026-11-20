@@ -35,7 +35,7 @@ test('challenge cards show real completion and recover from empty filters offlin
   await expect(page.locator('.catalog-question')).toHaveCount(15);
   await page.getByRole('button', { name: 'First partners', exact: true }).click();
   await page.locator('.cm-content').fill("SELECT name, type1 FROM pokedex WHERE name IN ('Bulbasaur','Charmander','Squirtle');");
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await page.getByRole('button', { name: 'All challenges', exact: true }).click();
   await page.getByLabel('Progress', { exact: true }).selectOption('completed');
@@ -76,7 +76,7 @@ test('catalogs, collapsed navigation and library pages fit a narrow screen', asy
 test('browsing section pages preserves the current query and results', async ({ page }) => {
   await page.goto('/');
   await page.locator('.cm-content').fill("SELECT name FROM pokemon WHERE id = 1;");
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
   for (const name of ['Get started', 'Challenges', 'Schema & guide', 'History', 'Saved']) {
     await page.getByRole('button', { name, exact: true }).click();

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
+import { changeSafariRegion, changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
+import type { RegionId } from "../features/safari/regions";
 import { isFieldAssignment } from "../features/safari/field-assignments";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
@@ -15,6 +16,7 @@ interface State { session: SafariSession; phase: SafariPhase; results: QueryResu
 type Action =
   | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit; trainerDays: number; shinyRoll: number }
   | { type: "zone"; id: ZoneId }
+  | { type: "region"; id: RegionId }
   | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string; mode: SafariQueryMode }
@@ -36,6 +38,7 @@ function reducer(state: State, action: Action): State {
       return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
+    case "region": return { ...state, session: changeSafariRegion(state.session, action.id), message: "", error: "" };
     case "advance": {
       if (state.session.encounter?.id !== action.id) return state;
       const transition = SAFARI_TRANSITIONS[state.phase];
@@ -111,6 +114,7 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   return { ...state, saveError, actions: { move,
     restoreCatch,
     changeZone: (id: ZoneId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "zone", id }); },
+    changeRegion: (id: RegionId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "region", id }); },
     editDraft: (sql: string) => { if (!checking.current) dispatch({ type: "edit", sql }); },
     submit: () => void run("catch"),
     runDraft: () => void run(isFieldAssignment(state.session.encounter?.assignmentId) ? "preview" : "catch"),

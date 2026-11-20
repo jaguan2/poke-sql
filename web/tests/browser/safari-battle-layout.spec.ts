@@ -10,7 +10,7 @@ for (const width of [1920, 1600, 1440, 1280, 1024, 620, 390, 320]) {
       localStorage.setItem('pokesql:safari', JSON.stringify(session));
     }, nearSafariGrass());
     await page.goto('/');
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.keyboard.press('ArrowLeft');
     const scene = page.locator('.safari-battle-scene');
     await expect(scene).toBeVisible();
@@ -90,7 +90,7 @@ test('long encounter and catch messages stay inside the dialogue box on a small 
     draft: 'SELECT id, name, type1, type2 FROM pokedex WHERE id=449;',
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   async function expectReadableMessage() {
     const placement = await page.locator('.encounter-caption').evaluate(element => {
       const panel = element.getBoundingClientRect();
@@ -122,7 +122,7 @@ for (const [zone, id, name, terrain] of [
       encounter: { id: 'sprite-grounding', pokemonId: id, assignmentId: 'field-notes', attempts: 0, outcome: "active", fleeAfter: null },
     });
     await page.goto('/');
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(page.getByRole('img', { name: `Wild ${name}`, exact: true })).toBeVisible();
     await expect(page.locator('.encounter-background')).toHaveAttribute('src', new RegExp(`/battle/${terrain}\\.png$`));
     expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
@@ -172,7 +172,7 @@ test('native encounter scenery, Red and bitmap lettering remain available after 
   await page.goto('/');
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.safari-map').screenshot({ path: info.outputPath('red-on-route.png'), animations: 'disabled' });
   await page.keyboard.press('a');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
@@ -180,7 +180,7 @@ test('native encounter scenery, Red and bitmap lettering remain available after 
   const storedLevel = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.level);
   expect(level).toBe(`Lv.${storedLevel}`);
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByText('A wild Caterpie appeared!', { exact: true })).toBeVisible();
   await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);

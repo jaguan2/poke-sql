@@ -14,6 +14,7 @@ import { mysterySolved } from "../features/mystery/model";
 import { PersonalPokedex } from "../features/pokedex/PersonalPokedex";
 import { useWorkspace } from "./use-workspace";
 import { SafariZone } from "../features/safari/SafariZone";
+import { zoneById } from "../features/safari/zones";
 import { PCBoxes } from "../features/pc/PCBoxes";
 import { FeaturedPokemon } from "../features/pc/FeaturedPokemon";
 import "./App.css";
@@ -25,7 +26,7 @@ export default function App() {
     query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
     datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, profileProgress, autocomplete, safariFleeAfter,
     profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
-    saved, queryName, runState, actions,
+    saved, runState, actions,
   } = useWorkspace();
   const profileButton = useRef<HTMLButtonElement>(null);
   const settingsButton = useRef<HTMLButtonElement>(null);
@@ -33,6 +34,7 @@ export default function App() {
 
   if (loadError) return <div className="load-screen"><h1>Could not load PokéSQL</h1><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Try again</button></div>;
   if (!ready) return <div className="load-screen"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={64} height={64} className="spin" /><p>Loading your Pokédex…</p></div>;
+  const areaMusic = showSafari ? zoneById(safari.session.zoneId).music : undefined;
 
   return <div className="app">
     <header className="header">
@@ -61,7 +63,6 @@ export default function App() {
           {busy ? <button className="btn btn-primary" onClick={() => actions.stop()}>■ Stop query</button> : <button className="btn btn-primary" onClick={actions.openDailyMystery}>Today's mystery</button>}
         </> : <>
         <button className="btn btn-secondary" disabled={busy} onClick={() => void actions.reset()} title="Restore the original database; keeps saved SQL and progress">Reset DB</button>
-        {busy ? <button className="btn btn-primary" onClick={() => actions.stop()}>■ Stop query</button> : <button className="btn btn-primary" disabled={!query.trim() || (isMystery && (!mysteryRound || mysterySolved(mysteryRound)))} onClick={actions.run}>{isMystery ? "Guess Pokémon" : challenge ? "Check answer" : "▶ Run"} <kbd>Ctrl+Enter</kbd></button>}
         </>}
       </div>
     </header>
@@ -80,17 +81,17 @@ export default function App() {
         : libraryView ? <WorkspaceLibrary view={libraryView} schema={editorSchema} history={history} saved={saved} busy={busy} schemaTitle={isMystery ? "Mystery schema" : challenge ? "Challenge schema" : "Schema"}
           onPreviewSql={actions.previewSql} onGuideSql={actions.loadGuideSql} onLoadSql={actions.loadSql} onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
         : showPc ? <PCBoxes collection={pc.collection} error={pc.error} pendingCount={pc.pendingCount} busy={pc.busy} onCommand={pc.command} onRetry={pc.retry} onSafari={actions.openSafari} onProfile={actions.openProfiles} />
-        : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer}
+        : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer} musicLink={areaMusic && <a href="#game-music">♫ Music</a>} onRegion={safari.actions.changeRegion}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
           onPreview={safari.actions.runDraft} onSubmit={safari.actions.submit} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
-          editor={<SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
-            onChange={safari.actions.editDraft} onRun={safari.actions.runDraft} busy={busy} autocomplete={autocomplete} />} />
+          editor={controls => <SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
+            onChange={safari.actions.editDraft} onRun={safari.actions.runDraft} busy={busy} autocomplete={autocomplete} actions={controls} />} />
         : showPokedex ? <PersonalPokedex activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
         {datasetUpdateAvailable && !isMystery && !challenge && <div className="notice dataset-update" role="status">
           <strong>New Pokédex fields and forms are available.</strong> Your saved practice database is an older version. Reset DB loads the update and replaces practice database edits. Your SQL drafts, saved queries, and progress stay saved.
           <button className="btn" disabled={busy} onClick={() => void actions.reset()}>Reset DB and load update</button>
         </div>}
-        {isMystery && <MysteryPanel trainer={trainer} round={mysteryRound} busy={busy} mode={mysteryMode} date={dailyMysteryRound?.date} today={today}
+        {isMystery && <MysteryPanel trainer={trainer} ballTheme={ballTheme} round={mysteryRound} busy={busy} mode={mysteryMode} date={dailyMysteryRound?.date} today={today}
           onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} onNew={() => void actions.newMystery()}
           onLeave={actions.leaveMystery} />}
         {practice && <section className="practice-panel" key={`${selection?.kind}:${practice.id}`} aria-label={challenge ? "Current challenge" : "Get started query"}>
@@ -100,13 +101,12 @@ export default function App() {
           <QueryHelp hint={practice.hint} hintSql={practice.hintSql} answer={practice.sql} alternatives={practice.alternatives} busy={busy} onUseAnswer={actions.loadAnswer} />
           <small>{challenge ? "Answers run against the original Pokédex. Your practice database stays separate." : "These examples use your practice database. Reset DB if you want to restore the original data."}</small>
         </section>}
-        <form className="editor-toolbar" onSubmit={event => { event.preventDefault(); actions.saveQuery(); }}>
-          <span className="editor-label">{isMystery ? "Your next guess" : practice ? "Your answer" : "Free practice"}</span>
-          <label className="sr-only" htmlFor="query-name">Query name</label><input id="query-name" value={queryName} onChange={event => actions.setQueryName(event.target.value)} placeholder="Name this query…" maxLength={80} />
-          <button className="btn" disabled={!queryName.trim() || !query.trim()}>Save query</button>
-        </form>
+        <div className="editor-label">{isMystery ? "Your next guess" : practice ? "Your answer" : "Free practice"}</div>
         <SqlEditor draftKey={draftKey} value={query} schema={editorSchema} onChange={actions.editQuery}
-          onRun={actions.run} busy={busy} autocomplete={autocomplete} />
+          onRun={actions.run} busy={busy} autocomplete={autocomplete} actions={
+            busy ? <button className="btn btn-primary" onClick={() => actions.stop()}>■ Stop query</button>
+              : <button className="btn btn-primary" disabled={!query.trim() || (isMystery && (!mysteryRound || mysterySolved(mysteryRound)))} onClick={actions.run}>Run query <kbd>Ctrl+Enter</kbd></button>
+          } />
         <div className="results" aria-busy={busy}>
           <h2 className="results-heading">{isMystery ? "Mystery notebook" : "Query results"}</h2>
           {isMystery && mysteryRound && <MysteryNotebook round={mysteryRound} daily={mysteryMode === "daily"} onOpenPokedex={actions.openPokedex} onOpenPc={() => actions.navigate("pc")} />}
@@ -126,7 +126,7 @@ export default function App() {
           </>}
         </div>
         </>}
-        <MusicPlayer />
+        <MusicPlayer areaMusic={areaMusic} />
         <footer className="workspace-status"><span>SQLite · stored on this device</span><span role="status">{offlineStatus}</span></footer>
       </main>
     </div>

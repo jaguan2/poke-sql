@@ -15,7 +15,7 @@ async function limit(page: Page, value: 'unlimited' | '5' | '8') {
   await page.getByRole('button', { name: 'Done', exact: true }).click();
 }
 async function encounter(page: Page) {
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('a');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
 }
@@ -49,7 +49,7 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true); await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(chances).toHaveAttribute('value', '2');
   await expect(chances).toHaveAttribute('max', '5');
   await submit(page);
@@ -68,7 +68,7 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await page.locator('.safari-battle-scene').screenshot({ path: info.outputPath('fled-scene.png'), animations: 'disabled' });
   await page.locator('.safari-fled-summary').screenshot({ path: info.outputPath('fled-and-review.png'), animations: 'disabled' });
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Caterpie slipped away.' })).toBeVisible();
   await page.keyboard.press('ControlOrMeta+Enter');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ outcome: 'fled', attempts: 5, fleeAfter: 5 });
@@ -147,7 +147,7 @@ test('the fled solution review fits a small phone and returns to a usable route'
     ...nearSafariGrass(), encounter: { id: 'phone', pokemonId: 10, assignmentId: 'ability-survey', attempts: 4, fleeAfter: 5, outcome: 'active' },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await submit(page);
   await page.getByText('Review a solution', { exact: true }).click();
   await expect(page.locator('.safari-fled-summary pre').last()).toContainText('JOIN pokemon_abilities');

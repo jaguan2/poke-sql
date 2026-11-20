@@ -21,7 +21,7 @@ test('a correct SQL catch reveals canonical Pokédex data and restores it offlin
     encounter: { id: 'entry-lapras', pokemonId: 131, level: 37, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   const entry = page.getByRole('article', { name: 'Lapras Pokédex entry', exact: true });
   const caughtMarker = page.getByRole('img', { name: 'Already in your Pokédex', exact: true });
   await expect(caughtMarker).toHaveCount(0);
@@ -51,7 +51,7 @@ test('a correct SQL catch reveals canonical Pokédex data and restores it offlin
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(entry.locator('dd')).toHaveText(['2.5 m', '220 kg', '1']);
   await expect(caughtMarker).toBeVisible();
   await expect(entry.locator('.safari-entry-description')).toContainText('Crossing icy seas');
@@ -77,7 +77,7 @@ for (const width of [320, 390, 620]) {
       draft: 'DELETE FROM pokemon;',
     });
     await page.goto('/');
-    await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
     const entry = page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true });
     await expect(entry).toContainText('Worm Pokémon');
     await expect(entry.locator('.type-badge')).toHaveText(['bug']);
@@ -103,7 +103,7 @@ test('an already registered Pokémon shows a ball before the catch and keeps one
     }, discovery,
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   const nameplate = page.locator('.encounter-nameplate');
   const caughtMarker = nameplate.getByRole('img', { name: 'Already in your Pokédex', exact: true });
   await expect(caughtMarker).toBeVisible();

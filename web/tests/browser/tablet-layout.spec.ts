@@ -13,7 +13,7 @@ for (const viewport of [{ width: 820, height: 1180 }, { width: 1180, height: 820
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText('SELECT name FROM pokemon WHERE id = 1;');
     await expect(page.locator('.editor-wrap .cm-editor')).toHaveCSS('font-size', '16px');
-    const run = page.getByRole('button', { name: /▶ Run/ });
+    const run = page.getByRole('button', { name: /Run query/ });
     expect((await run.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     // Emulates reduced browser space; this does not open a real iPad keyboard.
     await page.setViewportSize({ width: viewport.width, height: 520 });
@@ -37,7 +37,7 @@ test('tablet touch controls accept a SQL catch and retain the native game screen
     ...nearSafariGrass(), encounter: { id: 'tablet-catch', pokemonId: 10, level: 14, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).tap();
+  await page.getByRole('button', { name: 'Explore', exact: true }).tap();
   await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
   await page.locator('.cm-content').fill("SELECT id, name, type1, type2 FROM pokedex WHERE name = 'Caterpie';");
   const catchButton = page.getByRole('button', { name: /Check query & catch/ });

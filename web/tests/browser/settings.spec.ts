@@ -9,7 +9,7 @@ async function typeAfter(page: Page, prefix: string, word: string) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 });
 
 test('LEFT suggests LEFT JOIN and accepting it edits SQL without running it', async ({ page }, testInfo) => {

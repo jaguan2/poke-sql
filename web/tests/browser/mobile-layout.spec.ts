@@ -25,7 +25,7 @@ for (const width of [320, 390, 620]) {
     await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
     for (const [index, name] of ['Pikachu', 'Ampharos', 'Jolteon'].entries()) {
       await edit(page, `SELECT * FROM pokedex WHERE name = '${name}';`);
-      await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+      await page.getByRole('button', { name: /Run query/ }).click();
       await expect(page.locator('.mystery-table tbody tr')).toHaveCount(index + 1);
     }
     const latest = page.locator('.mystery-table tbody tr').first();
@@ -37,12 +37,12 @@ for (const width of [320, 390, 620]) {
     await latest.getByText('SQL used', { exact: true }).click();
     await expect(latest.locator('pre')).toContainText("name = 'Jolteon'");
     await expectPageScroll(page);
-    await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole('button', { name: /Run query/ })).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath(`mobile-notebook-${width}.png`) });
 
     // Run and Stop remain reachable after scrolling to the notebook.
     await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d;');
-    await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     await expect(page.getByRole('button', { name: '■ Stop query', exact: true })).toBeInViewport({ ratio: 1 });
     await page.getByRole('button', { name: '■ Stop query', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('Query stopped');
@@ -59,7 +59,7 @@ test('mobile navigation opens pages and preserves challenge drafts across the de
   await page.getByRole('button', { name: /First partners/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(0);
   await edit(page, "SELECT name, type1 FROM pokedex WHERE name IN ('Bulbasaur', 'Charmander', 'Squirtle');");
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await page.getByRole('button', { name: '▶ SELECT * FROM pokedex', exact: true }).click();
@@ -79,7 +79,7 @@ test('wide SQL results scroll horizontally and grow with the page vertically', a
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await edit(page, 'SELECT * FROM pokedex LIMIT 50;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(50);
   const table = page.getByRole('region', { name: 'Query results', exact: true });
   expect(await table.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
@@ -89,6 +89,6 @@ test('wide SQL results scroll horizontally and grow with the page vertically', a
   expect(await table.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
   await page.locator('tbody tr').last().scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeInViewport({ ratio: 1 });
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: testInfo.outputPath('mobile-results.png') });
 });

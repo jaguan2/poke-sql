@@ -1,0 +1,101 @@
+[
+  {
+    "id": "hoenn-littleroot-town",
+    "title": "Littleroot Town",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_LITTLEROOT",
+    "file": "hoenn/littleroot-town.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/105%20Littleroot%20Town.mp3",
+    "sourceSha256": "26ae644e91bb1a702ddc5e4250282f92f717d871d1270f30ad85c73ea37da25d",
+    "sha256": "a98ed8a295432a00c4f679ee02d8f7375f1e451214b751a1ac5df8e566ed0f21"
+  },
+  {
+    "id": "hoenn-route-101",
+    "title": "Route 101",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_ROUTE101",
+    "file": "hoenn/route-101.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/111%20Route%20101.mp3",
+    "sourceSha256": "2e0e0dd888cbf3b5e979db41fdb7c39e8fa3daafdbb2fd2f275c2743808d56a9",
+    "sha256": "dd8bd8bb90bf41581c44219d418efea9fda53e460ccd514d513cb2a29ef4a15a"
+  },
+  {
+    "id": "hoenn-oldale-town",
+    "title": "Oldale Town",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_OLDALE",
+    "file": "hoenn/oldale-town.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/112%20Oldale%20Town.mp3",
+    "sourceSha256": "4ad56778699479c01224098b843698f7a7eab750705f37fc39cd0587cc8a3d6a",
+    "sha256": "b60d56abdc243fb7ceaba894edbe96c02b890489b063a95ea50249b40a0c46fe"
+  },
+  {
+    "id": "hoenn-petalburg-city",
+    "title": "Petalburg City",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_PETALBURG",
+    "file": "hoenn/petalburg-city.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/120%20Petalburg%20City.mp3",
+    "sourceSha256": "dd28bc2d2cc25bbd07f601e756c146bc23e4509438acb503ee8a02f89658f638",
+    "sha256": "c8cf48943099a74752971e6864461030e992d4850cf12fc3da5fd33cbfd0ce47"
+  },
+  {
+    "id": "hoenn-route-104",
+    "title": "Route 104",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_ROUTE104",
+    "file": "hoenn/route-104.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/122%20Route%20104.mp3",
+    "sourceSha256": "873b0bfa73d4578734ace18571e6287de64260ba28e7802a55f3e4e85c7958dd",
+    "sha256": "c91e171847e2f54f01dcad0b16e7a5ff6443b69961762384501f146b76e4c374"
+  },
+  {
+    "id": "hoenn-petalburg-woods",
+    "title": "Petalburg Woods / Rusturf Tunnel",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_PETALBURG_WOODS",
+    "file": "hoenn/petalburg-woods.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/123%20Petalburg%20Forest.mp3",
+    "sourceSha256": "dd3a81ca9c5ceae1e5c8db634ca0fead74c24acc1af6a417a6b7e1619d156bcc",
+    "sha256": "265f21c7176e03b99ff9fe420b0d9bfd50e6955a4087707e423b7a1dcb5c36dd"
+  },
+  {
+    "id": "hoenn-rustboro-city",
+    "title": "Rustboro City / Mauville City",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_RUSTBORO",
+    "file": "hoenn/rustboro-city.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/127%20Rustboro%20City.mp3",
+    "sourceSha256": "c97edee1f3274e73c2a83eb9dcddb7e383c6b9317396f7a8dc545deb9d73d036",
+    "sha256": "43fd5ecff0a5115a85bd8afa947e4d51e2aa4b98a41c9dac10e88abd58dc7a8b"
+  },
+  {
+    "id": "hoenn-route-110",
+    "title": "Route 110 / Route 117",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_ROUTE110",
+    "file": "hoenn/route-110.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/134%20Route%20110.mp3",
+    "sourceSha256": "6b1f8696b11ee2db8ff9680abc0266b2ecc766a5e9ff3a8e6ae816debdb6c84c",
+    "sha256": "a05203b7c2e9ef6432796f47c6ce2fd9d918a27bf7230fec34348f5c148f614e"
+  },
+  {
+    "id": "hoenn-verdanturf-town",
+    "title": "Verdanturf Town",
+    "theme": "Pokémon Ruby, Sapphire & Emerald",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_VERDANTURF",
+    "file": "hoenn/verdanturf-town.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-advance-gsf/pokemon-sapphire/141%20Verdanturf%20Town.mp3",
+    "sourceSha256": "9bf4ebbc02cfe090c0f6d9300754c672f8e857bf26ca96a825212816dcd30e3f",
+    "sha256": "7fca2d2ec182170e6dd49c95a0fa3841fb0e3ea00813f8e18a1848c4c7fd0a0e"
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "id": "johto-new-bark-town",
+    "title": "New Bark Town",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_NEW_BARK_TOWN",
+    "file": "johto/new-bark-town.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/60%20New%20Bark%20Town%27s%20Theme.mp3",
+    "sourceSha256": "bb102ed32d59e0f2ca4ac87af0522b9fc9890f849ea7bf47192c1458b9dafd25",
+    "sha256": "c577d522af70dec07bfe6aee2901306ca2dcaecfcf071df72444ec630be8ed80"
+  },
+  {
+    "id": "johto-route-29",
+    "title": "Route 29",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_ROUTE_29",
+    "file": "johto/route-29.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/52%20Road%20to%20Cherrygrove%20City%20~%20from%20New%20Bark%20Town.mp3",
+    "sourceSha256": "ade554d83bbcb3a7c76c0a6bdd848072d856dcfcbc20f4477170ee216e59d9d1",
+    "sha256": "a5481d0571597c815329a1a6eebe11945f53d4aee6565c053eed4f35e674dacd"
+  },
+  {
+    "id": "johto-cherrygrove-city",
+    "title": "Cherrygrove City",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_CHERRYGROVE_CITY",
+    "file": "johto/cherrygrove-city.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/38%20Cherrygrove%20City%27s%20Theme.mp3",
+    "sourceSha256": "ebad7dc24fc93ac9f9b547b944a1160598e70a2d32aac109e09b593c979594ef",
+    "sha256": "f0308bb5874f2f88fa118daf9ff885e59638e399caa67f0ebc684e29fc88820f"
+  },
+  {
+    "id": "johto-route-30",
+    "title": "Routes 30, 31, 32 & 33",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_ROUTE_30",
+    "file": "johto/route-30.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/43%20Road%20to%20Violet%20City%20~%20from%20Cherrygrove%20City.mp3",
+    "sourceSha256": "4ad51a5b3114346dc9827667521a2a0f0f7ce528e587781ccf79b1391d35253e",
+    "sha256": "436a7cbb6ffbf2f1442e681bf36ab26f7d095a1ae270aa815a72e44a946e8b4d"
+  },
+  {
+    "id": "johto-violet-city",
+    "title": "Violet City",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_VIOLET_CITY",
+    "file": "johto/violet-city.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/45%20Violet%20City%27s%20Theme.mp3",
+    "sourceSha256": "cba67fd4a1b2cc6430cb9cde19cf667b0bba72fc727a2812214ccc15f09c96ed",
+    "sha256": "137b4c28d43f3b9b595dd90378ccbcc2aa63fc06b085d74ae04c0736dd18e433"
+  },
+  {
+    "id": "johto-union-cave",
+    "title": "Union Cave & Ilex Forest",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_UNION_CAVE",
+    "file": "johto/union-cave.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/40%20Union%20Cave.mp3",
+    "sourceSha256": "1dcccbf8ee43c47af3655d02f74b7b3c1c6fcbc52b6016f3126ff50fb2c6835e",
+    "sha256": "cb2e44c50b7f0656efd9a278cd54beb49a6db096bdeebb2757134226e97fcb34"
+  },
+  {
+    "id": "johto-azalea-town",
+    "title": "Azalea Town",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_AZALEA_TOWN",
+    "file": "johto/azalea-town.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/37%20Azalea%20Town%27s%20Theme.mp3",
+    "sourceSha256": "bc710bf289ef50aad61a45bcfeb2e07a74cfab53d9cc73e34c14b965cd4b2390",
+    "sha256": "2fdbd0b35b4816b3e4b3a0eddf7b668542a820154335c36e195976b1c72c6ba5"
+  },
+  {
+    "id": "johto-dark-cave",
+    "title": "Slowpoke Well",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_DARK_CAVE",
+    "file": "johto/dark-cave.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/51%20Dark%20Cave.mp3",
+    "sourceSha256": "71c4521eec617369638004617a7d376aae8466122586364459f1fa59930a77e9",
+    "sha256": "27aacc6a1ec579b38be829bbe1a5022585501178b7aaf67129818ad6fe2b3f7d"
+  },
+  {
+    "id": "johto-route-36",
+    "title": "Route 34 & forest gates",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_ROUTE_36",
+    "file": "johto/route-36.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/53%20Road%20to%20Goldenrod%20City%20~%20from%20Azalea%20Town.mp3",
+    "sourceSha256": "31c00199483e85c850566a9cd6c65c7001cd844d4b6f0568db67855e9af2338a",
+    "sha256": "98e15f198f693cac546c37c8d169b81eb5ab87f26f022fb8de03324808d94ff5"
+  },
+  {
+    "id": "johto-goldenrod-city",
+    "title": "Goldenrod City",
+    "theme": "Pokémon Gold, Silver & Crystal",
+    "artist": "Game Freak",
+    "nativeMusic": "MUSIC_GOLDENROD_CITY",
+    "file": "johto/goldenrod-city.mp3",
+    "source": "https://fi.zophar.net/soundfiles/gameboy-gbs/pokemon-gold/61%20Goldenrod%20City%27s%20Theme.mp3",
+    "sourceSha256": "50de1fddab090ca4de4abe7344efd296b0ac28055b0fc271156d173bf9a3506b",
+    "sha256": "3bb9b70be83f59779e58c60e639e2ddbec273433fde3d1a02b361526efe80aba"
+  }
+]

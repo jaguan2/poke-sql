@@ -7,8 +7,8 @@ async function run(page: Page, sql: string) {
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
   const start = Date.now();
-  await page.getByRole('button', { name: /▶ Run/ }).click();
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible({ timeout: 20000 });
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible({ timeout: 20000 });
   return Date.now() - start;
 }
 
@@ -22,14 +22,16 @@ test('maximum statement batch and repeated queries stay usable', async ({ page }
   });
   const start = Date.now();
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   const readyMs = Date.now() - start;
   const batchMs = await run(page, Array.from({ length: 50 }, (_, i) =>
     `SELECT ${i} AS batch, a.id, a.name FROM pokemon a CROSS JOIN pokemon b;`).join('\n'));
   await expect(page.locator('.status-bar')).toContainText('100,000+ row(s)');
   const renderedCells = await page.locator('td').count();
   const editStart = Date.now();
-  await page.getByLabel('Query name').pressSequentially('Stress benchmark', { delay: 0 });
+  await page.locator('.cm-content').focus();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.type('\n-- Stress benchmark', { delay: 0 });
   const editMs = Date.now() - editStart;
   expect(renderedCells).toBe(1500);
   await expect(page.getByRole('button', { name: 'Previous result', exact: true })).toBeDisabled();
@@ -69,13 +71,13 @@ test('maximum statement batch and repeated queries stay usable', async ({ page }
 
 test('repeated worker cancellation keeps the UI responsive and restores committed data', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   await run(page, "UPDATE pokemon SET name = 'Committed' WHERE id = 1;");
   for (let i = 0; i < 3; i++) {
     await page.locator('.cm-content').click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.insertText("BEGIN; UPDATE pokemon SET name = 'Discarded' WHERE id = 1; SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d;");
-    await page.getByRole('button', { name: /▶ Run/ }).click();
+    await page.getByRole('button', { name: /Run query/ }).click();
     // A main-thread heartbeat must continue while SQLite occupies its worker.
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await page.getByRole('button', { name: '■ Stop query' }).click();
@@ -95,7 +97,7 @@ test('database fetch failure shows a recoverable loading error', async ({ page }
   await expect(page.getByText('Failed to load database (503).')).toBeVisible();
   await page.unroute('**/pokemon.sqlite');
   await page.getByRole('button', { name: 'Try again' }).click();
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   await run(page, 'SELECT COUNT(*) FROM pokemon;');
   await expect(page.getByRole('cell', { name: '1025', exact: true })).toBeVisible();
 });

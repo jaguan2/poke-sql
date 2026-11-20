@@ -1,10 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { nearSafariGrass } from '../fixtures/safari';
+import { createSafariSession } from '../../src/features/safari/model';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(session => {
+    if (!localStorage.getItem('pokesql:safari')) localStorage.setItem('pokesql:safari', JSON.stringify(session));
+  }, createSafariSession('forest'));
+});
 
 test('the introductory controls popup dismisses once per session and leaves the route free of direction buttons', async ({ page }, info) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   const popup = page.getByRole('complementary', { name: 'Safari controls', exact: true });
   await expect(popup).toContainText('Use WASD or arrow keys to walk.');
   await expect(popup).toContainText('swipe the map');
@@ -21,10 +28,10 @@ test('the introductory controls popup dismisses once per session and leaves the 
   await page.getByRole('button', { name: 'Got it', exact: true }).click();
   await expect(popup).toHaveCount(0);
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(popup).toHaveCount(0);
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(popup).toHaveCount(0);
   await page.keyboard.press('a');
   await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '9');
@@ -32,7 +39,7 @@ test('the introductory controls popup dismisses once per session and leaves the 
 
 test('WASD and arrows keep walking after clicking outside the map and pause for settings', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('complementary', { name: 'Safari controls', exact: true })).toBeVisible();
   await page.getByRole('heading', { name: /Safari Zone/ }).click();
   const player = page.locator('.safari-player');
@@ -72,7 +79,7 @@ test('WASD and arrows keep walking after clicking outside the map and pause for 
 
 test('the habitat picker pauses walking and a newly chosen route accepts keys immediately', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.safari-area-picker > summary').click();
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '10');
@@ -94,7 +101,7 @@ test('keyboard grass encounters roll from the visible weighted table and SQL alo
     localStorage.setItem('pokesql:safari', JSON.stringify(session));
   }, nearSafariGrass());
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   const table = page.getByRole('table', { name: 'Verdant Forest encounter table' });
   const caterpie = table.getByRole('row').filter({ has: page.locator('img[src$="/10.png"]') });
   const exeggcute = table.getByRole('row').filter({ has: page.locator('img[src$="/102.png"]') });

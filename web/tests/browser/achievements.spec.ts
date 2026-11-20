@@ -54,7 +54,7 @@ test('solving a mystery unlocks a type milestone that survives offline reload', 
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await edit(page, 'SELECT id FROM pokedex WHERE id = 38;');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
   await page.getByRole('button', { name: /^Achievements/ }).click();
   await page.getByRole('button', { name: 'Types', exact: true }).click();
@@ -78,7 +78,7 @@ test('practice database edits and resets cannot change original achievement goal
   }, entries);
   await page.goto('/');
   await edit(page, 'DROP TABLE pokemon; DROP TABLE types;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('.status-bar')).toContainText('Statement executed');
   await page.reload();
   await openAchievements(page);

@@ -13,7 +13,7 @@ test('Profiles shows real progress, saves a name and model offline, and retains 
     localStorage.setItem('pokesql:trainer', '"leaf"');
     localStorage.setItem('pokesql:trainer-id', JSON.stringify({ id: '14463', issuedAt: '2012-04-22T12:00:00.000Z' }));
     localStorage.setItem('pokesql:completed', '["first-partners","obsolete-exercise"]');
-  }, { entries, session: { ...createSafariSession(), catches: 5 } });
+  }, { entries, session: { ...createSafariSession('forest'), catches: 5 } });
   await page.goto('/');
   await page.getByRole('button', { name: 'Profiles', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Trainer ID', exact: true })).toBeFocused();
@@ -52,7 +52,7 @@ test('Profiles shows real progress, saves a name and model offline, and retains 
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await page.screenshot({ path: info.outputPath('profiles-mobile.png'), animations: 'disabled' });
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.locator('.safari-player .trainer-sprite')).toHaveAttribute('data-trainer', 'wally');
   expect(await page.locator('.safari-player .trainer-sprite').evaluate(async el => {
     const img = new Image(); img.src = getComputedStyle(el).backgroundImage.slice(5, -2); await img.decode(); return img.naturalWidth;
@@ -91,7 +91,7 @@ test('icon shortcuts switch between Trainer ID and settings and return to the ex
   const settings = page.getByRole('button', { name: 'Settings', exact: true });
   await expect(profile).toHaveText('');
   await expect(settings).toHaveText('');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.getByRole('button', { name: 'Got it', exact: true }).click();
   await profile.click();
   await expect(page.getByRole('heading', { name: 'Trainer ID', exact: true })).toBeFocused();
@@ -112,8 +112,8 @@ test('icon shortcuts switch between Trainer ID and settings and return to the ex
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   // Returning to the trail intentionally restores the map's walking focus.
   await expect(page.locator('.safari-map')).toBeFocused();
-  await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '10');
-  await expect(page.locator('.safari-player')).toHaveAttribute('data-y', '17');
+  await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '6');
+  await expect(page.locator('.safari-player')).toHaveAttribute('data-y', '8');
   await page.reload();
   await profile.click();
   await expect(page.locator('.trainer-card-number strong')).toHaveText(number);

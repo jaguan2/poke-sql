@@ -7,7 +7,7 @@ async function run(page: Page, sql: string) {
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
 }
 
 test('expanded form example and challenges work on desktop and mobile', async ({ page }, testInfo) => {
@@ -18,7 +18,7 @@ test('expanded form example and challenges work on desktop and mobile', async ({
   await page.getByText('Answer', { exact: true }).click();
   await page.getByRole('article', { name: 'Direct approach' }).getByRole('button', { name: 'Use this answer' }).click();
   await page.getByText('Answer', { exact: true }).click();
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('tbody tr')).toHaveCount(3);
   await expect(page.locator('tbody tr').nth(1).locator('td')).toHaveText(['Mega Charizard X', '1', '6', '130', '130', '634']);
   for (const width of [1440, 390]) {
@@ -32,7 +32,7 @@ test('expanded form example and challenges work on desktop and mobile', async ({
   await page.getByRole('button', { name: /Mega Charizard's changing types/ }).click();
   await page.getByText('Answer', { exact: true }).click();
   await page.getByRole('article', { name: 'Direct approach' }).getByRole('button', { name: 'Use this answer' }).click();
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await expect(page.locator('tbody tr')).toHaveCount(4);
 });
@@ -60,7 +60,7 @@ test('older saved databases retain edits until explicit reset loads the expanded
     bytes = Array.from(db.export());
   } finally { db.close(); }
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   const encounters = await entriesFor([6]);
   await page.evaluate(async ({ bytes, encounters }) => {
     localStorage.setItem('pokesql:drafts', JSON.stringify({ sandbox: 'DROP TABLE pokemon;' }));
@@ -92,7 +92,7 @@ test('older saved databases retain edits until explicit reset loads the expanded
   await page.getByRole('button', { name: /Kanto's Mega roster/ }).click();
   await page.getByText('Answer', { exact: true }).click();
   await page.getByRole('article', { name: 'Direct approach' }).getByRole('button', { name: 'Use this answer' }).click();
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('✓ Correct! Challenge completed.')).toBeVisible();
   await page.getByRole('button', { name: 'Back to free practice' }).click();
   const draft = await page.locator('.cm-content').innerText();

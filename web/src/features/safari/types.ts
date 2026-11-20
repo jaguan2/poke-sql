@@ -1,6 +1,7 @@
 import type { PokemonProfile } from "../../shared/pokemon/profile";
 import type { Direction, Position, ZoneId } from "./zones";
 import type { QueryResult } from "../../shared/sql/types";
+import type { RegionId, RegionLocationId } from "./regions";
 
 export type AssignmentId = "field-notes" | "stat-scan" | "type-tracker" | "ability-survey" | "tracking" | "ranger-survey";
 export type SafariQueryMode = "preview" | "catch";
@@ -16,6 +17,8 @@ export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
   steps: number; grassSteps: number; catches: number; encounter: SafariEncounter | null;
   draft: string; lastCatch: SafariCatch | null;
+  visited?: ZoneId[]; // Additive save field; older Safari expeditions stay at their original habitat.
+  regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction }>>;
 }
 export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "catching" | "caught" | "fled";
 export interface SafariCaptureContext { id: string; level: number; shiny: boolean; zoneId: ZoneId; attempts: number }

@@ -13,8 +13,8 @@ async function edit(page: Page, sql: string) {
 
 async function guess(page: Page, id: number) {
   await edit(page, `SELECT id FROM pokedex WHERE id = ${id};`);
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeVisible();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 }
 
 async function openPokedex(page: Page) {
@@ -36,7 +36,7 @@ test('daily and random solved targets are collected, while research and wrong gu
   await page.goto('/');
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await edit(page, 'SELECT * FROM pokedex LIMIT 10;');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByText('Research query only', { exact: false })).toBeVisible();
   await guess(page, 25);
   await openPokedex(page);
@@ -85,7 +85,7 @@ test('discoveries deduplicate across modes and survive offline reload, the next 
   await guess(page, dailyPokemonForDate('2026-01-02'));
   await page.getByRole('button', { name: 'Back to free practice', exact: true }).click();
   await edit(page, 'DROP TABLE pokemon;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.locator('.status-bar')).toContainText('Statement executed');
   await openPokedex(page);
   await expect(page.locator('.encounter-card')).toHaveCount(2);
@@ -152,7 +152,7 @@ test('saved wins are recovered when no collection exists and collection navigati
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('Should not run');
   await edit(page, 'SELECT name FROM pokemon WHERE id = 6;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Charizard', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Challenges', exact: true }).click();
   await page.getByRole('button', { name: /Meet Charizard/ }).click();
@@ -162,7 +162,7 @@ test('saved wins are recovered when no collection exists and collection navigati
   await expect(page.getByRole('region', { name: 'Current challenge', exact: true })).toContainText('Meet Charizard');
   await expect(page.locator('.cm-content')).toHaveText('SELECT name FROM pokedex WHERE id = 6;');
   await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d;');
-  await page.getByRole('button', { name: /Check answer/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('button', { name: /^My Pokédex/ })).toBeDisabled();
   await page.getByRole('button', { name: '■ Stop query', exact: true }).click();
 });

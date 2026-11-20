@@ -1,0 +1,86 @@
+[
+  {
+    "id": "kanto-pallet-town",
+    "title": "Pallet Town",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_PALLET",
+    "file": "kanto/pallet-town.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/pallettownnew.ogg",
+    "sourceSha256": "da164fe1c3c26411b1fc7d3d5c0b62f000dc0d8c629c15dffb5d447979044800",
+    "sha256": "6a2b291fd77c474d5b96ada02b985e17362a9f1df1f0693aa3e15c8de26c3e7c",
+    "duration": "00:01:40.81"
+  },
+  {
+    "id": "kanto-route-1",
+    "title": "Route 1",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_ROUTE1",
+    "file": "kanto/route-1.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/routes1new.ogg",
+    "sourceSha256": "3face8d01482c69836201ad36777b77a631dbda517fc78419c118b1a0667c315",
+    "sha256": "d8e61aec662df7a855e0d4f51ed0787d104620d46a6abec5716f24eadeb6b9e3",
+    "duration": "00:01:03.43"
+  },
+  {
+    "id": "kanto-pewter-city",
+    "title": "Pewter City / Viridian City",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_PEWTER",
+    "file": "kanto/pewter-city.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/cities1new.ogg",
+    "sourceSha256": "619cadc683b0e1931ba0802581cb2cf22d5cc7c9c6fa913625418b7660f43c1d",
+    "sha256": "d6f5c7919a54b7b4a9685ada89811bfcf26dc0c9b7dda18f3b348ea6d78d4e0b",
+    "duration": "00:02:15.92"
+  },
+  {
+    "id": "kanto-viridian-forest",
+    "title": "Viridian Forest",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_VIRIDIAN_FOREST",
+    "file": "kanto/viridian-forest.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/dungeon2new.ogg",
+    "sourceSha256": "4edbae1098df106353aed6feab294527e097fb89970dbba21d90b8358ed34d04",
+    "sha256": "6323ae9abcf6534da07e91958a05b9443f62976a18641eac3a9865ddb19930c5",
+    "duration": "00:03:43.77"
+  },
+  {
+    "id": "kanto-route-3",
+    "title": "Route 3",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_ROUTE3",
+    "file": "kanto/route-3.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/routes3new.ogg",
+    "sourceSha256": "1f0b6002e2b2edbcc0cc3b00e04043834d6a1488e447f9516c12be302de01d0b",
+    "sha256": "3bcdb89ed474d65d92bedbec1d0ef21509f52d173ce24bc66a3021476039e8c7",
+    "duration": "00:01:20.54"
+  },
+  {
+    "id": "kanto-mt-moon",
+    "title": "Mt. Moon",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_MT_MOON",
+    "file": "kanto/mt-moon.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/dungeon3new.ogg",
+    "sourceSha256": "1a27cf29f00acfcf221059e86bdd44acc501ace2279b4cb2b1ede8950b9f9530",
+    "sha256": "e0668e83474de22ddb94468302e6c40bf33637fed8183cac719f596b1d31ed0c",
+    "duration": "00:03:17.67"
+  },
+  {
+    "id": "kanto-cerulean-city",
+    "title": "Cerulean City / Fuchsia City",
+    "theme": "Pokémon FireRed & LeafGreen",
+    "artist": "Game Freak",
+    "nativeMusic": "MUS_FUCHSIA",
+    "file": "kanto/cerulean-city.mp3",
+    "source": "https://raw.githubusercontent.com/AlucardTheFirstHunter/MusicReplacementMod/3eb70b83bcc6eed72eb79c8e2f2620c38e78ce8b/SFXMusicReplacementMod/assets/music/firered/cities2new.ogg",
+    "sourceSha256": "718a91ed637487c8f355e86db5891101abe627974e970ef1e8c9f30fa9b0f987",
+    "sha256": "a4fea8c51c3e1393f436ae58d2ca5b6840535c27ed8f0e453991e09e922d0ded",
+    "duration": "00:01:19.52"
+  }
+]

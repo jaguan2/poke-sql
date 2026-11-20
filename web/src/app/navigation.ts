@@ -6,7 +6,7 @@ export const NAVIGATION = [
   ] },
   { caption: "Discover", items: [
     { id: "mystery", label: "Who’s That Pokémon?", icon: "sparkle" },
-    { id: "safari", label: "Safari Zone", icon: "compass" },
+    { id: "safari", label: "Explore", icon: "compass" },
     { id: "pokedex", label: "My Pokédex", icon: "ball" },
     { id: "pc", label: "PC Boxes", icon: "boxes" },
   ] },

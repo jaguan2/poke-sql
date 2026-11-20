@@ -20,7 +20,7 @@ test('hiding the menu expands the workspace and preserves the draft, selected to
   await toggle.click();
   await expect(page.getByRole('button', { name: 'Free practice', exact: true })).toHaveAttribute('aria-current', 'page');
   await toggle.click();
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
   await toggle.click();
   await expect(page.getByRole('cell', { name: 'Bulbasaur', exact: true })).toBeVisible();
@@ -50,7 +50,7 @@ for (const width of [320, 620, 760, 850, 1440]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     await page.screenshot({ path: testInfo.outputPath(`menu-hidden-${width}.png`) });
     await toggle.click();
-    await expect(page.getByRole('button', { name: 'Safari Zone', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Explore', exact: true })).toBeVisible();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   });
 }

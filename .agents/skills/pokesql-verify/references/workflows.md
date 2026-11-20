@@ -15,7 +15,7 @@ Playwright configurations if the application has changed.
   This exercises grading against original data after the practice DB is modified
   and checks that completion persists across reload.
 - `npm.cmd exec -- playwright test tests/browser/app.spec.ts --grep "saves editor"`
-  checks saved SQL, named queries, history, DB writes and reset across reload.
+  checks saved drafts, legacy saved queries, history, DB writes and reset across reload.
 - `npm.cmd exec -- playwright test tests/browser/app.spec.ts --grep "works offline"`
   proves cached production assets, sprites and SQL remain usable offline.
 - `npm.cmd run test:desktop` uses the separate desktop config and disposable
@@ -26,8 +26,8 @@ Playwright configurations if the application has changed.
 
 | Feature | User path | Observable proof | Existing coverage |
 | --- | --- | --- | --- |
-| SQL and saved work | Edit `.cm-content`, use the Run button, save a query, reload | Modified data remains; the draft is restored without being executed | `tests/browser/app.spec.ts`, `tests/engine/sql.spec.ts` |
-| Challenges | Challenges, First partners, edit answer, Check answer | Correct result and saved completion; practice DB remains independent | `tests/browser/app.spec.ts`, `tests/browser/ui-regressions.spec.ts` |
+| SQL and saved work | Edit `.cm-content`, use Run query below the editor, reload | Modified data remains; the draft is restored without being executed | `tests/browser/app.spec.ts`, `tests/engine/sql.spec.ts` |
+| Challenges | Challenges, First partners, edit answer, Run query | Correct result and saved completion; practice DB remains independent | `tests/browser/app.spec.ts`, `tests/browser/ui-regressions.spec.ts` |
 | Recovery | Run expensive SQL, Stop query, then query the last saved edit | Worker recovers to its completed snapshot and accepts another query | `tests/browser/app.spec.ts`, `tests/browser/stress.spec.ts` |
 | Offline | Wait for Available offline on a production preview, disconnect, reload | Query results and a loaded sprite are still available | `tests/browser/app.spec.ts`, `tests/browser/offline.spec.ts` |
 

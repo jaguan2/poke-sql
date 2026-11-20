@@ -6,7 +6,7 @@ test('all nine habitats use local game-tile maps and remain available offline', 
   await page.goto('/');
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   for (const [id, name] of [
     ['forest', 'Verdant Forest'], ['wetlands', 'Willow Wetlands'],
     ['ridge', 'Amber Ridge'], ['meadow', 'Sunlit Meadow'],
@@ -26,7 +26,7 @@ test('all nine habitats use local game-tile maps and remain available offline', 
     await page.screenshot({ path: info.outputPath(`${id}.png`), animations: 'disabled' });
   }
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('group', { name: 'Ember Foothills exploration map' })).toBeVisible();
 });
 
@@ -37,7 +37,7 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
     localStorage.setItem('pokesql:safari', JSON.stringify(session));
   }, nearSafariGrass('tundra'));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
@@ -50,7 +50,7 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(page.getByRole('progressbar', { name: 'Frostveil Tundra collection progress' })).toHaveAttribute('value', '1');
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('progressbar', { name: 'Frostveil Tundra collection progress' })).toHaveAttribute('value', '1');
   await expect(page.locator('.safari-player')).toBeVisible();
 });
@@ -58,7 +58,7 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
 test('the habitat picker fits mobile screens and keeps the selected game map reachable', async ({ page }, info) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.safari-area-picker > summary').click();
   await page.getByRole('button', { name: /Mirage Dunes/ }).click();
   await expect(page.locator('.safari-area-picker')).not.toHaveAttribute('open', '');

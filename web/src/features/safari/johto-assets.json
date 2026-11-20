@@ -1,0 +1,107 @@
+{
+  "revision": "9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482",
+  "assets": [
+    {
+      "file": "new-bark-town.png",
+      "sha256": "a19295d68cd5bcab5b8d207cf76f3a16f407cdea82641ca2bedfc95be16019dd",
+      "recipeSha256": "4bc8b7690d46d705d7466132b6a2df933f17d6a3f012f4e630636e661de86f4a",
+      "layoutSha256": "67ad3e2aedaa456f619aacaf31019bc20493fd684cd8853033c0d1ab09f6afa4"
+    },
+    {
+      "file": "route-29.png",
+      "sha256": "0c3435b690ff1aa285a55a57de89e15151d2b79d3b8a0ca4da6e4d470a1e582d",
+      "recipeSha256": "01d60de093eaad0aa7ef76854499b5ada348f7884ab8f78febe62703c7a610a7",
+      "layoutSha256": "75e77fde7ea4f81c0149a65936c842254653e9e32d041fab3f85beec9e6989b8"
+    },
+    {
+      "file": "cherrygrove-city.png",
+      "sha256": "0bcf16292a4d5a20921dad39637fd7827d7f67fff82632be865de8dfe99b1237",
+      "recipeSha256": "4bd358965bddf17f0a7f6a5ab594276320bfd5bb389ffe70775e9d3adbbfc892",
+      "layoutSha256": "389f9267369809ee043ce2df6aa49918d239662572330bf7e2f4782c39339279"
+    },
+    {
+      "file": "route-30.png",
+      "sha256": "ad41a96c650a625d7e1ea42ba1d6c91d9a53dd48c0499fc48a0a85f440624993",
+      "recipeSha256": "3de86b2624172d339910a9828f9d371d22c4869798bed3f8f11fe6226a9d9a67",
+      "layoutSha256": "a2ca23ccd6373fe3f6d65112f99915b7e6571a37b4a040a4400142b41c56e1c5"
+    },
+    {
+      "file": "route-31.png",
+      "sha256": "20414a3cd9f78d1f2d5cb383579c49a55cc42b95e051597999e896cce1541f39",
+      "recipeSha256": "70c1769075671d641c6235fb2bbfb960fa074d6e881c16809f5ed00932b934c8",
+      "layoutSha256": "83c4e745fec93009adb6340f95e0dd54e80de0f2edec71cf0067e329aa092cfc"
+    },
+    {
+      "file": "violet-gate.png",
+      "sha256": "0901c68dc3a9c78af6a95b780d3ce9966fe1a13cd1628b78e414fa68dc265fec",
+      "recipeSha256": "5d0fb31fcbac4b43bece4f3b0b94f84f1835adb7c1b2042919a9147419577b74",
+      "layoutSha256": "3f6e93f870fbe73c26b8355abb7abf5a954ab1f47eeb74f9a34c91d99f219b98"
+    },
+    {
+      "file": "violet-city.png",
+      "sha256": "c5159ff58fc0bba7265f8157856414e5ba308fe30abdb8bd2fcf101de1c8d4e7",
+      "recipeSha256": "1052ab15bfb50dcb0952825d6c1196e9e9dbafa0b5e5ab27d0a70f05e17c54ea",
+      "layoutSha256": "0f5a0b2eff1d6025aea04c905765d86302aeeebb328d356f232a9e12e8be819d"
+    },
+    {
+      "file": "route-32.png",
+      "sha256": "17baf2b12ab0128354bc1d56bf525e5b9e9c48b1fe6c6b0a7f2066f018db6fad",
+      "recipeSha256": "4dca9fb6253752a16aab9477324cfd624b965be85e471d1a709ac04f08daf4e3",
+      "layoutSha256": "2908bc37ae635367af1edf823215bbc2b3fbc59ab26010dc36b7446f975b4555"
+    },
+    {
+      "file": "union-cave-1f.png",
+      "sha256": "dd76db99c29ee870895880654be4eef0f2b1a744f166eb320744f9a3530c0ef9",
+      "recipeSha256": "fcca79ab0cf9aec9f0c87983e204426ad12e1045da79ec1e02ca94954eb1234c",
+      "layoutSha256": "dfce99811d84dee938741c3380acf9dc1b709eadacabdaac97b66da58812b4de"
+    },
+    {
+      "file": "route-33.png",
+      "sha256": "789ea5c83f6a60e386dac064b1578d27baecb1178ff55971a90ae48cd3bfd52d",
+      "recipeSha256": "3cde10ab5aec4d2c152d53dd30e68ffb29609ebe27f98881d1f4f6216672b312",
+      "layoutSha256": "e92edb48935e5aa9a57194c67d1c04efc4291b0d4ba1bd6befdf94eba8f34d88"
+    },
+    {
+      "file": "azalea-town.png",
+      "sha256": "8dc9d2ae8c7c078d42daaf2a3ee837bf9b459e99e6fb311d5c1872a35e738ba6",
+      "recipeSha256": "7e2d91d3e30b6ae4a834727d9e4a4f7bb1dfed251a8d5941bc49e22eb64a9ea9",
+      "layoutSha256": "9a6f661d3b172d190c2bd6f9ae784c15be65d9f1052b680321ac2606d9db6cc5"
+    },
+    {
+      "file": "slowpoke-well-b1f.png",
+      "sha256": "8f686559dc202110751609f087722aa08c09419388b114ebc65fdce358e0c64f",
+      "recipeSha256": "c518519fd09404e3d189e05bfa76cc9b9e66833a15524ae4b08a1484f6476dec",
+      "layoutSha256": "e43093f57eb32e0467af186a127c279bbb471c2e2338044a3ccc05cc77b25003"
+    },
+    {
+      "file": "ilex-south-gate.png",
+      "sha256": "0901c68dc3a9c78af6a95b780d3ce9966fe1a13cd1628b78e414fa68dc265fec",
+      "recipeSha256": "7055ab8dd6ceb3bd7bba1abf6e29d61eb9752879f676d00171656b8720adf473",
+      "layoutSha256": "5967611a6f1f907345935bc4377a64d103829d29ec8eed92976508ed4b55e5ee"
+    },
+    {
+      "file": "ilex-forest.png",
+      "sha256": "e1ea8b6fa8ee569b190798a32b49299f514924fdb25c678e93d7f86449723dcb",
+      "recipeSha256": "5e15067f66f7bd7f9d893a4eef17eebacbad6e2ab8916fcdae7a709fd807a83d",
+      "layoutSha256": "198ac7079547c8f8de73f2da8a35a7e15d08aea28a5f1f5a5580a4cb4f18849d"
+    },
+    {
+      "file": "ilex-north-gate.png",
+      "sha256": "999eedbc4cd158842555f74bd0b489493b4331a4474dde2e91647317d5d209af",
+      "recipeSha256": "743f1e5f0f1597e2aeffa6f2c755ed7e69bffc3f04f4c43e19d87b3258f0a96d",
+      "layoutSha256": "216d4d1acb6ded66471e976992761fc735475efb2e96f8f8765b335f1c058c46"
+    },
+    {
+      "file": "route-34.png",
+      "sha256": "80e915512b62612384c10974bed34ff8681caaebc1ac24e739470daa5e15d0bf",
+      "recipeSha256": "7034f2a49c5956f477020aec1aa72ba723f6897d609b38992dbd72b012df46ac",
+      "layoutSha256": "36a9218c694f3fea262e1aeaa58060fde15cd574b52e4531c6dcba95c429e3b1"
+    },
+    {
+      "file": "goldenrod-city.png",
+      "sha256": "797646e524e35994d50ecaebcbdbc07f3bf05003fe9d5e799a65b7d51b7d7c57",
+      "recipeSha256": "8acc44fff78766940961edf1326c4a8f724bcbee80653df65771a2b8d852248f",
+      "layoutSha256": "f351143b8da7c2014e72b15da3331b992820eb5c43f0e79a790853e4782668e6"
+    }
+  ]
+}

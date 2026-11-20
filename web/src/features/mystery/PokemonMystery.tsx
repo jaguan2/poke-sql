@@ -6,13 +6,14 @@ import { MysteryEncounter } from "./MysteryEncounter";
 import type { TrainerId } from "../../shared/trainer/profile";
 import "./PokemonMystery.css";
 
-export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom, onNew, onLeave, trainer }: {
+export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom, onNew, onLeave, trainer, ballTheme }: {
   round: MysteryRound | null;
   busy: boolean;
   mode: "daily" | "random";
   date?: string;
   today: string;
   trainer: TrainerId;
+  ballTheme: string;
   onDaily: () => void;
   onRandom: () => void;
   onNew: () => void;
@@ -27,8 +28,8 @@ export function MysteryPanel({ round, busy, mode, date, today, onDaily, onRandom
     </div>
     {mode === "daily" && <p className="mystery-date"><time dateTime={date}>{date}</time> · UTC · New challenge daily at 00:00 UTC</p>}
     {mode === "daily" && date && date !== today && <p className="notice" role="status">Today's daily challenge is available. This round stays on {date} so you can finish it. <button className="btn" disabled={busy} onClick={onDaily}>Open today's challenge</button></p>}
-    {round && <MysteryEncounter key={`${mode}:${date ?? "random"}:${round.targetId}`} round={round} daily={mode === "daily"} trainer={trainer} />}
-    <p>Use the sprite and SQL clues to identify the Pokémon. A correct guess reveals its name.</p>
+    {round && <MysteryEncounter key={`${mode}:${mode === "daily" ? date : round.id ?? round.targetId}`} round={round} daily={mode === "daily"} trainer={trainer} ballTheme={ballTheme} />}
+    <p>Use the sprite and SQL clues to identify the Pokémon. A correct guess catches it and reveals its name.</p>
     <div className="mystery-legend" aria-label="Clue legend"><span>✓ Green: exact</span><span>↔ Yellow: type in the other slot</span><span>↑ / ↓: look higher / lower</span><span>×: no match</span></div>
     <details><summary>How to play</summary>
       <p>Return exactly one row with an <code>id</code> or <code>name</code> column to submit a guess. Try <code>SELECT * FROM pokedex WHERE name = 'Pikachu';</code>, then use the clues to refine your next query.</p>

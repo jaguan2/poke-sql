@@ -12,7 +12,7 @@ async function openEncounter(page: Page) {
     encounter: { id: 'catch-animation', pokemonId: 10, level: 25, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
 }
 
@@ -30,14 +30,14 @@ for (const width of [1440, 320]) {
     await openEncounter(page);
     await submit(page, 'SELECT 1;');
     await expect(page.getByText('Not quite.', { exact: false })).toBeVisible();
-    await expect(page.locator('.safari-catch-ball')).toHaveCount(0);
+    await expect(page.locator('.encounter-catch-ball')).toHaveCount(0);
     await submit(page, 'DELETE FROM pokemon;');
     await expect(page.getByRole('alert')).toContainText('one SELECT');
-    await expect(page.locator('.safari-catch-ball')).toHaveCount(0);
+    await expect(page.locator('.encounter-catch-ball')).toHaveCount(0);
 
     await submit(page);
     const scene = page.locator('.safari-battle-scene');
-    const ball = scene.locator('.safari-catch-ball');
+    const ball = scene.locator('.encounter-catch-ball');
     const entry = page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true });
     await expect(page.locator('.safari-encounter')).toHaveClass(/is-catching/);
     await expect(entry).toHaveCount(0);
@@ -82,12 +82,12 @@ test('reloading during the throw preserves one catch and opens the entry without
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await openEncounter(page);
   await submit(page);
-  await expect(page.locator('.is-catching .safari-catch-ball')).toBeVisible();
+  await expect(page.locator('.is-catching .encounter-catch-ball')).toBeVisible();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.outcome)).toBe('caught');
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toContainText('Worm Pokémon');
-  await expect(page.locator('.safari-catch-ball')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-catch-ball')).toHaveCSS('animation-name', 'none');
   await expect(page.locator('.is-catching')).toHaveCount(0);
   await expect(page.locator('.safari-pass strong')).toHaveText('01');
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
@@ -103,6 +103,6 @@ test('reduced motion reveals the entry without waiting for the throw', async ({ 
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.outcome)).toBe('caught');
   await page.clock.runFor(1);
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toContainText('Worm Pokémon');
-  await expect(page.locator('.safari-catch-ball')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.encounter-catch-ball')).toHaveCSS('animation-name', 'none');
   await expect(page.locator('.is-catching')).toHaveCount(0);
 });

@@ -11,8 +11,8 @@ async function edit(page: Page, sql: string) {
 
 async function guess(page: Page, sql: string) {
   await edit(page, sql);
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeVisible();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 }
 
 async function seedRound(page: Page, targetId = 6) {
@@ -22,7 +22,7 @@ async function seedRound(page: Page, targetId = 6) {
     sessionStorage.setItem('mystery-test-seeded', 'yes');
   }, targetId);
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
 }
@@ -40,15 +40,15 @@ test('SQL guesses give green, yellow, and directional clues, then win for the ex
   await expect(page.getByText('You found Dragonite in 2 guesses!', { exact: false })).toBeVisible();
   const found = page.getByRole('row').filter({ hasText: '2. Dragonite' });
   await expect(found.locator('.clue-correct')).toHaveCount(5);
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeDisabled();
 });
 
 test('research and invalid queries do not use guesses or change the practice database', async ({ page }) => {
   await seedRound(page);
   await page.getByRole('button', { name: 'Back to free practice', exact: true }).click();
   await edit(page, "UPDATE pokemon SET name = 'Practice edit' WHERE id = 5; DROP VIEW pokedex;");
-  await page.getByRole('button', { name: /▶ Run/ }).click();
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await page.getByRole('button', { name: /Run query/ }).click();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
@@ -67,7 +67,7 @@ test('research and invalid queries do not use guesses or change the practice dat
   await expect(page.getByRole('row').filter({ hasText: '1. Charmeleon' })).toContainText('↑ Taller');
   await page.getByRole('button', { name: 'Back to free practice', exact: true }).click();
   await edit(page, 'SELECT name FROM pokemon WHERE id = 5');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: 'Practice edit', exact: true })).toBeVisible();
 });
 
@@ -92,7 +92,7 @@ test('mystery target, notebook, and draft survive offline reload without replayi
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect(page.getByText('You found Charizard in 2 guesses!', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'New Pokémon', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeEnabled();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:mystery-round')!).targetId)).not.toBe(6);
   await expect(page.locator('.mystery-table tbody tr')).toHaveCount(0);
@@ -103,7 +103,7 @@ test('matching every trait still requires the correct Pokémon', async ({ page }
   await guess(page, 'SELECT * FROM pokedex WHERE id = 312');
   await expect(page.locator('.mystery-table .clue-correct')).toHaveCount(5);
   await expect(page.getByText('All five traits match, but this is a different species.', { exact: false })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeEnabled();
   await expect(page.getByRole('img', { name: 'Mystery Pokémon', exact: true })).toBeVisible();
   await expect(page.locator('.encounter-sprite img')).toHaveCSS('filter', 'none');
 });
@@ -112,7 +112,7 @@ test('cancellation preserves the mystery and does not add a guess', async ({ pag
   await seedRound(page);
   await guess(page, 'SELECT id FROM pokedex WHERE id = 5');
   await edit(page, 'SELECT COUNT(*) FROM pokemon a CROSS JOIN pokemon b CROSS JOIN pokemon c CROSS JOIN pokemon d');
-  await page.getByRole('button', { name: /Guess Pokémon/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await page.getByRole('button', { name: '■ Stop query', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Query stopped');
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('1 guess');
@@ -128,7 +128,7 @@ test('new mysteries, schema previews, and storage failures never submit SQL impl
   await page.goto('/');
   await page.getByRole('button', { name: 'Who’s That Pokémon?', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Guess Pokémon/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeEnabled();
   await expect(page.getByRole('region', { name: 'Who’s That Pokémon?', exact: true })).toContainText('0 guesses');
   await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();
   await page.getByRole('button', { name: '▶ SELECT * FROM pokedex', exact: true }).click();

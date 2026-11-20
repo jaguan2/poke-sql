@@ -3,7 +3,7 @@ import { nearSafariGrass } from '../fixtures/safari';
 
 async function safari(page: Page) {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
 }
 
 test('trainer choices update walking and mystery scenes, save offline and preserve the expedition', async ({ page, context }, info) => {
@@ -16,7 +16,7 @@ test('trainer choices update walking and mystery scenes, save offline and preser
   await page.getByRole('radio', { name: 'Boy (Red)', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('radio', { name: 'Girl (Leaf)', exact: true })).toBeChecked();
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).position.x)).toBe(10);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).position.x)).toBe(6);
   await expect(page.locator('.trainer-card .trainer-sprite')).toHaveAttribute('data-trainer', 'leaf');
   await page.screenshot({ path: info.outputPath('trainer-profiles.png') });
   await page.setViewportSize({ width: 320, height: 844 });
@@ -24,7 +24,7 @@ test('trainer choices update walking and mystery scenes, save offline and preser
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(walking).toHaveCSS('background-image', /trainer-girl-walking\.png/);
   await page.keyboard.press('a');
-  await expect(player).toHaveAttribute('data-x', '9');
+  await expect(player).toHaveAttribute('data-x', '5');
   await page.locator('.safari-map').scrollIntoViewIfNeeded();
   await page.locator('.safari-field').screenshot({ path: info.outputPath('girl-trainer-route.png'), animations: 'disabled' });
   expect(await page.evaluate(() => localStorage.getItem('pokesql:trainer'))).toBe('"leaf"');
@@ -34,9 +34,9 @@ test('trainer choices update walking and mystery scenes, save offline and preser
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(walking).toHaveAttribute('data-trainer', 'leaf');
-  await expect(player).toHaveAttribute('data-x', '9');
+  await expect(player).toHaveAttribute('data-x', '5');
   await expect(walking).toHaveCSS('background-image', /trainer-girl-walking\.png/);
   expect(await walking.evaluate(async el => {
     const img = new Image(); img.src = getComputedStyle(el).backgroundImage.slice(5, -2); await img.decode(); return img.naturalWidth;
@@ -63,7 +63,7 @@ test('an invalid saved trainer falls back to Red and blocked saves still apply t
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.locator('.safari-player .trainer-sprite')).toHaveAttribute('data-trainer', 'leaf');
   await page.reload();
-  await page.getByRole('button', { name: 'Safari Zone', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.locator('.safari-player .trainer-sprite')).toHaveAttribute('data-trainer', 'red');
 });
 
@@ -89,10 +89,10 @@ for (const [id, width, windup, release, idle, handY] of trainerCases) {
     await page.clock.install({ time: new Date('2026-11-18T12:00:00Z') });
     await page.clock.pauseAt(new Date('2026-11-18T12:00:01Z'));
     await page.getByRole('button', { name: /Check query & catch/ }).click();
-    await expect(page.locator('.is-catching')).toBeVisible();
+    await expect(page.locator('.safari-encounter.is-catching')).toBeVisible();
     const scene = page.locator('.safari-battle-scene');
     const trainer = scene.locator('.encounter-trainer');
-    const ball = scene.locator('.safari-catch-ball');
+    const ball = scene.locator('.encounter-catch-ball');
     const seek = (time: number) => scene.evaluate((el, time) => el.getAnimations({ subtree: true }).forEach(animation => {
       animation.pause(); animation.currentTime = time;
     }), time);

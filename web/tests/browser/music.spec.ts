@@ -1,11 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import tracks from '../../src/features/music/tracks.json' with { type: 'json' };
+import { MUSIC_TRACKS } from '../../src/features/music/catalog';
 import byteRange from '../../desktop/byte-range.cjs';
 
 async function openWorkspace(page: Page) {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /▶ Run/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeVisible();
 }
 
 async function play(page: Page) {
@@ -20,7 +20,7 @@ test('music stays independent of SQL and restores preferences without autoplay',
   await openWorkspace(page);
   const audio = page.locator('audio');
   expect(await audio.evaluate(player => player.paused && player.preload === 'none')).toBe(true);
-  await page.getByLabel('Music track').selectOption('canalave');
+  await page.getByLabel('Music track').selectOption('kanto-route-1');
   await play(page);
   await audio.evaluate(player => { player.volume = 0.12; });
   await page.getByLabel('Repeat track').check();
@@ -29,7 +29,7 @@ test('music stays independent of SQL and restores preferences without autoplay',
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('SELECT 42 AS answer;');
-  await page.getByRole('button', { name: /▶ Run/ }).click();
+  await page.getByRole('button', { name: /Run query/ }).click();
   await expect(page.getByRole('cell', { name: '42', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Reset DB' }).click();
   await expect(page.getByText('Database restored.', { exact: false })).toBeVisible();
@@ -39,16 +39,41 @@ test('music stays independent of SQL and restores preferences without autoplay',
   expect(await audio.evaluate(player => !player.paused)).toBe(true);
 
   await page.reload();
-  await expect(page.getByLabel('Music track')).toHaveValue('canalave');
+  await expect(page.getByLabel('Music track')).toHaveValue('kanto-route-1');
   await expect(page.getByLabel('Repeat track')).toBeChecked();
   expect(await audio.evaluate(player => ({ paused: player.paused, volume: player.volume, muted: player.muted })))
     .toEqual({ paused: true, volume: 0.12, muted: false });
   await play(page);
-  await page.getByLabel('Music track').selectOption('photosynthesis');
+  await page.getByLabel('Music track').selectOption('kanto-pallet-town');
   expect(await audio.evaluate(player => player.paused)).toBe(true);
 });
 
+test('a removed remix selection migrates to game music without losing listening preferences or starting playback', async ({ page }) => {
+  const previous = { trackId: 'canalave', volume: 0.37, muted: true, repeat: true, followArea: false };
+  await page.addInitScript(previous => {
+    if (sessionStorage.getItem('legacy-music-seeded')) return;
+    sessionStorage.setItem('legacy-music-seeded', 'yes');
+    localStorage.setItem('pokesql:music', JSON.stringify(previous));
+  }, previous);
+  await openWorkspace(page);
+  await expect(page.getByLabel('Music track')).toHaveValue('kanto-pallet-town');
+  await expect(page.getByLabel('Music track').locator('option')).toHaveCount(26);
+  await expect(page.getByRole('region', { name: 'Music player' })).toContainText('Game Freak');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:music')!)))
+    .toEqual({ ...previous, trackId: 'kanto-pallet-town' });
+  const audio = page.locator('audio');
+  expect(await audio.evaluate(player => ({ paused: player.paused, volume: player.volume, muted: player.muted, loop: player.loop })))
+    .toEqual({ paused: true, volume: 0.37, muted: true, loop: true });
+  await play(page);
+  await page.reload();
+  await expect(page.getByLabel('Music track')).toHaveValue('kanto-pallet-town');
+  await expect(page.getByLabel('Follow area music')).not.toBeChecked();
+  expect(await audio.evaluate(player => ({ paused: player.paused, volume: player.volume, muted: player.muted, loop: player.loop })))
+    .toEqual({ paused: true, volume: 0.37, muted: true, loop: true });
+});
+
 test('all bundled tracks play offline, seek, and advance through the playlist', async ({ page, context }) => {
+  test.setTimeout(60000); // Decode and seek the full multi-region catalogue offline.
   const external: string[] = [];
   page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:4175/')) external.push(request.url()); });
   await openWorkspace(page);
@@ -56,16 +81,17 @@ test('all bundled tracks play offline, seek, and advance through the playlist', 
   await context.setOffline(true);
   await openWorkspace(page);
   const audio = page.locator('audio');
-  for (const track of tracks) {
+  for (const track of MUSIC_TRACKS) {
     await page.getByLabel('Music track').selectOption(track.id);
     await play(page);
     expect(await audio.evaluate(player => Number.isFinite(player.duration) && player.duration > 60)).toBe(true);
     await audio.evaluate(player => { player.currentTime = 30; });
-    await expect.poll(() => audio.evaluate(player => player.currentTime)).toBeGreaterThanOrEqual(30);
+    await expect.poll(() => audio.evaluate(player => player.currentTime)).toBeGreaterThan(30.2);
+    expect(await audio.evaluate(player => player.error?.message ?? null)).toBeNull();
     await audio.evaluate(player => player.pause());
   }
   // The last track should advance to the first, then continue to the second.
-  for (const next of ['photosynthesis', 'canalave']) {
+  for (const next of ['kanto-pallet-town', 'kanto-route-1']) {
     await play(page);
     await audio.evaluate(player => { player.currentTime = player.duration - 0.1; });
     await expect(page.getByLabel('Music track')).toHaveValue(next);
@@ -80,7 +106,7 @@ test('cached audio answers byte ranges with the exact original bytes', async ({ 
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true);
   await openWorkspace(page);
-  const file = tracks[0].file;
+  const file = MUSIC_TRACKS[0].file;
   const original = readFileSync(`public/music/${file}`);
   for (const [range, expected, status, contentRange] of [
     ['bytes=0-63', Array.from(original.subarray(0, 64)), 206, `bytes 0-63/${original.length}`],
@@ -101,14 +127,14 @@ test('invalid settings, blocked storage, and missing music remain recoverable', 
     Storage.prototype.setItem = () => { throw new Error('Storage blocked'); };
   });
   await openWorkspace(page);
-  await expect(page.getByLabel('Music track')).toHaveValue('photosynthesis');
+  await expect(page.getByLabel('Music track')).toHaveValue('kanto-pallet-town');
   expect(await page.locator('audio').evaluate(player => player.volume)).toBe(0.25);
   await page.getByLabel('Repeat track').check();
   await expect(page.getByText('Music settings apply for this session;', { exact: false })).toBeVisible();
   // A missing file causes a genuine media load error, without mocking Audio.
   await page.locator('audio').evaluate(player => { player.src = '/missing-track.mp3'; player.load(); });
   await expect(page.getByText('This track could not play.', { exact: false })).toBeVisible();
-  await page.getByLabel('Music track').selectOption('canalave');
+  await page.getByLabel('Music track').selectOption('kanto-route-1');
   await play(page);
   await expect(page.getByText('This track could not play.', { exact: false })).toHaveCount(0);
 });
@@ -117,14 +143,14 @@ test('music controls and credits fit desktop and narrow layouts', async ({ page 
   await openWorkspace(page);
   for (const viewport of [{ width: 1280, height: 860 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
-    const radio = page.getByRole('region', { name: 'Poké Radio' });
+    const radio = page.getByRole('region', { name: 'Music player' });
     await radio.scrollIntoViewIfNeeded();
-    await radio.getByText('Music credits & use', { exact: true }).click();
-    await expect(radio.getByText('Original Pokémon Diamond music:', { exact: false })).toBeVisible();
+    await radio.getByText('Music credits', { exact: true }).click();
+    await expect(radio.getByText('Original game soundtracks by Game Freak.', { exact: false })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
     expect(await radio.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`music-${viewport.width}.png`), fullPage: true });
-    await radio.getByText('Music credits & use', { exact: true }).click();
+    await radio.getByText('Music credits', { exact: true }).click();
   }
 });
 

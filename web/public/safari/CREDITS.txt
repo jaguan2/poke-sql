@@ -1,5 +1,58 @@
 Safari Zone assets
 
+Kanto towns, routes, forest and caves
+  Pokemon FireRed assets archived by https://github.com/pret/pokefirered
+  Pinned revision: ce6406d8c2eaf46d543c8a2606de0c3cb1951982
+  https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/data/maps
+  PalletTown, Route1, ViridianCity, Route22, Route2, both Route2 forest gates,
+  ViridianForest, PewterCity, Route3, Route4, MtMoon_1F/B1F/B2F, CeruleanCity.
+  Native map.bin, tiles, metatiles, palettes and attributes are decoded together.
+  Primary general/building tilesets and their matching secondary tilesets are
+  loaded at the FireRed tile/palette offsets. General animation frame 0 is used.
+  Native edge offsets and included door/ladder warps connect the journey.
+  Water and unopened interiors are blocked; ledges retain directional jumping.
+  Rebuild with py scripts/build_region_assets.py kanto (Pillow required).
+  Recipes, generated geometry and hashes: features/safari/kanto-*.json.
+  Kanto region overview is a schematic drawn in CSS/SVG for PokeSQL.
+
+Hoenn towns, routes, woods and tunnel
+  Pokemon Emerald assets archived by https://github.com/pret/pokeemerald
+  Pinned revision: 9103e529c2fbdd7add4a1ff3350c6c1f92112c42
+  https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/maps
+  LittlerootTown, Route101, OldaleTown, Route103, Route102, PetalburgCity,
+  Route104, PetalburgWoods, RustboroCity, Route116, RusturfTunnel,
+  VerdanturfTown, Route117 and MauvilleCity.
+  These are complete native layouts with original edge offsets, included
+  door/ladder warps and directional ledges. Water and unopened interiors are
+  blocked. Tilesets use Emerald's native 512-tile primary split and palettes;
+  general animation frame 0 is used. Art and walking geometry are generated
+  together with py scripts/build_region_assets.py hoenn (Pillow required).
+  Recipes, generated geometry and hashes: features/safari/hoenn-*.json.
+  Hoenn region overview is a schematic drawn in CSS/SVG for PokeSQL.
+
+Johto towns, routes, forest, caves and gates
+  Pokemon Crystal assets archived by https://github.com/pret/pokecrystal
+  Pinned revision: 9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482
+  https://github.com/pret/pokecrystal/tree/9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482
+  NewBarkTown, Route29, CherrygroveCity, Route30, Route31, Route31VioletGate,
+  VioletCity, Route32, UnionCave1F, Route33, AzaleaTown, SlowpokeWellB1F,
+  IlexForestAzaleaGate, IlexForest, Route34IlexForestGate, Route34, GoldenrodCity.
+  Original 8px grayscale tiles, palette maps, daytime/environment palettes,
+  per-town roof tiles/colors, 32px blocks and 16px collision quadrants are
+  decoded from gfx/tilesets/, data/tilesets/ and maps/*.blk. Native map
+  dimensions, connections, offsets and included warp destinations come from
+  constants/map_constants.asm, data/maps/attributes.asm and maps/*.asm.
+  Floor ledges retain Crystal's standing-tile jumps and diagonal direction
+  masks. North-edge walls remain walkable beside their blocked edge. Cut trees
+  are cleared with native floor artwork for free exploration; permanent trees,
+  water and unopened interiors stay blocked. NPC/story events are omitted.
+  Johto encounter pools average native daytime and nighttime grass/cave tables
+  equally, using the standard 30/30/20/10/5/4/1 slot weights from Crystal.
+  Source: data/wild/johto_grass.asm. No ordinary Legendary/Mythical encounters.
+  Rebuild: py scripts/build_region_assets.py johto (Pillow required).
+  Recipes, geometry and hashes: features/safari/johto-*.json.
+  Johto region overview is a schematic drawn in CSS/SVG for PokeSQL.
+
 Terrain maps and field effects
   Pokemon Emerald assets archived by https://github.com/pret/pokeemerald
   Pinned revision: 9103e529c2fbdd7add4a1ff3350c6c1f92112c42
