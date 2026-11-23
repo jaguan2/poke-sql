@@ -30,3 +30,5 @@
 
 .sidebar .nav-section:first-child { padding:4px 0 10px; border-bottom:3px double var(--border); }
 .sidebar .nav-section:first-child h2 { font-family:"PokeSQL Battle",monospace; font-size:23px; font-weight:400; letter-spacing:1px; color:var(--text); }
+
+.navigation-bag { image-rendering:pixelated; object-fit:contain; }

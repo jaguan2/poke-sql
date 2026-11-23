@@ -39,8 +39,7 @@ const missing = [];
 // This JSON is shared with typed gameplay code; reject invalid IDs at build time.
 const bagIds = ['repel', 'super-repel', 'max-repel', 'shiny-charm'];
 if (bagItems.length !== bagIds.length || bagIds.some(id => bagItems.filter(item => item.id === id).length !== 1)
-  || bagItems.some(item => !['items', 'key-items'].includes(item.pocket) || !Number.isInteger(item.steps) || item.steps < 0
-    || !Number.isInteger(item.starter) || item.starter < 0 || !Number.isInteger(item.rewardEvery) || item.rewardEvery < 0)) {
+  || bagItems.some(item => !['items', 'key-items'].includes(item.pocket) || !Number.isInteger(item.steps) || item.steps < 0)) {
   throw new Error('Invalid Bag manifest. Keep bag-items.json aligned with bag-model.ts and the bundled item sprites.');
 }
 const sprites = [...ids.map(id => `${id}.png`), ...ballThemes.map(theme => `items/${theme.id}.png`), ...bagItems.map(item => `items/${item.id}.png`)];
@@ -114,6 +113,10 @@ for (const [id, recipe] of Object.entries(safariRoutes)) {
 for (const asset of safariAssets) {
   const data = await readFile(new URL(`../public/safari/${asset.file}`, import.meta.url));
   if (createHash('sha256').update(data).digest('hex') !== asset.sha256) throw new Error(`Safari asset changed: ${asset.file}. Check the asset and its source credits before updating its hash.`);
+}
+const bagSprite = await readFile(new URL('../public/safari/bag.png', import.meta.url));
+if (!safariAssets.some(asset => asset.file === 'bag.png') || bagSprite.readUInt32BE(16) !== 64 || bagSprite.readUInt32BE(20) !== 64) {
+  throw new Error('Missing native Bag frame. Run py scripts/build_bag.py from the repository root.');
 }
 console.log(`Verified ${safariAssets.length} bundled Safari assets.`);
 async function verifyRegion(name, routes, maps, manifest) {

@@ -59,7 +59,7 @@ test('upgrading an existing download preserves SQL, captures, extra fields and p
     await app.close(); app = await launch(); page = await app.firstWindow();
     expect(await app.evaluate(({ app }) => app.getPath('userData'))).toBe(data);
     const currentVersion = await app.evaluate(({ app }) => app.getVersion());
-    expect(currentVersion).toBe('0.2.6'); expect(currentVersion).not.toBe(previousVersion);
+    expect(currentVersion).toBe('0.2.7'); expect(currentVersion).not.toBe(previousVersion);
     await expect(page.locator('.cm-content')).toHaveText('DROP TABLE pokemon;');
     await page.locator('.cm-content').fill('SELECT name FROM pokemon WHERE id = 1;');
     await page.locator('.cm-content').press('ControlOrMeta+Enter');
@@ -72,7 +72,7 @@ test('upgrading an existing download preserves SQL, captures, extra fields and p
     await page.getByLabel('Status', { exact: true }).selectOption('owned');
     await expect(page.locator('.pokedex-slot.is-owned')).toHaveCount(2);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await expect(page.getByText('PokéSQL 0.2.6', { exact: true })).toBeVisible();
+    await expect(page.getByText('PokéSQL 0.2.7', { exact: true })).toBeVisible();
     await writeFile(info.outputPath('upgrade-state.json'), JSON.stringify({ captures: after.captures.length, featured: after.featuredIds, previousVersion, currentVersion }, null, 2));
   } finally { await app?.close(); }
 });

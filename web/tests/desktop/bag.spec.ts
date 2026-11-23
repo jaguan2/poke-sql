@@ -10,7 +10,7 @@ test('Windows Bag prevents encounters and preserves supplies, steps and Shiny Ch
   try {
     app = await launch(); let page = await app.firstWindow(); await page.locator('.cm-content').waitFor();
     expect(await app.evaluate(({ app }) => app.getPath('userData'))).toBe(data);
-    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), { ...nearSafariGrass(), catches: 10, grassSteps: 5 });
+    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), { ...nearSafariGrass(), catches: 10, grassSteps: 5, bag: { used: { repel: 999, 'super-repel': 999, 'max-repel': 999 }, repelSteps: 0, charmEnabled: false } });
     await page.reload(); await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click();
     let bag = page.locator('.bag-page'); await bag.getByRole('button', { name: 'Use', exact: true }).click();
     await expect(bag.locator('.bag-effects')).toContainText('100 steps left');
@@ -20,11 +20,11 @@ test('Windows Bag prevents encounters and preserves supplies, steps and Shiny Ch
     await expect(page.locator('.safari-item-bar')).toContainText('99 steps left');
     await expect(page.locator('.safari-map')).toBeVisible(); await expect(page.locator('.safari-guide-note')).toContainText('1 in 64');
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).bag);
-    expect(before).toEqual({ used: { repel: 1, 'super-repel': 0, 'max-repel': 0 }, repelSteps: 99, charmEnabled: true });
+    expect(before).toEqual({ used: { repel: 999, 'super-repel': 999, 'max-repel': 999 }, repelSteps: 99, charmEnabled: true });
     await app.close(); app = await launch(); page = await app.firstWindow();
     await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click(); bag = page.locator('.bag-page');
     await expect(bag.locator('.bag-effects')).toContainText('99 steps left'); await expect(bag.locator('.bag-effects')).toContainText('Active · 1 in 64');
-    await expect(bag.getByRole('button', { name: 'Repel × 4', exact: true })).toBeVisible();
+    await expect(bag.getByRole('button', { name: 'Repel Unlimited', exact: true })).toBeVisible();
     await expect.poll(() => bag.locator('img').evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
     const after = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).bag); expect(after).toEqual(before);
     // Hidden native windows do not guarantee compositor frames. Browser gallery covers pixels.

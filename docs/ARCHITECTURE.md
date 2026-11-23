@@ -260,7 +260,7 @@ check verifies all regional map coverage, positions, facing frames and PNG hashe
 
 ### Expedition Bag
 
-`features/safari/bag-model.ts` owns consumable counts, earned supplies, the
+`features/safari/bag-model.ts` owns unlimited Repel availability, the
 step-based Repel effect and the optional Shiny Charm. `bag-items.json` feeds the
 Bag UI, sprite vendor and production asset checker. Inventory is an additive
 `bag` field in the Safari session, committed by the same reducer/save as walking.
@@ -269,9 +269,16 @@ moves, open menus, battle queries and direct travel do not consume it. Walking
 portals count as steps. The encounter engine applies suppression before rolling
 an encounter and derives shiny odds from the same Bag policy shown by the guide.
 
-Repel earnings derive from catch totals minus saved use counts, so mounting the
-Bag, reloading or reconciling a catch cannot claim the same reward twice. Missing
-inventory gives old expeditions starter supplies. Invalid additive Bag data is
-removed at restoration without discarding a valid expedition/SQL draft. The Bag
-uses the existing Safari save-error notice; PC ownership and SQL snapshots are
+Repel quantities are derived as unlimited UI values, never serialized as
+Infinity. New Bag state needs only remaining steps and Charm activation. Legacy
+use counters are ignored and preserved as extra save fields; depletion does not
+block use or require a reset. The obsolete starter/reward catalog policy is
+removed. Missing Bag data starts with no active effect. Invalid additive Bag
+data is removed without discarding a valid expedition/SQL draft. The Bag uses
+the existing Safari save-error notice; PC ownership and SQL snapshots remain
 independent. No new worker, network request or privileged desktop API is needed.
+
+`scripts/build_bag.py` extracts FireRed's closed 64x64 backpack frame from the
+pinned `graphics/interface/bag_male.png` sheet. The full Safari asset builder
+uses the same function. The asset manifest verifies its hash; production checks
+require the frame dimensions. Navigation and the Bag window share the local PNG.

@@ -8,7 +8,7 @@
 .bag-pockets button[aria-pressed=true] { color:var(--text); border-bottom-color:var(--highlight); font-weight:700; }
 .bag-inventory { display:grid; grid-template-columns:minmax(160px,1fr) minmax(0,2fr); min-height:280px; }
 .bag-illustration { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; border-right:3px double var(--border); background:repeating-linear-gradient(0deg,transparent 0 7px,var(--panel-raised) 7px 9px); }
-.bag-illustration svg { width:120px; height:144px; fill:var(--highlight); stroke:var(--text); stroke-width:4; stroke-linejoin:round; }
+.bag-illustration img { width:128px; height:128px; image-rendering:pixelated; object-fit:contain; }
 .bag-illustration strong { font-family:"PokeSQL Battle",monospace; font-size:28px; font-weight:400; }
 .bag-list { padding:12px; }
 .bag-item { display:flex; align-items:center; gap:12px; width:100%; min-height:68px; border:1px solid transparent; background:transparent; color:var(--text); font:inherit; text-align:left; cursor:pointer; border-radius:4px; }
@@ -23,4 +23,4 @@
 .bag-message { border-top:3px double var(--border); padding:14px 18px; margin:0; min-height:52px; line-height:1.6; }
 .bag-effects { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:16px; padding:16px; font-size:13px; }
 .bag-supplies { color:var(--text-dim); font-size:12px; line-height:1.7; margin-top:16px; }
-@media(max-width:700px) { .bag-page { padding:16px; }.bag-inventory { grid-template-columns:120px minmax(0,1fr); }.bag-illustration svg { width:90px; }.bag-item { gap:6px; }.bag-item img { width:36px;height:36px; }.bag-description { gap:8px; }.bag-description img { width:48px;height:48px; } }
+@media(max-width:700px) { .bag-page { padding:16px; }.bag-inventory { grid-template-columns:120px minmax(0,1fr); }.bag-illustration img { width:96px; height:96px; }.bag-item { gap:6px; }.bag-item img { width:36px;height:36px; }.bag-description { gap:8px; }.bag-description img { width:48px;height:48px; } }

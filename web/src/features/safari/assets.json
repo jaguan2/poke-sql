@@ -187,6 +187,10 @@
     {
       "file": "trainer-steven-portrait.png",
       "sha256": "951c975cab346e579f0c7c96cf63596dac9c881a76a15385cafc1368a04d171a"
+    },
+    {
+      "file": "bag.png",
+      "sha256": "23f7af59275e3aaff0b504c918ecb5f627d3f5304ccebb53d8512aeef20fcc7f"
     }
   ]
 }

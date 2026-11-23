@@ -4,8 +4,6 @@
     "name": "Repel",
     "pocket": "items",
     "steps": 100,
-    "starter": 3,
-    "rewardEvery": 5,
     "description": "Prevents wild encounters for 100 walking steps. Includes shaking grass and caves."
   },
   {
@@ -13,8 +11,6 @@
     "name": "Super Repel",
     "pocket": "items",
     "steps": 200,
-    "starter": 1,
-    "rewardEvery": 0,
     "description": "Prevents wild encounters for 200 walking steps."
   },
   {
@@ -22,8 +18,6 @@
     "name": "Max Repel",
     "pocket": "items",
     "steps": 250,
-    "starter": 1,
-    "rewardEvery": 0,
     "description": "Prevents wild encounters for 250 walking steps."
   },
   {
@@ -31,8 +25,6 @@
     "name": "Shiny Charm",
     "pocket": "key-items",
     "steps": 0,
-    "starter": 0,
-    "rewardEvery": 0,
     "description": "A reusable Key Item. Doubles shiny encounter chances from 1 in 128 to 1 in 64. Unlocks after 10 Safari catches."
   }
 ]

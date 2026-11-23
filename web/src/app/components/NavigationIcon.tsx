@@ -1,5 +1,4 @@
 const paths = {
-  bag: "M8 6V4a4 4 0 0 1 8 0v2M5 6h14l2 15H3L5 6Zm2 7h10v5H7v-5Z",
   trainer: "M3 4h18v16H3V4Zm4 4h4v4H7V8Zm-1 9v-2h6v2m3-8h3m-3 4h3",
   gear: "m9 3 6 0 1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1 1-3Zm3 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z",
   book: "M12 5C8 2 3 4 3 4v15s5-2 9 1c4-3 9-1 9-1V4s-5-2-9 1Zm0 0v15",
@@ -14,6 +13,7 @@ const paths = {
   boxes: "M3 3h7v7H3V3Zm11 0h7v7h-7V3ZM3 14h7v7H3v-7Zm11 0h7v7h-7v-7Z",
 } as const;
 
-export function NavigationIcon({ name }: { name: keyof typeof paths }) {
+export function NavigationIcon({ name }: { name: keyof typeof paths | "bag" }) {
+  if (name === "bag") return <img className="navigation-icon navigation-bag" src={`${import.meta.env.BASE_URL}safari/bag.png`} alt="" width={20} height={20} aria-hidden="true" />;
   return <svg className="navigation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
 }

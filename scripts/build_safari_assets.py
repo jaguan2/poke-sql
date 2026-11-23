@@ -121,6 +121,7 @@ def build_route(recipe, layout):
 
 def build():
     from build_safari_battle import build_battle_assets
+    from build_bag import build_bag
 
     recipes = json.loads((FEATURE / "routes.json").read_text(encoding="utf-8"))
     layouts = {entry["name"].removesuffix("_Layout"): entry for entry in json.loads(source("data/layouts/layouts.json").read_text())["layouts"]}
@@ -141,6 +142,7 @@ def build():
         generated.append(name)
     battle_files, sprite_bounds, sprite_source_hash = build_battle_assets(OUTPUT)
     generated.extend(battle_files)
+    generated.append(build_bag(OUTPUT))
     manifest = []
     for name in generated:
         entry = {"file": name, "sha256": hashlib.sha256((OUTPUT / name).read_bytes()).hexdigest()}

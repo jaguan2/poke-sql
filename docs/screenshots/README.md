@@ -1,6 +1,6 @@
 # PokéSQL screenshot gallery
 
-Fresh application photos captured November 20, 2026, from the production build
+Fresh application photos captured November 23, 2026, from the production build
 in isolated Chrome contexts. These replace the older galleries and videos.
 The primary gallery targets desktop browsers and iPads. Tablet images use touch
 emulation at portrait/landscape sizes; they are not captures from physical iPad hardware.
@@ -124,11 +124,11 @@ settled photo shows the successful catch. It does not reveal a daily answer.
 Set `POKESQL_SCREENSHOT_DIR` to stage captures elsewhere before replacing the
 gallery. Test results and failure traces stay in `web/test-results/`.
 
-The November 20 refresh includes native town maps for all three regions,
+The November 23 refresh includes native town maps for all three regions,
 National Dex silhouettes and owned/seen states, pointer dragging in PC Boxes,
-and the in-battle Catch/Run command window. The Settings photo identifies version 0.2.6.
+and the in-battle Catch/Run command window. The Settings photo identifies version 0.2.7.
 All 48 PNGs were refreshed; the gallery includes the SQL drawer, regional NPC views,
-the framed game menu and the new Items / Key Items pockets. Repel supplies and
+the framed game menu and the new Items / Key Items pockets. The original FireRed backpack, unlimited Repel supplies and
 Shiny Charm effects are visible in the Bag photos.
 
 | Additional view | Theme | Viewport |

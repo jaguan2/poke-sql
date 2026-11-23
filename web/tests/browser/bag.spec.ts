@@ -6,13 +6,13 @@ for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 118
   test(`Bag uses and saves Repel without spending steps while the window is open at ${viewport.width}`, async ({ page, context }, info) => {
     await page.setViewportSize(viewport); await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/'); await page.locator('.cm-content').waitFor();
-    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), nearSafariGrass());
+    await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), { ...nearSafariGrass(), bag: { ...createBag(), used: { repel: 999, 'super-repel': 999, 'max-repel': 999 } } });
     await page.reload(); await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click();
     const bag = page.locator('.bag-page');
     await expect(bag.getByRole('heading', { name: 'Bag', exact: true })).toBeVisible();
     await bag.getByRole('button', { name: 'Use', exact: true }).click();
     await expect(bag.getByLabel('Active item effects')).toContainText('100 steps left');
-    await expect(bag.getByRole('button', { name: 'Repel × 2', exact: true })).toBeVisible();
+    await expect(bag.getByRole('button', { name: 'Repel Unlimited', exact: true })).toBeVisible();
     await expect(bag.getByRole('button', { name: 'Use', exact: true })).toBeDisabled();
     await page.keyboard.press('a');
     await expect(bag.getByLabel('Active item effects')).toContainText('100 steps left');
@@ -25,8 +25,9 @@ for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 118
     await context.setOffline(true); await page.reload();
     await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click();
     await expect(page.locator('.bag-effects')).toContainText('99 steps left');
-    await expect(page.locator('.bag-page').getByRole('button', { name: 'Repel × 2', exact: true })).toBeVisible();
-    expect(await page.locator('.bag-item img').evaluateAll(images => images.every(image => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+    await expect(page.locator('.bag-page').getByRole('button', { name: 'Repel Unlimited', exact: true })).toBeVisible();
+    await expect.poll(() => page.locator('.bag-page img, .navigation-bag').evaluateAll(images => images.every(image => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+    await expect(page.locator('.bag-illustration img')).toHaveAttribute('src', /safari\/bag\.png$/);
     const geometry = await bag.boundingBox(); expect(geometry!.width).toBeLessThanOrEqual(viewport.width);
   });
 }
@@ -60,4 +61,18 @@ test('new trainers see the Charm requirement and menu links open Trainer ID and 
   await expect(page.locator('.profiles-page')).toBeVisible();
   await nav.getByRole('button', { name: 'Options', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
+});
+
+test('a depleted old save can use another Repel after the last protected step', async ({ page }) => {
+  await page.goto('/'); await page.locator('.cm-content').waitFor();
+  await page.evaluate(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), {
+    ...nearSafariGrass(), bag: { ...createBag(), repelSteps: 1, used: { repel: 999, 'super-repel': 999, 'max-repel': 999 } },
+  });
+  await page.reload(); await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.keyboard.press('a'); await expect(page.locator('.safari-item-bar')).toContainText('Repel inactive');
+  await expect(page.locator('.safari-map')).toBeVisible();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click();
+  await page.locator('.bag-page').getByRole('button', { name: 'Use', exact: true }).click();
+  await expect(page.locator('.bag-effects')).toContainText('100 steps left');
+  await expect(page.locator('.bag-page').getByRole('button', { name: 'Repel Unlimited', exact: true })).toBeVisible();
 });

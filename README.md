@@ -53,10 +53,10 @@ npm run desktop:build    # build web installer + payload + offline portable EXE
 
 The Windows x64 build produces:
 
-- `web/release/nsis-web/PokeSQL-0.2.6-setup.exe` — small web installer.
-- `web/release/nsis-web/poke-sql-web-0.2.6-x64.nsis.7z` — full application payload.
+- `web/release/nsis-web/PokeSQL-0.2.7-setup.exe` — small web installer.
+- `web/release/nsis-web/poke-sql-web-0.2.7-x64.nsis.7z` — full application payload.
 - `web/release/nsis-web/latest.yml` — version and checksums for the updater.
-- `web/release/PokeSQL-0.2.6-portable.exe` — full application for offline first launch.
+- `web/release/PokeSQL-0.2.7-portable.exe` — full application for offline first launch.
 
 The full application uses Electron and includes the database, SQLite engine,
 music and all sprites. The portable build works offline from its first launch. Building requires
@@ -109,17 +109,17 @@ See [releasing and testing updates](docs/RELEASING.md).
   not included.
 - **Bag and game menus:** the framed navigation groups Explore, Pokédex, PC Boxes,
   Bag, Trainer ID and Options. The Bag has Items and Key Items pockets, local
-  PokéAPI item icons and a description window. Starter supplies are three Repels,
-  one Super Repel and one Max Repel. They suppress all new wild encounters,
-  including shaking grass and caves, for 100/200/250 successful walking steps.
-  Walls, menus, SQL and direct map travel do not spend steps; walking through an
-  exit does. An active Repel cannot be stacked. Every five Safari catches earns
-  another Repel. At ten Safari catches, unlock a reusable Shiny Charm and activate
+  PokéAPI item icons and a description window. The Bag window and menu icon use
+  the original FireRed backpack frame, bundled locally. Repel, Super Repel and
+  Max Repel supplies are **unlimited for now**. Each use suppresses new wild
+  encounters, including shaking grass and caves, for 100/200/250 successful
+  walking steps. Walls, menus, SQL and direct map travel do not spend steps;
+  walking through an exit does. An active Repel cannot stack; use another when
+  it wears off. At ten Safari catches, unlock a reusable Shiny Charm and activate
   it to double future shiny chances from 1/128 to 1/64. These are PokéSQL learning
   rewards and odds, adapted from the games. Items cannot be used mid-encounter.
-  Inventory, consumed supplies and effects save with the expedition; SQL database
-  reset does not touch them. Old saves receive starter supplies without losing
-  their encounter or draft.
+  Effects save with the expedition; SQL database reset does not touch them.
+  Old saves, including depleted supplies, keep their encounter, draft and effects.
 - **Safari Zone:** explore nine habitats: Verdant Forest, Willow Wetlands,
   Amber Ridge, Sunlit Meadow, Azure Coast, Mirage Dunes, Moonstone Caverns,
   Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
@@ -554,7 +554,7 @@ New named encounters start with `SELECT * FROM pokedex` followed by
 alternative. Tracking and ranger-survey encounters keep their exercise starters.
 
 To update an existing Windows download, close the app and run the new root
-`PokeSQL.exe` beside its matching `poke-sql-web-0.2.6-x64.nsis.7z` payload. It
+`PokeSQL.exe` beside its matching `poke-sql-web-0.2.7-x64.nsis.7z` payload. It
 upgrades the installed application while keeping your profile, PC and saved SQL.
 Automatic delivery requires publishing a higher-version release; source edits
 and rebuilding the same version do not update installed copies. See

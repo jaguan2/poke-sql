@@ -6,7 +6,7 @@ import { nearSafariGrass } from '../fixtures/safari';
 test('Repel prevents a guaranteed encounter, consumes real steps, and expires before the next encounter', () => {
   const initial = nearSafariGrass();
   const used = useBagItem(createBag(), 0, 'repel');
-  expect(itemQuantity(used, 0, 'repel')).toBe(2);
+  expect(itemQuantity(0, 'repel')).toBe(Infinity);
   const session = { ...initial, bag: { ...used, repelSteps: 1 } };
   const finalProtectedStep = walkSafari(session, 'left', 0, 0, 'protected');
   expect(finalProtectedStep).toMatchObject({ encounter: null, bag: { repelSteps: 0 }, steps: 1, grassSteps: 0 });
@@ -19,7 +19,7 @@ test('blocked walking, existing encounters, and stacking Repels never spend step
   const session = { ...createSafariSession('forest'), position: { x: 2, y: 8 }, bag };
   expect(walkSafari(session, 'left', 0, 0, 'wall')).toMatchObject({ steps: 0, bag: { repelSteps: 200 } });
   expect(useBagItem(bag, 0, 'max-repel')).toEqual(bag);
-  expect(itemQuantity(bag, 0, 'max-repel')).toBe(1);
+  expect(itemQuantity(0, 'max-repel')).toBe(Infinity);
   const encounter = walkSafari(nearSafariGrass(), 'left', 0, 0, 'first');
   expect(walkSafari({ ...encounter, bag }, 'left', 0, 0, 'again')).toMatchObject({ bag: { repelSteps: 200 }, encounter: { id: 'first' } });
 });
@@ -35,15 +35,16 @@ test('Shiny Charm changes future encounter rolls only after unlocking and activa
   expect(walkSafari({ ...base, bag: useBagItem(enabled, 10, 'shiny-charm') }, 'left', 0, 0, 'off', roll).encounter?.shiny).toBe(false);
 });
 
-test('earned Repels cannot be refilled by reopening the Bag or reusing the same catch total', () => {
-  let bag = createBag();
-  for (let i = 0; i < 3; i++) bag = { ...useBagItem(bag, 0, 'repel'), repelSteps: 0 };
-  expect(itemQuantity(bag, 0, 'repel')).toBe(0);
-  expect(itemQuantity(bag, 5, 'repel')).toBe(1);
-  bag = { ...useBagItem(bag, 5, 'repel'), repelSteps: 0 };
-  expect(itemQuantity(bag, 5, 'repel')).toBe(0);
-  expect(useBagItem(bag, 5, 'repel')).toEqual(bag);
-  expect(itemQuantity(bag, 10, 'repel')).toBe(1);
+test('all Repels remain usable after repeated use and depleted legacy supplies', () => {
+  for (const [id, steps] of [['repel', 100], ['super-repel', 200], ['max-repel', 250]] as const) {
+    let bag = { ...createBag(), used: { repel: 999, 'super-repel': 999, 'max-repel': 999 } };
+    for (let use = 0; use < 6; use++) {
+      const active = useBagItem(bag, 0, id);
+      expect(active).toMatchObject({ repelSteps: steps, used: { repel: 999, 'super-repel': 999, 'max-repel': 999 } });
+      expect(itemQuantity(0, id)).toBe(Infinity);
+      bag = { ...active, used: bag.used, repelSteps: 0 };
+    }
+  }
 });
 
 test('old expeditions and damaged inventory retain their encounter and SQL draft', () => {
@@ -51,7 +52,7 @@ test('old expeditions and damaged inventory retain their encounter and SQL draft
   expect(restoreSafariSession(active)).toEqual(active);
   expect(restoreSafariSession({ ...active, bag: { used: {}, repelSteps: -1 } })).toEqual(active);
   const saved = { ...active, bag: useBagItem(createBag(), 0, 'max-repel') };
-  expect(restoreSafariSession(JSON.parse(JSON.stringify(saved)))).toMatchObject({ bag: { repelSteps: 250, used: { 'max-repel': 1 } }, encounter: { id: 'saved' }, draft: active.draft });
+  expect(restoreSafariSession(JSON.parse(JSON.stringify(saved)))).toMatchObject({ bag: { repelSteps: 250 }, encounter: { id: 'saved' }, draft: active.draft });
 });
 
 

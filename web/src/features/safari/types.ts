@@ -18,7 +18,7 @@ export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
   steps: number; grassSteps: number; catches: number; encounter: SafariEncounter | null;
   draft: string; lastCatch: SafariCatch | null;
-  bag?: BagState; // Additive inventory; old expeditions receive starter supplies.
+  bag?: BagState; // Additive item effects; older expeditions start without an active effect.
   visited?: ZoneId[]; // Additive save field; older Safari expeditions stay at their original habitat.
   regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction }>>;
 }
