@@ -1,96 +1,75 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { POKEDEX_SPECIES_COUNT } from "./encounters";
-import type { PokemonEncounter } from "./encounters";
-import { TypeBadge } from "../../shared/pokemon/TypeBadge";
+import { POKEDEX_SPECIES_COUNT, type PokemonEncounter } from "./encounters";
 import { collectionAchievements } from "./achievements";
 import type { AchievementCatalog } from "./types";
 import { PokedexAchievements } from "./PokedexAchievements";
+import { PokedexCard } from "./PokedexCard";
 import "./PersonalPokedex.css";
 
 const PAGE_SIZE = 24;
 export type PokedexView = "collection" | "achievements";
 
-export function PersonalPokedex({ encounters, catalog, saveError, recovered, onDaily, onRandom, onSafari, activeView, onViewChange }: {
-  encounters: PokemonEncounter[];
-  catalog: AchievementCatalog | null;
-  saveError: boolean;
-  recovered: boolean;
-  onDaily: () => void;
-  onRandom: () => void;
-  onSafari: () => void;
-  activeView: PokedexView;
-  onViewChange: (view: PokedexView) => void;
+export function PersonalPokedex({ encounters, catalog, seenIds, ownedIds, saveError, recovered, onDaily, onRandom, onSafari, activeView, onViewChange }: {
+  encounters: PokemonEncounter[]; catalog: AchievementCatalog | null; seenIds: readonly number[]; ownedIds: readonly number[];
+  saveError: boolean; recovered: boolean; onDaily: () => void; onRandom: () => void; onSafari: () => void;
+  activeView: PokedexView; onViewChange: (view: PokedexView) => void;
 }) {
   const [search, setSearch] = useState("");
   const [generation, setGeneration] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [status, setStatus] = useState("all");
+  const [sort, setSort] = useState("dex");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const achievements = useMemo(() => catalog ? collectionAchievements(encounters, catalog) : null, [encounters, catalog]);
+  const seen = useMemo(() => new Set([...seenIds, ...ownedIds]), [seenIds, ownedIds]);
+  const owned = useMemo(() => new Set(ownedIds), [ownedIds]);
+  const entries = useMemo(() => new Map(encounters.map(entry => [entry.pokemon.id, entry])), [encounters]);
   const view = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    view.current?.scrollIntoView({ block: "start" });
-    heading.current?.focus({ preventScroll: true });
-  }, []);
+  useEffect(() => { view.current?.scrollIntoView({ block: "start" }); heading.current?.focus({ preventScroll: true }); }, []);
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    const dexNumber = /^#?\d+$/.test(term) ? Number(term.replace("#", "")) : undefined;
-    return encounters.filter(entry => {
-      const pokemon = entry.pokemon;
-      return (!generation || pokemon.generationId === Number(generation))
-        && (!term || (dexNumber !== undefined ? pokemon.id === dexNumber : pokemon.name.toLowerCase().includes(term)));
-    }).sort((a, b) => sort === "dex" ? a.pokemon.id - b.pokemon.id : sort === "name"
-      ? a.pokemon.name.localeCompare(b.pokemon.name)
-      : b.firstFoundAt.localeCompare(a.firstFoundAt) || a.pokemon.id - b.pokemon.id);
-  }, [encounters, search, generation, sort]);
-  const resetFilters = () => { setSearch(""); setGeneration(""); setVisibleCount(PAGE_SIZE); };
+    const number = /^#?\d+$/.test(term) ? Number(term.replace("#", "")) : undefined;
+    return (catalog?.pokemon ?? []).filter(pokemon =>
+      (!generation || pokemon.generationId === Number(generation))
+      && (status === "all" || (status === "owned" ? owned.has(pokemon.id) : status === "seen" ? seen.has(pokemon.id) : !seen.has(pokemon.id)))
+      && (!term || (number !== undefined ? pokemon.id === number : seen.has(pokemon.id) && pokemon.name.toLowerCase().includes(term)))
+    ).sort((a, b) => sort === "name" ? (seen.has(a.id) ? a.name : "zzz").localeCompare(seen.has(b.id) ? b.name : "zzz") || a.id - b.id
+      : sort === "newest" ? (entries.get(b.id)?.firstFoundAt ?? "").localeCompare(entries.get(a.id)?.firstFoundAt ?? "") || a.id - b.id : a.id - b.id);
+  }, [catalog, entries, search, generation, status, sort, seen, owned]);
+  const resetFilters = () => { setSearch(""); setGeneration(""); setStatus("all"); setVisibleCount(PAGE_SIZE); };
 
   return <section className="personal-pokedex" ref={view} aria-labelledby="personal-pokedex-title">
-    <header className="pokedex-heading">
-      <h2 id="personal-pokedex-title" ref={heading} tabIndex={-1}>My Pokédex</h2>
-      <p>Solve daily and random mysteries or complete Safari catch assignments to grow your collection. Each species gets one entry.</p>
-      <div className="pokedex-progress"><strong>{encounters.length} / {POKEDEX_SPECIES_COUNT.toLocaleString()} discovered</strong><span>Saved on this device</span></div>
-      <progress value={encounters.length} max={POKEDEX_SPECIES_COUNT} aria-label="Pokédex completion" />
+    <header className="pokedex-heading"><h2 id="personal-pokedex-title" ref={heading} tabIndex={-1}>My Pokédex</h2>
+      <p>Encounter Pokémon to reveal their entries. Catch them to add them to your PC.</p>
+      <div className="pokedex-progress"><strong>{seen.size} seen</strong><strong>{owned.size} owned</strong><span>{POKEDEX_SPECIES_COUNT.toLocaleString()} Pokémon · National Dex</span></div>
+      <progress value={owned.size} max={POKEDEX_SPECIES_COUNT} aria-label="Pokédex completion" />
     </header>
-    {saveError && <p className="notice" role="status">Your Pokédex is available for this session, but this device could not save it. Keep this window open to retain new discoveries.</p>}
+    {saveError && <p className="notice" role="status">This device could not save your Pokédex. Keep this window open to retain new discoveries.</p>}
     {recovered && <p className="notice" role="status">Some saved discoveries could not be read. Valid entries were recovered and your previous save was preserved.</p>}
     <nav className="pokedex-view-tabs" aria-label="Pokédex views">
-      <button className="btn" aria-pressed={activeView === 'collection'} onClick={() => onViewChange('collection')}>Collection</button>
-      <button className="btn" aria-pressed={activeView === 'achievements'} disabled={!achievements} onClick={() => onViewChange('achievements')}>Achievements{achievements && <span>{achievements.earnedCount} earned</span>}</button>
+      <button className="btn" aria-pressed={activeView === "collection"} onClick={() => onViewChange("collection")}>Pokédex</button>
+      <button className="btn" aria-pressed={activeView === "achievements"} disabled={!achievements} onClick={() => onViewChange("achievements")}>Achievements{achievements && <span>{achievements.earnedCount} earned</span>}</button>
+      <button className="btn" onClick={onSafari}>Explore Safari Zone</button><button className="btn" onClick={onDaily}>Daily mystery</button><button className="btn" onClick={onRandom}>Random practice</button>
     </nav>
-    {activeView === 'achievements' && achievements ? <PokedexAchievements progress={achievements} /> : <>
-    {encounters.length === 0 ? <div className="pokedex-empty">
-      <img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={72} height={72} />
-      <h3>No Pokémon registered</h3>
-      <p>Solve Who’s That Pokémon? or catch a Pokémon in the Safari Zone to register it here.</p>
-      <div className="pokedex-actions"><button className="btn btn-primary" onClick={onSafari}>Explore Safari Zone</button><button className="btn" onClick={onDaily}>Play today's mystery</button><button className="btn" onClick={onRandom}>Try random practice</button></div>
-    </div> : <>
+    {activeView === "achievements" && achievements ? <PokedexAchievements progress={achievements} /> : <div className="pokedex-screen">
+      <div className="pokedex-screen-heading"><strong>National Pokédex</strong><span>Showing {Math.min(visibleCount, filtered.length)} of {filtered.length.toLocaleString()}</span></div>
       <div className="pokedex-filters">
-        <div><label htmlFor="pokedex-search">Search discovered Pokémon</label><input id="pokedex-search" type="search" value={search} placeholder="Name or Pokédex number" onChange={event => { setSearch(event.target.value); setVisibleCount(PAGE_SIZE); }} /></div>
-        <div><label htmlFor="pokedex-generation">Generation</label><select id="pokedex-generation" value={generation} onChange={event => { setGeneration(event.target.value); setVisibleCount(PAGE_SIZE); }}>
-          <option value="">All generations</option>{Array.from({ length: 9 }, (_, index) => <option key={index} value={index + 1}>Generation {index + 1}</option>)}
+        <div><label htmlFor="pokedex-search">Search Pokédex</label><input id="pokedex-search" type="search" value={search} placeholder="Number or a seen Pokémon's name" onChange={event => { setSearch(event.target.value); setVisibleCount(PAGE_SIZE); }} /></div>
+        <div><label htmlFor="pokedex-generation">Region</label><select id="pokedex-generation" title="Region where the species was introduced" value={generation} onChange={event => { setGeneration(event.target.value); setVisibleCount(PAGE_SIZE); }}>
+          <option value="">All regions</option>{catalog?.generations.map(item => <option key={item.id} value={item.id}>{item.region} · Gen {item.id}</option>)}
         </select></div>
-        <div><label htmlFor="pokedex-sort">Sort discoveries</label><select id="pokedex-sort" value={sort} onChange={event => { setSort(event.target.value); setVisibleCount(PAGE_SIZE); }}>
-          <option value="newest">Newest discoveries</option><option value="dex">National Dex number</option><option value="name">Name</option>
+        <div><label htmlFor="pokedex-status">Status</label><select id="pokedex-status" value={status} onChange={event => { setStatus(event.target.value); setVisibleCount(PAGE_SIZE); }}>
+          <option value="all">All Pokémon</option><option value="owned">Owned</option><option value="seen">Seen</option><option value="unseen">Unseen</option>
+        </select></div>
+        <div><label htmlFor="pokedex-sort">Sort Pokémon</label><select id="pokedex-sort" value={sort} onChange={event => { setSort(event.target.value); setVisibleCount(PAGE_SIZE); }}>
+          <option value="dex">National Dex number</option><option value="newest">Newest discoveries</option><option value="name">Name</option>
         </select></div>
       </div>
-      <p className="pokedex-match-count" role="status">{filtered.length} matching Pokémon</p>
-      {filtered.length === 0 ? <div className="pokedex-empty"><p>No discoveries match these filters.</p><button className="btn" onClick={resetFilters}>Clear filters</button></div> : <>
-        <div className="pokedex-grid">
-          {filtered.slice(0, visibleCount).map(entry => {
-            const pokemon = entry.pokemon;
-            return <article className="encounter-card" aria-labelledby={`encounter-${pokemon.id}`} key={pokemon.id}>
-              <div className="encounter-portrait"><span>#{String(pokemon.id).padStart(4, "0")}</span><img src={`${import.meta.env.BASE_URL}sprites/${pokemon.id}.png`} alt="" width={96} height={96} loading="lazy" /></div>
-              <h3 id={`encounter-${pokemon.id}`}>{pokemon.name}</h3>
-              <div className="encounter-types"><TypeBadge type={pokemon.type1} />{pokemon.type2 && <TypeBadge type={pokemon.type2} />}</div>
-              <dl className="encounter-traits"><div><dt>Generation</dt><dd>{pokemon.generationId}</dd></div><div><dt>Height</dt><dd>{pokemon.heightM.toLocaleString()} m</dd></div><div><dt>Weight</dt><dd>{pokemon.weightKg.toLocaleString()} kg</dd></div></dl>
-              <footer><p>Registered <time dateTime={entry.firstFoundAt}>{entry.firstFoundAt.slice(0, 10)}</time> · UTC</p><p>Best solve: {entry.bestGuessCount} {entry.sources.includes("safari") ? entry.bestGuessCount === 1 ? "attempt" : "attempts" : entry.bestGuessCount === 1 ? "guess" : "guesses"}</p><div className="encounter-sources">{entry.sources.map(source => <span key={source}>{source === "daily" ? "Daily mystery" : source === "safari" ? "Safari Zone" : "Random practice"}</span>)}</div></footer>
-            </article>;
-          })}
-        </div>
+      <p className="pokedex-match-count" role="status">{filtered.length.toLocaleString()} matching Pokémon</p>
+      {filtered.length === 0 ? <div className="pokedex-empty"><p>{status === "owned" && owned.size === 0 ? "No Pokémon owned yet" : "No Pokémon match these filters."}</p><button className="btn" onClick={resetFilters}>Clear filters</button></div> : <>
+        <div className="pokedex-grid">{filtered.slice(0, visibleCount).map(pokemon => <PokedexCard key={pokemon.id} pokemon={pokemon} seen={seen.has(pokemon.id)} owned={owned.has(pokemon.id)} entry={entries.get(pokemon.id)} expanded={status === "owned"} />)}</div>
         {visibleCount < filtered.length && <button className="btn pokedex-more" onClick={() => setVisibleCount(count => count + PAGE_SIZE)}>Show more Pokémon ({filtered.length - visibleCount} remaining)</button>}
       </>}
-    </>}
-    </>}
+    </div>}
   </section>;
 }

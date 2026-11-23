@@ -7,7 +7,7 @@ import { Prec } from "@codemirror/state";
 import type { TableInfo } from "../../shared/sql/types";
 import { sqlPhraseCompletion } from "../../shared/sql/completion";
 
-export function SqlEditor({ draftKey, value, schema, onChange, onRun, busy, autocomplete, actions }: {
+export function SqlEditor({ draftKey, value, schema, onChange, onRun, busy, autocomplete, actions, autoFocus = false }: {
   draftKey: string;
   value: string;
   schema: TableInfo[];
@@ -16,6 +16,7 @@ export function SqlEditor({ draftKey, value, schema, onChange, onRun, busy, auto
   busy: boolean;
   autocomplete: boolean;
   actions: ReactNode;
+  autoFocus?: boolean;
 }) {
   const view = useRef<EditorView | null>(null);
   const [history, setHistory] = useState({ undo: false, redo: false });
@@ -25,6 +26,10 @@ export function SqlEditor({ draftKey, value, schema, onChange, onRun, busy, auto
     setHistory(previous => previous.undo === next.undo && previous.redo === next.redo ? previous : next);
   }, []);
   const onUpdate = useCallback((update: ViewUpdate) => syncHistory(update.view), [syncHistory]);
+  const onCreateEditor = useCallback((editor: EditorView) => {
+    syncHistory(editor);
+    if (autoFocus) editor.dispatch({ selection: { anchor: editor.state.doc.length } });
+  }, [autoFocus, syncHistory]);
   const editHistory = (command: typeof undo) => {
     if (busy || !view.current) return;
     command(view.current);
@@ -47,8 +52,8 @@ export function SqlEditor({ draftKey, value, schema, onChange, onRun, busy, auto
   // from the previous mode must not overwrite an edit in the newly opened one.
   return <>
     <div className="editor-wrap"><CodeMirror key={draftKey} className="sql-editor" value={value}
-      onChange={onChange} onCreateEditor={syncHistory} onUpdate={onUpdate}
-      extensions={extensions} editable={!busy} readOnly={busy} theme="dark" height="100%"
+      onChange={onChange} onCreateEditor={onCreateEditor} onUpdate={onUpdate}
+      extensions={extensions} editable={!busy} readOnly={busy} autoFocus={autoFocus} theme="dark" height="100%"
       aria-label="SQL editor" basicSetup={setup} /></div>
     <div className="editor-actions">
       <div className="editor-history" role="group" aria-label="Edit history">

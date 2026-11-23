@@ -20,6 +20,8 @@ async function guess(page: Page, id: number) {
 async function openPokedex(page: Page) {
   await page.getByRole('button', { name: /^My Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'My Pokédex', exact: true })).toBeVisible();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await page.getByLabel('Sort Pokémon', { exact: true }).selectOption('newest');
 }
 
 async function seedRandom(page: Page, targetId: number) {
@@ -40,22 +42,26 @@ test('daily and random solved targets are collected, while research and wrong gu
   await expect(page.getByText('Research query only', { exact: false })).toBeVisible();
   await guess(page, 25);
   await openPokedex(page);
-  await expect(page.getByText('No Pokémon registered', { exact: true })).toBeVisible();
+  await expect(page.getByText('No Pokémon owned yet', { exact: true })).toBeVisible();
   await expect(page.locator('.encounter-card')).toHaveCount(0);
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await guess(page, dailyPokemonForDate('2026-01-01'));
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await page.getByLabel('Sort Pokémon', { exact: true }).selectOption('newest');
   await expect(page.getByRole('article', { name: 'Raikou', exact: true })).toContainText('Daily mystery');
   await expect(page.getByRole('article', { name: 'Raikou', exact: true })).toContainText('Best solve: 2 guesses');
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
   await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await guess(page, 6);
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await page.getByLabel('Sort Pokémon', { exact: true }).selectOption('newest');
   await expect(page.locator('.encounter-card')).toHaveCount(2);
   const charizard = page.getByRole('article', { name: 'Charizard', exact: true });
   await expect(charizard).toContainText('Random practice');
   await expect(charizard.locator('.type-badge')).toHaveText(['fire', 'flying']);
-  await expect.poll(() => charizard.locator('img').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect.poll(() => charizard.locator('.pokedex-species-sprite').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
   await expect(page.getByRole('progressbar', { name: 'Pokédex completion' })).toHaveAttribute('value', '2');
 });
 
@@ -115,23 +121,24 @@ test('existing saved solved rounds import once and the collection filters and pa
   await expect(page.locator('.encounter-card')).toHaveCount(24);
   await page.getByRole('button', { name: /Show more Pokémon/ }).click();
   await expect(page.locator('.encounter-card')).toHaveCount(34);
-  await page.getByLabel('Sort discoveries', { exact: true }).selectOption('dex');
+  await page.getByLabel('Sort Pokémon', { exact: true }).selectOption('dex');
   await expect(page.locator('.encounter-card')).toHaveCount(24);
   await expect(page.locator('.encounter-card').first()).toContainText('Bulbasaur');
-  await page.getByLabel('Search discovered Pokémon', { exact: true }).fill('#0006');
+  await page.getByLabel('Search Pokédex', { exact: true }).fill('#0006');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toContainText('Best solve: 1 guess');
-  await page.getByLabel('Search discovered Pokémon', { exact: true }).fill('pIkA');
+  await page.getByLabel('Search Pokédex', { exact: true }).fill('pIkA');
   await expect(page.getByRole('article', { name: 'Pikachu', exact: true })).toBeVisible();
-  await page.getByLabel('Generation', { exact: true }).selectOption('4');
-  await expect(page.getByText('No discoveries match these filters.', { exact: true })).toBeVisible();
+  await page.getByLabel('Region', { exact: true }).selectOption('4');
+  await expect(page.getByText('No Pokémon match these filters.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
-  await page.getByLabel('Generation', { exact: true }).selectOption('4');
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await page.getByLabel('Region', { exact: true }).selectOption('4');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await expect(page.getByRole('article', { name: 'Lucario', exact: true })).toBeVisible();
   await page.reload();
   await openPokedex(page);
-  await page.getByLabel('Search discovered Pokémon', { exact: true }).fill('Raikou');
+  await page.getByLabel('Search Pokédex', { exact: true }).fill('Raikou');
   await expect(page.locator('.encounter-sources')).toContainText('Daily mystery');
 });
 
@@ -175,13 +182,16 @@ test('corrupt or blocked storage keeps the collection usable without claiming a 
   });
   await page.goto('/');
   await openPokedex(page);
-  await expect(page.getByText('No Pokémon registered', { exact: true })).toBeVisible();
-  await expect(page.getByText('this device could not save it', { exact: false })).toBeVisible();
-  await page.getByRole('button', { name: 'Try random practice', exact: true }).click();
+  await expect(page.getByText('No Pokémon owned yet', { exact: true })).toBeVisible();
+  await expect(page.getByText('This device could not save your Pokédex.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Random practice', exact: true }).click();
   await guess(page, 6);
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await page.getByLabel('Sort Pokémon', { exact: true }).selectOption('newest');
+  await page.getByLabel('Status', { exact: true }).selectOption('seen');
   await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toBeVisible();
-  await expect(page.getByText('this device could not save it', { exact: false })).toBeVisible();
+  await expect(page.getByText('This device could not save your Pokédex.', { exact: false })).toBeVisible();
 });
 
 test('personal Pokédex cards and filters fit mobile and desktop without nested mobile scrolling', async ({ page }, testInfo) => {

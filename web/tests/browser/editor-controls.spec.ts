@@ -1,8 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 import { walkSafari } from '../../src/features/safari/model';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 async function replaceSql(page: Page, text: string) {
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(text);
@@ -21,7 +22,8 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 820, height: 118
     await expect(page.getByRole('button', { name: 'Save query', exact: true })).toHaveCount(0);
     await expect(page.locator('.header-actions').getByRole('button', { name: /Run query/ })).toHaveCount(0);
     await expect(undo).toBeDisabled(); await expect(redo).toBeDisabled();
-    const original = await page.locator('.cm-content').innerText();
+    if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
+  const original = await page.locator('.cm-content').innerText();
     await replaceSql(page, 'SELECT 42 AS answer;');
     await expect(undo).toBeEnabled();
     await run.click();
@@ -82,8 +84,9 @@ test('Safari footer undoes text and still checks a catch assignment', async ({ p
   await page.addInitScript(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), session);
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  const catchQuery = page.getByRole('button', { name: /Check query & catch/ });
+  const catchQuery = page.getByRole('button', { name: /Catch Pokémon/ });
   await expect(catchQuery).toBeVisible();
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
   const original = await page.locator('.cm-content').innerText();
   await replaceSql(page, 'SELECT 42;');
   await page.getByRole('button', { name: 'Undo', exact: true }).click();

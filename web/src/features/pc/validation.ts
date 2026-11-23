@@ -11,7 +11,7 @@ const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v ===
 const text = (v: unknown, max: number): v is string => typeof v === "string" && v.length <= max;
 const positive = (v: unknown): v is number => Number.isSafeInteger(v) && Number(v) > 0;
 const date = (v: unknown): v is string => typeof v === "string" && Number.isFinite(Date.parse(v)) && new Date(v).toISOString() === v;
-export const isDiscoverySource = (v: unknown): v is DiscoverySource => v === "safari" || v === "daily" || v === "random";
+const isDiscoverySource = (v: unknown): v is DiscoverySource => v === "safari" || v === "daily" || v === "random";
 
 export function isCaptureReceipt(v: unknown): v is CaptureReceipt {
   return record(v) && text(v.id, 160) && v.id.length > 0 && isPokemonProfile(v.pokemon)

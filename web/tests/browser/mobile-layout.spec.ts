@@ -37,7 +37,8 @@ for (const width of [320, 390, 620]) {
     await latest.getByText('SQL used', { exact: true }).click();
     await expect(latest.locator('pre')).toContainText("name = 'Jolteon'");
     await expectPageScroll(page);
-    await expect(page.getByRole('button', { name: /Run query/ })).toBeInViewport({ ratio: 1 });
+    await page.locator('.editor-actions').scrollIntoViewIfNeeded();
+  await expect(page.getByRole('button', { name: /Run query/ })).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath(`mobile-notebook-${width}.png`) });
 
     // Run and Stop remain reachable after scrolling to the notebook.
@@ -89,6 +90,7 @@ test('wide SQL results scroll horizontally and grow with the page vertically', a
   expect(await table.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
   await page.locator('tbody tr').last().scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await page.locator('.editor-actions').scrollIntoViewIfNeeded();
   await expect(page.getByRole('button', { name: /Run query/ })).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: testInfo.outputPath('mobile-results.png') });
 });

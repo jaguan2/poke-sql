@@ -1,16 +1,17 @@
 # PokéSQL screenshot gallery
 
-Fresh application photos captured November 19, 2026, from the production build
+Fresh application photos captured November 20, 2026, from the production build
 in isolated Chrome contexts. These replace the older galleries and videos.
 The primary gallery targets desktop browsers and iPads. Tablet images use touch
 emulation at portrait/landscape sizes; they are not captures from physical iPad hardware.
 These captures include the compact page gutters, aligned navigation and revised
 schema picker with its adjacent column reference.
-The workspace, mystery and SQL encounter photos now show the editor footer with
-Undo/Redo and Run controls, without the query naming and saving form.
+The editor photos show Undo/Redo and right-aligned Run controls. Wild encounters
+first show Catch/Run inside the battle dialogue window; choosing Catch opens SQL.
+The regional trainer photos show decorative NPCs at native object-event positions.
 
 The Kanto photos show the first connected journey from Pallet Town to
-Cerulean City, including the schematic region map and native Viridian Forest.
+Cerulean City, including the native FireRed town map and native Viridian Forest.
 Tablet Kanto photos keep the menu collapsed to give the map room.
 Kanto walkthroughs start with a fresh exploration save and the demo PC entries.
 Hoenn photos show Littleroot Town, the first journey's 14-location overview
@@ -52,7 +53,11 @@ five imported Pokémon; unknown historical levels remain marked as imported.
 | [Mystery catch: Wailord throw frame](mystery-catch-throw.png) | Master Ball | 720 × 480 encounter crop |
 | [Mystery catch: Wailord caught](mystery-caught.png) | Master Ball | 720 × 480 encounter crop |
 | [Verdant Forest route](safari-route.png) | Dusk Ball | 1600 × 1800 |
-| [Safari SQL encounter](safari-encounter.png) | Ultra Ball | 1600 × 1100 |
+| [Safari battle command window](safari-encounter.png) | Ultra Ball | 1600 × 1280 |
+| [SQL panel after choosing Catch](safari-query.png) | Ultra Ball | 1600 × 1280 |
+| [Kanto route trainers](kanto-route-trainers.png) | Great Ball | 1600 × 1100 |
+| [Hoenn route trainers](hoenn-route-trainers.png) | Premier Ball | 1600 × 1100 |
+| [Johto route trainers](johto-route-trainers.png) | Dusk Ball | 1600 × 1100 |
 | [Lapras catch and Pokédex entry](safari-catch.png) | Heal Ball | 1600 × 1100 |
 | [PC Boxes and individual capture details](pc-boxes.png) | Heal Ball | 1600 × 1100 |
 | [Six featured Pokémon on a Trainer ID](featured-pokemon.png) | Heal Ball | 1600 × 1600 |
@@ -118,3 +123,22 @@ settled photo shows the successful catch. It does not reveal a daily answer.
 
 Set `POKESQL_SCREENSHOT_DIR` to stage captures elsewhere before replacing the
 gallery. Test results and failure traces stay in `web/test-results/`.
+
+The November 20 refresh includes native town maps for all three regions,
+National Dex silhouettes and owned/seen states, pointer dragging in PC Boxes,
+and the in-battle Catch/Run command window. The Settings photo identifies version 0.2.6.
+All 48 PNGs were refreshed; the gallery includes the SQL drawer, regional NPC views,
+the framed game menu and the new Items / Key Items pockets. Repel supplies and
+Shiny Charm effects are visible in the Bag photos.
+
+| Additional view | Theme | Viewport |
+| --- | --- | --- |
+| [Unseen National Dex](pokedex-unseen.png) | Poké Ball | 1600 × 1100 |
+| [PC dragging](pc-drag.png) | Great Ball | 1600 × 1100 |
+
+| Bag window | Theme | Viewport |
+| --- | --- | --- |
+| [Items and active Repel](bag-1600.png) | Poké Ball | 1600 × 1100 |
+| [Key Items and active Shiny Charm](bag-key-items.png) | Poké Ball | 1600 × 1100 |
+| [Portrait tablet Bag](bag-820.png) | Poké Ball | 820 × 1180 |
+| [Landscape tablet Bag](bag-1180.png) | Poké Ball | 1180 × 820 |

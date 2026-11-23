@@ -3,7 +3,7 @@ import { createSafariSession, visitedLocations } from '../../src/features/safari
 import { safariAssignment } from '../../src/features/safari/assignments';
 import { isWalkable, movePosition, zoneById, type Direction } from '../../src/features/safari/zones';
 import type { SafariSession } from '../../src/features/safari/types';
-import { routePath } from '../fixtures/safari';
+import { routePath, openSafariQuery } from '../fixtures/safari';
 import { collectionSnapshot } from '../fixtures/pc';
 import { regionPortals } from '../../src/features/safari/regions';
 
@@ -18,6 +18,7 @@ async function step(page: Page, direction: Direction) {
 }
 async function saved(page: Page): Promise<SafariSession> { return page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!)); }
 async function edit(page: Page, sql: string) {
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
@@ -68,12 +69,12 @@ test('Route 1 SQL encounters consume wrong attempts and commit the correct catch
   }, session);
   await open(page);
   await step(page, reverse[approach.direction]);
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   const active = await saved(page);
   expect([16, 19]).toContain(active.encounter!.pokemonId);
   expect((await collectionSnapshot(page)).captures).toHaveLength(0);
   await edit(page, 'SELECT * FROM pokemon;');
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect.poll(async () => (await saved(page)).encounter!.attempts).toBe(1);
   expect((await collectionSnapshot(page)).captures).toHaveLength(0);
   await page.reload();
@@ -81,7 +82,7 @@ test('Route 1 SQL encounters consume wrong attempts and commit the correct catch
   expect((await saved(page)).encounter).toMatchObject({ id: active.encounter!.id, attempts: 1, outcome: 'active' });
   const species = zone.species.find(s => s.id === active.encounter!.pokemonId)!;
   await edit(page, safariAssignment(active.encounter!.assignmentId, species).sql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('button', { name: 'Keep exploring', exact: true })).toBeVisible();
   const collection = await collectionSnapshot(page);
   expect(collection.captures).toHaveLength(1);

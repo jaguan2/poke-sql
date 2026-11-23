@@ -15,8 +15,8 @@ export const EncounterScene = forwardRef<HTMLDivElement, {
   label: string; titleId: string; terrain: "grass" | "sand" | "cave" | "water";
   identity: { name: string; level: number; badge: string | null; registered?: boolean };
   pokemon: { id: number; label: string; shiny?: boolean } | null;
-  trainer: TrainerId; capture?: { phase: "catching" | "caught"; ball: string }; caption: ReactNode; className?: string; children?: ReactNode;
-}>(function EncounterScene({ label, titleId, terrain, identity, pokemon, trainer, capture, caption, className = "", children }, ref) {
+  trainer: TrainerId; capture?: { phase: "catching" | "caught"; ball: string }; caption: ReactNode; dialogue?: ReactNode; className?: string; children?: ReactNode;
+}>(function EncounterScene({ label, titleId, terrain, identity, pokemon, trainer, capture, caption, dialogue, className = "", children }, ref) {
   const bounds = pokemon ? spriteBounds[pokemon.id] : null;
   // Anchor visible pixels to the platform, preserving small species' sizes and
   // fitting larger species within the native 64x64 battle-sprite envelope.
@@ -42,7 +42,8 @@ export const EncounterScene = forwardRef<HTMLDivElement, {
         style={{ width: `${bounds.canvasWidth / bounds.width * 100}%`, height: `${bounds.canvasHeight / bounds.height * 100}%`, left: `${-bounds.left / bounds.width * 100}%`, top: `${-bounds.top / bounds.height * 100}%` }} />
     </span>}
     <TrainerSprite trainer={trainer} pose="battle" throwing={capture?.phase === "catching"} className="encounter-trainer" />
-    <div className="encounter-caption" role="status"><span>{caption}</span></div>
+    {dialogue ? <div className="encounter-caption is-interactive">{dialogue}</div>
+      : <div className="encounter-caption" role="status"><span>{caption}</span></div>}
     {capture && <img className="encounter-catch-ball" src={`${import.meta.env.BASE_URL}sprites/items/${capture.ball}.png`} alt="" width={30} height={30} />}
     {capture?.phase === "catching" && <span className="encounter-catch-flash" aria-hidden="true" />}
     {children}

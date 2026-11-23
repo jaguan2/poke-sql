@@ -10,13 +10,13 @@ const maps = { ...kantoMaps, ...hoennMaps, ...johtoMaps };
 export type RegionId = "kanto" | "hoenn" | "johto";
 export type RegionLocationId = keyof typeof maps;
 interface RouteRecipe {
-  name: string; kind: string; description: string; point: number[]; pool: (string | number)[][];
-  overview?: boolean; landmark?: string; mapName?: string; label?: string;
+  name: string; kind: string; description: string; pool: (string | number)[][];
+  overview?: boolean; landmark?: string;
 }
 const routes: Readonly<Record<RegionLocationId, RouteRecipe>> = { ...kantoRoutes, ...hoennRoutes, ...johtoRoutes };
 export const isRegionLocation = (id: unknown): id is RegionLocationId => typeof id === "string" && Object.prototype.hasOwnProperty.call(routes, id);
 export const regionalRoute = (id: ZoneId) => isRegionLocation(id) ? routes[id] : undefined;
-export interface RegionPortal extends Position { to: RegionLocationId; arrival: Position }
+interface RegionPortal extends Position { to: RegionLocationId; arrival: Position }
 export const regionPortals = (id: ZoneId): readonly RegionPortal[] => isRegionLocation(id) ? maps[id].portals as RegionPortal[] : [];
 export const DIRECTION_STEP: Record<Direction, Position> = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
 
@@ -37,7 +37,7 @@ function locations(ids: readonly RegionLocationId[], regionName: string): readon
 export const KANTO_LOCATIONS = locations(Object.keys(kantoRoutes) as RegionLocationId[], "Kanto");
 export const HOENN_LOCATIONS = locations(Object.keys(hoennRoutes) as RegionLocationId[], "Hoenn");
 export const JOHTO_LOCATIONS = locations(Object.keys(johtoRoutes) as RegionLocationId[], "Johto");
-export interface RegionDefinition { id: RegionId; name: string; start: RegionLocationId; locations: readonly SafariZoneDefinition[] }
+interface RegionDefinition { id: RegionId; name: string; start: RegionLocationId; locations: readonly SafariZoneDefinition[] }
 export const REGIONS: readonly RegionDefinition[] = [
   { id: "kanto", name: "Kanto", start: "pallet-town", locations: KANTO_LOCATIONS },
   { id: "hoenn", name: "Hoenn", start: "littleroot-town", locations: HOENN_LOCATIONS },

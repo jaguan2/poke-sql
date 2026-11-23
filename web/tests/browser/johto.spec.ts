@@ -3,7 +3,7 @@ import { createSafariSession } from '../../src/features/safari/model';
 import type { SafariSession } from '../../src/features/safari/types';
 import { regionPortals } from '../../src/features/safari/regions';
 import { zoneById, type ZoneId } from '../../src/features/safari/zones';
-import { routePath } from '../fixtures/safari';
+import { routePath, openSafariQuery } from '../fixtures/safari';
 import { collectionSnapshot } from '../fixtures/pc';
 
 async function open(page: Page) { await page.goto('/'); await page.getByRole('button', { name: 'Explore', exact: true }).click(); }
@@ -67,17 +67,18 @@ test('walking in Slowpoke Well starts an encounter; wrong SQL cannot catch or tr
     if ((await saved(page)).encounter) break;
     await step(page, direction);
   }
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   const encounter = (await saved(page)).encounter!;
   await choose(page, 'Hoenn', 'petalburg-woods');
   await expect(page.getByRole('button', { name: 'Travel to Petalburg Woods', exact: true })).toBeDisabled();
   await page.locator('.region-map > summary').click();
+  await openSafariQuery(page);
   await page.locator('.cm-content').fill(`SELECT * FROM pokemon WHERE id = ${encounter.pokemonId};`);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect.poll(async () => (await saved(page)).encounter?.attempts).toBe(1);
   expect((await collectionSnapshot(page)).captures).toHaveLength(0);
   await page.locator('.cm-content').fill(`SELECT id, name, type1, type2 FROM pokedex WHERE id = ${encounter.pokemonId};`);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('button', { name: 'Keep exploring', exact: true })).toBeVisible();
   expect((await collectionSnapshot(page)).captures[0]).toMatchObject({ pokemon: { id: encounter.pokemonId }, location: 'Slowpoke Well B1F', attempts: 2 });
   expect((await saved(page)).catches).toBe(1);
@@ -91,11 +92,7 @@ test.describe('Johto on iPad', () => {
       await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
       await choose(page, 'Johto', 'route-34');
       const chart = page.getByRole('group', { name: 'Johto region map', exact: true });
-      const overlaps = await chart.locator('.region-map-place span').evaluateAll(labels => {
-        const boxes = labels.map(label => ({ name: label.textContent, box: label.getBoundingClientRect() }));
-        return boxes.flatMap((a, i) => boxes.slice(i + 1).filter(b => a.box.left < b.box.right + 4 && b.box.left < a.box.right + 4 && a.box.top < b.box.bottom && b.box.top < a.box.bottom).map(b => [a.name, b.name]));
-      });
-      expect(overlaps).toEqual([]);
+      await expect(chart.locator('.region-map-art')).toHaveJSProperty('naturalWidth', 160);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(viewport.width);
       await page.screenshot({ path: info.outputPath(`johto-ipad-${viewport.width}.png`) });
       await page.getByRole('button', { name: 'Travel to Route 34', exact: true }).tap();

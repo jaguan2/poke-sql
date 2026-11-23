@@ -1,6 +1,6 @@
 import { test, expect, _electron as electron } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { collectionSnapshot } from '../fixtures/pc';
 
 test('desktop captures and featured Pokémon persist across a native application restart', async ({}, info) => {
@@ -20,8 +20,9 @@ test('desktop captures and featured Pokémon persist across a native application
     });
     await page.reload();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await openSafariQuery(page);
     await page.locator('.cm-content').fill('SELECT id, name, type1, type2 FROM pokedex WHERE id = 10;');
-    await page.getByRole('button', { name: /Check query & catch/ }).click();
+    await page.getByRole('button', { name: /Catch Pokémon/ }).click();
     await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
     await page.getByRole('button', { name: 'Slot 1: Caterpie, level 24', exact: true }).click();
     await page.getByRole('button', { name: 'Feature on profile', exact: true }).click();

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 async function seed(page: Page) {
   await page.addInitScript(session => {
@@ -13,17 +13,20 @@ async function limit(page: Page, value: 'unlimited' | '5' | '8') {
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Chances before fleeing', { exact: true }).selectOption(value);
   await page.getByRole('button', { name: 'Done', exact: true }).click();
+  if (await page.getByRole('group', { name: 'Encounter commands', exact: true }).count()) await openSafariQuery(page);
 }
 async function encounter(page: Page) {
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('a');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
 }
 async function submit(page: Page, sql = 'SELECT 1;') {
+  await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
 }
 const correct = 'SELECT id, name, type1, type2 FROM pokedex WHERE id=10;';
 
@@ -45,16 +48,17 @@ test('five chances warn before fleeing, persist through offline reload and allow
     await submit(page);
     await expect(chances).toHaveAttribute('value', String(remaining));
   }
-  await expect(page.locator('.encounter-caption')).toHaveText('Caterpie seems wary…');
+  await expect(page.locator('.safari-command-menu p')).toHaveText('Caterpie seems wary…');
   await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await context.setOffline(true); await page.reload();
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await openSafariQuery(page);
   await expect(chances).toHaveAttribute('value', '2');
   await expect(chances).toHaveAttribute('max', '5');
   await submit(page);
   await expect(chances).toHaveAttribute('value', '1');
-  await expect(page.locator('.encounter-caption')).toHaveText('Caterpie looks ready to flee!');
+  await expect(page.locator('.safari-command-menu p')).toHaveText('Caterpie looks ready to flee!');
   await page.locator('.safari-battle-scene').screenshot({ path: info.outputPath('last-chance.png'), animations: 'disabled' });
   await submit(page);
   await expect(page.locator('.encounter-caption')).toHaveText('Oh no! Caterpie fled!');
@@ -62,7 +66,7 @@ test('five chances warn before fleeing, persist through offline reload and allow
   await expect(page.getByRole('heading', { name: 'Caterpie slipped away.' })).toBeVisible();
   await expect(page.locator('.safari-fled-summary')).toContainText('Return exactly 4 columns');
   await expect(page.locator('.safari-pass strong')).toHaveText('00');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toHaveCount(0);
   await page.getByText('Review a solution', { exact: true }).click();
   await expect(page.locator('.safari-fled-summary pre').last()).toContainText('WHERE id = 10');
   await page.locator('.safari-battle-scene').screenshot({ path: info.outputPath('fled-scene.png'), animations: 'disabled' });
@@ -77,9 +81,10 @@ test('five chances warn before fleeing, persist through offline reload and allow
   const caterpie = page.getByRole('row', { name: 'Unknown common Pokémon', exact: true }).filter({ has: page.locator('img[src$="/10.png"]') });
   await expect(caterpie.getByRole('cell')).toHaveText(/\d+\.\d%/);
   await page.keyboard.press('d'); await page.waitForTimeout(130); await page.keyboard.press('a');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   await expect(chances).toHaveAttribute('value', '8');
-  await expect(page.locator('.encounter-caption')).toHaveText('A wild Caterpie appeared!');
+  await expect(page.locator('.safari-command-menu p')).toHaveText('Write your SQL.');
   await submit(page, correct);
   await expect(page.getByText('Gotcha! Caterpie was caught!', { exact: true })).toBeVisible();
 });

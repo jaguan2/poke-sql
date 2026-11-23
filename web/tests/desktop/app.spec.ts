@@ -4,7 +4,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { MUSIC_TRACKS as tracks } from '../../src/features/music/catalog';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 test('desktop loads bundled SQL and sprites without Node access in the page', async ({}, testInfo) => {
   // This broad smoke includes native audio, a second process and a restart.
@@ -157,7 +157,7 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     await expect(page.locator('.safari-player .trainer-sprite')).toHaveAttribute('data-trainer', 'steven');
     await page.getByRole('heading', { name: /Safari Zone/ }).click();
     await page.keyboard.press('a');
-    await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
     expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
     const battleScreen = (await page.locator('.safari-battle-scene').boundingBox())!;
     const caughtMarker = page.getByRole('img', { name: 'Already in your Pokédex', exact: true });
@@ -172,6 +172,7 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     });
     expect(encounterWidth).toBeCloseTo(contentWidth, 0);
     expect(battleScreen.width).toBeLessThanOrEqual(encounterWidth);
+    await openSafariQuery(page);
     const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
     await page.locator('.cm-content').focus();
     await page.keyboard.press('ControlOrMeta+A');
@@ -190,9 +191,11 @@ test('desktop Safari loads its local trainer assets and persists a SQL catch', a
     expect(caughtScreen.width).toBeCloseTo(battleScreen.width, 1);
     expect(caughtScreen.height).toBeCloseTo(battleScreen.height, 1);
     await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+    await page.getByLabel('Status', { exact: true }).selectOption('owned');
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
     await page.reload();
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
+    await page.getByLabel('Status', { exact: true }).selectOption('owned');
     await expect(page.locator('.encounter-card')).toHaveCount(1);
     await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
@@ -273,10 +276,12 @@ test('desktop mystery uses original data and resumes its notebook after reload',
     await page.keyboard.press('ControlOrMeta+Enter');
     await expect(page.getByText('You found Charizard in 2 guesses!', { exact: false })).toBeVisible();
     await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+    await page.getByLabel('Status', { exact: true }).selectOption('owned');
     await expect(page.locator('.encounter-card')).toHaveCount(new Set([dailyTarget, 6]).size);
     await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toBeVisible();
     await page.reload();
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
+    await page.getByLabel('Status', { exact: true }).selectOption('owned');
     await expect(page.locator('.encounter-card')).toHaveCount(new Set([dailyTarget, 6]).size);
     await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toContainText('Random practice');
     await page.getByRole('button', { name: /^Achievements/ }).click();

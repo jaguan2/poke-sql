@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { createSafariSession } from '../../src/features/safari/model';
 
 test.beforeEach(async ({ page }) => {
@@ -114,7 +114,8 @@ test('keyboard grass encounters roll from the visible weighted table and SQL alo
   await page.keyboard.press('a');
   await expect(page.getByText('Something is moving in the grass!', { exact: true })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Wild Caterpie', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.type('wasd');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).position)).toEqual({ x: 3, y: 17 });

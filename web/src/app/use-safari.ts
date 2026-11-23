@@ -1,7 +1,7 @@
+import { createBag, useBagItem, type BagItemId } from "../features/safari/bag-model";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { changeSafariRegion, changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
+import { visibleSafariPokemonId, changeSafariRegion, changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
 import type { RegionId } from "../features/safari/regions";
-import { isFieldAssignment } from "../features/safari/field-assignments";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
 import type { AssignmentId, SafariCaptureContext, SafariCatch, SafariCheckReply, SafariFleeLimit, SafariPhase, SafariQueryMode, SafariSession } from "../features/safari/types";
@@ -22,7 +22,8 @@ type Action =
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string; mode: SafariQueryMode }
   | { type: "restore-catch"; caught: SafariCatch; shiny: boolean }
   | { type: "error"; message: string }
-  | { type: "leave" };
+  | { type: "leave" }
+  | { type: "item"; id: BagItemId };
 
 function initialState(): State {
   const session = loadSafariSession();
@@ -36,6 +37,12 @@ function reducer(state: State, action: Action): State {
       const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id,
         { weather, fleeAfter: action.fleeAfter, date: action.date, trainerDays: action.trainerDays, shinyRoll: action.shinyRoll });
       return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
+    }
+    case "item": {
+      if (state.phase !== "roaming") return state;
+      const previous = state.session.bag ?? createBag();
+      const bag = useBagItem(previous, state.session.catches, action.id);
+      return bag === previous ? state : { ...state, session: { ...state.session, bag } };
     }
     case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
     case "region": return { ...state, session: changeSafariRegion(state.session, action.id), message: "", error: "" };
@@ -80,7 +87,6 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [saveError, setSaveError] = useState(false);
   const checking = useRef(false);
-  const lastMove = useRef(-Infinity);
   const restoreCatch = useCallback((caught: SafariCatch, shiny: boolean) => dispatch({ type: "restore-catch", caught, shiny }), []);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
@@ -91,8 +97,7 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     return () => clearTimeout(timer);
   }, [state.phase, state.session.encounter]);
   const move = (direction: Direction) => {
-    if (checking.current || performance.now() - lastMove.current < 110) return;
-    lastMove.current = performance.now();
+    if (checking.current) return;
     const now = new Date();
     const shinyRoll = crypto.getRandomValues(new Uint16Array(1))[0] / 2 ** 16;
     dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), shinyRoll, id: crypto.randomUUID(),
@@ -111,13 +116,14 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     } catch (error) { dispatch({ type: "error", message: (error as Error).message }); }
     finally { checking.current = false; }
   };
-  return { ...state, saveError, actions: { move,
+  return { ...state, saveError, visiblePokemonId: visibleSafariPokemonId(state.session.encounter, state.phase), actions: { move,
     restoreCatch,
+    useItem: (id: BagItemId) => { if (!checking.current) dispatch({ type: "item", id }); },
     changeZone: (id: ZoneId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "zone", id }); },
     changeRegion: (id: RegionId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "region", id }); },
     editDraft: (sql: string) => { if (!checking.current) dispatch({ type: "edit", sql }); },
     submit: () => void run("catch"),
-    runDraft: () => void run(isFieldAssignment(state.session.encounter?.assignmentId) ? "preview" : "catch"),
+    preview: () => void run("preview"),
     leave: () => { if (!checking.current) dispatch({ type: "leave" }); },
   } };
 }

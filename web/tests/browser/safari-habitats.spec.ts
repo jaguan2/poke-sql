@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { zoneById, type ZoneId } from '../../src/features/safari/zones';
 
 test('all nine habitats use local game-tile maps and remain available offline', async ({ page, context }, info) => {
@@ -39,13 +39,14 @@ test('a tundra SQL catch persists its new habitat, species, and progress', async
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('ArrowLeft');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
   await expect(page.locator('.encounter-trainer')).toHaveCSS('background-image', /trainer-battle\.png/);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(`SELECT id, name, type1, type2 FROM pokedex WHERE id=${id};`);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByText('Gotcha!', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(page.getByRole('progressbar', { name: 'Frostveil Tundra collection progress' })).toHaveAttribute('value', '1');

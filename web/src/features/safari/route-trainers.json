@@ -1,0 +1,664 @@
+{
+  "revisions": {
+    "emerald": "9103e529c2fbdd7add4a1ff3350c6c1f92112c42",
+    "firered": "ce6406d8c2eaf46d543c8a2606de0c3cb1951982",
+    "crystal": "9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482"
+  },
+  "sprites": {
+    "youngster": {
+      "file": "npcs/youngster.png",
+      "sha256": "7ce2e198075a8ef6f419b9f284362409e4e3267acf91ac9f9ca35f501d2f23f6",
+      "source": "graphics/object_events/pics/people/youngster.png",
+      "sourceSha256": "86dfa7e28d76ce53d82085ced36f0c76bc35b715ef7975e25ad8699850a6e6e8"
+    },
+    "lass": {
+      "file": "npcs/lass.png",
+      "sha256": "9988fecae7300a4eb5dc6437636bda009aa2738dbf1cfde80a583f4e532e512c",
+      "source": "graphics/object_events/pics/people/lass.png",
+      "sourceSha256": "ac95c576fddcefda90842b49e7ea88de5a950f9ce4f0701843ff95ca5a367e83"
+    },
+    "bug_catcher": {
+      "file": "npcs/bug_catcher.png",
+      "sha256": "7010a3d0a27c69bf43bfc9e49382a9b1d2c5ce7a24d99a8b1c122417e2a1741f",
+      "source": "graphics/object_events/pics/people/bug_catcher.png",
+      "sourceSha256": "254af8578f1b520862d45c55aa44b4064c9b3a2d3cecea04626fde96d21489f1"
+    },
+    "hiker": {
+      "file": "npcs/hiker.png",
+      "sha256": "a8dcbcc764fc4b37eb596ae0e899cfb5b81407803b26abd24134d48ff297892d",
+      "source": "graphics/object_events/pics/people/hiker.png",
+      "sourceSha256": "30f1bf91e395f1542467d40a8f9c22073d57ee86ef054a7d2ff0014b03928cd7"
+    }
+  },
+  "locations": {
+    "pallet-town": [],
+    "route-1": [],
+    "viridian-city": [
+      {
+        "x": 33,
+        "y": 26,
+        "kind": "youngster",
+        "facing": "up"
+      }
+    ],
+    "route-22": [],
+    "route-2": [],
+    "forest-south-gate": [],
+    "viridian-forest": [
+      {
+        "x": 29,
+        "y": 58,
+        "kind": "youngster",
+        "facing": "up"
+      },
+      {
+        "x": 47,
+        "y": 45,
+        "kind": "bug_catcher",
+        "facing": "left"
+      },
+      {
+        "x": 47,
+        "y": 29,
+        "kind": "bug_catcher",
+        "facing": "left"
+      },
+      {
+        "x": 7,
+        "y": 22,
+        "kind": "bug_catcher",
+        "facing": "left"
+      },
+      {
+        "x": 43,
+        "y": 6,
+        "kind": "bug_catcher",
+        "facing": "up"
+      },
+      {
+        "x": 16,
+        "y": 5,
+        "kind": "bug_catcher",
+        "facing": "up"
+      }
+    ],
+    "forest-north-gate": [
+      {
+        "x": 5,
+        "y": 4,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "pewter-city": [
+      {
+        "x": 6,
+        "y": 15,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 33,
+        "y": 27,
+        "kind": "bug_catcher",
+        "facing": "left"
+      }
+    ],
+    "route-3": [
+      {
+        "x": 70,
+        "y": 13,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 40,
+        "y": 11,
+        "kind": "lass",
+        "facing": "up"
+      },
+      {
+        "x": 32,
+        "y": 6,
+        "kind": "bug_catcher",
+        "facing": "right"
+      },
+      {
+        "x": 30,
+        "y": 3,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 25,
+        "y": 4,
+        "kind": "bug_catcher",
+        "facing": "down"
+      },
+      {
+        "x": 29,
+        "y": 10,
+        "kind": "youngster",
+        "facing": "left"
+      },
+      {
+        "x": 19,
+        "y": 9,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 12,
+        "y": 6,
+        "kind": "bug_catcher",
+        "facing": "right"
+      },
+      {
+        "x": 17,
+        "y": 4,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-4": [],
+    "mt-moon-1f": [
+      {
+        "x": 20,
+        "y": 26,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 36,
+        "y": 30,
+        "kind": "bug_catcher",
+        "facing": "right"
+      },
+      {
+        "x": 33,
+        "y": 4,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 7,
+        "y": 26,
+        "kind": "bug_catcher",
+        "facing": "down"
+      },
+      {
+        "x": 13,
+        "y": 17,
+        "kind": "youngster",
+        "facing": "right"
+      },
+      {
+        "x": 7,
+        "y": 10,
+        "kind": "hiker",
+        "facing": "down"
+      }
+    ],
+    "mt-moon-b1f": [],
+    "mt-moon-b2f": [],
+    "cerulean-city": [
+      {
+        "x": 33,
+        "y": 29,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 34,
+        "y": 22,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "littleroot-town": [
+      {
+        "x": 14,
+        "y": 17,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-101": [
+      {
+        "x": 16,
+        "y": 8,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 2,
+        "y": 13,
+        "kind": "youngster",
+        "facing": "left"
+      }
+    ],
+    "oldale-town": [],
+    "route-103": [
+      {
+        "x": 20,
+        "y": 10,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-102": [
+      {
+        "x": 33,
+        "y": 14,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 25,
+        "y": 15,
+        "kind": "bug_catcher",
+        "facing": "up"
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "kind": "lass",
+        "facing": "right"
+      },
+      {
+        "x": 37,
+        "y": 4,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 19,
+        "y": 4,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "petalburg-city": [
+      {
+        "x": 8,
+        "y": 22,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 12,
+        "y": 15,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-104": [
+      {
+        "x": 15,
+        "y": 60,
+        "kind": "bug_catcher",
+        "facing": "left"
+      },
+      {
+        "x": 25,
+        "y": 49,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 31,
+        "y": 24,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 18,
+        "y": 67,
+        "kind": "youngster",
+        "facing": "left"
+      },
+      {
+        "x": 5,
+        "y": 26,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "petalburg-woods": [
+      {
+        "x": 15,
+        "y": 19,
+        "kind": "youngster",
+        "facing": "up"
+      },
+      {
+        "x": 7,
+        "y": 32,
+        "kind": "bug_catcher",
+        "facing": "left"
+      },
+      {
+        "x": 4,
+        "y": 14,
+        "kind": "bug_catcher",
+        "facing": "right"
+      },
+      {
+        "x": 33,
+        "y": 5,
+        "kind": "lass",
+        "facing": "down"
+      }
+    ],
+    "rustboro-city": [
+      {
+        "x": 12,
+        "y": 45,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 31,
+        "y": 36,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-116": [
+      {
+        "x": 12,
+        "y": 7,
+        "kind": "youngster",
+        "facing": "right"
+      },
+      {
+        "x": 13,
+        "y": 17,
+        "kind": "bug_catcher",
+        "facing": "down"
+      },
+      {
+        "x": 36,
+        "y": 17,
+        "kind": "hiker",
+        "facing": "left"
+      },
+      {
+        "x": 26,
+        "y": 6,
+        "kind": "lass",
+        "facing": "right"
+      },
+      {
+        "x": 33,
+        "y": 5,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 36,
+        "y": 13,
+        "kind": "youngster",
+        "facing": "right"
+      },
+      {
+        "x": 42,
+        "y": 13,
+        "kind": "hiker",
+        "facing": "left"
+      }
+    ],
+    "rusturf-tunnel": [
+      {
+        "x": 32,
+        "y": 13,
+        "kind": "hiker",
+        "facing": "left"
+      }
+    ],
+    "verdanturf-town": [
+      {
+        "x": 7,
+        "y": 11,
+        "kind": "youngster",
+        "facing": "up"
+      }
+    ],
+    "route-117": [
+      {
+        "x": 43,
+        "y": 6,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 42,
+        "y": 6,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 48,
+        "y": 10,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 15,
+        "y": 4,
+        "kind": "lass",
+        "facing": "right"
+      }
+    ],
+    "mauville-city": [],
+    "new-bark-town": [],
+    "route-29": [
+      {
+        "x": 27,
+        "y": 16,
+        "kind": "youngster",
+        "facing": "up"
+      }
+    ],
+    "cherrygrove-city": [
+      {
+        "x": 23,
+        "y": 7,
+        "kind": "youngster",
+        "facing": "left"
+      }
+    ],
+    "route-30": [
+      {
+        "x": 5,
+        "y": 26,
+        "kind": "youngster",
+        "facing": "up"
+      },
+      {
+        "x": 2,
+        "y": 28,
+        "kind": "youngster",
+        "facing": "right"
+      },
+      {
+        "x": 5,
+        "y": 23,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "kind": "bug_catcher",
+        "facing": "down"
+      },
+      {
+        "x": 7,
+        "y": 30,
+        "kind": "youngster",
+        "facing": "left"
+      }
+    ],
+    "route-31": [
+      {
+        "x": 9,
+        "y": 5,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 21,
+        "y": 13,
+        "kind": "bug_catcher",
+        "facing": "left"
+      }
+    ],
+    "violet-gate": [],
+    "violet-city": [
+      {
+        "x": 28,
+        "y": 28,
+        "kind": "lass",
+        "facing": "down"
+      },
+      {
+        "x": 5,
+        "y": 18,
+        "kind": "youngster",
+        "facing": "down"
+      }
+    ],
+    "route-32": [
+      {
+        "x": 12,
+        "y": 22,
+        "kind": "youngster",
+        "facing": "right"
+      },
+      {
+        "x": 4,
+        "y": 63,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 3,
+        "y": 45,
+        "kind": "youngster",
+        "facing": "up"
+      },
+      {
+        "x": 10,
+        "y": 30,
+        "kind": "lass",
+        "facing": "left"
+      },
+      {
+        "x": 11,
+        "y": 82,
+        "kind": "youngster",
+        "facing": "up"
+      },
+      {
+        "x": 12,
+        "y": 67,
+        "kind": "lass",
+        "facing": "left"
+      }
+    ],
+    "union-cave-1f": [],
+    "route-33": [
+      {
+        "x": 13,
+        "y": 16,
+        "kind": "lass",
+        "facing": "down"
+      }
+    ],
+    "azalea-town": [
+      {
+        "x": 7,
+        "y": 9,
+        "kind": "youngster",
+        "facing": "left"
+      }
+    ],
+    "slowpoke-well-b1f": [],
+    "ilex-south-gate": [],
+    "ilex-forest": [
+      {
+        "x": 7,
+        "y": 28,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 3,
+        "y": 24,
+        "kind": "lass",
+        "facing": "right"
+      },
+      {
+        "x": 12,
+        "y": 1,
+        "kind": "youngster",
+        "facing": "up"
+      }
+    ],
+    "ilex-north-gate": [
+      {
+        "x": 3,
+        "y": 4,
+        "kind": "lass",
+        "facing": "up"
+      }
+    ],
+    "route-34": [
+      {
+        "x": 13,
+        "y": 7,
+        "kind": "youngster",
+        "facing": "left"
+      },
+      {
+        "x": 15,
+        "y": 32,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 11,
+        "y": 20,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 10,
+        "y": 26,
+        "kind": "lass",
+        "facing": "right"
+      }
+    ],
+    "goldenrod-city": [
+      {
+        "x": 30,
+        "y": 17,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 19,
+        "y": 17,
+        "kind": "youngster",
+        "facing": "down"
+      },
+      {
+        "x": 17,
+        "y": 10,
+        "kind": "lass",
+        "facing": "left"
+      }
+    ]
+  }
+}

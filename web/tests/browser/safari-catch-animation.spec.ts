@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 async function openEncounter(page: Page) {
   await page.addInitScript(session => {
@@ -13,14 +13,15 @@ async function openEncounter(page: Page) {
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
 }
 
 async function submit(page: Page, sql = 'SELECT id, name, type1, type2 FROM pokedex WHERE id=10;') {
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
 }
 
 for (const width of [1440, 320]) {
@@ -42,7 +43,7 @@ for (const width of [1440, 320]) {
     await expect(page.locator('.safari-encounter')).toHaveClass(/is-catching/);
     await expect(entry).toHaveCount(0);
     await expect(scene.getByRole('img', { name: 'Already in your Pokédex', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toHaveCount(0);
     await expect(ball).toHaveAttribute('src', /sprites\/items\/dusk-ball\.png$/);
     await expect(ball).toHaveCSS('opacity', '1');
     const start = (await ball.boundingBox())!;
@@ -91,6 +92,7 @@ test('reloading during the throw preserves one catch and opens the entry without
   await expect(page.locator('.is-catching')).toHaveCount(0);
   await expect(page.locator('.safari-pass strong')).toHaveText('01');
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
 });
 

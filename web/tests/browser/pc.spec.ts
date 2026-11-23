@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { entriesFor } from '../fixtures/pokemon-encounters';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { collectionSnapshot } from '../fixtures/pc';
 import { dailyPokemonForDate } from '../../src/features/mystery/daily';
 
@@ -14,8 +14,9 @@ async function pc(page: Page) {
 }
 async function catchPokemon(page: Page) {
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await openSafariQuery(page);
   await page.locator('.cm-content').fill(catchSql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toBeVisible();
 }
 
@@ -32,7 +33,7 @@ test('new Safari and mystery encounters deposit the level rolled for the trainer
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.keyboard.press('a');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   const displayedLevel = page.locator('.encounter-nameplate small');
   await expect(displayedLevel).toHaveText(/^Lv\.(?:[5-9]|10)$/);
   const safariLevel = await displayedLevel.textContent();
@@ -127,8 +128,9 @@ test('correct SQL catches deposit individuals once, while wrong queries award no
   }, session('pc-first'));
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await openSafariQuery(page);
   await page.locator('.cm-content').fill("SELECT name FROM pokedex WHERE name = 'Caterpie';");
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByText('7 chances remaining', { exact: true })).toBeVisible();
   await pc(page);
   await expect(page.getByRole('button', { name: 'Slot 1: Empty', exact: true })).toBeVisible();

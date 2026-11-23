@@ -1,3 +1,4 @@
+import { useSeenPokemon } from "../features/pokedex/use-seen-pokemon";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { encounterLevel, legacyEncounterLevel } from "../shared/pokemon/encounter-level";
 import { cancelQuery, checkChallenge, checkSafari, initDb, queryMystery, resetDb, runQuery, startMystery } from "./database/client";
@@ -87,7 +88,7 @@ export function useWorkspace() {
   const sample = selection?.kind === "sample" ? SAMPLE_QUERIES.find(s => s.id === selection.id) : undefined;
   const practice = challenge ? { ...challenge, sql: challenge.solution } : sample;
   const editorSchema = challenge || isMystery || safariContext ? challengeSchema : schema;
-  const activeNavigation: NavigationId | null = view === "profiles" || view === "settings" ? null : view !== "workspace" ? view : isMystery ? "mystery" : challenge ? "challenges" : sample ? "get-started" : "workspace";
+  const activeNavigation: NavigationId | null = view !== "workspace" ? view : isMystery ? "mystery" : challenge ? "challenges" : sample ? "get-started" : "workspace";
   const completedCount = CHALLENGES.filter(item => completed.includes(item.id)).length;
   const draftKey = isMystery ? (mysteryMode === "daily" ? "mystery-daily" : "mystery") : activeChallenge ?? (sample ? `sample:${sample.id}` : "sandbox");
   const query = drafts[draftKey] ?? (isMystery ? MYSTERY_INITIAL_QUERY : practice ? `-- ${practice.title}\nSELECT ` : INITIAL_QUERY);
@@ -154,6 +155,7 @@ export function useWorkspace() {
   const safari = useSafari(runSafariCheck, safariFleeAfter, trainerIdentity.issuedAt);
   const discoveries = useMemo(() => collectionDiscoveries(pc.collection), [pc.collection]);
   const { encounters, saveError: encounterSaveError, recovered: encountersRecovered } = useEncounters(dailyMysteryRound, randomMysteryRound, safari.session.lastCatch, discoveries);
+  const { seenIds, saveError: seenSaveError } = useSeenPokemon(encounters, showSafari ? safari.visiblePokemonId : undefined);
   const restoreSafariCatch = safari.actions.restoreCatch;
   useEffect(() => {
     if (!pc.collection || busyRef.current) return;
@@ -360,6 +362,7 @@ export function useWorkspace() {
   };
   const navigate = (destination: NavigationId) => {
     if (busyRef.current) return;
+    if (destination === "profiles" || destination === "settings") { openPersonalization(destination); return; }
     if (destination === "mystery") { openDailyMystery(); return; }
     if (destination === "pokedex") { openPokedex(); return; }
     if (destination === "workspace") { if (selection) selectChallenge(null); else setView("workspace"); return; }
@@ -369,8 +372,8 @@ export function useWorkspace() {
   };
 
   return {
-    ready, loadError, selection, isMystery, challenge, practice, pc, showPc: view === "pc",
-    query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount: CHALLENGES.length, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
+    ready, loadError, selection, isMystery, challenge, practice, pc, showPc: view === "pc", showBag: view === "bag",
+    query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount: CHALLENGES.length, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, seenIds, seenSaveError, achievementCatalog, encounterSaveError, encountersRecovered,
     datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, autocomplete, safariFleeAfter,
     profileProgress: { entries: encounters.length, species: achievementCatalog?.speciesCount ?? POKEDEX_SPECIES_COUNT, catches: safari.session.catches,
       challenges: completedCount, challengeTotal: CHALLENGES.length,

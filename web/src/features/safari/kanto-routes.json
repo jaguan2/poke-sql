@@ -7,10 +7,6 @@
       6,
       8
     ],
-    "point": [
-      12,
-      88
-    ],
     "description": "Start your journey here. Walk north to Route 1.",
     "pool": []
   },
@@ -21,10 +17,6 @@
     "entrance": [
       12,
       38
-    ],
-    "point": [
-      12,
-      76
     ],
     "description": "Pidgey and Rattata live in the grass between Pallet Town and Viridian City.",
     "pool": [
@@ -48,10 +40,6 @@
       26,
       32
     ],
-    "point": [
-      12,
-      64
-    ],
     "description": "Route 2 leads north to Viridian Forest. Route 22 branches west.",
     "pool": []
   },
@@ -62,10 +50,6 @@
     "entrance": [
       46,
       12
-    ],
-    "point": [
-      3,
-      64
     ],
     "description": "Explore the grass west of Viridian City for Spearow and Mankey.",
     "pool": [
@@ -84,8 +68,7 @@
         "Mankey",
         10
       ]
-    ],
-    "label": "left"
+    ]
   },
   "route-2": {
     "native": "Route2",
@@ -94,10 +77,6 @@
     "entrance": [
       12,
       78
-    ],
-    "point": [
-      12,
-      50
     ],
     "description": "Follow the west-hand gate through Viridian Forest to reach Pewter City.",
     "pool": [
@@ -131,10 +110,6 @@
       4,
       7
     ],
-    "point": [
-      12,
-      44
-    ],
     "description": "The northern doorway leads into Viridian Forest.",
     "pool": [],
     "overview": false,
@@ -147,10 +122,6 @@
     "entrance": [
       29,
       61
-    ],
-    "point": [
-      12,
-      36
     ],
     "description": "Bug Pokémon shelter beneath the trees. Pikachu is a rare sighting.",
     "pool": [
@@ -189,10 +160,6 @@
       4,
       7
     ],
-    "point": [
-      12,
-      28
-    ],
     "description": "Continue north through Route 2 to Pewter City.",
     "pool": [],
     "overview": false,
@@ -206,10 +173,6 @@
       26,
       34
     ],
-    "point": [
-      12,
-      18
-    ],
     "description": "A quiet stop at the foot of Mt. Moon. Route 3 heads east.",
     "pool": []
   },
@@ -220,10 +183,6 @@
     "entrance": [
       1,
       10
-    ],
-    "point": [
-      33,
-      18
     ],
     "description": "Follow the hillside east, then north to Route 4 and Mt. Moon.",
     "pool": [
@@ -262,10 +221,6 @@
       10,
       16
     ],
-    "point": [
-      58,
-      18
-    ],
     "description": "Mt. Moon separates the western trail from the grass leading to Cerulean City. Ledges can be jumped in their marked direction.",
     "pool": [
       [
@@ -298,10 +253,6 @@
       18,
       36
     ],
-    "point": [
-      48,
-      10
-    ],
     "description": "Take the ladders through Mt. Moon. Zubat, Geodude and the occasional Clefairy appear in the cave.",
     "pool": [
       [
@@ -324,8 +275,7 @@
         "Clefairy",
         5
       ]
-    ],
-    "mapName": "Mt. Moon"
+    ]
   },
   "mt-moon-b1f": {
     "native": "MtMoon_B1F",
@@ -334,10 +284,6 @@
     "entrance": [
       3,
       3
-    ],
-    "point": [
-      48,
-      10
     ],
     "description": "Ladders connect several separate passages. The eastern exit leads back to Route 4.",
     "pool": [
@@ -373,10 +319,6 @@
       25,
       21
     ],
-    "point": [
-      48,
-      10
-    ],
     "description": "Explore the deepest chambers, then take the northeastern ladder toward Cerulean City.",
     "pool": [
       [
@@ -409,10 +351,6 @@
     "kind": "town",
     "entrance": [
       1,
-      18
-    ],
-    "point": [
-      78,
       18
     ],
     "description": "The final town in this first Kanto journey. Visit your PC or return to a place you've explored.",

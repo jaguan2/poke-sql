@@ -1,9 +1,9 @@
 {
   "name": "poke-sql-web",
   "private": true,
-  "version": "0.2.0",
-  "description": "Practice SQL with a local Pokédex database",
-  "author": "PokéSQL contributors",
+  "version": "0.2.6",
+  "description": "Practice SQL with a local Pok\u00e9dex database",
+  "author": "Pok\u00e9SQL contributors",
   "main": "desktop/main.cjs",
   "engines": {
     "node": ">=22.12.0"

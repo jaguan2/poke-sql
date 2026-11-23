@@ -3,7 +3,7 @@ import { createSafariSession } from '../../src/features/safari/model';
 import type { SafariSession } from '../../src/features/safari/types';
 import { regionPortals } from '../../src/features/safari/regions';
 import { zoneById } from '../../src/features/safari/zones';
-import { routePath, nearSafariGrass } from '../fixtures/safari';
+import { routePath, nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { collectionSnapshot } from '../fixtures/pc';
 
 async function open(page: Page) { await page.goto('/'); await page.getByRole('button', { name: 'Explore', exact: true }).click(); }
@@ -66,14 +66,15 @@ test('a Whismur SQL catch reaches PC, and the tunnel can encounter Whismur again
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await seed(page, { ...nearSafariGrass('rusturf-tunnel'), grassSteps: 5 });
   await open(page); await page.keyboard.press('ArrowLeft');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   const firstId = (await saved(page)).encounter!.id;
+  await openSafariQuery(page);
   await page.locator('.cm-content').fill("SELECT * FROM pokemon WHERE name = 'Whismur';");
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect.poll(async () => (await saved(page)).encounter!.attempts).toBe(1);
   expect((await collectionSnapshot(page)).captures).toHaveLength(0);
   await page.locator('.cm-content').fill("SELECT id, name, type1, type2 FROM pokedex WHERE name = 'Whismur';");
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('button', { name: 'Keep exploring', exact: true })).toBeVisible();
   expect((await collectionSnapshot(page)).captures[0]).toMatchObject({ pokemon: { id: 293 }, location: 'Rusturf Tunnel', attempts: 2 });
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
@@ -84,7 +85,7 @@ test('a Whismur SQL catch reaches PC, and the tunnel can encounter Whismur again
     if ((await saved(page)).encounter) break;
     await page.keyboard.press(`Arrow${direction[0].toUpperCase()}${direction.slice(1)}`); await page.waitForTimeout(125);
   }
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   expect((await saved(page)).encounter).toMatchObject({ pokemonId: 293, outcome: 'active' });
   expect((await saved(page)).encounter!.id).not.toBe(firstId);
   expect((await collectionSnapshot(page)).captures).toHaveLength(1);
@@ -111,13 +112,7 @@ test.describe('Hoenn on iPad', () => {
       const chart = page.getByRole('group', { name: 'Hoenn region map', exact: true });
       await expect(chart).toBeVisible();
       expect(await chart.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true);
-      const overlappingLabels = await chart.locator('.region-map-place span').evaluateAll(labels => {
-        const boxes = labels.map(label => ({ name: label.textContent, box: label.getBoundingClientRect() }));
-        return boxes.flatMap((a, i) => boxes.slice(i + 1).filter(b =>
-          a.box.left < b.box.right + 4 && b.box.left < a.box.right + 4
-          && a.box.top < b.box.bottom && b.box.top < a.box.bottom).map(b => [a.name, b.name]));
-      });
-      expect(overlappingLabels).toEqual([]);
+      await expect(chart.locator('.region-map-art')).toHaveJSProperty('naturalWidth', 240);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(viewport.width);
       await page.screenshot({ path: info.outputPath(`hoenn-ipad-${viewport.width}.png`) });
     });

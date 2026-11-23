@@ -3,9 +3,11 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { entriesFor } from '../fixtures/pokemon-encounters';
 import { createSafariSession } from '../../src/features/safari/model';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import type { SafariSession } from '../../src/features/safari/types';
 import { TRAINER_THROW } from '../../src/shared/trainer/profile';
+import routeTrainers from '../../src/features/safari/route-trainers.json' with { type: 'json' };
+import { zoneById, movePosition } from '../../src/features/safari/zones';
 
 const output = path.resolve(process.env.POKESQL_SCREENSHOT_DIR ?? '../docs/screenshots');
 const demoIds = [1, 4, 6, 7, 10, 25, 38, 131, 133, 150, 151, 181];
@@ -39,10 +41,14 @@ async function shoot(page: Page, name: string, fullPage = false) {
   expect(Math.abs(main.y - menu.y)).toBeLessThanOrEqual(1);
   expect(main.x).toBeGreaterThan(menu.x + menu.width);
   await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
+  await page.locator('.safari-route-trainer').evaluateAll(nodes => Promise.all([...new Set(nodes.map(node => getComputedStyle(node).backgroundImage.slice(5, -2)))].map(async file => {
+    const image = new Image(); image.src = file; await image.decode();
+  })));
   await page.screenshot({ path: path.join(output, name), fullPage, animations: 'disabled' });
 }
 
 async function sql(page: Page, text: string, action = /Run query/) {
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
   await page.locator('.cm-content').fill(text);
   await page.getByRole('button', { name: action }).click();
 }
@@ -52,6 +58,26 @@ test('get started', async ({ page }) => {
   await page.getByRole('button', { name: 'Get started', exact: true }).click();
   await expect(page.locator('.catalog-question')).toHaveCount(25);
   await shoot(page, 'get-started.png');
+});
+
+test('unseen National Dex', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'My Pokédex', exact: true }).click();
+  await expect(page.locator('.pokedex-slot.is-unseen')).toHaveCount(24);
+  await shoot(page, 'pokedex-unseen.png');
+});
+
+test('PC dragging', async ({ page }) => {
+  await open(page, 'great-ball');
+  await page.getByRole('button', { name: 'PC Boxes', exact: true }).click();
+  const source = page.getByRole('button', { name: /^Slot \d+: Charizard/ });
+  await expect(source).toBeVisible();
+  const start = (await source.boundingBox())!, end = (await page.locator('.pc-slot').nth(11).boundingBox())!;
+  await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2); await page.mouse.down();
+  await page.mouse.move(end.x + end.width / 2, end.y + end.height / 2, { steps: 12 });
+  await expect(page.locator('.pc-drag-ghost')).toBeVisible();
+  await shoot(page, 'pc-drag.png');
+  await page.keyboard.press('Escape'); await page.mouse.up();
 });
 
 test('Kanto town and region map', async ({ page }) => {
@@ -175,14 +201,33 @@ test('forest route', async ({ page }) => {
 });
 
 test('SQL encounter', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1280 });
   await open(page, 'ultra-ball', { ...nearSafariGrass(), catches: 12,
     encounter: { id: 'gallery-caterpie', pokemonId: 10, level: 14, assignmentId: 'field-notes', attempts: 0, outcome: 'active', fleeAfter: 8 },
-    draft: 'SELECT id, name, type1, type2\nFROM pokedex\nWHERE name = \'Caterpie\';',
+    draft: 'SELECT * FROM pokedex\nWHERE name = ',
   });
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   await shoot(page, 'safari-encounter.png');
+  await openSafariQuery(page);
+  await shoot(page, 'safari-query.png');
 });
+
+for (const [id, file, theme] of [
+  ['route-3', 'kanto-route-trainers.png', 'great-ball'],
+  ['route-104', 'hoenn-route-trainers.png', 'premier-ball'],
+  ['route-30', 'johto-route-trainers.png', 'dusk-ball'],
+] as const) {
+  test(`${id} decorative trainers`, async ({ page }) => {
+    const npc = routeTrainers.locations[id][0], zone = zoneById(id);
+    const position = (['down', 'right', 'up', 'left'] as const).map(direction => movePosition(zone, npc, direction)).find(position => position !== npc)!;
+    await open(page, theme, { ...createSafariSession(id), position });
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await page.getByRole('button', { name: 'Got it', exact: true }).click();
+    await expect(page.locator('.safari-route-trainer').first()).toBeInViewport();
+    await shoot(page, file);
+  });
+}
 
 test('Lapras catch', async ({ page }) => {
   await open(page, 'heal-ball', { ...nearSafariGrass('coast'), catches: 12,
@@ -190,7 +235,7 @@ test('Lapras catch', async ({ page }) => {
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  await sql(page, 'SELECT id, name, type1, type2 FROM pokedex WHERE id = 131;', /Check query & catch/);
+  await sql(page, 'SELECT id, name, type1, type2 FROM pokedex WHERE id = 131;', /Catch Pokémon/);
   await expect(page.getByRole('article', { name: 'Lapras Pokédex entry', exact: true })).toBeVisible();
   await shoot(page, 'safari-catch.png');
   await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
@@ -322,7 +367,23 @@ test('landscape tablet Safari', async ({ page }) => {
   });
   await page.getByRole('button', { name: 'Explore', exact: true }).tap();
   await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   await shoot(page, 'tablet-safari.png');
 });
 });
+
+for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 1180 }, { width: 1180, height: 820 }]) {
+  test(`Bag pockets at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport); await open(page, 'poke-ball');
+    await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Bag', exact: true }).click();
+    await page.locator('.bag-page').getByRole('button', { name: 'Use', exact: true }).click();
+    await expect(page.locator('.bag-effects')).toContainText('100 steps left');
+    await shoot(page, `bag-${viewport.width}.png`);
+    if (viewport.width === 1600) {
+      await page.locator('.bag-page').getByRole('button', { name: 'Key Items', exact: true }).click();
+      await page.locator('.bag-page').getByRole('button', { name: 'Activate', exact: true }).click();
+      await expect(page.locator('.bag-effects')).toContainText('Active · 1 in 64');
+      await shoot(page, 'bag-key-items.png');
+    }
+  });
+}

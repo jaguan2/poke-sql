@@ -2,7 +2,7 @@ import kanto from "./kanto-tracks.json" with { type: "json" };
 import hoenn from "./hoenn-tracks.json" with { type: "json" };
 import johto from "./johto-tracks.json" with { type: "json" };
 
-export interface MusicTrack {
+interface MusicTrack {
   id: string; title: string; theme: string; artist: string; file: string; source: string;
   provider: string; creditUrl: string; nativeMusic: string; region: string;
 }

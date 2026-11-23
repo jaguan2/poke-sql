@@ -1,6 +1,7 @@
 import type { SafariFleeLimit } from "../safari/types";
 import { PersonalizationPage } from "./PersonalizationPage";
 import ballThemes from "../../shared/pokemon/ball-themes.json" with { type: "json" };
+import { version } from "../../../package.json";
 
 interface Props {
   ballTheme: string; autocomplete: boolean; safariFleeAfter: SafariFleeLimit; saveError: boolean;
@@ -29,6 +30,11 @@ export function Settings({ ballTheme, autocomplete, safariFleeAfter, saveError, 
       <select id="safari-flee-after" value={safariFleeAfter ?? "unlimited"} aria-describedby="safari-flee-description" onChange={event => onSafariFleeAfterChange(event.target.value === "unlimited" ? null : event.target.value === "5" ? 5 : 8)}>
         <option value="unlimited">Unlimited — relaxed practice</option><option value="5">5 incorrect answers</option><option value="8">8 incorrect answers</option>
       </select><p id="safari-flee-description">Choose a limit to let Pokémon flee. Hints, SQL errors and stopped queries keep your chances. Changes apply to your next encounter; the current encounter keeps its original limit.</p>
+    </section>
+    <section className="profile-section" aria-labelledby="app-updates-title">
+      <h3 id="app-updates-title">App updates</h3><p>PokéSQL {version}</p>
+      <p>On Windows, run the newest setup over your current installation. Your profile, PC Boxes and saved SQL stay on this device.</p>
+      <p>Installed copies check automatically when a newer public release is available. Portable copies need the latest portable download.</p>
     </section>
   </PersonalizationPage>;
 }

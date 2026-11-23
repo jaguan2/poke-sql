@@ -1,12 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 import { entriesFor } from '../fixtures/pokemon-encounters';
 
 async function submit(page: Page, sql: string) {
+  await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
 }
 
 test('a correct SQL catch reveals canonical Pokédex data and restores it offline', async ({ page, context }, info) => {
@@ -63,6 +64,7 @@ test('a correct SQL catch reveals canonical Pokédex data and restores it offlin
   await expect(entry).toHaveCount(0);
   await expect(page.getByRole('group', { name: 'Azure Coast exploration map' })).toBeVisible();
   await page.getByRole('button', { name: /^My Pokédex/ }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.getByRole('article', { name: 'Lapras', exact: true })).toBeVisible();
 });
 
@@ -113,6 +115,7 @@ test('an already registered Pokémon shows a ball before the catch and keeps one
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toContainText('Worm Pokémon');
   await expect(page.locator('.safari-pass strong')).toHaveText('02');
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await expect(page.getByRole('article', { name: 'Caterpie', exact: true })).toContainText('Safari Zone');
 });

@@ -30,7 +30,7 @@ for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 118
         expect(inset).toBeLessThanOrEqual(24);
         expect(inset).toBeGreaterThanOrEqual(12);
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
-        expect(await main.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+        expect(await main.evaluate(element => element.scrollWidth <= element.clientWidth), `${destination} should fit the workspace width`).toBe(true);
       }
       expect(Math.max(...insets) - Math.min(...insets)).toBeLessThanOrEqual(1);
       await page.getByRole('button', { name: 'Schema & guide', exact: true }).click();

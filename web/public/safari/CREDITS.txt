@@ -140,3 +140,17 @@ Registered Pokédex entries
 Game artwork and lettering belong to Nintendo, Game Freak and Creatures.
 The pret archives are decompilation sources, not asset licenses from those owners.
 This is an unofficial educational fan project with no affiliation or endorsement.
+
+NATIVE REGION OVERVIEWS
+Kanto: Pokemon FireRed town-map tiles, palettes and map-section layout.
+https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics/region_map
+Johto: Pokemon Crystal Pokegear town-map tiles, palettes and landmarks.
+https://github.com/pret/pokecrystal/tree/9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482/gfx/pokegear
+Hoenn: Pokemon Emerald PokeNav region-map tiles, palette and section coordinates.
+https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/graphics/pokenav/region_map
+Rendered with scripts/build_region_overviews.py. Pinned source hashes and native
+location coordinates are recorded in region-overviews.json. Runtime assets are
+local PNGs under safari/region-maps; no ROM or network request is needed to view them.
+Original game artwork belongs to Nintendo, Game Freak and Creatures.
+
+Decorative regional trainers: native FireRed Youngster, Lass, Bug Catcher and Hiker sprites, with original object-event positions from pinned FireRed, Emerald and Crystal maps. Rebuild with py scripts/build_route_trainers.py. Four facing poses retain native pixels; these NPCs are scenery and do not initiate battles or alter collisions. Pins and per-sheet hashes: src/features/safari/route-trainers.json.

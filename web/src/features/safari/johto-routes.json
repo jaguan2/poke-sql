@@ -7,13 +7,8 @@
       10,
       9
     ],
-    "point": [
-      85,
-      77
-    ],
     "description": "Begin in New Bark Town. Route 29 leads west to Cherrygrove City.",
-    "pool": [],
-    "label": "above"
+    "pool": []
   },
   "route-29": {
     "native": "Route29",
@@ -22,10 +17,6 @@
     "entrance": [
       56,
       8
-    ],
-    "point": [
-      68,
-      77
     ],
     "description": "Sentret and Hoothoot share the grass along the path to Cherrygrove City.",
     "pool": [
@@ -64,13 +55,8 @@
       15,
       10
     ],
-    "point": [
-      51,
-      77
-    ],
     "description": "Route 30 heads north toward Violet City. Your PC is available here.",
-    "pool": [],
-    "label": "above"
+    "pool": []
   },
   "route-30": {
     "native": "Route30",
@@ -79,10 +65,6 @@
     "entrance": [
       10,
       48
-    ],
-    "point": [
-      51,
-      52
     ],
     "description": "Walk north through wooded grasslands toward Route 31.",
     "pool": [
@@ -135,10 +117,6 @@
     "entrance": [
       25,
       12
-    ],
-    "point": [
-      51,
-      26
     ],
     "description": "The western gate connects this route with Violet City.",
     "pool": [
@@ -202,10 +180,6 @@
       8,
       4
     ],
-    "point": [
-      40,
-      26
-    ],
     "description": "Pass through the gate between Route 31 and Violet City.",
     "pool": [],
     "overview": false,
@@ -219,13 +193,8 @@
       26,
       18
     ],
-    "point": [
-      30,
-      26
-    ],
     "description": "Head south along Route 32 to Union Cave. Your PC is available here.",
-    "pool": [],
-    "label": "above"
+    "pool": []
   },
   "route-32": {
     "native": "Route32",
@@ -234,10 +203,6 @@
     "entrance": [
       10,
       5
-    ],
-    "point": [
-      30,
-      49
     ],
     "description": "A long path runs south beside the water to Union Cave.",
     "pool": [
@@ -296,10 +261,6 @@
       3,
       4
     ],
-    "point": [
-      30,
-      77
-    ],
     "description": "Cross the cave to reach Route 33. Rock and Ground Pokemon appear here.",
     "pool": [
       [
@@ -332,8 +293,7 @@
         "Wooper",
         10
       ]
-    ],
-    "label": "above"
+    ]
   },
   "route-33": {
     "native": "Route33",
@@ -342,10 +302,6 @@
     "entrance": [
       11,
       9
-    ],
-    "point": [
-      20,
-      77
     ],
     "description": "The short route west leads into Azalea Town.",
     "pool": [
@@ -389,13 +345,8 @@
       15,
       10
     ],
-    "point": [
-      10,
-      77
-    ],
     "description": "Visit Slowpoke Well or head west through the gate to Ilex Forest.",
-    "pool": [],
-    "label": "above"
+    "pool": []
   },
   "slowpoke-well-b1f": {
     "native": "SlowpokeWellB1F",
@@ -404,10 +355,6 @@
     "entrance": [
       7,
       11
-    ],
-    "point": [
-      14,
-      96
     ],
     "description": "Look for Slowpoke in the walkable upper chamber. Deep water remains closed.",
     "pool": [
@@ -421,8 +368,7 @@
         "Slowpoke",
         15
       ]
-    ],
-    "label": "above"
+    ]
   },
   "ilex-south-gate": {
     "native": "IlexForestAzaleaGate",
@@ -431,10 +377,6 @@
     "entrance": [
       8,
       4
-    ],
-    "point": [
-      10,
-      67
     ],
     "description": "The passage between Azalea Town and Ilex Forest.",
     "pool": [],
@@ -448,10 +390,6 @@
     "entrance": [
       3,
       43
-    ],
-    "point": [
-      10,
-      52
     ],
     "description": "Bug Pokemon and Oddish hide beneath the trees. Encounters can occur throughout the forest floor.",
     "pool": [
@@ -515,10 +453,6 @@
       4,
       6
     ],
-    "point": [
-      10,
-      40
-    ],
     "description": "Leave the forest for Route 34 and Goldenrod City.",
     "pool": [],
     "overview": false,
@@ -531,10 +465,6 @@
     "entrance": [
       10,
       44
-    ],
-    "point": [
-      10,
-      29
     ],
     "description": "The route north to Goldenrod has Drowzee, Abra and Ditto in its grass.",
     "pool": [
@@ -588,12 +518,7 @@
       20,
       25
     ],
-    "point": [
-      10,
-      9
-    ],
     "description": "The final city in this first Johto journey. Visit your PC or choose another area.",
-    "pool": [],
-    "label": "above"
+    "pool": []
   }
 }

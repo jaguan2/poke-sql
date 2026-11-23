@@ -1,0 +1,311 @@
+{
+  "kanto": {
+    "file": "region-maps/kanto.png",
+    "game": "Pokémon FireRed",
+    "width": 192,
+    "height": 144,
+    "revision": "ce6406d8c2eaf46d543c8a2606de0c3cb1951982",
+    "sha256": "99f74dc5e85fb828c63b6fcb02d9d1e9adb1f0abc2d0bb66f665ce4d967632f2",
+    "recipeSha256": "e0a31e33ae2e384a2c75cedf9350e39d423a42fc1fded3a729a00fc6bd872ae6",
+    "pointsSha256": "28f0691ef3830512dfd305ba7397e53a46193692d2a8b3c91779b9975ee19311",
+    "sources": {
+      "graphics/region_map/region_map.png": "7c402c5461d5547191cbfefb279727964e19c6dd60d33f5b0bb052ea20545184",
+      "graphics/region_map/region_map.pal": "9151a87908033522cf4c3ae2b54cf65f77f7609c353ac73ceae402a386245bc8",
+      "graphics/region_map/kanto.bin": "c9f38c5d52099958c18efe737a45ba04ce8101b0eb349e9d2243bf8324d82b49",
+      "src/data/region_map/region_map_sections.json": "82e456cbe86a57ebc4bd0d88d6e000e83e28340895ac038079c38d415bc6de5f",
+      "src/data/region_map/region_map_layout_kanto.h": "62b8f2e60891a97cb44bb16f52c2a1fb45be5f2caff5f0db86dd36dbe3b5c194",
+      "data/maps/PalletTown/map.json": "2816338934241bac34f52dae8b101ac3add59e0ebdde3e3fb6575f3b525b01c3",
+      "data/maps/Route1/map.json": "11b1ad78ae12d7a61c35756281fd5127929f5f5155dc20022fbae147424c4869",
+      "data/maps/ViridianCity/map.json": "5ce922b65f76335556ace9a047feeb1968854b604c8469c39cbbd60985f61bc1",
+      "data/maps/Route22/map.json": "3d77705fd405402183c292d15d47d698f96cd9cdf2e4e7534c2833032b6e7951",
+      "data/maps/Route2/map.json": "2562e3736b600c95b8c0a4c2a1bb3fb062f5c50208bebc43cd4303328ccda7ea",
+      "data/maps/Route2_ViridianForest_SouthEntrance/map.json": "e00af0f21d008868ed5b9b183e38d86e8b516c0d4d632abe527b5bb96a32d655",
+      "data/maps/ViridianForest/map.json": "6d6f082604d3c220eeb2c72cb6a606403330df44c58d9ed2523cd81c53fdaba2",
+      "data/maps/Route2_ViridianForest_NorthEntrance/map.json": "8404cb80094b615571abb1332e65fa9b88f7331810b8d317b268b5f53caaf008",
+      "data/maps/PewterCity/map.json": "3ac96ddc080696a68ee46babc5db239aef29b45147614470f085f8ba72a5809d",
+      "data/maps/Route3/map.json": "7a5ca63e9f21f0a3beaab0e5970f84ebaa70f55fe9928b0105207886eb3c3815",
+      "data/maps/Route4/map.json": "5b0b84cb73ecc6597470d01d5933ca36d5e4410cdda53dddb72922689e5653ac",
+      "data/maps/MtMoon_1F/map.json": "312b2de23d9942d3326da9fe9597b25ef7c3537bcedfcafa7922d5c8b8e8d8fc",
+      "data/maps/MtMoon_B1F/map.json": "f654d2cbc3983a0e0d161f7d4505d855aa7f06f7f614cdcc116ba029e275d36d",
+      "data/maps/MtMoon_B2F/map.json": "451a05df92c5df570c121affa75c846996d3561c12e7e5d67d91814482a37ff3",
+      "data/maps/CeruleanCity/map.json": "0aac1538194aad4cbe4fd605ef025529557d6c2e6b2305b0c21784eedec31c9b"
+    },
+    "points": {
+      "pallet-town": {
+        "x": 44,
+        "y": 108
+      },
+      "route-1": {
+        "x": 44,
+        "y": 96
+      },
+      "viridian-city": {
+        "x": 44,
+        "y": 84
+      },
+      "route-22": {
+        "x": 32,
+        "y": 84
+      },
+      "route-2": {
+        "x": 44,
+        "y": 68
+      },
+      "forest-south-gate": {
+        "x": 44,
+        "y": 68
+      },
+      "viridian-forest": {
+        "x": 44,
+        "y": 68
+      },
+      "forest-north-gate": {
+        "x": 44,
+        "y": 68
+      },
+      "pewter-city": {
+        "x": 44,
+        "y": 52
+      },
+      "route-3": {
+        "x": 64,
+        "y": 52
+      },
+      "route-4": {
+        "x": 96,
+        "y": 44
+      },
+      "mt-moon-1f": {
+        "x": 84,
+        "y": 44
+      },
+      "mt-moon-b1f": {
+        "x": 84,
+        "y": 44
+      },
+      "mt-moon-b2f": {
+        "x": 84,
+        "y": 44
+      },
+      "cerulean-city": {
+        "x": 124,
+        "y": 44
+      }
+    },
+    "markers": [
+      "pallet-town",
+      "viridian-city",
+      "pewter-city",
+      "cerulean-city",
+      "viridian-forest",
+      "mt-moon-1f",
+      "route-1",
+      "route-22",
+      "route-3",
+      "route-4"
+    ]
+  },
+  "johto": {
+    "file": "region-maps/johto.png",
+    "game": "Pokémon Crystal",
+    "width": 160,
+    "height": 144,
+    "revision": "9ce4c4e5068ffdf56e23ca3d8dc9178b2465d482",
+    "sha256": "f6f264b2010b4e8e6035cb9c2670c6ef2c88fba9003b8a4c206d5494aea70057",
+    "recipeSha256": "ff213301ec11ad587a06719d2fc2743595751e5b6952913d1a1aefa7c23c4230",
+    "pointsSha256": "6ec1c0f8eccf235291754d6acbb41298c675671da53fd103f51193f12d36f2fc",
+    "sources": {
+      "gfx/pokegear/town_map.png": "5d33cbb6c1dd2e88c68d51942489ca8dc56217ffff8b8f1a7628d59f153c25fb",
+      "gfx/pokegear/pokegear.pal": "c9e7862f1d8309b12a27ccd76e33f5f13faa1aa445ed9da8fe75c0d73353e86f",
+      "gfx/pokegear/town_map_palette_map.asm": "3434dc7d4b94fc99fd009038c4492a9fac6c13391692b7642f1dd7f9e7be37c7",
+      "gfx/pokegear/johto.bin": "d32fa5c06e8cf8a38caa290f677b5d292f411bf2a4661d4826d24ba83e69d7b3",
+      "data/maps/landmarks.asm": "bf61258379901daf794555b1a8f73bcf634d50ef3ca6e067f88f599b9df9816f"
+    },
+    "points": {
+      "new-bark-town": {
+        "x": 140,
+        "y": 100
+      },
+      "route-29": {
+        "x": 128,
+        "y": 100
+      },
+      "cherrygrove-city": {
+        "x": 100,
+        "y": 100
+      },
+      "route-30": {
+        "x": 100,
+        "y": 80
+      },
+      "route-31": {
+        "x": 96,
+        "y": 60
+      },
+      "violet-gate": {
+        "x": 84,
+        "y": 60
+      },
+      "violet-city": {
+        "x": 84,
+        "y": 60
+      },
+      "route-32": {
+        "x": 84,
+        "y": 92
+      },
+      "union-cave-1f": {
+        "x": 84,
+        "y": 124
+      },
+      "route-33": {
+        "x": 82,
+        "y": 124
+      },
+      "azalea-town": {
+        "x": 68,
+        "y": 124
+      },
+      "slowpoke-well-b1f": {
+        "x": 70,
+        "y": 122
+      },
+      "ilex-south-gate": {
+        "x": 52,
+        "y": 120
+      },
+      "ilex-forest": {
+        "x": 52,
+        "y": 120
+      },
+      "ilex-north-gate": {
+        "x": 52,
+        "y": 120
+      },
+      "route-34": {
+        "x": 52,
+        "y": 112
+      },
+      "goldenrod-city": {
+        "x": 52,
+        "y": 92
+      }
+    },
+    "markers": [
+      "new-bark-town",
+      "cherrygrove-city",
+      "violet-city",
+      "azalea-town",
+      "goldenrod-city",
+      "union-cave-1f",
+      "ilex-forest",
+      "route-29",
+      "route-30",
+      "route-31",
+      "route-32",
+      "route-34"
+    ]
+  },
+  "hoenn": {
+    "file": "region-maps/hoenn.png",
+    "game": "Pokémon Emerald",
+    "width": 240,
+    "height": 160,
+    "revision": "9103e529c2fbdd7add4a1ff3350c6c1f92112c42",
+    "sha256": "ef0787893fb3e84c3ca9d037077161d513f8e33dd26bca29ba98ca00e1c25a38",
+    "recipeSha256": "fcd0df06154cb6e0c96164b279a6a887f39ddd17edcd6e050fa3722cd4044f04",
+    "pointsSha256": "18914f01768c26a784199e45357ab1d18d596b9a66839cdeebcbd8ca891d5600",
+    "sources": {
+      "graphics/pokenav/region_map/map.png": "c297c624313f1421c0ed5e4dd460b61720da00adeaac25a799dad94ce24051ab",
+      "graphics/pokenav/region_map/map.pal": "0a6136b38937c87d39e732709d854333f2c63df0dfd21880d861487d79e03686",
+      "graphics/pokenav/region_map/map.bin": "dcf3d464dad11083ece52687184c89ab069c108340ecf5540eb0f14c6d8c8096",
+      "src/data/region_map/region_map_sections.json": "3a5f8c07c85c17f05cec06d049305962e9a9a1d2bd6eae935f3887866a4ad491",
+      "data/maps/LittlerootTown/map.json": "5bdd4157ca532864c0ba4bc8d0246e4b9e55c82e52b4d373d58270836ae9330f",
+      "data/maps/Route101/map.json": "d66cd8eeed6b6f164ed28060de85262476e016b668a6d9b26cf434efdb1d69f9",
+      "data/maps/OldaleTown/map.json": "8521b74ceafe0a85c637205db2e9afb04746bfb1f7531ab8e71147e767e95996",
+      "data/maps/Route103/map.json": "bd478d1cb62d54fe14f1f8d0c41e5809b208e953fba097afd2b9f1629e5d653c",
+      "data/maps/Route102/map.json": "b5dee9994c80f4983c997121d05fe408141e97a022915d3c867a541514348f50",
+      "data/maps/PetalburgCity/map.json": "0018ee193173c55b295f46a11a82dad9db0f37e7717a18261efc587c71d7d20e",
+      "data/maps/Route104/map.json": "a508508e63e83ad350d6dec54ce5ddba8305e51215f477bb035d21a532994d9a",
+      "data/maps/PetalburgWoods/map.json": "31038be29e39c493a1e3cdf74a7cccaae7f9d024e55112973528813b5d24b45a",
+      "data/maps/RustboroCity/map.json": "72db80f88de45b45dec9d2e589510ebe716e32c6470852d6a9993aa0b3fc2186",
+      "data/maps/Route116/map.json": "1b5dfe9feb2f098cd73e272510b89896c71ddecefe38e575cca71818531715f6",
+      "data/maps/RusturfTunnel/map.json": "ade833d8a4f0809628ab2f1ab4f17506880fb6fc27ce3dda5fb1524aea366d37",
+      "data/maps/VerdanturfTown/map.json": "d6c989eb9341629f0f50efbd5741bd6918e4a75bca524070b2836cf54d6d39d3",
+      "data/maps/Route117/map.json": "17ac8608077d307cd12fd59eead5362021d92a8642cad9d3c17a72636ae3815d",
+      "data/maps/MauvilleCity/map.json": "086e31cb9a0f80ca10c58faf92738f1746581a0943632e976cf48fa392104eca"
+    },
+    "points": {
+      "littleroot-town": {
+        "x": 44,
+        "y": 108
+      },
+      "route-101": {
+        "x": 44,
+        "y": 100
+      },
+      "oldale-town": {
+        "x": 44,
+        "y": 92
+      },
+      "route-103": {
+        "x": 56,
+        "y": 84
+      },
+      "route-102": {
+        "x": 32,
+        "y": 92
+      },
+      "petalburg-city": {
+        "x": 20,
+        "y": 92
+      },
+      "route-104": {
+        "x": 12,
+        "y": 84
+      },
+      "petalburg-woods": {
+        "x": 12,
+        "y": 84
+      },
+      "rustboro-city": {
+        "x": 12,
+        "y": 64
+      },
+      "route-116": {
+        "x": 32,
+        "y": 60
+      },
+      "rusturf-tunnel": {
+        "x": 28,
+        "y": 60
+      },
+      "verdanturf-town": {
+        "x": 44,
+        "y": 68
+      },
+      "route-117": {
+        "x": 60,
+        "y": 68
+      },
+      "mauville-city": {
+        "x": 80,
+        "y": 68
+      }
+    },
+    "markers": [
+      "littleroot-town",
+      "oldale-town",
+      "petalburg-city",
+      "rustboro-city",
+      "verdanturf-town",
+      "mauville-city",
+      "petalburg-woods",
+      "rusturf-tunnel",
+      "route-101",
+      "route-103",
+      "route-102",
+      "route-117"
+    ]
+  }
+}

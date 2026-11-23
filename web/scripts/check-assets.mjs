@@ -1,3 +1,4 @@
+import bagItems from '../src/features/safari/bag-items.json' with { type: 'json' };
 import { readFile, readdir } from 'node:fs/promises';
 import safariMaps from '../src/features/safari/maps.json' with { type: 'json' };
 import safariRoutes from '../src/features/safari/routes.json' with { type: 'json' };
@@ -10,6 +11,8 @@ import hoennManifest from '../src/features/safari/hoenn-assets.json' with { type
 import johtoMaps from '../src/features/safari/johto-maps.json' with { type: 'json' };
 import johtoRoutes from '../src/features/safari/johto-routes.json' with { type: 'json' };
 import johtoManifest from '../src/features/safari/johto-assets.json' with { type: 'json' };
+import regionOverviews from '../src/features/safari/region-overviews.json' with { type: 'json' };
+import routeTrainers from '../src/features/safari/route-trainers.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
 import ballThemes from '../src/shared/pokemon/ball-themes.json' with { type: 'json' };
 import shinyIds from '../src/shared/pokemon/shiny-sprites.json' with { type: 'json' };
@@ -33,7 +36,14 @@ if (Object.keys(pokedex.entries).length !== ids.length || species.some(([id, cat
 })) throw new Error('Pokédex descriptions must cover every bundled species. Run py scripts/build_pokedex_entries.py from the repository root.');
 console.log(`Verified ${ids.length} bundled English Pokédex descriptions.`);
 const missing = [];
-const sprites = [...ids.map(id => `${id}.png`), ...ballThemes.map(theme => `items/${theme.id}.png`)];
+// This JSON is shared with typed gameplay code; reject invalid IDs at build time.
+const bagIds = ['repel', 'super-repel', 'max-repel', 'shiny-charm'];
+if (bagItems.length !== bagIds.length || bagIds.some(id => bagItems.filter(item => item.id === id).length !== 1)
+  || bagItems.some(item => !['items', 'key-items'].includes(item.pocket) || !Number.isInteger(item.steps) || item.steps < 0
+    || !Number.isInteger(item.starter) || item.starter < 0 || !Number.isInteger(item.rewardEvery) || item.rewardEvery < 0)) {
+  throw new Error('Invalid Bag manifest. Keep bag-items.json aligned with bag-model.ts and the bundled item sprites.');
+}
+const sprites = [...ids.map(id => `${id}.png`), ...ballThemes.map(theme => `items/${theme.id}.png`), ...bagItems.map(item => `items/${item.id}.png`)];
 const spriteDigest = createHash('sha256');
 for (const sprite of sprites) {
   let data;
@@ -77,7 +87,7 @@ for (const trainer of Object.values(trainers)) {
     if (pose === 'battle' && [sheet.idleFrame, ...sheet.throwFrames].some(frame => !Number.isInteger(frame) || frame < 0 || frame >= sheet.columns * sheet.rows)) throw new Error(`Invalid battle poses in ${file}. Check shared/trainer/profiles.json.`);
   }
 }
-console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length} bundled item sprites.`);
+console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length + bagItems.length} bundled item sprites.`);
 const regionalTracks = [...kantoTracks, ...hoennTracks, ...johtoTracks];
 const musicFiles = (await readdir(new URL('../public/music/', import.meta.url), { recursive: true }))
   .filter(file => file.endsWith('.mp3')).map(file => file.replaceAll('\\', '/')).sort();
@@ -122,3 +132,31 @@ for (const [id, recipe] of Object.entries(routes)) {
 console.log(`Verified ${manifest.assets.length} bundled ${name} maps.`);
 }
 await Promise.all([verifyRegion('kanto', kantoRoutes, kantoMaps, kantoManifest), verifyRegion('hoenn', hoennRoutes, hoennMaps, hoennManifest), verifyRegion('johto', johtoRoutes, johtoMaps, johtoManifest)]);
+for (const [region, routes] of Object.entries({ kanto: kantoRoutes, johto: johtoRoutes, hoenn: hoennRoutes })) {
+  const atlas = regionOverviews[region];
+  const data = await readFile(new URL(`../public/safari/${atlas.file}`, import.meta.url));
+  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+  if (digest(routes) !== atlas.recipeSha256 || digest(atlas.points) !== atlas.pointsSha256
+    || createHash('sha256').update(data).digest('hex') !== atlas.sha256
+    || data.readUInt32BE(16) !== atlas.width || data.readUInt32BE(20) !== atlas.height
+    || Object.keys(routes).length !== Object.keys(atlas.points).length
+    || Object.keys(routes).some(id => !atlas.points[id] || atlas.points[id].x < 0 || atlas.points[id].x >= atlas.width || atlas.points[id].y < 0 || atlas.points[id].y >= atlas.height)
+    || atlas.markers.some(id => !routes[id])) {
+    throw new Error(`Native ${region} town map is stale. Run py scripts/build_region_overviews.py from the repository root.`);
+  }
+}
+console.log('Verified three native town maps and all regional location anchors.');
+const regionalLayouts = { ...kantoMaps, ...hoennMaps, ...johtoMaps };
+if (Object.keys(routeTrainers.locations).length !== Object.keys(regionalLayouts).length) throw new Error('Rebuild route trainers for all regional maps.');
+for (const [id, layout] of Object.entries(regionalLayouts)) {
+  const trainers = routeTrainers.locations[id];
+  if (!trainers || new Set(trainers.map(npc => `${npc.x},${npc.y}`)).size !== trainers.length || trainers.some(npc =>
+    !Number.isInteger(npc.x) || !Number.isInteger(npc.y) || !routeTrainers.sprites[npc.kind]
+    || !['up', 'down', 'left', 'right'].includes(npc.facing) || !'.gS'.includes(layout.rows[npc.y]?.[npc.x] ?? '!')
+    || layout.portals.some(p => Math.abs(p.x - npc.x) <= 1 && Math.abs(p.y - npc.y) <= 1))) throw new Error(`Invalid route trainers in ${id}. Run py scripts/build_route_trainers.py.`);
+}
+for (const sprite of Object.values(routeTrainers.sprites)) {
+  const data = await readFile(new URL(`../public/safari/${sprite.file}`, import.meta.url));
+  if (data.readUInt32BE(16) !== 64 || data.readUInt32BE(20) !== 32 || createHash('sha256').update(data).digest('hex') !== sprite.sha256) throw new Error(`Invalid decorative trainer sheet ${sprite.file}.`);
+}
+console.log(`Verified ${Object.keys(routeTrainers.sprites).length} decorative trainer sheets and regional object positions.`);

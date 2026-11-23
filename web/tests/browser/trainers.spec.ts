@@ -1,9 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 async function safari(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
 }
 
 test('trainer choices update walking and mystery scenes, save offline and preserve the expedition', async ({ page, context }, info) => {
@@ -88,7 +89,7 @@ for (const [id, width, windup, release, idle, handY] of trainerCases) {
     await safari(page);
     await page.clock.install({ time: new Date('2026-11-18T12:00:00Z') });
     await page.clock.pauseAt(new Date('2026-11-18T12:00:01Z'));
-    await page.getByRole('button', { name: /Check query & catch/ }).click();
+    await page.getByRole('button', { name: /Catch Pokémon/ }).click();
     await expect(page.locator('.safari-encounter.is-catching')).toBeVisible();
     const scene = page.locator('.safari-battle-scene');
     const trainer = scene.locator('.encounter-trainer');

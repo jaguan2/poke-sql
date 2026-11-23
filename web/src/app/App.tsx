@@ -1,3 +1,5 @@
+import { Bag } from "../features/safari/Bag";
+import "../shared/ui/GameWindows.css";
 import { QueryResults } from "../shared/ui/QueryResults";
 import { Sidebar } from "./components/Sidebar";
 import { SqlEditor } from "./components/SqlEditor";
@@ -22,8 +24,8 @@ import "../features/profiles/themes.css";
 
 export default function App() {
   const {
-    ready, loadError, selection, isMystery, challenge, practice, pc, showPc,
-    query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, achievementCatalog, encounterSaveError, encountersRecovered,
+    ready, loadError, selection, isMystery, challenge, practice, pc, showPc, showBag,
+    query, draftKey, drafts, editorSchema, showWorkspace, activeNavigation, catalogKind, catalogFilters, libraryView, completedCount, challengeCount, showPokedex, showSafari, showProfiles, showSettings, pokedexView, safari, encounters, seenIds, seenSaveError, achievementCatalog, encounterSaveError, encountersRecovered,
     datasetUpdateAvailable, busy, notice, storageError, offlineStatus, ballTheme, trainer, trainerName, trainerIdentity, profileProgress, autocomplete, safariFleeAfter,
     profileSaveError, mysteryRound, mysteryMode, dailyMysteryRound, today, completed, history,
     saved, runState, actions,
@@ -80,13 +82,14 @@ export default function App() {
         : catalogKind ? <PracticeCatalog kind={catalogKind} filters={catalogFilters[catalogKind]} completed={completed} drafts={drafts} busy={busy} onFiltersChange={filters => actions.setCatalogFilters(catalogKind, filters)} onSelect={catalogKind === "samples" ? actions.selectSample : actions.selectChallenge} onFreePractice={() => actions.navigate("workspace")} />
         : libraryView ? <WorkspaceLibrary view={libraryView} schema={editorSchema} history={history} saved={saved} busy={busy} schemaTitle={isMystery ? "Mystery schema" : challenge ? "Challenge schema" : "Schema"}
           onPreviewSql={actions.previewSql} onGuideSql={actions.loadGuideSql} onLoadSql={actions.loadSql} onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
+        : showBag ? <Bag session={safari.session} canUse={safari.phase === "roaming" && !busy} saveError={safari.saveError} onUse={safari.actions.useItem} onClose={actions.openSafari} />
         : showPc ? <PCBoxes collection={pc.collection} error={pc.error} pendingCount={pc.pendingCount} busy={pc.busy} onCommand={pc.command} onRetry={pc.retry} onSafari={actions.openSafari} onProfile={actions.openProfiles} />
         : showSafari ? <SafariZone session={safari.session} phase={safari.phase} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer} musicLink={areaMusic && <a href="#game-music">♫ Music</a>} onRegion={safari.actions.changeRegion}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone}
-          onPreview={safari.actions.runDraft} onSubmit={safari.actions.submit} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
+          onBag={() => actions.navigate("bag")} onPreview={safari.actions.preview} onSubmit={safari.actions.submit} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
           editor={controls => <SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
-            onChange={safari.actions.editDraft} onRun={safari.actions.runDraft} busy={busy} autocomplete={autocomplete} actions={controls} />} />
-        : showPokedex ? <PersonalPokedex activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
+            onChange={safari.actions.editDraft} onRun={safari.actions.submit} busy={busy} autocomplete={autocomplete} autoFocus actions={controls} />} />
+        : showPokedex ? <PersonalPokedex seenIds={seenIds} ownedIds={pc.collection?.captures.map(capture => capture.pokemon.id) ?? []} activeView={pokedexView} onViewChange={actions.setPokedexView} encounters={encounters} catalog={achievementCatalog} saveError={encounterSaveError || seenSaveError} recovered={encountersRecovered} onSafari={actions.openSafari} onDaily={actions.openDailyMystery} onRandom={actions.openRandomMystery} /> : <>
         {datasetUpdateAvailable && !isMystery && !challenge && <div className="notice dataset-update" role="status">
           <strong>New Pokédex fields and forms are available.</strong> Your saved practice database is an older version. Reset DB loads the update and replaces practice database edits. Your SQL drafts, saved queries, and progress stay saved.
           <button className="btn" disabled={busy} onClick={() => void actions.reset()}>Reset DB and load update</button>

@@ -1,3 +1,4 @@
+import bagItems from '../web/src/features/safari/bag-items.json' with { type: 'json' };
 // Downloads database species, Safari shiny variants, and item sprites.
 import { createRequire } from 'node:module';
 import { readFile, mkdir, writeFile, rename, rm } from 'node:fs/promises';
@@ -15,6 +16,7 @@ await mkdir(new URL('shiny/', directory), { recursive: true });
 const sprites = [
   ...ids.map(id => ({ local: `${id}.png`, source: `pokemon/${id}.png` })),
   ...shinyIds.map(id => ({ local: `shiny/${id}.png`, source: `pokemon/shiny/${id}.png` })),
+  ...bagItems.map(item => ({ local: `items/${item.id}.png`, source: `items/${item.id}.png` })),
   ...ballThemes.map(theme => ({ local: `items/${theme.id}.png`, source: `items/${theme.id}.png` })),
 ];
 const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
@@ -44,4 +46,4 @@ await Promise.all(Array.from({ length: 12 }, async () => {
     }
   }
 }));
-console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length} item sprites; downloaded ${downloaded}.`);
+console.log(`Verified ${ids.length} species, ${shinyIds.length} shinies, and ${ballThemes.length + bagItems.length} item sprites; downloaded ${downloaded}.`);

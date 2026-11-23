@@ -22,14 +22,14 @@ small-installer size and the packaged GitHub update configuration. The public
 renderer remains sandboxed and local-only. Tests use separate profiles and
 updater caches under `web/test-results`; they never execute downloaded updates.
 
-The outputs for 0.2.0 are:
+The outputs for 0.2.6 are:
 
 | File | Purpose |
 | --- | --- |
-| `web/release/nsis-web/PokeSQL-0.2.0-setup.exe` | Small first-time installer |
-| `web/release/nsis-web/poke-sql-web-0.2.0-x64.nsis.7z` | Downloaded application payload |
+| `web/release/nsis-web/PokeSQL-0.2.6-setup.exe` | Small first-time installer |
+| `web/release/nsis-web/poke-sql-web-0.2.6-x64.nsis.7z` | Downloaded application payload |
 | `web/release/nsis-web/latest.yml` | Stable update feed with checksums |
-| `web/release/PokeSQL-0.2.0-portable.exe` | Complete offline/manual-update build |
+| `web/release/PokeSQL-0.2.6-portable.exe` | Complete offline/manual-update build |
 
 The installer URL targets that exact version's release. Before publication, run
 it beside the matching payload to install without a remote download. A local
@@ -40,14 +40,14 @@ EXE is an installer, and the installed app performs subsequent update checks.
 ## Publish a version
 
 1. Run `npm.cmd version <new-version> --no-git-tag-version` from `web/` to update
-   both package files. The prepared first version is already `0.2.0`.
+   both package files. The prepared local version is `0.2.6`.
 2. Commit the reviewed source, workflow and lockfile changes. Keep generated
    binaries out of the commit. Push the source normally.
 3. Tag that commit and push the tag, for example:
 
    ```powershell
-   git tag v0.2.0
-   git push origin v0.2.0
+   git tag v0.2.6
+   git push origin v0.2.6
    ```
 
 4. The **Windows build and draft release** workflow runs the production
@@ -95,3 +95,28 @@ oversized EXE and adding ignore rules. The original commit is retained locally
 at `refs/backups/before-release-exe-cleanup-20261118`. Source changes and the
 local EXE were hash-checked before/after the amendment. Published history was
 unchanged, and a normal push dry run succeeded. No force push is needed.
+
+## Updating existing 0.2.0 downloads
+
+1. Close PokéSQL and run the 0.2.6 setup. For a local build, keep the matching
+   0.2.6 `.nsis.7z` payload beside the small installer. Use the installed shortcut
+   afterward. The application ID, origin and profile directory stay the same.
+2. For a portable copy, replace the portable application with the newer portable
+   build. Keep its profile location intact. Do not copy application files into
+   the saved-data directory.
+3. Publish reviewed `v0.2.6` release assets and `latest.yml` for automatic updates
+   from installed copies. Draft releases and uncommitted source changes do not
+   reach installed users. Versions must increase; repeated 0.2.0 builds cannot
+   trigger an automatic 0.2.0-to-0.2.0 update.
+
+The local 0.2.6 build does not publish a release. At verification time the public
+latest-release endpoint returned 404, so there is no publicly readable update
+release to deliver automatically. If the source repository is private, host
+release assets in an accessible distribution repository and configure the feed
+there; do not ship a GitHub access token inside the application.
+
+The isolated `tests/desktop/upgrade-profile.spec.ts` can launch an older binary
+and the new package against the same disposable profile. Set
+`POKESQL_PREVIOUS_EXECUTABLE` and `POKESQL_EXECUTABLE` to test real binary-version
+upgrades, including SQL snapshots/drafts, PC captures, extra imported fields
+and featured Pokémon. This never targets the live user profile.

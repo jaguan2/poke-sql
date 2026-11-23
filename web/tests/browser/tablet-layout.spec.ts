@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 test.use({ isMobile: true, hasTouch: true });
 
@@ -39,8 +39,9 @@ test('tablet touch controls accept a SQL catch and retain the native game screen
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).tap();
   await page.getByRole('button', { name: 'Hide menu', exact: true }).tap();
+  await openSafariQuery(page);
   await page.locator('.cm-content').fill("SELECT id, name, type1, type2 FROM pokedex WHERE name = 'Caterpie';");
-  const catchButton = page.getByRole('button', { name: /Check query & catch/ });
+  const catchButton = page.getByRole('button', { name: /Catch Pokémon/ });
   expect((await catchButton.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await catchButton.tap();
   await expect(page.getByRole('article', { name: 'Caterpie Pokédex entry', exact: true })).toBeVisible();

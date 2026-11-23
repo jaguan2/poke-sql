@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 async function prepare(page: Page, date: string, roll = 0.999) {
   await page.clock.setFixedTime(`${date}T12:00:00Z`);
@@ -31,7 +31,8 @@ test('the event board and encounter table lead to a Mythical catch that survives
   await mythicalEvent.getByRole('button', { name: 'Explore Verdant Forest' }).click();
   await expect(page.locator('.safari-events')).not.toHaveAttribute('open', '');
   await page.keyboard.press('a');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   await expect(page.getByRole('img', { name: 'Wild Celebi', exact: true })).toBeVisible();
   await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
   await page.clock.setFixedTime('2026-01-08T12:00:00Z');
@@ -39,10 +40,11 @@ test('the event board and encounter table lead to a Mythical catch that survives
   await page.reload();
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await expect(page.getByRole('img', { name: 'Wild Celebi', exact: true })).toBeVisible();
+  await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('SELECT id, name, type1, type2 FROM pokedex WHERE id=251;');
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('article', { name: 'Celebi Pokédex entry', exact: true })).toContainText('Time Travel Pokémon');
   await page.locator('.safari-catch-summary').screenshot({ path: info.outputPath('celebi-registered.png'), animations: 'disabled' });
 });
@@ -87,11 +89,12 @@ test('a caught Legendary rests in both the event panel and encounter table', asy
   await page.getByRole('heading', { name: /Safari Zone/ }).click();
   await page.keyboard.press('a');
   await expect(page.getByRole('img', { name: 'Wild Virizion', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('SELECT id, name, type1, type2 FROM pokedex WHERE id=640;');
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByRole('article', { name: 'Virizion Pokédex entry', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(page.getByRole('row', { name: 'Virizion: registered', exact: true })).toContainText('Resting');

@@ -156,6 +156,9 @@ test('all Safari assignments grade against canonical rows, preserve NULLs/order,
         expect(reply.passed).toBe(true);
         expect(reply.safariPokemon.name).toBe(species.name);
         expect(reply.results[0].values.length).toBeGreaterThan(0);
+        const byName = checkSafariQuery(db, `SELECT * FROM pokedex WHERE name = '${species.name.replaceAll("'", "''")}';`, species.id, assignment);
+        expect(byName.passed).toBe(true);
+        expect(byName.safariPokemon.name).toBe(species.name);
       }
     }
     expect(checkSafariQuery(db, "SELECT 10, 'Caterpie', 'bug', NULL", 10, 'field-notes').passed).toBe(true);
@@ -165,6 +168,9 @@ test('all Safari assignments grade against canonical rows, preserve NULLs/order,
     expect(checkSafariQuery(db, "SELECT 10, 'Caterpie', 'bug', 'NULL'", 10, 'field-notes').passed).toBe(false);
     expect(checkSafariQuery(db, 'SELECT name, id, type1, type2 FROM pokedex WHERE id=10', 10, 'field-notes').passed).toBe(false);
     expect(checkSafariQuery(db, 'SELECT id, name, type1, type2 FROM pokedex WHERE id=13', 10, 'field-notes').passed).toBe(false);
+    expect(checkSafariQuery(db, "SELECT * FROM pokedex WHERE name = 'Weedle';", 10, 'field-notes').passed).toBe(false);
+    expect(checkSafariQuery(db, 'SELECT * FROM pokedex;', 10, 'field-notes').passed).toBe(false);
+    expect(checkSafariQuery(db, 'SELECT * FROM pokedex WHERE id=10 UNION ALL SELECT * FROM pokedex WHERE id=10;', 10, 'field-notes').passed).toBe(false);
     expect(() => checkSafariQuery(db, 'DELETE FROM pokemon', 10, 'field-notes')).toThrow(/one SELECT/);
     expect(() => checkSafariQuery(db, 'SELECT 1; SELECT 2;', 10, 'field-notes')).toThrow(/one SELECT/);
     expect(() => checkSafariQuery(db, 'WITH x AS (SELECT 1) DELETE FROM pokemon', 10, 'field-notes')).toThrow();
@@ -177,6 +183,8 @@ test('Ember Foothills tracking clues identify one species and the ranger survey 
   const db = new SQL.Database(readFileSync('public/pokemon.sqlite'));
   try {
     const zone = zoneById('volcano');
+    expect(checkSafariQuery(db, 'SELECT * FROM pokedex WHERE id=58;', 58, 'tracking').passed).toBe(false);
+    expect(checkSafariQuery(db, 'SELECT * FROM pokedex WHERE id=324;', 324, 'ranger-survey').passed).toBe(false);
     const { rows, totalWeight } = encounterTable(zone, 'clear');
     let firstWeight = 0;
     for (const { pokemon, weight } of rows) {

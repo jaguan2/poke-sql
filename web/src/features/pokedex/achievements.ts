@@ -1,4 +1,5 @@
 import type { Database } from "sql.js";
+import { readPokemonCatalog } from "../../shared/sql/pokemon-profiles";
 import type { PokemonEncounter } from "./encounters";
 import type { AchievementCatalog } from "./types";
 
@@ -23,6 +24,7 @@ export function readAchievementCatalog(db: Database): AchievementCatalog {
     GROUP BY t.id, t.name ORDER BY t.name`)[0].values;
   return {
     speciesCount: Number(db.exec('SELECT COUNT(*) FROM pokemon')[0].values[0][0]),
+    pokemon: readPokemonCatalog(db),
     generations: generations.map(row => ({ id: Number(row[0]), name: String(row[1]), region: String(row[2]), total: Number(row[3]) })),
     types: types.map(row => ({ name: String(row[0]), total: Number(row[1]) })),
   };

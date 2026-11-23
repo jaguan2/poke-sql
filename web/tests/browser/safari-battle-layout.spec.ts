@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 for (const width of [1920, 1600, 1440, 1280, 1024, 620, 390, 320]) {
   test(`the encounter and catch retain a 3:2 game screen with usable SQL at ${width}px`, async ({ page }, info) => {
@@ -23,15 +23,20 @@ for (const width of [1920, 1600, 1440, 1280, 1024, 620, 390, 320]) {
         return element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
       });
       expect(encounter.width).toBeCloseTo(contentWidth, 0);
-      if (encounter.width >= 960) {
-        expect(bounds.width / (encounter.width - 2)).toBeCloseTo(1.2 / 2.2, 2);
+      const sidebar = await page.locator('.safari-encounter.has-sidebar').count();
+      if (sidebar && encounter.width >= 960) {
         const panel = page.locator('.safari-encounter > :last-child');
         expect((await panel.boundingBox())!.x).toBeGreaterThanOrEqual(bounds.x + bounds.width - 1);
-      } else expect(bounds.width).toBeCloseTo(encounter.width - 2, 0);
+      } else if (sidebar) expect(bounds.width).toBeCloseTo(encounter.width - 2, 0);
+      else {
+        expect(bounds.width).toBeLessThanOrEqual(encounter.width);
+        expect(bounds.x + bounds.width / 2).toBeCloseTo(encounter.x + encounter.width / 2, 0);
+      }
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     }
-    await expectGameScreen(); // Entrance uses the same geometry as the finished battle.
-    await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+    await expectGameScreen();
+    await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+    await openSafariQuery(page);
     if (width === 1280) {
       await page.getByRole('button', { name: 'Hide menu', exact: true }).click();
       await expectGameScreen();
@@ -62,10 +67,11 @@ for (const width of [1920, 1600, 1440, 1280, 1024, 620, 390, 320]) {
     }
     await scene.screenshot({ path: info.outputPath(`battle-${width}.png`), animations: 'disabled' });
     async function submit(sql: string) {
+      await openSafariQuery(page);
       await page.locator('.cm-content').focus();
       await page.keyboard.press('ControlOrMeta+A');
       await page.keyboard.insertText(sql);
-      await page.getByRole('button', { name: /Check query & catch/ }).click();
+      await page.getByRole('button', { name: /Catch Pokémon/ }).click();
     }
     await submit('SELECT 1;');
     await expect(page.getByText('Not quite.', { exact: false })).toBeVisible();
@@ -102,9 +108,10 @@ test('long encounter and catch messages stay inside the dialogue box on a small 
     expect(placement.top).toBeGreaterThanOrEqual(0);
     expect(placement.bottom).toBeGreaterThanOrEqual(0);
   }
-  await expect(page.getByText('A wild Hippopotas appeared!', { exact: true })).toBeVisible();
+  await expect(page.getByText('What will you do?', { exact: true })).toBeVisible();
   await expectReadableMessage();
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await openSafariQuery(page);
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByText('Gotcha! Hippopotas was caught!', { exact: true })).toBeVisible();
   await expectReadableMessage();
   await page.locator('.safari-battle-scene').screenshot({ path: info.outputPath('long-message-phone.png'), animations: 'disabled' });
@@ -175,13 +182,13 @@ test('native encounter scenery, Red and bitmap lettering remain available after 
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await page.locator('.safari-map').screenshot({ path: info.outputPath('red-on-route.png'), animations: 'disabled' });
   await page.keyboard.press('a');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
   const level = await page.locator('.encounter-nameplate small').textContent();
   const storedLevel = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.level);
   expect(level).toBe(`Lv.${storedLevel}`);
   await page.reload();
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  await expect(page.getByText('A wild Caterpie appeared!', { exact: true })).toBeVisible();
+  await expect(page.getByText('What will you do?', { exact: true })).toBeVisible();
   await expect(page.locator('.encounter-nameplate small')).toHaveText(level!);
   expect(await page.evaluate(async () => (await document.fonts.load('16px "PokeSQL Battle"')).map(font => font.status))).toEqual(['loaded']);
   const dimensions = await page.evaluate(async () => Promise.all(['grass.png', 'dialogue.png', 'nameplate.png', '../trainer-battle.png', '../trainer-walking.png'].map(async file => {

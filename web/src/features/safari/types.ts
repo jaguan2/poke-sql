@@ -1,3 +1,4 @@
+import type { BagState } from "./bag-model";
 import type { PokemonProfile } from "../../shared/pokemon/profile";
 import type { Direction, Position, ZoneId } from "./zones";
 import type { QueryResult } from "../../shared/sql/types";
@@ -17,6 +18,7 @@ export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
   steps: number; grassSteps: number; catches: number; encounter: SafariEncounter | null;
   draft: string; lastCatch: SafariCatch | null;
+  bag?: BagState; // Additive inventory; old expeditions receive starter supplies.
   visited?: ZoneId[]; // Additive save field; older Safari expeditions stay at their original habitat.
   regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction }>>;
 }

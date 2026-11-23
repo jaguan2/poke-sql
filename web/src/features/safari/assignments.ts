@@ -24,7 +24,10 @@ export function safariAssignment(id: AssignmentId, pokemon: { id: number; name: 
   };
   const assignment = assignments[id];
   if (!assignment) throw new Error("This Safari assignment could not be restored. Return to the trail and try again.");
-  return assignment;
+  return { ...assignment,
+    prompt: `Catch ${pokemon.name} by returning its full Pokédex entry with an exact name filter. Optional task: ${assignment.prompt}`,
+    hint: `Put the name in single quotes: WHERE name = '${pokemon.name.replace(/'/g, "''")}'. ${assignment.hint}`,
+  };
 }
 
 export function checkSafariQuery(db: Database, sql: string, pokemonId: number, assignmentId: AssignmentId) {
@@ -38,8 +41,11 @@ export function checkSafariQuery(db: Database, sql: string, pokemonId: number, a
   const expected = assignmentId === "tracking"
     ? [{ columns: ["id"], values: [[pokemon.id]], truncated: false }]
     : runStatements(db, assignment.sql, true);
-  const passed = matchesResults(results, expected, true);
-  const actual = results[0], target = expected[0];
+  const fullEntry = isFieldAssignment(assignmentId) ? undefined
+    : runStatements(db, `SELECT * FROM pokedex WHERE id = ${pokemon.id};`, true);
+  const passed = matchesResults(results, expected, true) || (fullEntry !== undefined && matchesResults(results, fullEntry, true));
+  const actual = results[0];
+  const target = fullEntry && actual?.columns.length === fullEntry[0].columns.length ? fullEntry[0] : expected[0];
   const safariFeedback = passed ? undefined : !actual || actual.columns.length !== target.columns.length
     ? `Return exactly ${target.columns.length} columns in the requested order.`
     : actual.values.length !== target.values.length ? `Return ${target.values.length} ${target.values.length === 1 ? "row" : "rows"}; your query returned ${actual.values.length}${actual.truncated ? "+" : ""}. Check your filters and joins.`

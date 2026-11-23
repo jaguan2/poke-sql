@@ -169,9 +169,7 @@ body,
   overflow: auto;
   min-width: 0;
   background: var(--panel);
-  border: 1px solid var(--shell-dark);
-  border-radius: 20px;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--shell-dark) 30%, transparent);
+
 }
 
 /* ---------- sidebar ---------- */
@@ -179,10 +177,7 @@ body,
 .sidebar {
   overflow-y: auto;
   background: var(--panel);
-  border: 1px solid var(--shell-dark);
-  border-radius: 20px;
-  padding: 12px;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--shell-dark) 30%, transparent);
+  padding: 10px;
 }
 
 .sample-btn {
@@ -397,6 +392,7 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .editor-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 0 16px; padding: 8px 0 12px; }
 .editor-history { display: flex; gap: 8px; }
 .editor-actions .btn { min-height: 44px; }
+.editor-actions > .btn { margin-inline-start: auto; }
 .editor-history .btn { display: inline-flex; align-items: center; gap: 6px; }
 .editor-history .btn span { font-size: 21px; line-height: 1; }
 .practice-panel { padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--border); max-height: 32vh; overflow: auto; flex-shrink: 0; }

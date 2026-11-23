@@ -1,7 +1,7 @@
 import { test, expect, _electron as electron } from '@playwright/test';
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { nearSafariGrass } from '../fixtures/safari';
+import { nearSafariGrass, openSafariQuery } from '../fixtures/safari';
 
 test('desktop Safari fleeing persists its limit and outcome without registering a catch', async ({}, info) => {
   const data = info.outputPath('profile');
@@ -21,13 +21,14 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.keyboard.press('a');
-    await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+    await openSafariQuery(page);
+    await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
     await expect(page.getByRole('progressbar', { name: 'Catch chances remaining' })).toHaveAttribute('value', '5');
     for (let attempt = 1; attempt <= 5; attempt++) {
       await page.locator('.cm-content').focus();
       await page.keyboard.press('ControlOrMeta+A');
       await page.keyboard.insertText('SELECT 1;');
-      await page.getByRole('button', { name: /Check query & catch/ }).click();
+      await page.getByRole('button', { name: /Catch Pokémon/ }).click();
       if (attempt < 5) await expect(page.getByRole('progressbar', { name: 'Catch chances remaining' })).toHaveAttribute('value', String(5 - attempt));
     }
     await expect(page.locator('.safari-fled-summary')).toContainText('After 5 incorrect answers');
@@ -38,13 +39,15 @@ test('desktop Safari fleeing persists its limit and outcome without registering 
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await expect(page.locator('.safari-fled-summary')).toContainText('After 5 incorrect answers');
-    await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toHaveCount(0);
     await page.getByText('Review a solution', { exact: true }).click();
     await expect(page.locator('.safari-fled-summary pre').last()).toContainText('FROM pokedex');
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '0');
     await page.getByRole('button', { name: /^My Pokédex/ }).click();
-    await expect(page.getByRole('heading', { name: 'No Pokémon registered' })).toBeVisible();
+    await page.getByLabel('Status', { exact: true }).selectOption('owned');
+    await expect(page.locator('.pokedex-slot.is-owned')).toHaveCount(0);
+    await expect(page.getByText('No Pokémon owned yet', { exact: true })).toBeVisible();
   } finally {
     try { await app?.close(); }
     finally {

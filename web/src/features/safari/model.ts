@@ -1,3 +1,5 @@
+import { createBag, isBagState, shinyOdds } from "./bag-model";
+export { SHINY_ODDS } from "./bag-model";
 import { isPokemonProfile } from "../../shared/pokemon/profile";
 import { encounterLevel, isEncounterLevel } from "../../shared/pokemon/encounter-level";
 import { hasShinySprite } from "../../shared/pokemon/sprites";
@@ -6,10 +8,13 @@ import { EXPLORATION_LOCATIONS, chooseSpecies, isWalkable, isZoneId, movePositio
 import { isRegionLocation, isRegionId, regionTravel, regionFor, regionById } from "./regions";
 import type { RegionId } from "./regions";
 import type { Direction, Position, WeatherId, ZoneId } from "./zones";
-import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariSession } from "./types";
+import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariPhase, SafariSession } from "./types";
 
 export const ASSIGNMENTS: readonly AssignmentId[] = ["field-notes", "stat-scan", "type-tracker", "ability-survey"];
-export const SHINY_ODDS = 128;
+export function visibleSafariPokemonId(encounter: SafariEncounter | null, phase: SafariPhase): number | undefined {
+  if (!encounter || phase === "roaming" || phase === "rustling" || (encounter.assignmentId === "tracking" && phase !== "caught")) return undefined;
+  return encounter.pokemonId;
+}
 export function createSafariSession(zoneId: ZoneId = "pallet-town"): SafariSession {
   return { version: 3, zoneId, position: { ...zoneById(zoneId).start }, direction: "up", steps: 0,
     grassSteps: 0, catches: 0, encounter: null, draft: "", lastCatch: null, visited: [zoneId] };
@@ -51,6 +56,7 @@ export function isSafariSession(value: unknown): value is SafariSession {
         || !["up", "down", "left", "right"].includes(String(bookmark.direction))) return false;
     }
   }
+  if (value.bag !== undefined && !isBagState(value.bag)) return false;
   const encounter = value.encounter;
   if (encounter !== null && !isSafariEncounter(encounter, value.zoneId)) return false;
   const caught = value.lastCatch;
@@ -79,6 +85,11 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
       value = { ...value, version: 3, encounter: { ...encounter, outcome: caught ? "caught" : "active", fleeAfter: null } };
     } else value = { ...value, version: 3 };
   }
+  // A damaged additive inventory must not discard the expedition or saved SQL.
+  if (record(value) && value.bag !== undefined && !isBagState(value.bag)) {
+    const { bag: _invalidBag, ...expedition } = value;
+    value = expedition;
+  }
   return isSafariSession(value) ? value : null;
 }
 
@@ -91,9 +102,12 @@ export function walkSafari(
   } = {},
 ): SafariSession {
   if (session.encounter) return session;
+  const bag = session.bag ?? createBag();
+  const repelled = bag.repelSteps > 0;
+  const nextBag = repelled ? { ...bag, repelSteps: bag.repelSteps - 1 } : session.bag;
   const portal = regionTravel(session.zoneId, session.position, direction);
   if (portal) return { ...session, zoneId: portal.to, position: { ...portal.arrival }, direction,
-    steps: session.steps + 1, grassSteps: 0, visited: [...new Set([...visitedLocations(session), portal.to])] };
+    steps: session.steps + 1, ...(nextBag ? { bag: nextBag } : {}), grassSteps: 0, visited: [...new Set([...visitedLocations(session), portal.to])] };
   const zone = zoneById(session.zoneId);
   const position = movePosition(zone, session.position, direction);
   if (position === session.position) return { ...session, direction };
@@ -101,14 +115,14 @@ export function walkSafari(
   const grassSteps = inGrass ? session.grassSteps + 1 : 0;
   const patch = rustlingPatch(zone, session.catches, session.position);
   const rustling = patch && position.x === patch.x && position.y === patch.y;
-  const encounter = inGrass && (rustling || grassSteps >= 6 || (grassSteps >= 2 && chance < 0.24));
-  const next = { ...session, position, direction, steps: session.steps + 1, grassSteps: encounter ? 0 : grassSteps };
+  const encounter = !repelled && inGrass && (rustling || grassSteps >= 6 || (grassSteps >= 2 && chance < 0.24));
+  const next = { ...session, position, direction, steps: session.steps + 1, grassSteps: encounter || repelled ? 0 : grassSteps, ...(nextBag ? { bag: nextBag } : {}) };
   if (!encounter) return next;
   const { id: pokemonId } = chooseSpecies(zone, pick, session.lastCatch?.pokemon.id, weather, date);
   const assignmentId = fieldAssignmentId(zone.id, pokemonId) ?? ASSIGNMENTS[session.catches % ASSIGNMENTS.length];
   return { ...next, encounter: { id: encounterId, level: encounterLevel(encounterId, trainerDays), pokemonId,
-    shiny: shinyRoll < 1 / SHINY_ODDS && hasShinySprite(pokemonId),
-    assignmentId, attempts: 0, outcome: "active", fleeAfter }, draft: isFieldAssignment(assignmentId) ? fieldAssignmentDraft(assignmentId) : "-- Write your catch query here.\nSELECT " };
+    shiny: shinyRoll < 1 / shinyOdds(bag, session.catches) && hasShinySprite(pokemonId),
+    assignmentId, attempts: 0, outcome: "active", fleeAfter }, draft: isFieldAssignment(assignmentId) ? fieldAssignmentDraft(assignmentId) : "SELECT * FROM pokedex\nWHERE name = " };
 }
 
 export function recordSafariReply(session: SafariSession, id: string, reply: SafariCheckReply, at: string): SafariSession {

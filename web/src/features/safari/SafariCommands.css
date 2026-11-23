@@ -1,0 +1,10 @@
+.encounter-caption.is-interactive { padding:1.666667cqw; }
+.safari-command-menu { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); height:100%; color:#414149; font:inherit; font-size:5.83333cqw; }
+.safari-command-menu p { margin:0; padding:1.666667cqw; align-self:center; font:inherit; line-height:1; }
+.safari-command-menu > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.83333cqw; border-left:.83333cqw solid #c0c8c8; padding:.83333cqw; }
+.safari-command-menu button { display:flex; align-items:center; justify-content:center; gap:.83333cqw; min-width:0; padding:.83333cqw; border:0; border-radius:0; background:transparent; color:inherit; text-align:left; font:inherit; cursor:pointer; }
+.safari-command-menu button img { width:3.33333cqw; height:auto; image-rendering:pixelated; flex:none; }
+.safari-command-menu button:hover:not(:disabled),.safari-command-menu button:focus-visible { background:#e5e9da; outline:.416667cqw solid #414149; outline-offset:-.416667cqw; }
+.safari-command-menu button:disabled { opacity:.45; cursor:default; }
+
+.safari-command-menu button::before { content:"▶"; opacity:0; font-size:3.33333cqw; }.safari-command-menu button:focus::before { opacity:1; }

@@ -1,6 +1,18 @@
 import { createSafariSession } from '../../src/features/safari/model';
 import { regionTravel } from '../../src/features/safari/regions';
 import { isWalkable, movePosition, zoneById, type Direction, type Position, type ZoneId } from '../../src/features/safari/zones';
+import type { Page } from '@playwright/test';
+
+/** Follow the game's Catch command before editing or submitting encounter SQL. */
+export async function openSafariQuery(page: Page) {
+  if (await page.locator('.safari-assignment').isVisible()) return;
+  const commands = page.getByRole('group', { name: 'Encounter commands', exact: true });
+  await commands.waitFor();
+  if (await page.locator('.safari-assignment').isVisible()) return;
+  const catchChoice = commands.getByRole('button', { name: 'Catch Pokémon', exact: true });
+  if (await catchChoice.isVisible()) await catchChoice.click();
+  await page.locator('.safari-assignment').waitFor();
+}
 
 export function nearSafariGrass(zoneId: ZoneId = 'forest') {
   const zone = zoneById(zoneId);

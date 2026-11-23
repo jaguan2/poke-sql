@@ -1,3 +1,4 @@
+import { readPokemonProfile as readPokemon } from "../../shared/sql/pokemon-profiles";
 import type { Database } from "sql.js";
 import { runStatements } from "../../shared/sql/engine";
 import type { QueryResult } from "../../shared/sql/types";
@@ -22,15 +23,6 @@ export function pickMysteryTarget(db: Database, previousId = 0): number {
   return id;
 }
 
-function readPokemon(db: Database, identity: number | string): PokemonProfile | undefined {
-  const row = db.exec(`SELECT id, name, type1, type2, generation_id, height_m, weight_kg
-    FROM pokedex WHERE ${typeof identity === "number" ? "id = ?" : "name = ? COLLATE NOCASE"}`, [identity])[0]?.values[0];
-  if (!row) return undefined;
-  return {
-    id: Number(row[0]), name: String(row[1]), type1: String(row[2]), type2: row[3] === null ? null : String(row[3]),
-    generationId: Number(row[4]), heightM: Number(row[5]), weightKg: Number(row[6]),
-  };
-}
 
 export function compareMysteryPokemon(guess: PokemonProfile, target: PokemonProfile): MysteryGuess {
   const typeClue = (value: string | null, exact: string | null, other: string | null): TypeClue =>

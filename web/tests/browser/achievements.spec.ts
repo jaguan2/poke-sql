@@ -30,8 +30,8 @@ test('generation and type achievements show exact unique progress across the who
   await expect(fire.locator('.achievement-count')).toHaveText('5 / 81 collected');
   await expect(page.getByRole('article', { name: 'Flying collector', exact: true }).getByRole('progressbar')).toHaveAttribute('value', '1');
   await expect(page.getByRole('region', { name: 'Type achievements', exact: true }).getByRole('article')).toHaveCount(18);
-  await page.getByRole('button', { name: 'Collection', exact: true }).click();
-  await page.getByLabel('Search discovered Pokémon', { exact: true }).fill('#0006');
+  await page.getByRole('button', { name: 'Pokédex', exact: true }).click();
+  await page.getByLabel('Search Pokédex', { exact: true }).fill('#0006');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await page.getByRole('button', { name: /^Achievements/ }).click();
   await page.getByRole('button', { name: 'Types', exact: true }).click();

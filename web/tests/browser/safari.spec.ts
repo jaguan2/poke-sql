@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { createSafariSession, walkSafari } from '../../src/features/safari/model';
 import type { SafariSession } from '../../src/features/safari/types';
 import { entriesFor } from '../fixtures/pokemon-encounters';
-import { nearSafariGrass, routePath } from '../fixtures/safari';
+import { nearSafariGrass, routePath, openSafariQuery } from '../fixtures/safari';
 import { zoneById } from '../../src/features/safari/zones';
 import { collectionSnapshot } from '../fixtures/pc';
 
@@ -21,10 +21,12 @@ async function open(page: Page) {
 async function encounter(page: Page) {
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-battle-scene')).toBeVisible();
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   return page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId as number);
 }
 async function edit(page: Page, sql: string) {
+  if (await page.locator('.safari-encounter').count()) await openSafariQuery(page);
   await page.locator('.cm-content').focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(sql);
@@ -32,15 +34,29 @@ async function edit(page: Page, sql: string) {
 }
 async function check(page: Page, sql: string) {
   await edit(page, sql);
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
 }
+
+test('a new named encounter starts a name query and completing it plays the catch animation', async ({ page }) => {
+  await seed(page);
+  await page.addInitScript(() => { Math.random = () => 0; });
+  await open(page); await encounter(page);
+  await expect(page.locator('.cm-content')).toHaveText('SELECT * FROM pokedex\nWHERE name = ', { useInnerText: true });
+  await page.locator('.cm-content').focus(); await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.insertText("'Caterpie';");
+  await page.getByRole('button', { name: 'Catch Pokémon', exact: true }).click();
+  await expect(page.locator('.safari-battle-scene')).toHaveClass(/is-catching/);
+  await expect(page.getByText('Gotcha! Caterpie was caught!', { exact: true })).toBeVisible();
+  expect((await collectionSnapshot(page)).captures.map(capture => capture.pokemon.name)).toEqual(['Caterpie']);
+});
 
 test('restored encounters do not replay the battle entrance', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const saved = walkSafari(nearSafariGrass(), 'left', 1, 0, 'saved-encounter');
   await seed(page, saved);
   await open(page);
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
   await expect(page.locator('.encounter-trainer')).toHaveCSS('animation-name', 'none');
   await page.getByRole('button', { name: 'Back to workspace', exact: true }).click();
@@ -48,7 +64,7 @@ test('restored encounters do not replay the battle entrance', async ({ page }) =
   await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
 });
 
-test('tracking previews are free, and only a correct throw reveals and deposits the Pokémon', async ({ page }) => {
+test('tracking previews are free, and Ctrl+Enter catches instead of only previewing', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await seed(page, { ...nearSafariGrass('volcano'), encounter: {
@@ -57,23 +73,19 @@ test('tracking previews are free, and only a correct throw reveals and deposits 
   await open(page);
   const scene = page.getByRole('group', { name: 'Wild Pokémon encounter', exact: true });
   const chances = page.getByRole('progressbar', { name: 'Catch chances remaining' });
-  const throwBall = page.getByRole('button', { name: 'Throw Poké Ball', exact: true });
+  const throwBall = page.getByRole('button', { name: 'Catch Pokémon', exact: true });
   await expect(scene.getByRole('heading', { name: '???', exact: true })).toBeVisible();
   await expect(scene.getByText('Lv.8')).toBeVisible();
   await expect(scene.locator('.encounter-sprite')).toHaveCount(0);
   const candidates = "SELECT id FROM pokedex WHERE generation_id = 1 AND type1 = 'fire' AND height_m < 0.8";
   await edit(page, candidates);
-  await page.getByRole('button', { name: /Run query/ }).click();
+  await page.getByRole('button', { name: 'Preview SQL', exact: true }).click();
   await expect(page.getByText('3 rows returned. Use another clue to narrow the search.')).toBeVisible();
   await expect(chances).toHaveAttribute('value', '5');
   await throwBall.click();
   await expect(chances).toHaveAttribute('value', '4');
   await edit(page, `${candidates} AND weight_kg >= 15;`);
   await page.keyboard.press('ControlOrMeta+Enter');
-  await expect(page.getByText('1 row returned.', { exact: true })).toBeVisible();
-  await expect(chances).toHaveAttribute('value', '4');
-  await expect(page.locator('.safari-pass strong')).toHaveText('00');
-  await throwBall.click();
   await expect(page.getByRole('img', { name: 'Wild Growlithe', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Open PC Boxes', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Slot 1: Growlithe, level 8', exact: true })).toBeVisible();
@@ -106,12 +118,12 @@ test('fresh encounters rustle on the map, slide into battle, and then unlock the
   await page.waitForTimeout(130);
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-player')).toHaveAttribute('data-x', String(nearSafariGrass().position.x - 1));
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toHaveCount(0);
   await expect(page.locator('.is-entering .encounter-sprite')).toHaveCSS('animation-name', 'safari-slide-wild');
   await expect(page.locator('.is-entering .encounter-trainer')).toHaveCSS('animation-name', 'safari-slide-trainer');
   await expect(page.locator('.safari-battle-wipe span').first()).toHaveCSS('animation-name', 'safari-wipe-left');
   await page.screenshot({ path: info.outputPath('sliding-encounter.png') });
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeEnabled();
   await expect(page.locator('.encounter-sprite')).toHaveCSS('animation-name', 'none');
 });
 
@@ -188,7 +200,8 @@ test('rustling grass opens a sliding encounter; only a correct SQL assignment re
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.safari-encounter')).toHaveClass(/is-entering/);
   expect(await page.locator('.encounter-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('safari-slide-wild');
-  await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeVisible();
+  await openSafariQuery(page);
   const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId as number);
   await edit(page, `SELECT id, name, type1, type2\nFROM pokedex\nWHERE id = ${id};`);
   await page.screenshot({ path: info.outputPath('safari-sql-encounter-desktop.png'), animations: 'disabled' });
@@ -203,11 +216,13 @@ test('rustling grass opens a sliding encounter; only a correct SQL assignment re
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.screenshot({ path: info.outputPath('safari-caught-desktop.png'), animations: 'disabled' });
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
   await expect(page.locator('.encounter-card')).toContainText('Best solve: 2 attempts');
   await page.reload();
   await page.getByRole('button', { name: /^My Pokédex/ }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(1);
   await expect(page.locator('.encounter-sources')).toHaveText('Safari Zone');
   await page.getByRole('button', { name: /^Achievements/ }).click();
@@ -226,6 +241,7 @@ test('Safari survives offline reload without replaying its SQL draft and catches
   const before = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!));
   await context.setOffline(true); await page.reload();
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await openSafariQuery(page);
   await expect(page.locator('.cm-content')).toHaveText('DROP TABLE pokemon;');
   await expect(page.locator('.safari-encounter')).not.toHaveClass(/is-entering/);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toEqual(before.encounter);
@@ -286,6 +302,7 @@ test('walking and SQL catches advance all four assignments without duplicating r
   for (const [index, assignment] of assignments.entries()) {
     await test.step(`Walk, attempt, and catch: ${assignment.title}`, async () => {
       if (index > 0) await walk(['right', 'left']);
+      await openSafariQuery(page);
       await expect(page.getByRole('heading', { name: assignment.title, exact: true })).toBeVisible();
       await expect(page.getByRole('img', { name: `Wild ${assignment.name}`, exact: true })).toBeVisible();
       await check(page, 'SELECT 1;');
@@ -306,6 +323,7 @@ test('walking and SQL catches advance all four assignments without duplicating r
   await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
   await expect(page.getByRole('progressbar', { name: 'Verdant Forest collection progress' })).toHaveAttribute('value', '2');
   await page.getByRole('button', { name: /^My Pokédex/ }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(2);
   await expect(page.locator('.encounter-card').filter({ hasText: 'Caterpie' })).toContainText('Best solve: 2 attempts');
   await expect(page.locator('.encounter-card').filter({ hasText: 'Weedle' })).toContainText('Best solve: 2 attempts');
@@ -314,6 +332,7 @@ test('walking and SQL catches advance all four assignments without duplicating r
   await expect(page.getByRole('article', { name: 'Pokédex explorer', exact: true }).getByRole('progressbar')).toHaveAttribute('value', '2');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
   await walk(['right', 'left']);
+  await openSafariQuery(page);
   await expect(page.getByRole('heading', { name: 'Field notes', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Run away', exact: true }).click();
   await expect(page.locator('.safari-pass strong')).toHaveText('04');
@@ -331,6 +350,7 @@ test('guide examples fill the active catch draft without grading, while roaming 
   await joins.locator('summary').click();
   await joins.getByRole('button', { name: 'Load example', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Safari Zone/ })).toBeVisible();
+  await openSafariQuery(page);
   await expect(page.locator('.cm-content')).toContainText('JOIN pokemon_types AS pt');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter)).toMatchObject({ pokemonId: id, attempts: 0, outcome: "active", fleeAfter: null });
   await page.getByRole('button', { name: 'Run away', exact: true }).click();
@@ -372,13 +392,13 @@ test('a blocked recovery backup preserves the original save instead of overwriti
   }, original);
   await page.goto('/'); await page.getByRole('button', { name: /^My Pokédex/ }).click();
   await expect(page.getByRole('article', { name: 'Charizard', exact: true })).toBeVisible();
-  await expect(page.getByText('this device could not save it', { exact: false })).toBeVisible();
+  await expect(page.getByText('This device could not save your Pokédex.', { exact: false })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('pokesql:encounters'))).toBe(original);
 });
 
 test.describe('Safari touch input', () => {
   test.use({ isMobile: true, hasTouch: true, viewport: { width: 390, height: 844 } });
-  test('swipes walk in each direction; taps, cancellations, blur and open menus do not move the trainer', async ({ page, context }) => {
+  test('swipes walk in each direction; taps and menus do not walk, and cancellation or blur stops further steps', async ({ page, context }) => {
     await seed(page, createSafariSession('forest')); await open(page);
     await page.getByRole('button', { name: 'Got it', exact: true }).tap();
     const map = page.locator('.safari-map');
@@ -411,11 +431,11 @@ test.describe('Safari touch input', () => {
     await swipe(5, 5);
     await expect(player).toHaveAttribute('data-x', '10');
     await swipe(-60, 0, 'touchCancel');
-    await expect(player).toHaveAttribute('data-x', '10');
+    await expect(player).toHaveAttribute('data-x', '9');
     await swipe(-60, 0, 'blur');
-    await expect(player).toHaveAttribute('data-x', '10');
+    await expect(player).toHaveAttribute('data-x', '8');
     await expect(player).toHaveAttribute('data-y', '17');
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps)).toBe(4);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).steps)).toBe(6);
     await client.detach();
   });
 });
@@ -435,7 +455,7 @@ test('mobile Safari controls and SQL catch layout fit without nested page scroll
       await expect(page.locator('.safari-battle-scene')).toBeInViewport();
       expect(await page.locator('.encounter-sprite').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
       await page.locator('.safari-query-actions').scrollIntoViewIfNeeded();
-      await expect(page.getByRole('button', { name: /Check query & catch/ })).toBeInViewport();
+      await expect(page.getByRole('button', { name: /Catch Pokémon/ })).toBeInViewport();
       const nested = await page.locator('.app,.body,.main,.safari-zone,.safari-assignment').evaluateAll(elements => elements.some(el => /auto|scroll/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1));
       expect(nested).toBe(false);
       await page.screenshot({ path: info.outputPath('safari-catch-mobile-320.png') });

@@ -1,3 +1,4 @@
+import { openSafariQuery } from '../fixtures/safari';
 import { test, expect } from '@playwright/test';
 import { entriesFor } from '../fixtures/pokemon-encounters';
 import { createSafariSession } from '../../src/features/safari/model';
@@ -73,6 +74,7 @@ test('old clearing saves retain catches, active SQL, and attempts when moved to 
   }, entry.pokemon);
   await page.goto('/');
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await openSafariQuery(page);
   await expect(page.getByRole('heading', { name: 'Stat scan', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toHaveText('SELECT name, hp, attack, speed FROM pokemon WHERE id=13;');
   await expect(page.locator('.safari-query-actions')).toContainText('2 checked queries');
@@ -82,10 +84,11 @@ test('old clearing saves retain catches, active SQL, and attempts when moved to 
     version: 3, position: { x: 10, y: 17 }, steps: 47, catches: 1,
     encounter: { id: 'old-grass', attempts: 2, outcome: 'active', fleeAfter: null },
   });
-  await page.getByRole('button', { name: /Check query & catch/ }).click();
+  await page.getByRole('button', { name: /Catch Pokémon/ }).click();
   await expect(page.getByText('Gotcha! Weedle was caught!', { exact: true })).toBeVisible();
   await expect(page.locator('.safari-catch-summary')).toContainText('Completed in 3 queries.');
   await expect(page.locator('.safari-pass strong')).toHaveText('02');
   await page.getByRole('button', { name: 'View Pokédex', exact: true }).click();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
   await expect(page.locator('.encounter-card')).toHaveCount(2);
 });

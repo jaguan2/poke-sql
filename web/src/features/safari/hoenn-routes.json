@@ -7,10 +7,6 @@
       10,
       12
     ],
-    "point": [
-      72,
-      88
-    ],
     "description": "Begin in Littleroot Town. Route 101 leads north to Oldale Town.",
     "pool": []
   },
@@ -21,10 +17,6 @@
     "entrance": [
       10,
       26
-    ],
-    "point": [
-      72,
-      76
     ],
     "description": "Poochyena, Zigzagoon and Wurmple live in the grass north of Littleroot.",
     "pool": [
@@ -43,8 +35,7 @@
         "Wurmple",
         10
       ]
-    ],
-    "label": "above"
+    ]
   },
   "oldale-town": {
     "native": "OldaleTown",
@@ -53,10 +44,6 @@
     "entrance": [
       10,
       16
-    ],
-    "point": [
-      72,
-      64
     ],
     "description": "Continue west along Route 102, or explore Route 103 to the north.",
     "pool": []
@@ -68,10 +55,6 @@
     "entrance": [
       10,
       22
-    ],
-    "point": [
-      72,
-      52
     ],
     "description": "Explore the riverbank north of Oldale. Wingull appear among the grassland Pokémon.",
     "pool": [
@@ -90,8 +73,7 @@
         "Wingull",
         20
       ]
-    ],
-    "label": "above"
+    ]
   },
   "route-102": {
     "native": "Route102",
@@ -100,10 +82,6 @@
     "entrance": [
       27,
       10
-    ],
-    "point": [
-      54,
-      64
     ],
     "description": "The wooded path to Petalburg City. Ralts and Surskit are rare encounters.",
     "pool": [
@@ -152,10 +130,6 @@
       22,
       20
     ],
-    "point": [
-      34,
-      64
-    ],
     "description": "Head west to Route 104 and Petalburg Woods. Your PC is available here.",
     "pool": []
   },
@@ -166,10 +140,6 @@
     "entrance": [
       27,
       62
-    ],
-    "point": [
-      14,
-      64
     ],
     "description": "The coastal path passes through Petalburg Woods and continues north toward Rustboro City.",
     "pool": [
@@ -207,10 +177,6 @@
     "entrance": [
       8,
       28
-    ],
-    "point": [
-      14,
-      47
     ],
     "description": "Shroomish shelter under the trees. Slakoth is a rare sighting among the Bug Pokémon.",
     "pool": [
@@ -259,10 +225,6 @@
       16,
       36
     ],
-    "point": [
-      14,
-      28
-    ],
     "description": "Route 116 leads east toward Rusturf Tunnel and Verdanturf Town.",
     "pool": []
   },
@@ -273,10 +235,6 @@
     "entrance": [
       1,
       12
-    ],
-    "point": [
-      37,
-      28
     ],
     "description": "Nincada and Whismur live along this rocky route. Look for the tunnel entrance at the eastern end.",
     "pool": [
@@ -313,17 +271,12 @@
     ]
   },
   "rusturf-tunnel": {
-    "label": "above",
     "native": "RusturfTunnel",
     "name": "Rusturf Tunnel",
     "kind": "cave",
     "entrance": [
       6,
       13
-    ],
-    "point": [
-      58,
-      28
     ],
     "description": "Whismur inhabit this quiet tunnel linking Rustboro's outskirts with Verdanturf Town.",
     "pool": [
@@ -342,25 +295,16 @@
       14,
       10
     ],
-    "point": [
-      58,
-      43
-    ],
     "description": "A safe stop beside Rusturf Tunnel. Route 117 continues east to Mauville City.",
     "pool": []
   },
   "route-117": {
-    "label": "above",
     "native": "Route117",
     "name": "Route 117",
     "kind": "route",
     "entrance": [
       1,
       10
-    ],
-    "point": [
-      76,
-      43
     ],
     "description": "Flower-filled grassland between Verdanturf and Mauville. Roselia, Volbeat and Illumise can appear.",
     "pool": [
@@ -403,10 +347,6 @@
     "entrance": [
       2,
       12
-    ],
-    "point": [
-      91,
-      43
     ],
     "description": "The final town in this first Hoenn journey. Visit your PC or return to a place you've explored.",
     "pool": []

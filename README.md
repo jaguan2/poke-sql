@@ -53,10 +53,10 @@ npm run desktop:build    # build web installer + payload + offline portable EXE
 
 The Windows x64 build produces:
 
-- `web/release/nsis-web/PokeSQL-0.2.0-setup.exe` — small web installer.
-- `web/release/nsis-web/poke-sql-web-0.2.0-x64.nsis.7z` — full application payload.
+- `web/release/nsis-web/PokeSQL-0.2.6-setup.exe` — small web installer.
+- `web/release/nsis-web/poke-sql-web-0.2.6-x64.nsis.7z` — full application payload.
 - `web/release/nsis-web/latest.yml` — version and checksums for the updater.
-- `web/release/PokeSQL-0.2.0-portable.exe` — full application for offline first launch.
+- `web/release/PokeSQL-0.2.6-portable.exe` — full application for offline first launch.
 
 The full application uses Electron and includes the database, SQLite engine,
 music and all sprites. The portable build works offline from its first launch. Building requires
@@ -78,8 +78,8 @@ See [releasing and testing updates](docs/RELEASING.md).
   Viridian Forest, Pewter City, Route 3, Route 4, all three Mt. Moon floors,
   and Cerulean City. This is the first Kanto journey, not the entire region.
   Original FireRed map geometry, doors, ladders and one-way ledges connect the
-  locations. Walk with WASD/arrow keys or swipe on a touchscreen. Open **Region
-  map** to choose a region and any included **Area**, then select **Travel to**
+  locations. Hold WASD/arrow keys to walk, or swipe and hold on a touchscreen.
+  Open **Region map** to choose a region and any included **Area**, then select **Travel to**
   to drop there. Towns and forest gates have no encounters, and town
   guides provide PC/Pokédex access. Routes, forest and caves have curated
   Generation I encounter tables. Correct SQL catches enter your PC with the
@@ -107,11 +107,25 @@ See [releasing and testing updates](docs/RELEASING.md).
   encounters can occur throughout the walkable floor. The first journey ends
   in Goldenrod; later towns, surfing, NPC battles and story progression are
   not included.
+- **Bag and game menus:** the framed navigation groups Explore, Pokédex, PC Boxes,
+  Bag, Trainer ID and Options. The Bag has Items and Key Items pockets, local
+  PokéAPI item icons and a description window. Starter supplies are three Repels,
+  one Super Repel and one Max Repel. They suppress all new wild encounters,
+  including shaking grass and caves, for 100/200/250 successful walking steps.
+  Walls, menus, SQL and direct map travel do not spend steps; walking through an
+  exit does. An active Repel cannot be stacked. Every five Safari catches earns
+  another Repel. At ten Safari catches, unlock a reusable Shiny Charm and activate
+  it to double future shiny chances from 1/128 to 1/64. These are PokéSQL learning
+  rewards and odds, adapted from the games. Items cannot be used mid-encounter.
+  Inventory, consumed supplies and effects save with the expedition; SQL database
+  reset does not touch them. Old saves receive starter supplies without losing
+  their encounter or draft.
 - **Safari Zone:** explore nine habitats: Verdant Forest, Willow Wetlands,
   Amber Ridge, Sunlit Meadow, Azure Coast, Mirage Dunes, Moonstone Caverns,
   Frostveil Tundra, and Ember Foothills. Use **Choose from 9 habitats** to travel.
-  Move the trainer with arrow keys/WASD while exploring, or swipe the map on a
-  touchscreen. A brief controls popup appears when you first explore.
+  Hold arrow keys/WASD while exploring, or swipe and hold the map on a
+  touchscreen. Walking continues across exits; neighboring map art preloads
+  locally. A brief controls popup appears when you first explore.
   **Trainer-card icon → Your trainer model** offers eight models: Red, Leaf, Brendan and
   May in Emerald and Ruby/Sapphire outfits, Wally, and Steven. Each has matching
   portraits, walking and battle sprites. Your choice saves on this device and also appears
@@ -202,7 +216,9 @@ See [releasing and testing updates](docs/RELEASING.md).
   individual Pokémon to a 30-slot box. Start with 64 boxes (1,920 slots); more
   boxes are created automatically when needed. Repeat catches are separate
   individuals. Rename boxes, change backgrounds, choose a catch destination,
-  search, nickname, favorite, and move or swap Pokémon between boxes. Capture
+  search, nickname, favorite, and move or swap Pokémon between boxes. Drag with
+  a mouse, pen or finger to any slot; hover a box arrow to change boxes while
+  holding a Pokémon. Select a Pokémon and use Move for keyboard controls. Capture
   details retain the encounter level, ball, location, date and successful SQL.
   New encounters roll levels 5–10 on a trainer's first day. Both ends of the
   range rise by one for each full day since the Trainer ID was issued, up to
@@ -210,17 +226,16 @@ See [releasing and testing updates](docs/RELEASING.md).
   Older progress imports one Pokémon per recorded species; unavailable levels,
   balls and historical duplicate catches are not invented. Collection data lives
   in its own IndexedDB database and survives practice database edits and Reset DB.
-- **My Pokédex:** a personal collection of Pokémon found by solving daily and
-  random mysteries or completing Safari catch assignments. Each species has one entry with its sprite, types, generation,
-  height, weight, first registration date (UTC), best guess count, and discovery
-  modes. Search by name or Dex number, filter by generation, or sort your finds.
-  The collection saves separately from the practice database and survives new
-  rounds, offline reloads, and Reset DB. Currently saved solved rounds are imported
-  automatically; their registration date is when they enter the collection.
-  Safari's latest saved catch is imported idempotently using its catch timestamp.
-  If a collection entry is malformed, valid entries are recovered and the raw
-  save is backed up before replacement. If that backup cannot be saved, the
-  original collection is retained and recovery stays session-only.
+- **My Pokédex:** the full 1,025-species National Dex starts with silhouettes.
+  Seeing a Pokémon in a Safari encounter reveals its name and sprite; running
+  away keeps the sighting without awarding a capture. Owned status comes from
+  PC Boxes. Filter by region of introduction, Seen/Unseen/Owned, name or Dex
+  number. Solved mystery rounds reveal their species; an unsolved daily target
+  stays hidden from the Pokédex. Caught entries retain types, measurements,
+  registration date, best solve and discovery sources. Sightings and ownership
+  stay separate from SQL practice and survive reloads and Reset DB.
+  Existing caught-species saves are imported, with malformed records backed up
+  before recovery and unknown imported capture fields preserved.
 - **Achievements:** open **My Pokédex → Achievements** for overall, generation,
   and type collections, such as **12 / 151 Gen 1** or **5 / 81 Fire types**.
   Generation milestones unlock at 10, 25, 50, 100, and full completion; type
@@ -445,7 +460,8 @@ and both hashes. Rebuild with `py scripts/vendor_region_music.py johto --refresh
 the same 128 kbps MP3 conversion keeps playback local and offline.
 
 Pokémon sprites come from the [PokeAPI sprites collection](https://github.com/PokeAPI/sprites).
-The theme picker's eight ball icons also come from that repository's
+The theme picker's eight ball icons and the Bag's Repel, Super Repel, Max Repel
+and Shiny Charm icons also come from that repository's
 [`sprites/items/` folder](https://github.com/PokeAPI/sprites/tree/master/sprites/items)
 and are bundled locally. Theme palettes are our interpretations of the ball
 designs shown in the [official Pokémon Trainer Guide](https://diamondpearl.pokemon.com/en-us/trainersguide/fundamentals/battling/).
@@ -519,3 +535,32 @@ Data from [PokeAPI](https://pokeapi.co/), its
 Pokémon and Pokémon character names are trademarks of Nintendo. This is an
 unofficial educational fan project, not affiliated with or endorsed by
 Nintendo, Game Freak, or Creatures.
+
+Native region overviews use the original FireRed (Kanto), Crystal (Johto) and
+Emerald (Hoenn) town-map tiles, palettes and location coordinates. Rebuild with
+`py scripts/build_region_overviews.py`; pinned sources and credits are in
+[Safari credits](web/public/safari/CREDITS.txt). Markers open the implemented
+locations, and the Area list also includes gates and cave floors.
+
+The encounter's appearance message changes into **Catch / Run** in the same
+battle dialogue window. Choose **Catch** to open SQL, then **Run query** or
+**Ctrl+Enter** to attempt the catch. **Back** closes SQL while keeping the draft;
+**Run** leaves the encounter. Tracking exercises also offer **Preview SQL** without
+using a chance. Correct catches play the trainer pitch and ball animation.
+
+New named encounters start with `SELECT * FROM pokedex` followed by
+`WHERE name = `. Complete the filter with a single-quoted name, such as
+`'Caterpie';`, to catch that Pokémon. The displayed SQL task is an optional
+alternative. Tracking and ranger-survey encounters keep their exercise starters.
+
+To update an existing Windows download, close the app and run the new root
+`PokeSQL.exe` beside its matching `poke-sql-web-0.2.6-x64.nsis.7z` payload. It
+upgrades the installed application while keeping your profile, PC and saved SQL.
+Automatic delivery requires publishing a higher-version release; source edits
+and rebuilding the same version do not update installed copies. See
+[Windows updates](docs/RELEASING.md).
+
+Regional maps also include decorative Youngsters, Lasses, Bug Catchers and Hikers
+at 92 original object-event positions across Kanto, Hoenn and Johto. These NPCs
+use pinned FireRed sprites; they do not start battles or change walking paths.
+Rebuild them with `py scripts/build_route_trainers.py`.

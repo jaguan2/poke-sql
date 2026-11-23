@@ -5,16 +5,19 @@ import type { SafariEncounter, SafariPhase } from "./types";
 import type { SafariSpecies, SafariZoneDefinition } from "./zones";
 import type { TrainerId } from "../../shared/trainer/profile";
 import "./SafariBattleScene.css";
+import { visibleSafariPokemonId } from "./model";
+import { SafariCommands } from "./SafariCommands";
 
 export const SafariBattleScene = forwardRef<HTMLDivElement, {
   species: SafariSpecies; zone: SafariZoneDefinition; phase: SafariPhase; encounter: SafariEncounter; registered: boolean; ballTheme: string; trainer: TrainerId;
-}>(function SafariBattleScene({ species, zone, phase, encounter, registered, ballTheme, trainer }, ref) {
+  commands: { busy: boolean; queryOpen: boolean; onCatch: () => void; onLeave: () => void };
+}>(function SafariBattleScene({ species, zone, phase, encounter, registered, ballTheme, trainer, commands }, ref) {
   const catching = phase === "catching";
   const caught = phase === "caught";
   // The journal records success immediately; keep the old marker until the reveal.
   const previouslyRegistered = useRef(registered).current;
   const fled = phase === "fled";
-  const hidden = encounter.assignmentId === "tracking" && !caught;
+  const hidden = visibleSafariPokemonId(encounter, phase) === undefined;
   const name = hidden ? "The wild Pokémon" : species.name;
   const remaining = encounter.fleeAfter === null ? null : encounter.fleeAfter - encounter.attempts;
   const warning = encounter.attempts === 0 || remaining === null ? null : remaining === 1 ? "looks ready to flee!"
@@ -24,7 +27,8 @@ export const SafariBattleScene = forwardRef<HTMLDivElement, {
     identity={{ name: hidden ? "???" : species.name, level: encounter.level ?? legacyEncounterLevel(encounter.id), badge: caught ? "CAUGHT" : fled ? "FLED" : null, registered: !hidden && (caught || previouslyRegistered) }}
     pokemon={hidden ? null : { id: species.id, label: `Wild ${species.name}`, shiny: encounter.shiny }}
     trainer={trainer} capture={catching || caught ? { phase: catching ? "catching" : "caught", ball: ballTheme } : undefined}
-    caption={phase === "entering" ? "The grass is stirring…" : catching ? "Nice query! Making the catch…" : caught
+    dialogue={phase === "battle" ? <SafariCommands {...commands} ballTheme={ballTheme} prompt={warning ? <><span>{name}</span> {warning}</> : undefined} /> : undefined}
+    caption={catching ? "Nice query! Making the catch…" : caught
       ? <>Gotcha! <span>{name}</span> was caught!</> : fled ? <>Oh no! <span>{name}</span> fled!</>
         : warning ? <><span>{name}</span> {warning}</> : hidden ? "Something is hiding in the grass." : <>A wild <span>{name}</span> appeared!</>}>
     {phase === "entering" && <div className="safari-battle-wipe" aria-hidden="true"><span /><span /></div>}
