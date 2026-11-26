@@ -16,6 +16,54 @@ from safari_sources import ROOT, EMERALD_REVISION as REVISION, source
 
 OUTPUT = ROOT / "web/public/safari"
 FEATURE = ROOT / "web/src/features/safari"
+ICE_BEHAVIOR = 0x20
+DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def slide_stop(cells, start, dx, dy):
+    x, y = start
+    while (x + dx, y + dy) in cells:
+        x, y = x + dx, y + dy
+        if cells[x, y] not in {"i", "I"}:
+            break
+    return x, y
+
+
+def collision_layout(recipe, cells):
+    _, _, width, height = recipe["crop"]
+    # Preserve the full connected floor, including ice crossed during a slide.
+    start = tuple(recipe["entrance"])
+    if start not in cells:
+        raise ValueError(f"Blocked route entrance for {recipe['layout']}: {start}")
+    cells[start] = "."
+    distances = {start: 0}
+    queue = deque([start])
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in DIRECTIONS:
+            point = (x + dx, y + dy)
+            if point in cells and point not in distances:
+                distances[point] = distances[x, y] + 1
+                queue.append(point)
+    reachable = distances.keys()
+    patches = [point for point in reachable if cells[point] == "g" and cells.get((point[0] + 1, point[1])) == "g"]
+    if any(tile == "I" for tile in cells.values()):
+        stops = {start}
+        queue = deque([start])
+        while queue:
+            position = queue.popleft()
+            for dx, dy in DIRECTIONS:
+                stop = slide_stop(cells, position, dx, dy)
+                if stop not in stops:
+                    stops.add(stop)
+                    queue.append(stop)
+        patches.extend(point for point in stops if cells[point] == "I")
+    if not patches:
+        raise ValueError(f"No reachable encounter area in {recipe['layout']}")
+    rustle = min(patches, key=lambda point: (distances[point], point))
+    rows = ["".join(cells[x, y] if (x, y) in reachable else "#" for x in range(width)) for y in range(height)]
+    return {"rows": rows, "start": dict(zip(("x", "y"), start)),
+            "rustle": dict(zip(("x", "y"), rustle)), "name": recipe["name"]}
 
 
 class Tileset:
@@ -94,29 +142,12 @@ def build_route(recipe, layout):
             behavior = struct.unpack_from("<H", tiles.attributes[bank], index * 2)[0] & 0xFF
             image.alpha_composite(tiles.metatile(f"{'S' if bank else 'G'}:{index}"), (x * 16, y * 16))
             if not (block & 0xC00) and behavior not in blocked:
-                cells[x, y] = "g" if behavior in recipe["encounters"] else "."
-    # Explicit trailheads determine the playable section, never an arbitrary
-    # largest component that can strand the trainer away from route landmarks.
-    start = tuple(recipe["entrance"])
-    if start not in cells:
-        raise ValueError(f"Blocked route entrance for {recipe['layout']}: {start}")
-    cells[start] = "."
-    distances = {start: 0}
-    queue = deque([start])
-    while queue:
-        x, y = queue.popleft()
-        for point in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
-            if point in cells and point not in distances:
-                distances[point] = distances[x, y] + 1
-                queue.append(point)
-    accessible = distances.keys()
-    patches = [point for point in accessible if cells[point] == "g" and cells.get((point[0] + 1, point[1])) == "g"]
-    if not patches:
-        raise ValueError(f"No reachable encounter area in {recipe['layout']}")
-    rustle = min(patches, key=lambda point: (distances[point], point))
-    rows = ["".join(cells[x, y] if (x, y) in accessible else "#" for x in range(width)) for y in range(height)]
-    return image, {"rows": rows, "start": dict(zip(("x", "y"), start)),
-                   "rustle": dict(zip(("x", "y"), rustle)), "name": recipe["name"]}
+                encounter = behavior in recipe["encounters"]
+                if behavior == ICE_BEHAVIOR:
+                    cells[x, y] = "I" if encounter else "i"
+                else:
+                    cells[x, y] = "g" if encounter else "."
+    return image, collision_layout(recipe, cells)
 
 
 def build():

@@ -1,6 +1,6 @@
 import { createBag, useBagItem, type BagItemId } from "../features/safari/bag-model";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { visibleSafariPokemonId, changeSafariRegion, changeSafariZone, recordSafariReply, walkSafari } from "../features/safari/model";
+import { visibleSafariPokemonId, changeSafariRegion, changeSafariZone, checkHoneyTree, recordSafariReply, walkSafari } from "../features/safari/model";
 import type { RegionId } from "../features/safari/regions";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
@@ -12,11 +12,15 @@ import { writeLocal } from "../shared/storage/local";
 import { legacyEncounterLevel } from "../shared/pokemon/encounter-level";
 import { trainerAgeDays } from "../shared/trainer/identity";
 
-interface State { session: SafariSession; phase: SafariPhase; results: QueryResult[]; message: string; error: string }
+const ICE_STEP_MS = 75;
+interface State { session: SafariSession; phase: SafariPhase; slideMs: number; results: QueryResult[]; message: string; error: string }
+interface EncounterRoll { pick: number; id: string; fleeAfter: SafariFleeLimit; trainerDays: number; shinyRoll: number }
 type Action =
-  | { type: "move"; direction: Direction; chance: number; pick: number; id: string; date: string; fleeAfter: SafariFleeLimit; trainerDays: number; shinyRoll: number }
+  | ({ type: "move"; direction: Direction; chance: number; date: string } & EncounterRoll)
+  | ({ type: "honey-tree"; zoneId: ZoneId } & EncounterRoll)
   | { type: "zone"; id: ZoneId }
   | { type: "region"; id: RegionId }
+  | { type: "finish-slide" }
   | { type: "advance"; id: string }
   | { type: "edit"; sql: string }
   | { type: "reply"; id: string; reply: SafariCheckReply; at: string; mode: SafariQueryMode }
@@ -27,25 +31,34 @@ type Action =
 
 function initialState(): State {
   const session = loadSafariSession();
-  return { session, phase: session.encounter ? session.encounter.outcome === "active" ? "battle" : session.encounter.outcome : "roaming", results: [], message: "", error: "" };
+  return { session, phase: session.encounter ? session.encounter.outcome === "active" ? "battle" : session.encounter.outcome : "roaming", slideMs: 0, results: [], message: "", error: "" };
 }
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "move": {
-      if (state.phase !== "roaming") return state;
+      if (state.phase !== "roaming" || state.slideMs) return state;
       const weather = weatherFor(zoneById(state.session.zoneId), action.date);
       const session = walkSafari(state.session, action.direction, action.chance, action.pick, action.id,
         { weather, fleeAfter: action.fleeAfter, date: action.date, trainerDays: action.trainerDays, shinyRoll: action.shinyRoll });
-      return { ...state, session, phase: session.encounter ? "rustling" : "roaming", error: "", message: "" };
+      const steps = session.steps - state.session.steps;
+      // Save the landing once. The animation gates input and encounter reveals.
+      const slideMs = steps > 1 ? steps * ICE_STEP_MS : 0;
+      return { ...state, session, slideMs, phase: session.encounter && !slideMs ? "rustling" : "roaming", error: "", message: "" };
     }
+    case "honey-tree": {
+      if (state.phase !== "roaming" || state.slideMs || action.zoneId !== state.session.zoneId) return state;
+      const session = checkHoneyTree(state.session, action.pick, action.id, action);
+      return session === state.session ? state : { ...state, session, phase: "rustling", error: "", message: "" };
+    }
+    case "finish-slide": return { ...state, slideMs: 0, phase: state.session.encounter?.outcome === "active" ? "rustling" : state.phase };
     case "item": {
-      if (state.phase !== "roaming") return state;
+      if (state.phase !== "roaming" || state.slideMs) return state;
       const previous = state.session.bag ?? createBag();
       const bag = useBagItem(previous, state.session.catches, action.id);
       return bag === previous ? state : { ...state, session: { ...state.session, bag } };
     }
-    case "zone": return { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
-    case "region": return { ...state, session: changeSafariRegion(state.session, action.id), message: "", error: "" };
+    case "zone": return state.slideMs ? state : { ...state, session: changeSafariZone(state.session, action.id), message: "", error: "" };
+    case "region": return state.slideMs ? state : { ...state, session: changeSafariRegion(state.session, action.id), message: "", error: "" };
     case "advance": {
       if (state.session.encounter?.id !== action.id) return state;
       const transition = SAFARI_TRANSITIONS[state.phase];
@@ -90,18 +103,26 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
   const restoreCatch = useCallback((caught: SafariCatch, shiny: boolean) => dispatch({ type: "restore-catch", caught, shiny }), []);
   useEffect(() => { if (!writeLocal("safari", state.session)) setSaveError(true); }, [state.session]);
   useEffect(() => {
+    if (!state.slideMs) return;
+    const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : state.slideMs;
+    const timer = setTimeout(() => dispatch({ type: "finish-slide" }), duration);
+    return () => clearTimeout(timer);
+  }, [state.slideMs]);
+  useEffect(() => {
     const transition = SAFARI_TRANSITIONS[state.phase];
     if (!transition || !state.session.encounter) return;
     const id = state.session.encounter.id;
     const timer = setTimeout(() => dispatch({ type: "advance", id }), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : transition.durationMs);
     return () => clearTimeout(timer);
   }, [state.phase, state.session.encounter]);
+  const encounterRoll = (now: Date): EncounterRoll => ({
+    pick: Math.random(), id: crypto.randomUUID(), fleeAfter, trainerDays: trainerAgeDays(trainerIssuedAt, now.getTime()),
+    shinyRoll: crypto.getRandomValues(new Uint16Array(1))[0] / 2 ** 16,
+  });
   const move = (direction: Direction) => {
-    if (checking.current) return;
+    if (checking.current || state.slideMs) return;
     const now = new Date();
-    const shinyRoll = crypto.getRandomValues(new Uint16Array(1))[0] / 2 ** 16;
-    dispatch({ type: "move", direction, chance: Math.random(), pick: Math.random(), shinyRoll, id: crypto.randomUUID(),
-      date: now.toISOString().slice(0, 10), fleeAfter, trainerDays: trainerAgeDays(trainerIssuedAt, now.getTime()) });
+    dispatch({ type: "move", direction, chance: Math.random(), date: now.toISOString().slice(0, 10), ...encounterRoll(now) });
   };
   const run = async (mode: SafariQueryMode) => {
     const encounter = state.session.encounter;
@@ -110,13 +131,14 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     try {
       const reply = await check(state.session.draft, encounter.pokemonId, encounter.assignmentId, {
         id: encounter.id, level: encounter.level ?? legacyEncounterLevel(encounter.id), shiny: encounter.shiny === true,
-        zoneId: state.session.zoneId, attempts: encounter.attempts,
+        zoneId: state.session.zoneId, attempts: encounter.attempts, source: encounter.source,
       }, mode);
       dispatch({ type: "reply", id: encounter.id, reply, at: reply.caughtAt ?? new Date().toISOString(), mode });
     } catch (error) { dispatch({ type: "error", message: (error as Error).message }); }
     finally { checking.current = false; }
   };
   return { ...state, saveError, visiblePokemonId: visibleSafariPokemonId(state.session.encounter, state.phase), actions: { move,
+    checkHoneyTree: () => { if (!checking.current) dispatch({ type: "honey-tree", zoneId: state.session.zoneId, ...encounterRoll(new Date()) }); },
     restoreCatch,
     useItem: (id: BagItemId) => { if (!checking.current) dispatch({ type: "item", id }); },
     changeZone: (id: ZoneId) => { if (!checking.current && state.phase === "roaming") dispatch({ type: "zone", id }); },

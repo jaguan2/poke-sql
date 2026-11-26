@@ -1,5 +1,5 @@
-import { encounterTable, WEATHER } from "./zones";
-import type { SafariZoneDefinition, WeatherId } from "./zones";
+import { encounterTable, honeyTreeTable, WEATHER } from "./zones";
+import type { SafariSpecies, SafariZoneDefinition, WeatherId } from "./zones";
 
 export function SafariFieldGuide({ zone, registeredIds, weather, previousId, date, shinyOdds }: { zone: SafariZoneDefinition; registeredIds: readonly number[]; weather: WeatherId; previousId?: number; date: string; shinyOdds: number }) {
   const registered = new Set(registeredIds);
@@ -13,9 +13,24 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId, dat
       <span>{found} / {zone.species.length} species registered</span>
       <progress aria-label={`${zone.name} collection progress`} value={found} max={zone.species.length} />
     </div>
-    <table className="safari-pool" aria-label={`${zone.name} encounter table`}>
+    <EncounterPool label={`${zone.name} encounter table`} species={zone.species} registered={registered}
+      chances={chances} previousId={previousId} weather={weather} />
+    {zone.honeyTree && <details className="safari-honey-pool">
+      <summary>Honey Tree encounters</summary>
+      <EncounterPool label={`${zone.name} Honey Tree encounter table`} species={zone.honeyTree.species} registered={registered}
+        chances={new Map(honeyTreeTable(zone.honeyTree).rows.map(row => [row.pokemon.id, row.chance]))} />
+    </details>}
+    <small className="safari-guide-note">Register a Pokémon to reveal it here. Walking encounter chances include today's weather. Your last catch rests in the walking pool when other species are available. Each encounter has a 1 in {shinyOdds} chance to be shiny.</small>
+  </aside>;
+}
+
+function EncounterPool({ label, species, registered, chances, previousId, weather }: {
+  label: string; species: readonly SafariSpecies[]; registered: ReadonlySet<number>; chances: ReadonlyMap<number, number>;
+  previousId?: number; weather?: WeatherId;
+}) {
+  return <table className="safari-pool" aria-label={label}>
       <thead><tr><th scope="col">Pokémon</th><th scope="col">Next roll</th></tr></thead>
-      <tbody>{zone.species.map(pokemon => {
+      <tbody>{species.map(pokemon => {
         const chance = chances.get(pokemon.id);
         const known = registered.has(pokemon.id);
         const unavailable = pokemon.id === previousId ? "Resting" : "Event only";
@@ -25,13 +40,11 @@ export function SafariFieldGuide({ zone, registeredIds, weather, previousId, dat
         className={known ? "is-registered" : undefined}>
         <th scope="row"><div className="safari-pool-species"><img className={known ? undefined : "safari-silhouette"} src={`${import.meta.env.BASE_URL}sprites/${pokemon.id}.png`} alt="" width={40} height={40} loading="lazy" />
         <span><strong>{known ? pokemon.name : "???"}</strong><small>{pokemon.rarity}</small>
-          {chance !== undefined && pokemon.favoredWeather.includes(weather) && <small className="safari-weather-favored">More likely today</small>}
+          {chance !== undefined && weather && pokemon.favoredWeather.includes(weather) && <small className="safari-weather-favored">More likely today</small>}
           <small className="safari-registration">{known ? "Registered" : "Not yet found"}</small>
         </span></div></th>
         <td>{nextRoll}</td>
       </tr>;
       })}</tbody>
-    </table>
-    <small className="safari-guide-note">Register a Pokémon to reveal it here. Chances include today’s weather. Your last catch rests when other species are available. Each encounter has a 1 in {shinyOdds} chance to be shiny.</small>
-  </aside>;
+    </table>;
 }

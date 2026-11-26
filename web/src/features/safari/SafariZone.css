@@ -34,6 +34,14 @@
 .safari-map-label { position:absolute; top:10px; left:10px; background:#193e32dd; border:1px solid #ffffff30; color:#f0efd4; border-radius:5px; font-size:9px; letter-spacing:1px; text-transform:uppercase; padding:5px 8px; pointer-events:none; }
 .safari-player { position:absolute; z-index:2; width:calc(100% / var(--route-columns) * .75); aspect-ratio:1/2; transform:translate(-50%,-72%); transition:left var(--safari-step-duration) linear,top var(--safari-step-duration) linear; pointer-events:none; }
 .safari-player::after { content:""; position:absolute; left:10%; bottom:0; width:80%; height:15%; border-radius:50%; background:#1c382d44; z-index:-1; }
+.safari-ice-help,.safari-honey-help { margin:8px 0; color:var(--text-dim); font-size:12px; line-height:1.5; }
+.safari-honey-tree { position:absolute; z-index:1; display:grid; place-items:start center; width:max(44px,calc(200% / var(--route-columns))); aspect-ratio:1; transform:translate(-50%,-50%); padding:0; border:1px solid transparent; border-radius:6px; background:transparent; color:#fff0a1; cursor:pointer; }
+.safari-honey-tree span { position:absolute; top:0; left:50%; transform:translateX(-50%); min-width:18px; padding:2px 5px; border-radius:8px; background:#583214; font-size:11px; font-weight:600; line-height:14px; white-space:nowrap; }
+.safari-honey-tree[data-edge=left] span { left:1px; transform:none; }
+.safari-honey-tree[data-edge=right] span { left:auto; right:1px; transform:none; }
+.safari-honey-tree:disabled { cursor:default; }
+.safari-honey-tree:not(:disabled):is(:hover,:focus-visible) { outline:2px solid #fff0a1; background:#fff0a133; }
+.safari-mini-honey { color:#ffd56a; }
 .safari-trainer { width:100%; height:100%; }
 .safari-ranger-marker { display:grid; place-items:end center; position:absolute; z-index:1; width:max(44px,calc(100% / var(--route-columns))); height:44px; padding:0; transform:translate(-50%,-70%); border:0; border-radius:5px; background:none; cursor:pointer; }
 .safari-ranger-marker .trainer-sprite { position:absolute; bottom:0; width:clamp(16px,55%,32px); aspect-ratio:1/2; filter:hue-rotate(45deg); }
@@ -58,6 +66,8 @@
 .safari-ranger-note p { font-size:11px; color:var(--text-dim); line-height:1.7; margin:0; }.safari-ranger-note strong { color:var(--text); }
 .safari-field-guide { padding:16px; border:1px solid var(--border); border-radius:16px; }.safari-field-guide h3 { margin:8px 0; font-size:20px; }.safari-field-guide > p { color:var(--text-dim); font-size:11px; line-height:1.7; }
 .safari-pool { width:100%; border-collapse:collapse; table-layout:fixed; margin-block:16px; }
+.safari-honey-pool { margin-block:10px; }
+.safari-honey-pool summary { cursor:pointer; font-weight:650; }
 .safari-pool thead th { padding:7px 0; border-bottom:1px solid var(--border); text-align:left; color:var(--text-dim); font-size:9px; font-weight:600; }
 .safari-pool thead th:last-child { width:54px; text-align:right; }
 .safari-pool tbody th { padding:6px 0; font-weight:400; text-align:left; }

@@ -1,4 +1,4 @@
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,6 +33,18 @@ export async function verifyRelease(releaseDirectory, version) {
   return { installerBytes, payloadBytes, portableBytes: portable.size };
 }
 
+export function windowsDownloadNotes(version, { installerBytes, payloadBytes, portableBytes }, { owner, repo }) {
+  const base = `https://github.com/${owner}/${repo}/releases/download/v${version}`;
+  const mib = bytes => (bytes / (1024 * 1024)).toFixed(1);
+  return [
+    '## Windows downloads',
+    '',
+    `- [Install PokéSQL](${base}/PokeSQL-${version}-setup.exe) — ${mib(installerBytes + payloadBytes)} MiB total. Setup downloads the application and includes automatic updates.`,
+    `- [Portable PokéSQL](${base}/PokeSQL-${version}-portable.exe) — ${mib(portableBytes)} MiB. Runs offline from first launch and updates by manual replacement.`,
+    '',
+  ].join('\n');
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const pkg = JSON.parse(await readFile(path.join(webRoot, 'package.json'), 'utf8'));
   if (process.env.RELEASE_TAG && process.env.RELEASE_TAG !== `v${pkg.version}`) throw new Error('The release tag must equal v + package.json version.');
@@ -43,5 +55,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (config.provider !== 'github' || config.owner !== provider.owner || config.repo !== provider.repo) {
     throw new Error('The packaged updater must use this repository’s GitHub Releases.');
   }
+  await writeFile(path.join(directory, 'windows-download.md'), windowsDownloadNotes(pkg.version, result, provider));
   console.log(`Verified release ${pkg.version}: ${JSON.stringify(result)}. Installer/payload SHA-512 hashes match latest.yml.`);
 }

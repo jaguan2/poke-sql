@@ -141,9 +141,10 @@ export function useWorkspace() {
       setSchema(reply.schema);
       if (mode === "catch" && !reply.error && reply.passed && reply.safariPokemon?.id === pokemonId) {
         const at = new Date().toISOString();
+        const area = zoneById(context.zoneId).name;
         await pc.award({ id: `safari:${context.id}`, pokemon: reply.safariPokemon, source: "safari", sources: ["safari"],
           level: context.level, shiny: context.shiny, ball: ballTheme, caughtAt: at, firstRecordedAt: at,
-          location: zoneById(context.zoneId).name, attempts: context.attempts + 1, sql });
+          location: context.source === "honey-tree" ? `${area} · Honey Tree` : area, attempts: context.attempts + 1, sql });
         return { ...reply, caughtAt: at };
       }
       return reply;

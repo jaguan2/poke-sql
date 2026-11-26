@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import initSqlJs from 'sql.js';
 import { readFileSync } from 'node:fs';
-import { SAFARI_ZONES, chooseSpecies, encounterTable, featuredZone, isWalkable, movePosition, rustlingPatch, tileAt, weatherFor, zoneById } from '../../src/features/safari/zones';
+import { SAFARI_ZONES, chooseSpecies, encounterTable, featuredZone, isEncounterTile, isWalkable, movePosition, rustlingPatch, tileAt, weatherFor, zoneById } from '../../src/features/safari/zones';
 import { ASSIGNMENTS, SHINY_ODDS, changeSafariZone, createSafariSession, isSafariSession, restoreSafariSession, walkSafari } from '../../src/features/safari/model';
 import { checkSafariQuery, safariAssignment } from '../../src/features/safari/assignments';
 import { recordSafariEncounter, recordSolvedEncounter, isPokemonEncounters } from '../../src/features/pokedex/encounters';
@@ -10,6 +10,7 @@ import { entriesFor } from '../fixtures/pokemon-encounters';
 import { nearSafariGrass } from '../fixtures/safari';
 import { RANGER_POSITIONS, rangerSighting } from '../../src/features/safari/ranger';
 import { hasShinySprite } from '../../src/shared/pokemon/sprites';
+import { createBag } from '../../src/features/safari/bag-model';
 
 test('Safari maps have connected safe starts and reachable encounter grass, with biome-appropriate canonical pools', async () => {
   const SQL = await initSqlJs();
@@ -20,7 +21,7 @@ test('Safari maps have connected safe starts and reachable encounter grass, with
       expect(zone.map[0].length).toBeGreaterThanOrEqual(20);
       expect(zone.map.every(row => row.length === zone.map[0].length)).toBe(true);
       expect(isWalkable(zone, zone.start)).toBe(true);
-      expect(tileAt(zone, zone.start)).not.toBe('g');
+      expect(isEncounterTile(tileAt(zone, zone.start))).toBe(false);
       const seen = new Set<string>();
       const queue = [zone.start];
       while (queue.length) {
@@ -34,11 +35,12 @@ test('Safari maps have connected safe starts and reachable encounter grass, with
         }
       }
       expect(seen.has(`${zone.rustle.x},${zone.rustle.y}`)).toBe(true);
-      expect(tileAt(zone, zone.rustle)).toBe('g');
+      expect(isEncounterTile(tileAt(zone, zone.rustle))).toBe(true);
       for (let catches = 0; catches < 120; catches++) {
         const patch = rustlingPatch(zone, catches);
-        expect(tileAt(zone, patch)).toBe('g');
-        expect(seen.has(`${patch.x},${patch.y}`)).toBe(true);
+        expect(patch).not.toBeNull();
+        expect(isEncounterTile(tileAt(zone, patch!))).toBe(true);
+        expect(seen.has(`${patch!.x},${patch!.y}`)).toBe(true);
       }
       expect(new Set(zone.species.map(species => species.id)).size).toBe(zone.species.length);
       for (const species of zone.species) {
@@ -49,6 +51,32 @@ test('Safari maps have connected safe starts and reachable encounter grass, with
       }
     }
   } finally { db.close(); }
+});
+
+test('ice stops at walls or firm ground and keeps settled positions compatible with saves', () => {
+  const frostveil = createSafariSession('tundra');
+  const slid = walkSafari(frostveil, 'up', 1, 0, 'wall-stop');
+  expect(slid).toMatchObject({ position: { x: 5, y: 23 }, steps: 3, encounter: null });
+  expect(walkSafari(slid, 'up', 1, 0, 'blocked')).toMatchObject({ position: slid.position, steps: 3 });
+  expect(restoreSafariSession(JSON.parse(JSON.stringify(slid)))).toEqual(slid);
+  const turned = walkSafari(slid, 'right', 1, 0, 'firm-stop');
+  expect(turned).toMatchObject({ position: { x: 7, y: 23 }, direction: 'right', steps: 5 });
+
+  const acuity = { ...createSafariSession('acuity-lakefront'), position: { x: 12, y: 8 } };
+  const shore = walkSafari(acuity, 'up', 0, 0, 'cross-shore');
+  expect(shore).toMatchObject({ position: { x: 12, y: 3 }, steps: 5, encounter: null });
+  expect(tileAt(zoneById(shore.zoneId), shore.position)).toBe('.');
+});
+
+test('Repel spends each tile of a slide and Frostveil encounters begin at the stopping point', () => {
+  const session = { ...createSafariSession('tundra'), grassSteps: 5 };
+  const stop = { x: 5, y: 23 };
+  const caught = walkSafari(session, 'up', 0, 0, 'ice-encounter');
+  expect(caught).toMatchObject({ position: stop, steps: 3, encounter: { id: 'ice-encounter' } });
+  const repelled = walkSafari({ ...session, bag: { ...createBag(), repelSteps: 4 } }, 'up', 0, 0, 'repelled');
+  expect(repelled).toMatchObject({ position: stop, steps: 3, encounter: null, bag: { repelSteps: 1 } });
+  const exhausted = walkSafari({ ...session, bag: { ...createBag(), repelSteps: 1 } }, 'up', 0, 0, 'ice-after-repel');
+  expect(exhausted).toMatchObject({ position: stop, steps: 3, bag: { repelSteps: 0 }, encounter: { id: 'ice-after-repel' } });
 });
 
 test('guaranteed encounters follow the new patch after a catch instead of the old patch', () => {

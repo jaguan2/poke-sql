@@ -1,0 +1,88 @@
+{
+  "file": "sinnoh/region-map.png",
+  "game": "PokéSQL",
+  "width": 176,
+  "height": 152,
+  "points": {
+    "twinleaf-town": {
+      "x": 38,
+      "y": 130
+    },
+    "route-201": {
+      "x": 38,
+      "y": 113
+    },
+    "verity-lakefront": {
+      "x": 19,
+      "y": 103
+    },
+    "sandgem-town": {
+      "x": 62,
+      "y": 113
+    },
+    "route-202": {
+      "x": 62,
+      "y": 100
+    },
+    "jubilife-city": {
+      "x": 62,
+      "y": 84
+    },
+    "route-203": {
+      "x": 84,
+      "y": 89
+    },
+    "oreburgh-gate": {
+      "x": 105,
+      "y": 95
+    },
+    "oreburgh-city": {
+      "x": 133,
+      "y": 104
+    },
+    "route-204": {
+      "x": 60,
+      "y": 70
+    },
+    "floaroma-town": {
+      "x": 57,
+      "y": 52
+    },
+    "valley-windworks": {
+      "x": 92,
+      "y": 55
+    },
+    "eterna-forest": {
+      "x": 54,
+      "y": 33
+    },
+    "eterna-city": {
+      "x": 92,
+      "y": 32
+    },
+    "mt-coronet": {
+      "x": 130,
+      "y": 43
+    },
+    "acuity-lakefront": {
+      "x": 127,
+      "y": 16
+    }
+  },
+  "markers": [
+    "twinleaf-town",
+    "verity-lakefront",
+    "sandgem-town",
+    "jubilife-city",
+    "oreburgh-city",
+    "floaroma-town",
+    "valley-windworks",
+    "eterna-forest",
+    "eterna-city",
+    "mt-coronet",
+    "acuity-lakefront"
+  ],
+  "recipeSha256": "e20126f44f20cd030596cde01bc1b91155e13e7df033e3aa6b8be094d92f1a12",
+  "pointsSha256": "04dedcbd196ca7711332a199483fc26a666cee3831525f92217f209ea1d2e6f0",
+  "sha256": "1fa03a6cfb4d58fdfbf1b27616a5360d84c450dd5702e141f26a72fde1b66d37"
+}

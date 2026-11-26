@@ -29,3 +29,11 @@ test('release verification accepts matching assets and rejects an altered payloa
   await writeFile(path.join(web, 'latest.yml'), dump(unsafe));
   await assert.rejects(verifyRelease(release, '0.2.0'), /Invalid release asset/);
 });
+
+test('download notes show the complete installer transfer and the standalone portable size', async () => {
+  const { windowsDownloadNotes } = await import('../../scripts/check-release.mjs');
+  const notes = windowsDownloadNotes('0.2.7', { installerBytes: 524288, payloadBytes: 157286400, portableBytes: 136314880 },
+    { owner: 'jaguan2', repo: 'poke-sql' });
+  assert.match(notes, /releases\/download\/v0\.2\.7\/PokeSQL-0\.2\.7-setup\.exe\) — 150\.5 MiB total/);
+  assert.match(notes, /releases\/download\/v0\.2\.7\/PokeSQL-0\.2\.7-portable\.exe\) — 130\.0 MiB/);
+});

@@ -1,0 +1,330 @@
+{
+  "twinleaf-town": {
+    "name": "Twinleaf Town",
+    "kind": "town",
+    "description": "Start beside the flower beds. Take the north path to Route 201.",
+    "pool": []
+  },
+  "route-201": {
+    "name": "Route 201",
+    "kind": "route",
+    "description": "Follow the grassland trail to Sandgem Town or head west to Lake Verity.",
+    "pool": [
+      [
+        396,
+        "Starly",
+        44
+      ],
+      [
+        399,
+        "Bidoof",
+        36
+      ],
+      [
+        401,
+        "Kricketot",
+        20
+      ]
+    ]
+  },
+  "verity-lakefront": {
+    "name": "Lake Verity",
+    "kind": "lake",
+    "description": "Search the reeds along the quiet shore west of Route 201.",
+    "pool": [
+      [
+        54,
+        "Psyduck",
+        38
+      ],
+      [
+        399,
+        "Bidoof",
+        33
+      ],
+      [
+        396,
+        "Starly",
+        22
+      ],
+      [
+        387,
+        "Turtwig",
+        7
+      ]
+    ]
+  },
+  "sandgem-town": {
+    "name": "Sandgem Town",
+    "kind": "town",
+    "description": "A small coastal town with a PC. Route 202 leaves to the north.",
+    "pool": []
+  },
+  "route-202": {
+    "name": "Route 202",
+    "kind": "route",
+    "description": "Tall grass lines the road between Sandgem and Jubilife.",
+    "pool": [
+      [
+        403,
+        "Shinx",
+        40
+      ],
+      [
+        396,
+        "Starly",
+        30
+      ],
+      [
+        399,
+        "Bidoof",
+        20
+      ],
+      [
+        401,
+        "Kricketot",
+        10
+      ]
+    ]
+  },
+  "jubilife-city": {
+    "name": "Jubilife City",
+    "kind": "town",
+    "description": "Use the PC before taking Route 203 east or Route 204 north.",
+    "pool": []
+  },
+  "route-203": {
+    "name": "Route 203",
+    "kind": "route",
+    "description": "A pond and grassy banks sit west of the Oreburgh Gate entrance.",
+    "pool": [
+      [
+        396,
+        "Starly",
+        34
+      ],
+      [
+        403,
+        "Shinx",
+        31
+      ],
+      [
+        401,
+        "Kricketot",
+        20
+      ],
+      [
+        54,
+        "Psyduck",
+        15
+      ]
+    ]
+  },
+  "oreburgh-gate": {
+    "name": "Oreburgh Gate",
+    "kind": "cave",
+    "description": "Cross the rocky passage between Route 203 and Oreburgh City.",
+    "pool": [
+      [
+        41,
+        "Zubat",
+        46
+      ],
+      [
+        74,
+        "Geodude",
+        36
+      ],
+      [
+        95,
+        "Onix",
+        18
+      ]
+    ]
+  },
+  "oreburgh-city": {
+    "name": "Oreburgh City",
+    "kind": "town",
+    "description": "The mining town has a PC and a northern trail toward Mount Coronet.",
+    "pool": []
+  },
+  "route-204": {
+    "name": "Route 204",
+    "kind": "route",
+    "description": "Search the grassy banks on the way north to Floaroma Town.",
+    "pool": [
+      [
+        406,
+        "Budew",
+        34
+      ],
+      [
+        265,
+        "Wurmple",
+        28
+      ],
+      [
+        399,
+        "Bidoof",
+        23
+      ],
+      [
+        403,
+        "Shinx",
+        15
+      ]
+    ],
+    "honeyTree": {
+      "x": 20,
+      "y": 6
+    }
+  },
+  "floaroma-town": {
+    "name": "Floaroma Town",
+    "kind": "town",
+    "description": "Stop at the PC between the flower fields. Head north to Eterna Forest or east to Valley Windworks.",
+    "pool": []
+  },
+  "valley-windworks": {
+    "name": "Valley Windworks",
+    "kind": "lake",
+    "description": "Search the tall grass between the turbine yard and the river.",
+    "pool": [
+      [
+        418,
+        "Buizel",
+        33
+      ],
+      [
+        422,
+        "Shellos",
+        30
+      ],
+      [
+        417,
+        "Pachirisu",
+        27
+      ],
+      [
+        425,
+        "Drifloon",
+        10
+      ]
+    ],
+    "honeyTree": {
+      "x": 0,
+      "y": 6
+    }
+  },
+  "eterna-forest": {
+    "name": "Eterna Forest",
+    "kind": "forest",
+    "description": "Look for wild Pokémon in the clearings between the trees.",
+    "pool": [
+      [
+        265,
+        "Wurmple",
+        26
+      ],
+      [
+        427,
+        "Buneary",
+        26
+      ],
+      [
+        406,
+        "Budew",
+        24
+      ],
+      [
+        198,
+        "Murkrow",
+        14
+      ],
+      [
+        200,
+        "Misdreavus",
+        10
+      ]
+    ],
+    "honeyTree": {
+      "x": 7,
+      "y": 7
+    }
+  },
+  "eterna-city": {
+    "name": "Eterna City",
+    "kind": "town",
+    "description": "Visit the PC between Eterna Forest and Mount Coronet.",
+    "pool": []
+  },
+  "mt-coronet": {
+    "name": "Mount Coronet",
+    "kind": "cave",
+    "description": "Climb through the mountain to Lake Acuity or return to Eterna or Oreburgh.",
+    "pool": [
+      [
+        436,
+        "Bronzor",
+        30
+      ],
+      [
+        74,
+        "Geodude",
+        24
+      ],
+      [
+        433,
+        "Chingling",
+        20
+      ],
+      [
+        41,
+        "Zubat",
+        13
+      ],
+      [
+        443,
+        "Gible",
+        8
+      ],
+      [
+        390,
+        "Chimchar",
+        5
+      ]
+    ]
+  },
+  "acuity-lakefront": {
+    "name": "Lake Acuity",
+    "kind": "snow",
+    "description": "Slide across the frozen shore and search the snowdrifts for wild Pokémon.",
+    "pool": [
+      [
+        459,
+        "Snover",
+        35
+      ],
+      [
+        220,
+        "Swinub",
+        25
+      ],
+      [
+        215,
+        "Sneasel",
+        20
+      ],
+      [
+        361,
+        "Snorunt",
+        14
+      ],
+      [
+        393,
+        "Piplup",
+        6
+      ]
+    ]
+  }
+}

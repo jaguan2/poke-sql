@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, protocol, session } = require('electron');
+const { app, BrowserWindow, dialog, Menu, protocol, session } = require('electron');
 const path = require('node:path');
 const { readFile } = require('node:fs/promises');
 const { parseByteRange } = require('./byte-range.cjs');
@@ -38,6 +38,31 @@ function createWindow() {
   });
   window.once('ready-to-show', () => { if (!testing) window.show(); });
   window.loadURL('pokesql://app/index.html');
+}
+
+function configureUpdates(window) {
+  const { autoUpdater } = require('electron-updater');
+  const menu = Menu.buildFromTemplate([{ label: '&Updates', submenu: [
+    { id: 'check', label: 'Check for updates', click: () => void updates.check(true) },
+  ] }]);
+  window.setMenu(menu);
+  const checkItem = menu.getMenuItemById('check');
+  const titles = { checking: 'Checking for updates…', current: 'Up to date', downloading: 'Downloading update…', ready: 'Update ready', failed: 'Update unavailable' };
+  const updates = startUpdates(autoUpdater, version => {
+    if (window.isDestroyed()) return;
+    return dialog.showMessageBox(window, { type: 'info', title: 'PokéSQL update ready',
+      message: `PokéSQL ${version} is ready to install.`,
+      detail: 'Finish your work, then close PokéSQL normally. The update will install after you close it. Your saved SQL, database edits and Pokédex progress stay on this device.',
+      buttons: ['Keep working'], defaultId: 0, noLink: true });
+  }, console, status => {
+    if (window.isDestroyed()) return;
+    const downloading = status.kind === 'downloading';
+    checkItem.enabled = !downloading && status.kind !== 'checking' && status.kind !== 'ready';
+    checkItem.label = status.kind === 'failed' ? 'Retry update check' : 'Check for updates';
+    if (status.kind !== 'failed' || status.visible) window.setTitle(`PokéSQL — ${titles[status.kind]}`);
+    window.setProgressBar(downloading ? status.progress ?? 2 : -1);
+  });
+  app.once('before-quit', updates.stop);
 }
 
 app.whenReady().then(() => {
@@ -81,15 +106,7 @@ app.whenReady().then(() => {
   });
   createWindow();
   if (app.isPackaged && process.platform === 'win32' && !testing && !process.env.PORTABLE_EXECUTABLE_FILE) {
-    const { autoUpdater } = require('electron-updater');
-    const stopUpdates = startUpdates(autoUpdater, version => {
-      if (!window || window.isDestroyed()) return;
-      return dialog.showMessageBox(window, { type: 'info', title: 'PokéSQL update ready',
-        message: `PokéSQL ${version} is ready to install.`,
-        detail: 'Finish your work, then close PokéSQL normally. The update will install after you close it. Your saved SQL, database edits and Pokédex progress stay on this device.',
-        buttons: ['Keep working'], defaultId: 0, noLink: true });
-    });
-    app.once('before-quit', stopUpdates);
+    configureUpdates(window);
   }
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });

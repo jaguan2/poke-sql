@@ -5,7 +5,7 @@ stats, evolutions, Mega and regional forms, abilities, and the type-effectivenes
 or a Windows desktop application. No account, cloud database, or backend.
 
 Browse the [current screenshot gallery](docs/screenshots/README.md) for the
-practice pages, all eight Poké Ball themes, Kanto, Hoenn and Johto exploration, Safari catches, Trainer ID,
+practice pages, all eight Poké Ball themes, Kanto, Hoenn, Johto and Sinnoh exploration, Safari catches, Trainer ID,
 Pokédex and iPad-sized layouts.
 
 Designed primarily for desktop/laptop browsers and iPads in portrait or landscape.
@@ -107,6 +107,17 @@ See [releasing and testing updates](docs/RELEASING.md).
   encounters can occur throughout the walkable floor. The first journey ends
   in Goldenrod; later towns, surfing, NPC battles and story progression are
   not included.
+- **Explore Sinnoh:** start in Twinleaf Town and walk through 16 connected
+  locations, including Lake Verity, Valley Windworks, Eterna Forest, Mount
+  Coronet and Lake Acuity. Choose **Region map → Sinnoh** to drop into an area
+  or resume your saved position. Habitat-based encounter tables include Starly,
+  Shinx, Drifloon and the three Sinnoh starters. Catches use the same SQL tasks,
+  Pokédex and PC Boxes as the other regions.
+  Slick ice at Lake Acuity and in Frostveil Tundra carries the trainer forward
+  until they reach firm ground or an obstacle.
+  On Route 204, at Valley Windworks and in Eterna Forest, walk beside a
+  golden Honey Tree and check it for an immediate encounter. The trees share
+  their own catch pool, with a rare chance to find Munchlax.
 - **Bag and game menus:** the framed navigation groups Explore, Pokédex, PC Boxes,
   Bag, Trainer ID and Options. The Bag has Items and Key Items pockets, local
   PokéAPI item icons and a description window. The Bag window and menu icon use
@@ -402,6 +413,12 @@ adapter decodes native block maps, tiles, palette maps, per-town roofs and
 16-pixel collision quadrants, then feeds the same connected-map validation
 and asset manifest as Kanto/Hoenn. Recipes live in `johto-routes.json`.
 All Johto encounter species have bundled normal and shiny sprites.
+
+Sinnoh uses original PokéSQL layouts and an atlas with the app's bundled terrain
+tiles, trainer sprites and area music. Edit `scripts/sinnoh_routes.json` and run
+`py scripts/build_region_assets.py sinnoh` (Pillow required) to rebuild the art,
+collision maps, capture pools, decorative trainers and asset manifests. The
+generator works offline with the checked-in map art.
 
 Safari offers 72 regular species plus nine Legendary and six Mythical event
 visitors across nine habitats (87 distinct species and 90 habitat slots,

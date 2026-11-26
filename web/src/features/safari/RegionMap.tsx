@@ -6,10 +6,11 @@ import { REGIONS, regionById, regionFor, regionPortals, regionalRoute } from "./
 import type { RegionId } from "./regions";
 import { canTravelTo, visitedLocations } from "./model";
 import overviews from "./region-overviews.json" with { type: "json" };
+import sinnohOverview from "./sinnoh-overview.json" with { type: "json" };
 import "./RegionMap.css";
 
 interface RegionOverview { file: string; game: string; width: number; height: number; points: Record<string, { x: number; y: number }>; markers: readonly string[] }
-const nativeMaps: Record<RegionId, RegionOverview> = overviews;
+const regionMaps: Record<RegionId, RegionOverview> = { ...overviews, sinnoh: sinnohOverview };
 
 export function RegionMap({ session, disabled, onTravel, onRegion }: { session: SafariSession; disabled: boolean; onTravel: (id: ZoneId) => void; onRegion: (id: RegionId) => void }) {
   const currentRegion = regionFor(session.zoneId);
@@ -20,7 +21,7 @@ export function RegionMap({ session, disabled, onTravel, onRegion }: { session: 
   const selected = zoneById(selection);
   const remote = currentRegion?.id !== regionId;
   const resume = session.regionPositions?.[regionId];
-  const overview = nativeMaps[regionId];
+  const overview = regionMaps[regionId];
   const landmarks = region.locations.filter(location => overview.markers.includes(location.id));
   const point = (id: ZoneId) => ({ left: `${overview.points[id].x / overview.width * 100}%`, top: `${overview.points[id].y / overview.height * 100}%` });
   return <details className="region-map">
@@ -45,6 +46,7 @@ export function RegionMap({ session, disabled, onTravel, onRegion }: { session: 
       </div>
       <div className="region-place-details">
         <small>{visited.includes(selection) ? "Visited" : "Unexplored"} · {region.name}</small><h3>{selected.name}</h3><p>{selected.description}</p>
+        {selected.honeyTree && <p>◆ Honey Tree</p>}
         <div className="region-travel-actions"><button type="button" className="btn btn-primary" disabled={disabled || !canTravelTo(session, selection)} onClick={() => onTravel(selection)}>{session.zoneId === selection ? "You are here" : `Travel to ${selected.name}`}</button>
           {remote && resume && <button type="button" className="btn" disabled={disabled} onClick={() => onRegion(regionId)}>Continue {region.name}</button>}</div>
         {remote && resume && <p>Resume at {zoneById(resume.zoneId).name}. Your position and discoveries are saved.</p>}

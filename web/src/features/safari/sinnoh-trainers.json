@@ -1,0 +1,95 @@
+{
+  "twinleaf-town": [
+    {
+      "x": 8,
+      "y": 9,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "route-201": [],
+  "verity-lakefront": [],
+  "sandgem-town": [
+    {
+      "x": 16,
+      "y": 9,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "route-202": [
+    {
+      "x": 10,
+      "y": 8,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "jubilife-city": [
+    {
+      "x": 14,
+      "y": 7,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "route-203": [
+    {
+      "x": 17,
+      "y": 6,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "oreburgh-gate": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "hiker",
+      "facing": "down"
+    }
+  ],
+  "oreburgh-city": [
+    {
+      "x": 15,
+      "y": 9,
+      "kind": "hiker",
+      "facing": "down"
+    }
+  ],
+  "route-204": [],
+  "floaroma-town": [
+    {
+      "x": 7,
+      "y": 9,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "valley-windworks": [],
+  "eterna-forest": [
+    {
+      "x": 10,
+      "y": 10,
+      "kind": "bug_catcher",
+      "facing": "down"
+    }
+  ],
+  "eterna-city": [
+    {
+      "x": 15,
+      "y": 10,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "mt-coronet": [
+    {
+      "x": 14,
+      "y": 9,
+      "kind": "hiker",
+      "facing": "down"
+    }
+  ],
+  "acuity-lakefront": []
+}

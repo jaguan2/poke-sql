@@ -11,6 +11,11 @@ import hoennManifest from '../src/features/safari/hoenn-assets.json' with { type
 import johtoMaps from '../src/features/safari/johto-maps.json' with { type: 'json' };
 import johtoRoutes from '../src/features/safari/johto-routes.json' with { type: 'json' };
 import johtoManifest from '../src/features/safari/johto-assets.json' with { type: 'json' };
+import sinnohMaps from '../src/features/safari/sinnoh-maps.json' with { type: 'json' };
+import sinnohRoutes from '../src/features/safari/sinnoh-routes.json' with { type: 'json' };
+import sinnohManifest from '../src/features/safari/sinnoh-assets.json' with { type: 'json' };
+import sinnohOverview from '../src/features/safari/sinnoh-overview.json' with { type: 'json' };
+import sinnohTrainers from '../src/features/safari/sinnoh-trainers.json' with { type: 'json' };
 import regionOverviews from '../src/features/safari/region-overviews.json' with { type: 'json' };
 import routeTrainers from '../src/features/safari/route-trainers.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
@@ -100,7 +105,8 @@ for (const track of regionalTracks) {
   }
 }
 console.log(`Verified ${regionalTracks.length} game soundtrack recordings; no unused MP3 files.`);
-for (const [id, layout] of Object.entries({ ...kantoMaps, ...hoennMaps, ...johtoMaps })) {
+const regionalLayouts = { ...kantoMaps, ...hoennMaps, ...johtoMaps, ...sinnohMaps };
+for (const [id, layout] of Object.entries(regionalLayouts)) {
   if (regionalTracks.filter(track => track.nativeMusic === layout.music).length !== 1) throw new Error(`Regional location ${id} needs exactly one matching music theme.`);
 }
 for (const [id, recipe] of Object.entries(safariRoutes)) {
@@ -119,44 +125,48 @@ if (!safariAssets.some(asset => asset.file === 'bag.png') || bagSprite.readUInt3
   throw new Error('Missing native Bag frame. Run py scripts/build_bag.py from the repository root.');
 }
 console.log(`Verified ${safariAssets.length} bundled Safari assets.`);
-async function verifyRegion(name, routes, maps, manifest) {
-for (const [id, recipe] of Object.entries(routes)) {
-  const asset = manifest.assets.find(asset => asset.file === `${id}.png`);
-  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
-  if (!asset || asset.recipeSha256 !== digest(recipe) || asset.layoutSha256 !== digest(maps[id])) {
-    throw new Error(`Regional map ${id} is stale. Run py scripts/build_region_assets.py ${name} from the repository root.`);
+const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+async function verifyRegion(name, routes, maps, manifest, atlas) {
+  const rebuild = `Run py scripts/build_region_assets.py ${name} from the repository root.`;
+  for (const [id, recipe] of Object.entries(routes)) {
+    const asset = manifest.assets.find(asset => asset.file === `${id}.png`);
+    if (!asset || !maps[id] || asset.recipeSha256 !== digest(recipe) || asset.layoutSha256 !== digest(maps[id])) {
+      throw new Error(`Regional map ${id} is stale. ${rebuild}`);
+    }
+    const data = await readFile(new URL(`../public/safari/${name}/${asset.file}`, import.meta.url));
+    if (createHash('sha256').update(data).digest('hex') !== asset.sha256
+      || data.readUInt32BE(16) !== maps[id].rows[0].length * 16 || data.readUInt32BE(20) !== maps[id].rows.length * 16) {
+      throw new Error(`Regional art must match its collision map: ${id}. ${rebuild}`);
+    }
   }
-  const data = await readFile(new URL(`../public/safari/${name}/${asset.file}`, import.meta.url));
-  if (createHash('sha256').update(data).digest('hex') !== asset.sha256
-    || data.readUInt32BE(16) !== maps[id].rows[0].length * 16 || data.readUInt32BE(20) !== maps[id].rows.length * 16) {
-    throw new Error(`Regional art must match its collision map: ${id}. Run py scripts/build_region_assets.py ${name} from the repository root.`);
-  }
-}
-console.log(`Verified ${manifest.assets.length} bundled ${name} maps.`);
-}
-await Promise.all([verifyRegion('kanto', kantoRoutes, kantoMaps, kantoManifest), verifyRegion('hoenn', hoennRoutes, hoennMaps, hoennManifest), verifyRegion('johto', johtoRoutes, johtoMaps, johtoManifest)]);
-for (const [region, routes] of Object.entries({ kanto: kantoRoutes, johto: johtoRoutes, hoenn: hoennRoutes })) {
-  const atlas = regionOverviews[region];
   const data = await readFile(new URL(`../public/safari/${atlas.file}`, import.meta.url));
-  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
   if (digest(routes) !== atlas.recipeSha256 || digest(atlas.points) !== atlas.pointsSha256
     || createHash('sha256').update(data).digest('hex') !== atlas.sha256
     || data.readUInt32BE(16) !== atlas.width || data.readUInt32BE(20) !== atlas.height
     || Object.keys(routes).length !== Object.keys(atlas.points).length
     || Object.keys(routes).some(id => !atlas.points[id] || atlas.points[id].x < 0 || atlas.points[id].x >= atlas.width || atlas.points[id].y < 0 || atlas.points[id].y >= atlas.height)
     || atlas.markers.some(id => !routes[id])) {
-    throw new Error(`Native ${region} town map is stale. Run py scripts/build_region_overviews.py from the repository root.`);
+    const atlasRebuild = name === 'sinnoh' ? rebuild : 'Run py scripts/build_region_overviews.py from the repository root.';
+    throw new Error(`${name} town map is stale. ${atlasRebuild}`);
   }
+  console.log(`Verified ${manifest.assets.length} bundled ${name} maps and atlas anchors.`);
 }
-console.log('Verified three native town maps and all regional location anchors.');
-const regionalLayouts = { ...kantoMaps, ...hoennMaps, ...johtoMaps };
-if (Object.keys(routeTrainers.locations).length !== Object.keys(regionalLayouts).length) throw new Error('Rebuild route trainers for all regional maps.');
+const sinnohSource = JSON.parse(await readFile(new URL('../../scripts/sinnoh_routes.json', import.meta.url)));
+if (digest(sinnohSource) !== sinnohManifest.sourceSha256) throw new Error('Run py scripts/build_region_assets.py sinnoh after changing its route recipes.');
+await Promise.all([
+  verifyRegion('kanto', kantoRoutes, kantoMaps, kantoManifest, regionOverviews.kanto),
+  verifyRegion('hoenn', hoennRoutes, hoennMaps, hoennManifest, regionOverviews.hoenn),
+  verifyRegion('johto', johtoRoutes, johtoMaps, johtoManifest, regionOverviews.johto),
+  verifyRegion('sinnoh', sinnohRoutes, sinnohMaps, sinnohManifest, sinnohOverview),
+]);
+const regionalTrainers = { ...routeTrainers.locations, ...sinnohTrainers };
+if (Object.keys(regionalTrainers).length !== Object.keys(regionalLayouts).length) throw new Error('Rebuild route trainers for all regional maps.');
 for (const [id, layout] of Object.entries(regionalLayouts)) {
-  const trainers = routeTrainers.locations[id];
+  const trainers = regionalTrainers[id];
   if (!trainers || new Set(trainers.map(npc => `${npc.x},${npc.y}`)).size !== trainers.length || trainers.some(npc =>
     !Number.isInteger(npc.x) || !Number.isInteger(npc.y) || !routeTrainers.sprites[npc.kind]
     || !['up', 'down', 'left', 'right'].includes(npc.facing) || !'.gS'.includes(layout.rows[npc.y]?.[npc.x] ?? '!')
-    || layout.portals.some(p => Math.abs(p.x - npc.x) <= 1 && Math.abs(p.y - npc.y) <= 1))) throw new Error(`Invalid route trainers in ${id}. Run py scripts/build_route_trainers.py.`);
+    || layout.portals.some(p => Math.abs(p.x - npc.x) <= 1 && Math.abs(p.y - npc.y) <= 1))) throw new Error(`Invalid route trainers in ${id}. Check the regional trainer positions.`);
 }
 for (const sprite of Object.values(routeTrainers.sprites)) {
   const data = await readFile(new URL(`../public/safari/${sprite.file}`, import.meta.url));

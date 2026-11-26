@@ -13,6 +13,7 @@ export interface SafariEncounter {
   outcome: "active" | "caught" | "fled"; fleeAfter: SafariFleeLimit;
   level?: number; // Absent in saves created before encounter levels.
   shiny?: boolean; // Older encounters default to their normal colors.
+  source?: "honey-tree"; // Walking encounters omit the source, including old saves.
 }
 export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
@@ -23,5 +24,5 @@ export interface SafariSession {
   regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction }>>;
 }
 export type SafariPhase = "roaming" | "rustling" | "entering" | "battle" | "catching" | "caught" | "fled";
-export interface SafariCaptureContext { id: string; level: number; shiny: boolean; zoneId: ZoneId; attempts: number }
+export interface SafariCaptureContext { id: string; level: number; shiny: boolean; zoneId: ZoneId; attempts: number; source?: SafariEncounter["source"] }
 export interface SafariCheckReply { results?: QueryResult[]; passed?: boolean; safariPokemon?: PokemonProfile; safariFeedback?: string; error?: string; caughtAt?: string }

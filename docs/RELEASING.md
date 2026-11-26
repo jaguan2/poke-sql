@@ -13,14 +13,24 @@ npm.cmd ci
 npm.cmd test
 npm.cmd run test:updates
 npm.cmd run desktop:build
+npm.cmd run desktop:package:update-baseline
 $env:POKESQL_EXECUTABLE = (Resolve-Path release/win-unpacked/PokeSQL.exe).Path
+$env:POKESQL_UPDATE_BASELINE = (Resolve-Path release/update-baseline).Path
 npm.cmd run test:desktop
 ```
 
 `desktop:build` verifies installer/payload SHA-512 hashes, version metadata,
-small-installer size and the packaged GitHub update configuration. The public
+small-installer size and the packaged GitHub update configuration. It writes
+`release/windows-download.md` with measured sizes for the release notes. The public
 renderer remains sandboxed and local-only. Tests use separate profiles and
 updater caches under `web/test-results`; they never execute downloaded updates.
+
+The baseline command builds a local version `0.0.1` from the same production
+assets. The packaged test seeds the previous payload in a disposable updater
+cache, verifies the reconstructed package checksum, and records transferred
+bytes in `update-transfer.json`. The fixture measures a version-only
+change. Audio, maps or Electron changes can make real updates larger. A second
+case verifies the full-download fallback with an empty cache.
 
 The outputs for 0.2.7 are:
 
@@ -54,6 +64,7 @@ EXE is an installer, and the installed app performs subsequent update checks.
    engine/browser tests, updater tests, packaging checks and packaged desktop
    tests. It uploads the build and test evidence as workflow artifacts, then
    attaches the installer, payload, metadata and portable build to a **draft**.
+   The draft starts with the total first-install and portable download sizes.
 5. Review the release notes and install the draft's downloaded artifacts in a
    disposable Windows test environment. Publish the draft to make that version
    visible to installed applications. Drafts are invisible to the public updater.
@@ -71,6 +82,10 @@ no GitHub credentials are included in the app.
   GitHub Releases. Checks start after window creation and recur every six hours.
 - Downloads and checksum validation use a separate updater network session.
   The renderer's local-resource request guard and CSP stay intact.
+- Bundled soundtracks ship alongside `app.asar` in the installer, so the
+  updater can reuse unchanged audio when the code changes. Playback works offline.
+- While an update downloads, the Windows title bar and taskbar show its status.
+  The **Updates** menu can check for updates or retry a failed check.
 - A completed download announces the new version once. It installs on normal
   quit, with automatic relaunch disabled. It never forces a running query to stop.
 - Offline checks, failed downloads and checksum errors do not replace the app.

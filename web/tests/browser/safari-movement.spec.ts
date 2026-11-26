@@ -22,6 +22,52 @@ test('quick taps and turns are accepted, and holding into a wall does not move t
   await expect(player).toHaveAttribute('data-x', '11'); await expect(player).toHaveAttribute('data-y', '17');
 });
 
+test('one key tap glides across Lake Acuity, locking turns until the trainer lands', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await walkingClock(page);
+  await page.addInitScript(session => {
+    if (!localStorage.getItem('pokesql:safari')) localStorage.setItem('pokesql:safari', JSON.stringify(session));
+  }, { ...createSafariSession('acuity-lakefront'), position: { x: 12, y: 8 } });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  const map = page.getByRole('group', { name: 'Lake Acuity exploration map' });
+  const player = map.locator('.safari-player');
+  await page.keyboard.press('ArrowUp');
+  await expect(map).toHaveClass(/is-sliding/);
+  await expect(player).toHaveCSS('transition-duration', '0.375s, 0.375s');
+  await page.keyboard.press('ArrowRight');
+  await expect(player).toHaveAttribute('data-facing', 'up');
+  await page.clock.runFor(400);
+  await expect(map).not.toHaveClass(/is-sliding/);
+  await expect(player).toHaveAttribute('data-y', '3');
+  await page.keyboard.press('ArrowRight');
+  await expect(player).toHaveAttribute('data-x', '13');
+  await page.reload();
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await expect(player).toHaveAttribute('data-x', '13');
+  await expect(player).toHaveAttribute('data-y', '3');
+});
+
+test('Frostveil reveals the wild Pokémon after the trainer stops on encounter ice', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await walkingClock(page);
+  await page.addInitScript(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), {
+    ...createSafariSession('tundra'), grassSteps: 5,
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  const map = page.getByRole('group', { name: 'Frostveil Tundra exploration map' });
+  const run = page.getByRole('button', { name: 'Run away', exact: true });
+  await page.keyboard.press('ArrowUp');
+  await expect(map).toHaveClass(/is-sliding/);
+  await expect(run).toHaveCount(0);
+  await page.clock.runFor(250);
+  await expect(map).not.toHaveClass(/is-sliding/);
+  await expect(map.locator('.safari-player')).toHaveAttribute('data-y', '23');
+  await page.clock.runFor(1700);
+  await expect(run).toBeVisible();
+});
+
 test('menus and window blur stop held movement until a fresh key press', async ({ page }) => {
   await walkingClock(page);
   await page.addInitScript(session => localStorage.setItem('pokesql:safari', JSON.stringify(session)), createSafariSession('forest'));
@@ -95,6 +141,34 @@ test.describe('tablet walking', () => {
     await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '9');
     await page.clock.runFor(350); await expect(page.locator('.safari-player')).toHaveAttribute('data-x', '9');
     await page.screenshot({ path: info.outputPath('tablet-continuous-walking.png') }); await cdp.detach();
+  });
+
+  test('releasing a tablet swipe still carries the trainer to the end of the ice', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await walkingClock(page);
+    await page.addInitScript(session => {
+      localStorage.setItem('pokesql:safari', JSON.stringify(session));
+      sessionStorage.setItem('pokesql:safari-controls-seen', 'yes');
+    }, { ...createSafariSession('acuity-lakefront'), position: { x: 13, y: 14 } });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    const map = page.getByRole('group', { name: 'Lake Acuity exploration map' });
+    await map.scrollIntoViewIfNeeded();
+    const bounds = (await map.boundingBox())!;
+    const point = { x: bounds.x + bounds.width * .4, y: bounds.y + bounds.height * .4 };
+    const cdp = await page.context().newCDPSession(page);
+    try {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ ...point, x: point.x + 60 }] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await expect(map).toHaveClass(/is-sliding/);
+      await page.clock.runFor(700);
+      await expect(map).not.toHaveClass(/is-sliding/);
+      await expect(map.locator('.safari-player')).toHaveAttribute('data-x', '20');
+      await expect(map.locator('.safari-player')).toHaveAttribute('data-y', '14');
+    } finally {
+      await cdp.detach();
+    }
   });
 });
 

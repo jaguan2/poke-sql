@@ -50,9 +50,12 @@ jobs:
       - name: Package the web installer and offline portable application
         run: npm run desktop:package
       - run: npm run check:release
+      - name: Build the previous-version package for the update benchmark
+        run: npm run desktop:package:update-baseline
       - name: Test the packaged application
         env:
           POKESQL_EXECUTABLE: ${{ github.workspace }}/web/release/win-unpacked/PokeSQL.exe
+          POKESQL_UPDATE_BASELINE: ${{ github.workspace }}/web/release/update-baseline
         run: npm run test:desktop
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -65,6 +68,7 @@ jobs:
             web/release/nsis-web/*.nsis.7z
             web/release/nsis-web/*.blockmap
             web/release/nsis-web/latest.yml
+            web/release/windows-download.md
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: always()
         with:
@@ -93,12 +97,13 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          $assets = @(Get-ChildItem -LiteralPath release -Recurse -File | Select-Object -ExpandProperty FullName)
+          $notes = (Resolve-Path -LiteralPath 'release/windows-download.md').Path
+          $assets = @(Get-ChildItem -LiteralPath release -Recurse -File | Where-Object FullName -ne $notes | Select-Object -ExpandProperty FullName)
           $release = gh release view $env:RELEASE_TAG --json isDraft 2>$null
           if ($LASTEXITCODE -eq 0) {
             if (-not ($release | ConvertFrom-Json).isDraft) { throw 'This version is already published. Bump the version for a new release.' }
             gh release upload $env:RELEASE_TAG --clobber @assets
           } else {
-            gh release create $env:RELEASE_TAG --verify-tag --draft --generate-notes --title $env:RELEASE_TAG @assets
+            gh release create $env:RELEASE_TAG --verify-tag --draft --generate-notes --notes-file $notes --title $env:RELEASE_TAG @assets
           }
           if ($LASTEXITCODE -ne 0) { throw 'Draft release upload failed.' }

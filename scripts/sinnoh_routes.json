@@ -1,0 +1,109 @@
+{
+  "twinleaf-town": {
+    "name": "Twinleaf Town", "kind": "town", "music": "MUSIC_NEW_BARK_TOWN", "point": [38, 130],
+    "description": "Start beside the flower beds. Take the north path to Route 201.",
+    "exits": {"north": "route-201"}, "buildings": [[4, 4], [15, 7]], "paths": [[6, 9, 12, 9], [12, 12, 17, 12], [12, 9, 12, 12]], "flowers": [[4, 12, 7, 13], [17, 13, 19, 14]],
+    "trainer": [8, 9, "lass"], "pool": []
+  },
+  "route-201": {
+    "name": "Route 201", "kind": "route", "music": "MUS_ROUTE101", "point": [38, 113],
+    "description": "Follow the grassland trail to Sandgem Town or head west to Lake Verity.",
+    "exits": {"south": "twinleaf-town", "west": "verity-lakefront", "east": "sandgem-town"},
+    "encounters": [[3, 3, 9, 6], [14, 11, 20, 14]], "trees": [[14, 2, 21, 5]],
+    "pool": [[396, "Starly", 44], [399, "Bidoof", 36], [401, "Kricketot", 20]]
+  },
+  "verity-lakefront": {
+    "name": "Lake Verity", "kind": "lake", "music": "MUS_OLDALE", "point": [19, 103],
+    "description": "Search the reeds along the quiet shore west of Route 201.",
+    "exits": {"east": "route-201"}, "water": [[3, 3, 10, 13], [11, 5, 11, 11]],
+    "encounters": [[6, 14, 14, 15], [16, 4, 20, 7]], "pool": [[54, "Psyduck", 38], [399, "Bidoof", 33], [396, "Starly", 22], [387, "Turtwig", 7]]
+  },
+  "sandgem-town": {
+    "name": "Sandgem Town", "kind": "town", "music": "MUS_OLDALE", "point": [62, 113],
+    "description": "A small coastal town with a PC. Route 202 leaves to the north.",
+    "exits": {"west": "route-201", "north": "route-202"}, "water": [[2, 13, 21, 15]],
+    "buildings": [[4, 4], [16, 4]], "trainer": [16, 9, "youngster"], "pool": []
+  },
+  "route-202": {
+    "name": "Route 202", "kind": "route", "music": "MUS_ROUTE1", "point": [62, 100],
+    "description": "Tall grass lines the road between Sandgem and Jubilife.",
+    "exits": {"south": "sandgem-town", "north": "jubilife-city"}, "encounters": [[4, 4, 9, 9], [15, 8, 20, 13]],
+    "trees": [[3, 12, 6, 15]], "trainer": [10, 8, "youngster"],
+    "pool": [[403, "Shinx", 40], [396, "Starly", 30], [399, "Bidoof", 20], [401, "Kricketot", 10]]
+  },
+  "jubilife-city": {
+    "name": "Jubilife City", "kind": "town", "music": "MUSIC_GOLDENROD_CITY", "point": [62, 84],
+    "description": "Use the PC before taking Route 203 east or Route 204 north.",
+    "size": [26, 18], "exits": {"south": "route-202", "east": "route-203", "north": "route-204"},
+    "buildings": [[4, 3], [17, 4], [6, 12]], "paths": [[6, 8, 12, 8], [8, 9, 8, 11]], "flowers": [[18, 12, 21, 13]], "trainer": [14, 7, "lass"], "pool": []
+  },
+  "route-203": {
+    "name": "Route 203", "kind": "route", "music": "MUS_ROUTE3", "point": [84, 89],
+    "description": "A pond and grassy banks sit west of the Oreburgh Gate entrance.",
+    "exits": {"west": "jubilife-city", "east": "oreburgh-gate"}, "water": [[7, 3, 15, 6]],
+    "encounters": [[4, 11, 10, 14], [15, 11, 20, 14]], "trainer": [17, 6, "youngster"],
+    "pool": [[396, "Starly", 34], [403, "Shinx", 31], [401, "Kricketot", 20], [54, "Psyduck", 15]]
+  },
+  "oreburgh-gate": {
+    "name": "Oreburgh Gate", "kind": "cave", "music": "MUSIC_UNION_CAVE", "point": [105, 95],
+    "description": "Cross the rocky passage between Route 203 and Oreburgh City.",
+    "size": [22, 16], "exits": {"west": "route-203", "east": "oreburgh-city"},
+    "trees": [[4, 2, 6, 5], [14, 11, 18, 13]], "encounters": [[3, 9, 9, 12], [13, 3, 18, 6]],
+    "trainer": [10, 7, "hiker"], "pool": [[41, "Zubat", 46], [74, "Geodude", 36], [95, "Onix", 18]]
+  },
+  "oreburgh-city": {
+    "name": "Oreburgh City", "kind": "town", "music": "MUS_PEWTER", "point": [133, 104],
+    "description": "The mining town has a PC and a northern trail toward Mount Coronet.",
+    "exits": {"west": "oreburgh-gate", "north": "mt-coronet"}, "buildings": [[5, 4], [16, 10]],
+    "trees": [[3, 12, 8, 15], [16, 2, 21, 5]], "trainer": [15, 9, "hiker"], "pool": []
+  },
+  "route-204": {
+    "name": "Route 204", "kind": "route", "music": "MUSIC_ROUTE_30", "point": [60, 70],
+    "description": "Search the grassy banks on the way north to Floaroma Town.",
+    "size": [22, 20], "exits": {"south": "jubilife-city", "north": "floaroma-town"},
+    "water": [[2, 9, 6, 14]], "encounters": [[3, 3, 8, 6], [14, 10, 19, 16]], "flowers": [[13, 4, 17, 6]], "honeyTree": {"x": 20, "y": 6},
+    "pool": [[406, "Budew", 34], [265, "Wurmple", 28], [399, "Bidoof", 23], [403, "Shinx", 15]]
+  },
+  "floaroma-town": {
+    "name": "Floaroma Town", "kind": "town", "music": "MUS_VERDANTURF", "point": [57, 52],
+    "description": "Stop at the PC between the flower fields. Head north to Eterna Forest or east to Valley Windworks.",
+    "exits": {"south": "route-204", "north": "eterna-forest", "east": "valley-windworks"},
+    "buildings": [[4, 4], [17, 4]], "paths": [[6, 9, 19, 9]], "flowers": [[4, 11, 9, 14], [15, 11, 20, 14]], "trainer": [7, 9, "lass"], "pool": []
+  },
+  "valley-windworks": {
+    "name": "Valley Windworks", "kind": "lake", "music": "MUS_ROUTE110", "point": [92, 55],
+    "description": "Search the tall grass between the turbine yard and the river.",
+    "size": [24, 18], "exits": {"west": "floaroma-town"}, "buildings": [[14, 3]], "turbines": [[10, 4], [20, 4]],
+    "water": [[4, 13, 21, 15]], "encounters": [[5, 5, 8, 8], [13, 9, 20, 11]], "honeyTree": {"x": 0, "y": 6},
+    "pool": [[418, "Buizel", 33], [422, "Shellos", 30], [417, "Pachirisu", 27], [425, "Drifloon", 10]]
+  },
+  "eterna-forest": {
+    "name": "Eterna Forest", "kind": "forest", "music": "MUS_PETALBURG_WOODS", "point": [54, 33],
+    "description": "Look for wild Pokémon in the clearings between the trees.",
+    "size": [26, 20], "exits": {"south": "floaroma-town", "east": "eterna-city"},
+    "trees": [[3, 3, 8, 8], [16, 3, 22, 6], [5, 13, 9, 16], [17, 14, 21, 17]],
+    "encounters": [[10, 4, 14, 7], [3, 9, 8, 11], [16, 7, 22, 9], [15, 12, 20, 13]], "trainer": [10, 10, "bug_catcher"], "honeyTree": {"x": 7, "y": 7},
+    "pool": [[265, "Wurmple", 26], [427, "Buneary", 26], [406, "Budew", 24], [198, "Murkrow", 14], [200, "Misdreavus", 10]]
+  },
+  "eterna-city": {
+    "name": "Eterna City", "kind": "town", "music": "MUSIC_VIOLET_CITY", "point": [92, 32],
+    "description": "Visit the PC between Eterna Forest and Mount Coronet.",
+    "exits": {"west": "eterna-forest", "east": "mt-coronet"}, "buildings": [[3, 4], [15, 4], [5, 12]],
+    "flowers": [[15, 12, 20, 14]], "trainer": [15, 10, "youngster"], "pool": []
+  },
+  "mt-coronet": {
+    "name": "Mount Coronet", "kind": "cave", "music": "MUSIC_DARK_CAVE", "point": [130, 43],
+    "description": "Climb through the mountain to Lake Acuity or return to Eterna or Oreburgh.",
+    "size": [26, 20], "exits": {"west": "eterna-city", "south": "oreburgh-city", "north": "acuity-lakefront"},
+    "trees": [[4, 3, 8, 6], [6, 12, 9, 16], [18, 7, 22, 10]],
+    "encounters": [[10, 4, 12, 7], [15, 12, 21, 16], [4, 8, 8, 9]], "trainer": [14, 9, "hiker"],
+    "pool": [[436, "Bronzor", 30], [74, "Geodude", 24], [433, "Chingling", 20], [41, "Zubat", 13], [443, "Gible", 8], [390, "Chimchar", 5]]
+  },
+  "acuity-lakefront": {
+    "name": "Lake Acuity", "kind": "snow", "music": "MUSIC_CHERRYGROVE_CITY", "point": [127, 16],
+    "description": "Slide across the frozen shore and search the snowdrifts for wild Pokémon.",
+    "exits": {"south": "mt-coronet"}, "water": [[4, 3, 11, 7], [8, 8, 11, 9]], "trees": [[16, 3, 20, 5]],
+    "ice": [[9, 4, 14, 7], [14, 14, 19, 15]], "encounters": [[4, 10, 9, 14], [14, 8, 20, 13]],
+    "pool": [[459, "Snover", 35], [220, "Swinub", 25], [215, "Sneasel", 20], [361, "Snorunt", 14], [393, "Piplup", 6]]
+  }
+}

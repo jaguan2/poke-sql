@@ -2,6 +2,7 @@ import maps from "./maps.json" with { type: "json" };
 import { SAFARI_EVENT_VISITORS, safariEvents } from "./events";
 import { DIRECTION_STEP, REGIONS, isRegionLocation, regionTravel } from "./regions";
 import type { RegionLocationId } from "./regions";
+import type { SafariEncounter } from "./types";
 
 export type SafariHabitatId = keyof typeof maps;
 export type ZoneId = SafariHabitatId | RegionLocationId;
@@ -9,6 +10,7 @@ export type WeatherId = "clear" | "rain" | "fog" | "sandstorm" | "snow" | "sun";
 export type Direction = "up" | "down" | "left" | "right";
 export interface Position { x: number; y: number }
 export interface SafariSpecies { id: number; name: string; weight: number; rarity: "Common" | "Uncommon" | "Rare" | "Legendary" | "Mythical"; favoredWeather: readonly WeatherId[] }
+export interface HoneyTree extends Position { species: readonly SafariSpecies[] }
 export interface SafariZoneDefinition {
   id: ZoneId; name: string; subtitle: string; description: string;
   accent: string; ground: string; canopy: string; icon: string;
@@ -16,6 +18,7 @@ export interface SafariZoneDefinition {
   battleTerrain: "grass" | "sand" | "cave" | "water";
   map: readonly string[]; start: Position; rustle: Position; routeName: string;
   species: readonly SafariSpecies[];
+  honeyTree?: HoneyTree;
   music?: string;
 }
 
@@ -106,7 +109,20 @@ export const EXPLORATION_LOCATIONS: readonly SafariZoneDefinition[] = [...REGION
 
 export const zoneById = (id: ZoneId): SafariZoneDefinition => EXPLORATION_LOCATIONS.find(zone => zone.id === id)!;
 export const isZoneId = (id: unknown): id is ZoneId => EXPLORATION_LOCATIONS.some(zone => zone.id === id);
+export const encounterSpecies = (zone: SafariZoneDefinition, source: SafariEncounter["source"]) =>
+  source === "honey-tree" ? zone.honeyTree?.species ?? [] : zone.species;
+export const isSafariSpecies = (id: unknown): boolean => EXPLORATION_LOCATIONS.some(zone =>
+  zone.species.some(species => species.id === id) || zone.honeyTree?.species.some(species => species.id === id));
+
+export function isBesideHoneyTree(tree: Position, position: Position): boolean {
+  const dx = Math.max(tree.x - position.x, position.x - tree.x - 1, 0);
+  const dy = Math.max(tree.y - position.y, position.y - tree.y - 1, 0);
+  return dx + dy === 1;
+}
 export const tileAt = (zone: SafariZoneDefinition, position: Position): string | undefined => zone.map[position.y]?.[position.x];
+const isIce = (tile: string | undefined) => tile === "i" || tile === "I";
+export const isEncounterTile = (tile: string | undefined) => tile === "g" || tile === "I";
+export const hasIce = (zone: SafariZoneDefinition) => zone.map.some(row => /[iI]/.test(row));
 export function routeCamera(zone: SafariZoneDefinition, position: Position) {
   const width = Math.min(isRegionLocation(zone.id) ? 20 : 15, zone.map[0].length), height = Math.min(isRegionLocation(zone.id) ? 13 : 10, zone.map.length);
   return { width, height,
@@ -116,10 +132,9 @@ export function routeCamera(zone: SafariZoneDefinition, position: Position) {
 /** A stable hotspot for this expedition, moving to fresh grass after each catch.
  * Derived from existing saved progress so older sessions need no migration. */
 export function rustlingPatch(zone: SafariZoneDefinition, catches: number, position: Position = zone.start): Position | null {
-  // Native caves have separate chambers, and ledges are one-way. Keep the
-  // guaranteed encounter in the trainer's currently reachable component.
+  // Ledges and ice can make individual cells unreachable as stopping points.
   let reachable: Set<string> | undefined;
-  if (isRegionLocation(zone.id)) {
+  if (isRegionLocation(zone.id) || hasIce(zone)) {
     reachable = new Set([`${position.x},${position.y}`]);
     const queue = [position];
     for (const point of queue) for (const direction of ["up", "down", "left", "right"] as const) {
@@ -128,7 +143,7 @@ export function rustlingPatch(zone: SafariZoneDefinition, catches: number, posit
       if (!reachable.has(key)) { reachable.add(key); queue.push(next); }
     }
   }
-  const grass = zone.map.flatMap((row, y) => [...row].flatMap((tile, x) => tile === "g" && (!reachable || reachable.has(`${x},${y}`)) ? [{ x, y }] : []));
+  const grass = zone.map.flatMap((row, y) => [...row].flatMap((tile, x) => isEncounterTile(tile) && (!reachable || reachable.has(`${x},${y}`)) ? [{ x, y }] : []));
   if (grass.length === 0) return null;
   const start = Math.max(0, grass.findIndex(tile => tile.x === zone.rustle.x && tile.y === zone.rustle.y));
   return grass[(start + (catches % grass.length) * 17) % grass.length];
@@ -139,9 +154,9 @@ const FLOOR_LEDGES: Readonly<Record<string, readonly Direction[]>> = {
   "0": ["right"], "1": ["left"], "2": ["up"], "3": ["down"],
   "4": ["right", "down"], "5": ["left", "down"], "6": ["up", "right"], "7": ["up", "left"],
 };
-const WALKABLE_TILES = [".", "g", "S", "U", ...Object.keys(FLOOR_LEDGES)];
+const WALKABLE_TILES = [".", "g", "i", "I", "S", "U", ...Object.keys(FLOOR_LEDGES)];
 export const isWalkable = (zone: SafariZoneDefinition, position: Position): boolean => WALKABLE_TILES.includes(tileAt(zone, position) ?? "");
-export function movePosition(zone: SafariZoneDefinition, position: Position, direction: Direction): Position {
+function stepPosition(zone: SafariZoneDefinition, position: Position, direction: Direction): Position {
   const delta = DIRECTION_STEP[direction];
   let next = { x: position.x + delta.x, y: position.y + delta.y };
   // U is walkable beside a wall on its north edge; crossing that edge is blocked.
@@ -152,11 +167,40 @@ export function movePosition(zone: SafariZoneDefinition, position: Position, dir
   }
   return isWalkable(zone, next) ? next : position;
 }
+
+export function resolveMovement(zone: SafariZoneDefinition, from: Position, direction: Direction) {
+  let position = stepPosition(zone, from, direction);
+  let steps = position === from ? 0 : 1;
+  while (steps > 0 && isIce(tileAt(zone, position)) && !regionTravel(zone.id, position, direction)) {
+    const next = stepPosition(zone, position, direction);
+    if (next === position) break;
+    position = next;
+    steps++;
+  }
+  return { position, steps };
+}
+
+export const movePosition = (zone: SafariZoneDefinition, from: Position, direction: Direction) =>
+  resolveMovement(zone, from, direction).position;
 export function chooseSpecies(zone: SafariZoneDefinition, roll: number, previousId?: number, weather: WeatherId = "clear", date?: string): SafariSpecies {
-  const { rows, totalWeight } = encounterTable(zone, weather, previousId, date);
+  return rollEncounter(encounterTable(zone, weather, previousId, date), roll);
+}
+
+interface WeightedSpecies { pokemon: SafariSpecies; weight: number }
+
+export function rollEncounter({ rows, totalWeight }: { rows: readonly WeightedSpecies[]; totalWeight: number }, roll: number): SafariSpecies {
   let remaining = Math.max(0, Math.min(roll, 0.999999)) * totalWeight;
   return (rows.find(row => (remaining -= row.weight) < 0) ?? rows[rows.length - 1]).pokemon;
 }
+
+function encounterChances(eligible: readonly WeightedSpecies[]) {
+  const totalWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
+  return { totalWeight, rows: eligible.map(row => ({ ...row, chance: row.weight / totalWeight })) };
+}
+
+export const honeyTreeTable = (tree: HoneyTree) =>
+  encounterChances(tree.species.map(pokemon => ({ pokemon, weight: pokemon.weight })));
+
 export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = "clear", previousId?: number, date?: string) {
   const ordinary = zone.species.filter(pokemon => pokemon.weight > 0);
   const eligible = ordinary.filter(pokemon => ordinary.length === 1 || pokemon.id !== previousId)
@@ -170,8 +214,7 @@ export function encounterTable(zone: SafariZoneDefinition, weather: WeatherId = 
   for (const event of visits) {
     eligible.push({ pokemon: event.visitor, weight: ordinaryWeight * event.chance / (1 - visitorChance) });
   }
-  const totalWeight = eligible.reduce((sum, row) => sum + row.weight, 0);
-  return { totalWeight, rows: eligible.map(row => ({ ...row, chance: row.weight / totalWeight })) };
+  return encounterChances(eligible);
 }
 export function featuredZone(date: string): ZoneId {
   const day = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000);

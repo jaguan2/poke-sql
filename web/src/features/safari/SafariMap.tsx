@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { SafariSession } from "./types";
 import type { Direction, SafariZoneDefinition, ZoneId } from "./zones";
-import { routeCamera, rustlingPatch, tileAt, zoneById } from "./zones";
+import { isBesideHoneyTree, routeCamera, rustlingPatch, tileAt, zoneById } from "./zones";
 import { isRegionLocation, regionFor, regionPortals } from "./regions";
 import type { WeatherId } from "./zones";
 import { TrainerSprite } from "../../shared/trainer/TrainerSprite";
@@ -15,7 +15,7 @@ import { RouteTrainers } from "./RouteTrainers";
 const controlsKey = "pokesql:safari-controls-seen";
 const terrainFor = (id: ZoneId) => `${import.meta.env.BASE_URL}safari/${regionFor(id)?.id ?? "maps"}/${id}.png`;
 
-export function SafariMap({ zone, session, active, rustling, weather, date, onMove, trainer }: { zone: SafariZoneDefinition; session: SafariSession; active: boolean; rustling: boolean; weather: WeatherId; date: string; onMove: (direction: Direction) => void; trainer: TrainerId }) {
+export function SafariMap({ zone, session, active, slideMs, rustling, weather, date, onMove, onHoneyTree, trainer }: { zone: SafariZoneDefinition; session: SafariSession; active: boolean; slideMs: number; rustling: boolean; weather: WeatherId; date: string; onMove: (direction: Direction) => void; onHoneyTree: () => void; trainer: TrainerId }) {
   const map = useRef<HTMLDivElement>(null);
   const [showControls, setShowControls] = useState(() => {
     try { return sessionStorage.getItem(controlsKey) !== "yes"; } catch { return true; }
@@ -33,19 +33,22 @@ export function SafariMap({ zone, session, active, rustling, weather, date, onMo
       void image.decode().catch(() => {}); // The visible image can retry a failed preload.
     }
   }, [zone.id]);
-  const frame = session.direction === "down" ? [0, 3, 0, 4][session.steps % 4] : session.direction === "up" ? [1, 5, 1, 6][session.steps % 4] : [2, 7, 2, 8][session.steps % 4];
+  const pose = session.direction === "down" ? [0, 3, 0, 4] : session.direction === "up" ? [1, 5, 1, 6] : [2, 7, 2, 8];
+  const frame = pose[slideMs ? 0 : session.steps % 4];
   const patch = useMemo(() => session.bag?.repelSteps ? null : rustlingPatch(zone, session.catches, session.position), [zone, session.catches, session.position, session.bag?.repelSteps]);
   const inGrass = tileAt(zone, session.position) === "g";
   const width = zone.map[0].length, height = zone.map.length;
   const camera = routeCamera(zone, session.position);
   const ranger = isRegionLocation(zone.id) ? undefined : RANGER_POSITIONS[zone.id];
   const rangerVisible = ranger && ranger.x >= camera.x && ranger.x < camera.x + camera.width && ranger.y >= camera.y && ranger.y < camera.y + camera.height;
+  const tree = zone.honeyTree;
+  const canCheckTree = tree && active && slideMs === 0 && isBesideHoneyTree(tree, session.position);
   const terrain = terrainFor(zone.id);
   const exits = regionPortals(zone.id).filter((portal, index, all) => all.findIndex(other => other.to === portal.to && Math.abs(other.x - portal.x) <= 2 && Math.abs(other.y - portal.y) <= 2) === index);
   const position = (x: number, y: number): CSSProperties => ({ left: `${(x + 0.5) / width * 100}%`, top: `${(y + 0.5) / height * 100}%` });
   return <>
-    <div className={`safari-map safari-terrain-${zone.encounterTerrain}${isRegionLocation(zone.id) ? " is-region" : ""}${rustling ? " is-rustling" : ""}`} ref={map} role="group" aria-label={`${zone.name} exploration map`} aria-describedby="safari-controls-help" tabIndex={active ? 0 : -1}
-      data-camera-x={camera.x} data-camera-y={camera.y} style={{ aspectRatio: `${camera.width}/${camera.height}`, "--safari-step-duration": `${SAFARI_STEP_MS}ms` } as CSSProperties}>
+    <div className={`safari-map safari-terrain-${zone.encounterTerrain}${isRegionLocation(zone.id) ? " is-region" : ""}${rustling ? " is-rustling" : ""}${slideMs ? " is-sliding" : ""}`} ref={map} role="group" aria-label={`${zone.name} exploration map`} aria-describedby="safari-controls-help" tabIndex={active ? 0 : -1}
+      data-camera-x={camera.x} data-camera-y={camera.y} style={{ aspectRatio: `${camera.width}/${camera.height}`, "--safari-step-duration": `${slideMs || SAFARI_STEP_MS}ms` } as CSSProperties}>
       <div className="safari-route-world" key={zone.id} style={{ width: `${width / camera.width * 100}%`, height: `${height / camera.height * 100}%`, transform: `translate(${-camera.x / width * 100}%, ${-camera.y / height * 100}%)`, "--route-columns": width } as CSSProperties}>
         <img className="safari-terrain" src={terrain} alt="" width={width * 16} height={height * 16} draggable={false} />
         <span className="safari-trailhead" style={position(zone.start.x, zone.start.y)} aria-hidden="true">⚑</span>
@@ -57,7 +60,13 @@ export function SafariMap({ zone, session, active, rustling, weather, date, onMo
         </div>
         {rangerVisible && <SafariRanger style={position(ranger.x, ranger.y)} active={active} trainer={trainer}
           sighting={rangerSighting(zone, weather, session.lastCatch?.pokemon.id, date)} />}
-        {inGrass && <span key={session.steps} className="safari-grass-contact" style={position(session.position.x, session.position.y)} aria-hidden="true" />}
+        {tree && <button type="button" className="safari-honey-tree" style={position(tree.x + .5, tree.y + .5)}
+          data-edge={tree.x === 0 ? "left" : tree.x + 2 === width ? "right" : undefined}
+          aria-label="Check Honey Tree" aria-describedby="safari-honey-help"
+          disabled={!canCheckTree} onClick={onHoneyTree}>
+          <span aria-hidden="true">{canCheckTree ? "Check Honey Tree" : "◆"}</span>
+        </button>}
+        {inGrass && !slideMs && <span key={session.steps} className="safari-grass-contact" style={position(session.position.x, session.position.y)} aria-hidden="true" />}
       </div>
       <div className={`safari-weather safari-weather-${weather}`} aria-hidden="true" />
       <span className="safari-map-label">{zone.routeName}</span>
@@ -67,17 +76,19 @@ export function SafariMap({ zone, session, active, rustling, weather, date, onMo
         <p>On a touchscreen, swipe the map and hold to keep walking.</p>
         <button type="button" className="btn btn-primary" onClick={dismissControls}>Got it</button>
       </aside>}
-      {rustling && <p className="safari-grass-alert" role="status">{zone.encounterTerrain === "grass" ? "Something is moving in the grass!" : "Something is moving nearby!"}</p>}
+      {rustling && <p className="safari-grass-alert" role="status">{session.encounter?.source === "honey-tree" ? "The Honey Tree is shaking!" : zone.encounterTerrain === "grass" ? "Something is moving in the grass!" : "Something is moving nearby!"}</p>}
     </div>
+    {tree && <p id="safari-honey-help" className="safari-honey-help">Walk beside the golden tree and select Check Honey Tree to meet a wild Pokémon.</p>}
     <details className="safari-route-overview"><summary>Route map <span>{isRegionLocation(zone.id) ? "Your position and exits" : "Find the trailhead and shaking patch"}</span></summary>
       <div className="safari-route-miniature" style={{ width: Math.min(640, width * 12, 300 * width / height), aspectRatio: `${width}/${height}` }} role="img" aria-label={`${zone.routeName} overview: your position, trailhead, and shaking patch`}>
         <img src={terrain} alt="" width={width * 16} height={height * 16} draggable={false} />
         <span className="safari-mini-start" style={position(zone.start.x, zone.start.y)} aria-hidden="true">⚑</span>
         {ranger && <span className="safari-mini-ranger" style={position(ranger.x, ranger.y)} aria-hidden="true">!</span>}
+        {tree && <span className="safari-mini-honey" style={position(tree.x + .5, tree.y + .5)} title="Honey Tree">◆</span>}
         {patch && <span className="safari-mini-patch" style={position(patch.x, patch.y)} aria-hidden="true">✦</span>}
         {exits.map(exit => <span key={`${exit.x}-${exit.y}`} className="safari-mini-start" style={position(Math.max(0, Math.min(exit.x, width - 1)), Math.max(0, Math.min(exit.y, height - 1)))} title={zoneById(exit.to).name}>↕</span>)}
         <span className="safari-mini-player" style={position(session.position.x, session.position.y)} aria-hidden="true">●</span>
-      </div><p>● You · ⚑ Start{ranger ? " · ! Ranger" : ""}{patch ? " · ✦ Shaking patch" : ""}{exits.length ? " · ↕ Exit" : ""}</p><p className="safari-position" role="status">Trail position {session.position.x + 1}, {session.position.y + 1} · {session.steps} steps</p>
+      </div><p>● You · ⚑ Start{ranger ? " · ! Ranger" : ""}{tree ? " · ◆ Honey Tree" : ""}{patch ? " · ✦ Shaking patch" : ""}{exits.length ? " · ↕ Exit" : ""}</p><p className="safari-position" role="status">Trail position {session.position.x + 1}, {session.position.y + 1} · {session.steps} steps</p>
     </details>
   </>;
 }
