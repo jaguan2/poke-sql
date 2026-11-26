@@ -1,0 +1,107 @@
+{
+  "sourceSha256": "5b127345eb500ab69008c050ead32f637d39d752e943a41d43f453f133906494",
+  "assets": [
+    {
+      "file": "nuvema-town.png",
+      "recipeSha256": "88db11b32eb3f63536fb1a00828a459e8fe906d961e131eeb12034b852edca4c",
+      "layoutSha256": "8d33aaf30636e2d30a6077d1bcf6a42affd6467c447100f4d5e2c8e634908c8a",
+      "sha256": "c440c2d612e21d7045545eaad4e547e009a9cfb6f5c44df3a606acc94ff51991"
+    },
+    {
+      "file": "unova-route-1.png",
+      "recipeSha256": "d2536267c6e758cb3bc79e9e7fea0acdbf7dafea94adcfa019f77d2b79a4936a",
+      "layoutSha256": "6cd6e7c43587cc1be7fa1fa21a57d4df36f7de5b74f73f23b9eed3a2c01ed347",
+      "sha256": "79b65ccaa936a9ec2dba01b0c1a3a55a9e2d3cd5b54db5fa2d635b2c4bcc50fe"
+    },
+    {
+      "file": "accumula-town.png",
+      "recipeSha256": "0e5c1708fdb5ec64244b0ce7ce429b757ef50fde3a386565b74a4ae02c8530ac",
+      "layoutSha256": "743e2a1d99a0a13b7550b8e7af347077c55c48ea7d6dc5e2393bb93c141d028e",
+      "sha256": "c8e75c2c6b9843e25e5b70cf3379d61db75e58c1d29d1d4b957aa1d3ceb786b3"
+    },
+    {
+      "file": "unova-route-2.png",
+      "recipeSha256": "301fe1ed72f623df04a82cd80690239ce2c60df9329bbe184605cd18f7bab0a1",
+      "layoutSha256": "8cb68ed1bc1bd1b8df7f37ee726b2772d236941cc16504225507fd27128c94b3",
+      "sha256": "1b21347ecff6ed9f43f9e6faaccd81586c3bad4c70bb209a3d12089a7649d671"
+    },
+    {
+      "file": "striaton-city.png",
+      "recipeSha256": "23b14e1b5d2e1c5efe2dc058e1bb02822489e5d143ee10e4cb8b57c7afe2c9cb",
+      "layoutSha256": "3467106ba2be20a7ee60b21f6fd79a7bcf43ba20e0d75bc7139d2de32741fcfe",
+      "sha256": "f85bcf1b7c2ea3a5335d9437a178566ff987ef42e983dd2aab89441b1d98b040"
+    },
+    {
+      "file": "dreamyard.png",
+      "recipeSha256": "d21cb44491a9541dc850c0ededc2129041b942d7e3cd99c62bf2fa096d9b894e",
+      "layoutSha256": "be99da49602c0d1f34b7165edc7df33c2c22525467906202adef0255ad4e353a",
+      "sha256": "f1e7ac046d24d7ac51ed2d5232daf0e592aa73aa592440a32d95956fccb921d3"
+    },
+    {
+      "file": "unova-route-3.png",
+      "recipeSha256": "cdc7641d11e2d2fd6d4e2c0c67555f5571856f7d31a8bf066f02453613787685",
+      "layoutSha256": "497e37948e348e6e8115651e09917bd7ca265253a6d7d84b0d17c8aca13fda37",
+      "sha256": "cea936913e8f7720ad7f5f3e4c945e00e60566659b65327947435cb6f9ac594c"
+    },
+    {
+      "file": "wellspring-cave.png",
+      "recipeSha256": "f45d5615f949677772797bf633508dc2e45f11ac4136594d02e6b94fcfa33fb7",
+      "layoutSha256": "1f9489b17325b1f2c1a4fdef16218f0800ceb77b25337af6291d91a76a05005b",
+      "sha256": "3d0f982ab64428e096611cb46f67051cb446a5a587975548a757ab109a67a487"
+    },
+    {
+      "file": "nacrene-city.png",
+      "recipeSha256": "761f222644444c2c4a4cc280f056109fef20396c2b7761f2bfce6a518b343a80",
+      "layoutSha256": "c374e565369c575816980ef54d2051c24c656316e3eea1dfb6ff058c4f4a8f42",
+      "sha256": "ef52fa703b1dc10e96cff3a073a0d78f21fa5413ec29596132bda033f2d95e03"
+    },
+    {
+      "file": "pinwheel-forest.png",
+      "recipeSha256": "0819b354fa64d4eb1035b2a7b4e49bb6071ada2215786cd06a0c5302a3873614",
+      "layoutSha256": "5b5622cfa9b8c7e9506861b63dcedd38b0a8add0ff9ce334415f68750f378eff",
+      "sha256": "48b903e101888cae01188cb94a8390ceb36e486bdc47e7d15b7a2e485c1039f7"
+    },
+    {
+      "file": "castelia-city.png",
+      "recipeSha256": "5596fcf1ed93e3be45c1993efbc61b61cc972fe9be656ab48c02fd900b7e8fee",
+      "layoutSha256": "ea939a85b47d6d4e0c9ee4552b066147a41379eb9095917b971282ee5ef6374e",
+      "sha256": "f713f0f5d90017f65bc77f5d19ec01181ad6644a07abe5df2c21288086824984"
+    },
+    {
+      "file": "unova-route-4.png",
+      "recipeSha256": "265de0ae630aa29704f7a17baf9575cdd295e1d647b69a207e9a0b1a8605bb4f",
+      "layoutSha256": "7fe45654d118f432a6d7da297ddeb589e8e58ce60ee1959e362b641550badd52",
+      "sha256": "7fa3c7917f3fa9dbeeea25ada99085766cf536a335f58949ae4c739662bdf61c"
+    },
+    {
+      "file": "desert-resort.png",
+      "recipeSha256": "86579bfd712d00019ec8ee9e974c371653a87a68337125869cd681e4318b13f9",
+      "layoutSha256": "5be7dd26e943c1ba37404d95ec9124379d6bd7c7c2ab5420252649f2248596fd",
+      "sha256": "839744655f1a96da57546b341187a7919ac3362339569058438d1c1eee6f7733"
+    },
+    {
+      "file": "relic-castle.png",
+      "recipeSha256": "5ccef2324c376a487f1c42481cb22df1aa030597343d132826ea0f7b16601484",
+      "layoutSha256": "d740f30b29eb48dea2581c6f008aef871111643b951e73f82bcd99c843679a1b",
+      "sha256": "cf1bb27f37dd4a40f12a5a89e9b1ed21638aa8a6f366c7bf16b31bce8ab87952"
+    },
+    {
+      "file": "nimbasa-city.png",
+      "recipeSha256": "e19d7ca07e95e3309c239973e848b72dcfc75f682de903bbe09cd8c08be53504",
+      "layoutSha256": "aeea4bd0727c8fbd6691e0f63c728ca284b7bb46978fb3eeee3417fd93148b76",
+      "sha256": "65eb34e2b5f58de4a0788bd007933e32e9b947448887745af801c3e79ce5f9a6"
+    },
+    {
+      "file": "unova-route-5.png",
+      "recipeSha256": "71e3a4ae590d520a60aeb4a5db5a35742678a033e8a9f90d1670c21a03afc79b",
+      "layoutSha256": "efd3ef78ab14fe8a6ac119a02ca085f8a052f7a22b2a3efb9f16aa9357464efc",
+      "sha256": "f716145948e65c8d0ded910246c2c3fd2dc5069b17bd0b1bd1a127716f9d0283"
+    },
+    {
+      "file": "lostlorn-forest.png",
+      "recipeSha256": "85ad1c75641e17e2bb7a750ceba3a5c003a0c9dc923651a6efd32d68732a3117",
+      "layoutSha256": "424c00343336c82953e053040ed806df25f0074e7c899770e78d3744d83b562f",
+      "sha256": "afe96780088980f19051217a98c29d4353a66b136e439d12411cdf93cc8ad764"
+    }
+  ]
+}

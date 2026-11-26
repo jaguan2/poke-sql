@@ -48,7 +48,7 @@ self.addEventListener('fetch', event => {
     // static hosts: module scripts and precache requests send different Origin headers.
     const cached = await cache.match(event.request, { ignoreVary: true });
     const rangeHeader = event.request.headers.get('Range');
-    if (cached && rangeHeader && url.pathname.endsWith('.mp3')) {
+    if (cached && rangeHeader && (url.pathname.endsWith('.mp3') || url.pathname.endsWith('.wav'))) {
       const content = await cached.arrayBuffer();
       const range = parseByteRange(rangeHeader, content.byteLength);
       const headers = new Headers(cached.headers);

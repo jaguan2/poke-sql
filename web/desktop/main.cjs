@@ -78,10 +78,10 @@ app.whenReady().then(() => {
     if (relative.startsWith('..') || path.isAbsolute(relative)) return new Response('Not found', { status: 404 });
     try {
       const content = await readFile(filename);
-      const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wasm': 'application/wasm', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.sqlite': 'application/octet-stream', '.mp3': 'audio/mpeg', '.txt': 'text/plain; charset=utf-8' };
+      const mimeTypes = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wasm': 'application/wasm', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.sqlite': 'application/octet-stream', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.txt': 'text/plain; charset=utf-8' };
       const headers = new Headers({ 'Content-Type': mimeTypes[path.extname(filename)] ?? 'application/octet-stream' });
       headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-src 'none'");
-      if (path.extname(filename) === '.mp3') {
+      if (['.mp3', '.wav'].includes(path.extname(filename))) {
         headers.set('Accept-Ranges', 'bytes');
         const rangeHeader = request.headers.get('Range');
         if (rangeHeader) {

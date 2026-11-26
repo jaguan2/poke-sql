@@ -1,0 +1,96 @@
+{
+  "nuvema-town": [
+    {
+      "x": 14,
+      "y": 12,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "unova-route-1": [],
+  "accumula-town": [
+    {
+      "x": 13,
+      "y": 14,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "unova-route-2": [],
+  "striaton-city": [
+    {
+      "x": 23,
+      "y": 16,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "dreamyard": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "bug_catcher",
+      "facing": "down"
+    }
+  ],
+  "unova-route-3": [],
+  "wellspring-cave": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "hiker",
+      "facing": "down"
+    }
+  ],
+  "nacrene-city": [
+    {
+      "x": 14,
+      "y": 13,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "pinwheel-forest": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "bug_catcher",
+      "facing": "down"
+    }
+  ],
+  "castelia-city": [
+    {
+      "x": 24,
+      "y": 17,
+      "kind": "lass",
+      "facing": "down"
+    }
+  ],
+  "unova-route-4": [],
+  "desert-resort": [],
+  "relic-castle": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "hiker",
+      "facing": "down"
+    }
+  ],
+  "nimbasa-city": [
+    {
+      "x": 24,
+      "y": 17,
+      "kind": "youngster",
+      "facing": "down"
+    }
+  ],
+  "unova-route-5": [],
+  "lostlorn-forest": [
+    {
+      "x": 10,
+      "y": 7,
+      "kind": "bug_catcher",
+      "facing": "down"
+    }
+  ]
+}

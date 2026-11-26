@@ -69,7 +69,7 @@ export function SafariMap({ zone, session, active, slideMs, rustling, weather, d
         {inGrass && !slideMs && <span key={session.steps} className="safari-grass-contact" style={position(session.position.x, session.position.y)} aria-hidden="true" />}
       </div>
       <div className={`safari-weather safari-weather-${weather}`} aria-hidden="true" />
-      <span className="safari-map-label">{zone.routeName}</span>
+      <span className="safari-map-label" key={`label-${zone.id}`}>{zone.routeName}</span>
       <p id="safari-controls-help" hidden>Hold WASD or arrow keys to walk. On a touchscreen, swipe and hold to keep walking. Open menus and typing pause walking.</p>
       {showControls && <aside className="safari-controls-popup" aria-label="Safari controls">
         <p>Use <kbd>WASD</kbd> or <kbd>arrow keys</kbd> to walk.</p>

@@ -159,6 +159,14 @@ Crystal Union Cave and the Safari tundra. The area themes and decorative
 trainers use the existing bundled soundtrack and FireRed sprite sheets.
 Rebuild with py scripts/build_region_assets.py sinnoh.
 
+Unova and Sinnoh town architecture: original pixel drawings in
+scripts/region_architecture.py. Buildings, fountains, piers, amusement scenery
+and construction details are generated locally from authored layout recipes.
+Geographical references for Unova towns and routes:
+https://bulbapedia.bulbagarden.net/wiki/Unova
+Individual location reference links are stored in scripts/unova_routes.json.
+Rebuild with py scripts/build_region_assets.py unova or sinnoh.
+
 Decorative regional trainers: native FireRed Youngster, Lass, Bug Catcher and Hiker sprites, with original object-event positions from pinned FireRed, Emerald and Crystal maps. Rebuild with py scripts/build_route_trainers.py. Four facing poses retain native pixels; these NPCs are scenery and do not initiate battles or alter collisions. Pins and per-sheet hashes: src/features/safari/route-trainers.json.
 
 Bag artwork: Pokemon FireRed/LeafGreen, Game Freak / Nintendo / The Pokemon Company.

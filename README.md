@@ -118,6 +118,21 @@ See [releasing and testing updates](docs/RELEASING.md).
   On Route 204, at Valley Windworks and in Eterna Forest, walk beside a
   golden Honey Tree and check it for an immediate encounter. The trees share
   their own catch pool, with a rare chance to find Munchlax.
+- **Explore Unova:** start in Nuvema Town or choose one of 17 locations in
+  **Region map → Unova**. Land encounter pools combine Black and White data
+  with PokéSQL weights. Expanded regional sightings make all 156 native species
+  catchable, including starters, evolved forms, Legendary and Mythical Pokémon.
+  Open **Unova Pokédex** in the region map to see the regional total and find
+  a location for each species. **Sound effects** enables short encounter and catch cues.
+  The Unova layouts use the existing local tiles and area music. Rebuild them
+  with `py scripts/build_region_assets.py unova` and regenerate the original
+  notification tones with `py scripts/build_safari_sounds.py`.
+  Town architecture and route landscapes draw on Bulbapedia's location
+  descriptions. Their original PokéSQL layouts include gardens, warehouses,
+  harbor piers, amusement grounds and desert construction sites. Reference
+  links live in `scripts/unova_routes.json`. Towns in Sinnoh also have distinct
+  architecture. Older saves on rebuilt maps return to a safe trailhead while
+  retaining their active encounter, SQL draft and collection.
 - **Bag and game menus:** the framed navigation groups Explore, Pokédex, PC Boxes,
   Bag, Trainer ID and Options. The Bag has Items and Key Items pockets, local
   PokéAPI item icons and a description window. The Bag window and menu icon use

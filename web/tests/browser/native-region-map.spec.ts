@@ -5,6 +5,7 @@ const regions = [
   { name: 'Johto', game: 'Pokémon Crystal', width: 160, height: 144, target: 'Goldenrod City', id: 'goldenrod-city', x: 52, y: 92 },
   { name: 'Hoenn', game: 'Pokémon Emerald', width: 240, height: 160, target: 'Mauville City', id: 'mauville-city', x: 80, y: 68 },
   { name: 'Sinnoh', game: 'PokéSQL', width: 176, height: 152, target: 'Eterna Forest', id: 'eterna-forest', x: 54, y: 33 },
+  { name: 'Unova', game: 'PokéSQL', width: 176, height: 152, target: 'Pinwheel Forest', id: 'pinwheel-forest', x: 63, y: 83 },
 ];
 
 for (const viewport of [{ width: 1440, height: 1100 }, { width: 820, height: 1180 }, { width: 1180, height: 820 }]) {

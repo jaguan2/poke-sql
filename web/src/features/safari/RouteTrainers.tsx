@@ -1,9 +1,10 @@
 import type { CSSProperties } from "react";
 import metadata from "./route-trainers.json";
 import sinnohTrainers from "./sinnoh-trainers.json";
+import unovaTrainers from "./unova-trainers.json";
 import { framePosition } from "../../shared/trainer/profile";
 
-const locations: Readonly<Record<string, readonly { x: number; y: number; kind: string; facing: string }[]>> = { ...metadata.locations, ...sinnohTrainers };
+const locations: Readonly<Record<string, readonly { x: number; y: number; kind: string; facing: string }[]>> = { ...metadata.locations, ...sinnohTrainers, ...unovaTrainers };
 const sprites: Readonly<Record<string, { file: string }>> = metadata.sprites;
 const frames: Readonly<Record<string, number>> = { down: 0, up: 1, left: 2, right: 3 };
 

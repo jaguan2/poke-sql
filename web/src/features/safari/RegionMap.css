@@ -5,6 +5,12 @@
 .region-selector button { min-height:40px; padding:8px 18px; border:1px solid var(--border); border-radius:9px; background:var(--panel); color:var(--text); cursor:pointer; font:inherit; font-size:12px; }
 .region-selector button[aria-pressed=true] { background:var(--panel-raised); border-color:var(--highlight); color:var(--highlight); }
 .region-selector { flex-wrap:wrap; }
+.region-species { margin:0 14px 12px; font-size:12px; }
+.region-species summary { cursor:pointer; }
+.region-species p { line-height:1.6; color:var(--text-dim); }
+.region-species ul { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:8px; max-height:300px; overflow:auto; padding:4px; list-style:none; }
+.region-species li { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.region-species button { padding:6px; min-height:36px; border:1px solid var(--border); border-radius:4px; background:var(--panel); color:var(--text); cursor:pointer; font:inherit; }
 .region-area { display:flex; align-items:center; gap:12px; padding:0 14px 12px; font-size:12px; font-weight:600; }
 .region-area select { min-width:0; width:min(100%,360px); min-height:42px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; color:var(--text); background:var(--panel); font:inherit; }
 .region-travel-actions { display:flex; flex-wrap:wrap; gap:8px; }

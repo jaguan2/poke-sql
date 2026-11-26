@@ -16,7 +16,7 @@ export function visibleSafariPokemonId(encounter: SafariEncounter | null, phase:
   return encounter.pokemonId;
 }
 export function createSafariSession(zoneId: ZoneId = "pallet-town"): SafariSession {
-  return { version: 3, zoneId, position: { ...zoneById(zoneId).start }, direction: "up", steps: 0,
+  return { version: 3, zoneId, layoutRevision: zoneById(zoneId).layoutRevision ?? 0, position: { ...zoneById(zoneId).start }, direction: "up", steps: 0,
     grassSteps: 0, catches: 0, encounter: null, draft: "", lastCatch: null, visited: [zoneId] };
 }
 export const visitedLocations = (session: SafariSession): ZoneId[] => [...new Set<ZoneId>(["pallet-town", ...(session.visited ?? []), session.zoneId])];
@@ -42,6 +42,7 @@ function isSafariEncounter(value: unknown, zoneId: ZoneId): value is SafariEncou
 export function isSafariSession(value: unknown): value is SafariSession {
   if (!record(value) || value.version !== 3 || !isZoneId(value.zoneId) || !record(value.position)
     || !integer(value.position.x) || !integer(value.position.y) || !isWalkable(zoneById(value.zoneId), { x: value.position.x, y: value.position.y })
+    || (value.layoutRevision !== undefined && !integer(value.layoutRevision))
     || !["up", "down", "left", "right"].includes(String(value.direction)) || !integer(value.steps)
     || !integer(value.grassSteps) || value.grassSteps > 6 || !integer(value.catches)
     || typeof value.draft !== "string" || value.draft.length > 100_000
@@ -53,6 +54,7 @@ export function isSafariSession(value: unknown): value is SafariSession {
       if (!isRegionId(regionId) || !record(bookmark) || !isRegionLocation(bookmark.zoneId)
         || regionFor(bookmark.zoneId)?.id !== regionId || !record(bookmark.position)
         || !integer(bookmark.position.x) || !integer(bookmark.position.y)
+        || (bookmark.layoutRevision !== undefined && !integer(bookmark.layoutRevision))
         || !isWalkable(zoneById(bookmark.zoneId), { x: bookmark.position.x, y: bookmark.position.y })
         || !["up", "down", "left", "right"].includes(String(bookmark.direction))) return false;
     }
@@ -91,7 +93,27 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
     const { bag: _invalidBag, ...expedition } = value;
     value = expedition;
   }
+  if (record(value) && value.version === 3) {
+    const current = relocateRebuiltMap(value);
+    value = current;
+    if (record(current.regionPositions)) {
+      value = { ...current, regionPositions: Object.fromEntries(Object.entries(current.regionPositions)
+        .map(([id, bookmark]) => [id, record(bookmark) ? relocateRebuiltMap(bookmark) : bookmark])) };
+    }
+  }
   return isSafariSession(value) ? value : null;
+}
+
+function relocateRebuiltMap(value: Record<string, unknown>): Record<string, unknown> {
+  if (!isZoneId(value.zoneId) || !record(value.position)
+    || !integer(value.position.x) || !integer(value.position.y)) return value;
+  const zone = zoneById(value.zoneId);
+  const previous = value.layoutRevision ?? 0;
+  if (!integer(previous) || previous >= (zone.layoutRevision ?? 0)
+    || value.position.x >= zone.map[0].length || value.position.y >= zone.map.length) return value;
+  // Rebuilt layouts can move a wall onto a previously valid position.
+  // Preserve the active catch and draft, and return to the safe trailhead once.
+  return { ...value, position: { ...zone.start }, layoutRevision: zone.layoutRevision };
 }
 
 // Random values/IDs are supplied by the controller so movement stays pure and
@@ -111,7 +133,8 @@ export function walkSafari(
   const repelled = bag.repelSteps >= steps;
   const nextBag = bag.repelSteps > 0 ? { ...bag, repelSteps: Math.max(0, bag.repelSteps - steps) } : session.bag;
   const next = { ...session, position, direction, steps: session.steps + steps, ...(nextBag ? { bag: nextBag } : {}) };
-  if (portal) return { ...next, zoneId: portal.to, grassSteps: 0, visited: [...new Set([...visitedLocations(session), portal.to])] };
+  if (portal) return { ...next, zoneId: portal.to, layoutRevision: zoneById(portal.to).layoutRevision ?? 0,
+    grassSteps: 0, visited: [...new Set([...visitedLocations(session), portal.to])] };
   const inGrass = isEncounterTile(tileAt(zone, position));
   const grassSteps = inGrass ? session.grassSteps + 1 : 0;
   const patch = !repelled && inGrass ? rustlingPatch(zone, session.catches, session.position) : null;
@@ -160,9 +183,9 @@ export function canTravelTo(session: SafariSession, zoneId: ZoneId): boolean {
 function arrive(session: SafariSession, zoneId: ZoneId, position: Position, direction: Direction): SafariSession {
   const leaving = regionFor(session.zoneId);
   const regionPositions = leaving && isRegionLocation(session.zoneId) && leaving.id !== regionFor(zoneId)?.id
-    ? { ...session.regionPositions, [leaving.id]: { zoneId: session.zoneId, position: session.position, direction: session.direction } }
+    ? { ...session.regionPositions, [leaving.id]: { zoneId: session.zoneId, position: session.position, direction: session.direction, layoutRevision: session.layoutRevision } }
     : session.regionPositions;
-  return { ...session, zoneId, position: { ...position }, direction, grassSteps: 0,
+  return { ...session, zoneId, layoutRevision: zoneById(zoneId).layoutRevision ?? 0, position: { ...position }, direction, grassSteps: 0,
     visited: [...new Set([...visitedLocations(session), zoneId])], ...(regionPositions ? { regionPositions } : {}) };
 }
 export function changeSafariRegion(session: SafariSession, id: RegionId): SafariSession {

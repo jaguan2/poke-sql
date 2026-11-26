@@ -16,6 +16,11 @@ import sinnohRoutes from '../src/features/safari/sinnoh-routes.json' with { type
 import sinnohManifest from '../src/features/safari/sinnoh-assets.json' with { type: 'json' };
 import sinnohOverview from '../src/features/safari/sinnoh-overview.json' with { type: 'json' };
 import sinnohTrainers from '../src/features/safari/sinnoh-trainers.json' with { type: 'json' };
+import unovaMaps from '../src/features/safari/unova-maps.json' with { type: 'json' };
+import unovaRoutes from '../src/features/safari/unova-routes.json' with { type: 'json' };
+import unovaManifest from '../src/features/safari/unova-assets.json' with { type: 'json' };
+import unovaOverview from '../src/features/safari/unova-overview.json' with { type: 'json' };
+import unovaTrainers from '../src/features/safari/unova-trainers.json' with { type: 'json' };
 import regionOverviews from '../src/features/safari/region-overviews.json' with { type: 'json' };
 import routeTrainers from '../src/features/safari/route-trainers.json' with { type: 'json' };
 import initSqlJs from 'sql.js';
@@ -105,7 +110,7 @@ for (const track of regionalTracks) {
   }
 }
 console.log(`Verified ${regionalTracks.length} game soundtrack recordings; no unused MP3 files.`);
-const regionalLayouts = { ...kantoMaps, ...hoennMaps, ...johtoMaps, ...sinnohMaps };
+const regionalLayouts = { ...kantoMaps, ...hoennMaps, ...johtoMaps, ...sinnohMaps, ...unovaMaps };
 for (const [id, layout] of Object.entries(regionalLayouts)) {
   if (regionalTracks.filter(track => track.nativeMusic === layout.music).length !== 1) throw new Error(`Regional location ${id} needs exactly one matching music theme.`);
 }
@@ -146,20 +151,23 @@ async function verifyRegion(name, routes, maps, manifest, atlas) {
     || Object.keys(routes).length !== Object.keys(atlas.points).length
     || Object.keys(routes).some(id => !atlas.points[id] || atlas.points[id].x < 0 || atlas.points[id].x >= atlas.width || atlas.points[id].y < 0 || atlas.points[id].y >= atlas.height)
     || atlas.markers.some(id => !routes[id])) {
-    const atlasRebuild = name === 'sinnoh' ? rebuild : 'Run py scripts/build_region_overviews.py from the repository root.';
+    const atlasRebuild = manifest.sourceSha256 ? rebuild : 'Run py scripts/build_region_overviews.py from the repository root.';
     throw new Error(`${name} town map is stale. ${atlasRebuild}`);
   }
   console.log(`Verified ${manifest.assets.length} bundled ${name} maps and atlas anchors.`);
 }
-const sinnohSource = JSON.parse(await readFile(new URL('../../scripts/sinnoh_routes.json', import.meta.url)));
-if (digest(sinnohSource) !== sinnohManifest.sourceSha256) throw new Error('Run py scripts/build_region_assets.py sinnoh after changing its route recipes.');
+for (const [name, manifest] of [['sinnoh', sinnohManifest], ['unova', unovaManifest]]) {
+  const source = JSON.parse(await readFile(new URL(`../../scripts/${name}_routes.json`, import.meta.url)));
+  if (digest(source) !== manifest.sourceSha256) throw new Error(`Run py scripts/build_region_assets.py ${name} after changing its route recipes.`);
+}
 await Promise.all([
   verifyRegion('kanto', kantoRoutes, kantoMaps, kantoManifest, regionOverviews.kanto),
   verifyRegion('hoenn', hoennRoutes, hoennMaps, hoennManifest, regionOverviews.hoenn),
   verifyRegion('johto', johtoRoutes, johtoMaps, johtoManifest, regionOverviews.johto),
   verifyRegion('sinnoh', sinnohRoutes, sinnohMaps, sinnohManifest, sinnohOverview),
+  verifyRegion('unova', unovaRoutes, unovaMaps, unovaManifest, unovaOverview),
 ]);
-const regionalTrainers = { ...routeTrainers.locations, ...sinnohTrainers };
+const regionalTrainers = { ...routeTrainers.locations, ...sinnohTrainers, ...unovaTrainers };
 if (Object.keys(regionalTrainers).length !== Object.keys(regionalLayouts).length) throw new Error('Rebuild route trainers for all regional maps.');
 for (const [id, layout] of Object.entries(regionalLayouts)) {
   const trainers = regionalTrainers[id];

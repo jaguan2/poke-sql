@@ -7,12 +7,14 @@ import type { RegionId } from "./regions";
 import { canTravelTo, visitedLocations } from "./model";
 import overviews from "./region-overviews.json" with { type: "json" };
 import sinnohOverview from "./sinnoh-overview.json" with { type: "json" };
+import unovaOverview from "./unova-overview.json" with { type: "json" };
+import unovaSpecies from "./unova-species.json" with { type: "json" };
 import "./RegionMap.css";
 
 interface RegionOverview { file: string; game: string; width: number; height: number; points: Record<string, { x: number; y: number }>; markers: readonly string[] }
-const regionMaps: Record<RegionId, RegionOverview> = { ...overviews, sinnoh: sinnohOverview };
+const regionMaps: Record<RegionId, RegionOverview> = { ...overviews, sinnoh: sinnohOverview, unova: unovaOverview };
 
-export function RegionMap({ session, disabled, onTravel, onRegion }: { session: SafariSession; disabled: boolean; onTravel: (id: ZoneId) => void; onRegion: (id: RegionId) => void }) {
+export function RegionMap({ session, disabled, registeredIds, onTravel, onRegion }: { session: SafariSession; disabled: boolean; registeredIds: readonly number[]; onTravel: (id: ZoneId) => void; onRegion: (id: RegionId) => void }) {
   const currentRegion = regionFor(session.zoneId);
   const [regionId, setRegionId] = useState<RegionId>(currentRegion?.id ?? "kanto");
   const [selection, setSelection] = useState<ZoneId>(currentRegion ? session.zoneId : "pallet-town");
@@ -28,6 +30,15 @@ export function RegionMap({ session, disabled, onTravel, onRegion }: { session: 
     <summary><strong>Region map</strong><span>{region.name} · {region.locations.filter(location => visited.includes(location.id)).length} / {region.locations.length} places visited</span></summary>
     <nav className="region-selector" aria-label="Regions">{REGIONS.map(item => <button type="button" key={item.id} aria-pressed={regionId === item.id}
       onClick={() => { setRegionId(item.id); setSelection(currentRegion?.id === item.id ? session.zoneId : session.regionPositions?.[item.id]?.zoneId ?? item.start); }}>{item.name}</button>)}</nav>
+    {regionId === "unova" && <details className="region-species">
+      <summary>Unova Pokédex · {unovaSpecies.filter(species => registeredIds.includes(species.id)).length} / {unovaSpecies.length} registered</summary>
+      <p>All 156 native species can be encountered. Expanded sightings include starters, evolved Pokémon and rare Legendary and Mythical Pokémon.</p>
+      <ul>{unovaSpecies.map(species => {
+        const area = region.locations.find(location => location.species.some(pokemon => pokemon.id === species.id))!;
+        return <li key={species.id}><span>#{species.id} {registeredIds.includes(species.id) ? species.name : "???"}</span>
+          <button type="button" onClick={() => setSelection(area.id)}>View {area.name}</button></li>;
+      })}</ul>
+    </details>}
     <label className="region-area">Area<select aria-label="Area" value={selection} onChange={event => setSelection(event.target.value as ZoneId)}>
       {region.locations.map(location => <option key={location.id} value={location.id}>{location.name}</option>)}
     </select></label>

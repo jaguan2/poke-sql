@@ -20,6 +20,7 @@ export interface SafariZoneDefinition {
   species: readonly SafariSpecies[];
   honeyTree?: HoneyTree;
   music?: string;
+  layoutRevision?: number;
 }
 
 // Native route geometry and art are generated together from the pinned game maps.

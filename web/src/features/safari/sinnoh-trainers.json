@@ -1,8 +1,8 @@
 {
   "twinleaf-town": [
     {
-      "x": 8,
-      "y": 9,
+      "x": 14,
+      "y": 12,
       "kind": "lass",
       "facing": "down"
     }
@@ -11,9 +11,9 @@
   "verity-lakefront": [],
   "sandgem-town": [
     {
-      "x": 16,
-      "y": 9,
-      "kind": "youngster",
+      "x": 14,
+      "y": 12,
+      "kind": "lass",
       "facing": "down"
     }
   ],
@@ -28,7 +28,7 @@
   "jubilife-city": [
     {
       "x": 14,
-      "y": 7,
+      "y": 12,
       "kind": "lass",
       "facing": "down"
     }
@@ -51,17 +51,17 @@
   ],
   "oreburgh-city": [
     {
-      "x": 15,
-      "y": 9,
-      "kind": "hiker",
+      "x": 14,
+      "y": 12,
+      "kind": "lass",
       "facing": "down"
     }
   ],
   "route-204": [],
   "floaroma-town": [
     {
-      "x": 7,
-      "y": 9,
+      "x": 14,
+      "y": 12,
       "kind": "lass",
       "facing": "down"
     }
@@ -77,9 +77,9 @@
   ],
   "eterna-city": [
     {
-      "x": 15,
-      "y": 10,
-      "kind": "youngster",
+      "x": 14,
+      "y": 12,
+      "kind": "lass",
       "facing": "down"
     }
   ],

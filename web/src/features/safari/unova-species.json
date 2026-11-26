@@ -1,0 +1,938 @@
+[
+  {
+    "id": 494,
+    "name": "Victini",
+    "legendary": 0,
+    "mythical": 1
+  },
+  {
+    "id": 495,
+    "name": "Snivy",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 496,
+    "name": "Servine",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 497,
+    "name": "Serperior",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 498,
+    "name": "Tepig",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 499,
+    "name": "Pignite",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 500,
+    "name": "Emboar",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 501,
+    "name": "Oshawott",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 502,
+    "name": "Dewott",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 503,
+    "name": "Samurott",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 504,
+    "name": "Patrat",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 505,
+    "name": "Watchog",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 506,
+    "name": "Lillipup",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 507,
+    "name": "Herdier",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 508,
+    "name": "Stoutland",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 509,
+    "name": "Purrloin",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 510,
+    "name": "Liepard",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 511,
+    "name": "Pansage",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 512,
+    "name": "Simisage",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 513,
+    "name": "Pansear",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 514,
+    "name": "Simisear",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 515,
+    "name": "Panpour",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 516,
+    "name": "Simipour",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 517,
+    "name": "Munna",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 518,
+    "name": "Musharna",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 519,
+    "name": "Pidove",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 520,
+    "name": "Tranquill",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 521,
+    "name": "Unfezant",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 522,
+    "name": "Blitzle",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 523,
+    "name": "Zebstrika",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 524,
+    "name": "Roggenrola",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 525,
+    "name": "Boldore",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 526,
+    "name": "Gigalith",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 527,
+    "name": "Woobat",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 528,
+    "name": "Swoobat",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 529,
+    "name": "Drilbur",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 530,
+    "name": "Excadrill",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 531,
+    "name": "Audino",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 532,
+    "name": "Timburr",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 533,
+    "name": "Gurdurr",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 534,
+    "name": "Conkeldurr",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 535,
+    "name": "Tympole",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 536,
+    "name": "Palpitoad",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 537,
+    "name": "Seismitoad",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 538,
+    "name": "Throh",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 539,
+    "name": "Sawk",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 540,
+    "name": "Sewaddle",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 541,
+    "name": "Swadloon",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 542,
+    "name": "Leavanny",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 543,
+    "name": "Venipede",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 544,
+    "name": "Whirlipede",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 545,
+    "name": "Scolipede",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 546,
+    "name": "Cottonee",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 547,
+    "name": "Whimsicott",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 548,
+    "name": "Petilil",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 549,
+    "name": "Lilligant",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 550,
+    "name": "Basculin",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 551,
+    "name": "Sandile",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 552,
+    "name": "Krokorok",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 553,
+    "name": "Krookodile",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 554,
+    "name": "Darumaka",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 555,
+    "name": "Darmanitan",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 556,
+    "name": "Maractus",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 557,
+    "name": "Dwebble",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 558,
+    "name": "Crustle",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 559,
+    "name": "Scraggy",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 560,
+    "name": "Scrafty",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 561,
+    "name": "Sigilyph",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 562,
+    "name": "Yamask",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 563,
+    "name": "Cofagrigus",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 564,
+    "name": "Tirtouga",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 565,
+    "name": "Carracosta",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 566,
+    "name": "Archen",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 567,
+    "name": "Archeops",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 568,
+    "name": "Trubbish",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 569,
+    "name": "Garbodor",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 570,
+    "name": "Zorua",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 571,
+    "name": "Zoroark",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 572,
+    "name": "Minccino",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 573,
+    "name": "Cinccino",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 574,
+    "name": "Gothita",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 575,
+    "name": "Gothorita",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 576,
+    "name": "Gothitelle",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 577,
+    "name": "Solosis",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 578,
+    "name": "Duosion",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 579,
+    "name": "Reuniclus",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 580,
+    "name": "Ducklett",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 581,
+    "name": "Swanna",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 582,
+    "name": "Vanillite",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 583,
+    "name": "Vanillish",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 584,
+    "name": "Vanilluxe",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 585,
+    "name": "Deerling",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 586,
+    "name": "Sawsbuck",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 587,
+    "name": "Emolga",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 588,
+    "name": "Karrablast",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 589,
+    "name": "Escavalier",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 590,
+    "name": "Foongus",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 591,
+    "name": "Amoonguss",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 592,
+    "name": "Frillish",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 593,
+    "name": "Jellicent",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 594,
+    "name": "Alomomola",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 595,
+    "name": "Joltik",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 596,
+    "name": "Galvantula",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 597,
+    "name": "Ferroseed",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 598,
+    "name": "Ferrothorn",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 599,
+    "name": "Klink",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 600,
+    "name": "Klang",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 601,
+    "name": "Klinklang",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 602,
+    "name": "Tynamo",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 603,
+    "name": "Eelektrik",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 604,
+    "name": "Eelektross",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 605,
+    "name": "Elgyem",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 606,
+    "name": "Beheeyem",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 607,
+    "name": "Litwick",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 608,
+    "name": "Lampent",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 609,
+    "name": "Chandelure",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 610,
+    "name": "Axew",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 611,
+    "name": "Fraxure",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 612,
+    "name": "Haxorus",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 613,
+    "name": "Cubchoo",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 614,
+    "name": "Beartic",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 615,
+    "name": "Cryogonal",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 616,
+    "name": "Shelmet",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 617,
+    "name": "Accelgor",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 618,
+    "name": "Stunfisk",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 619,
+    "name": "Mienfoo",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 620,
+    "name": "Mienshao",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 621,
+    "name": "Druddigon",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 622,
+    "name": "Golett",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 623,
+    "name": "Golurk",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 624,
+    "name": "Pawniard",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 625,
+    "name": "Bisharp",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 626,
+    "name": "Bouffalant",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 627,
+    "name": "Rufflet",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 628,
+    "name": "Braviary",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 629,
+    "name": "Vullaby",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 630,
+    "name": "Mandibuzz",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 631,
+    "name": "Heatmor",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 632,
+    "name": "Durant",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 633,
+    "name": "Deino",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 634,
+    "name": "Zweilous",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 635,
+    "name": "Hydreigon",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 636,
+    "name": "Larvesta",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 637,
+    "name": "Volcarona",
+    "legendary": 0,
+    "mythical": 0
+  },
+  {
+    "id": 638,
+    "name": "Cobalion",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 639,
+    "name": "Terrakion",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 640,
+    "name": "Virizion",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 641,
+    "name": "Tornadus",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 642,
+    "name": "Thundurus",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 643,
+    "name": "Reshiram",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 644,
+    "name": "Zekrom",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 645,
+    "name": "Landorus",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 646,
+    "name": "Kyurem",
+    "legendary": 1,
+    "mythical": 0
+  },
+  {
+    "id": 647,
+    "name": "Keldeo",
+    "legendary": 0,
+    "mythical": 1
+  },
+  {
+    "id": 648,
+    "name": "Meloetta",
+    "legendary": 0,
+    "mythical": 1
+  },
+  {
+    "id": 649,
+    "name": "Genesect",
+    "legendary": 0,
+    "mythical": 1
+  }
+]
