@@ -30,7 +30,7 @@ export function isCaptureReceipt(v: unknown): v is CaptureReceipt {
 }
 
 export function isCollection(v: unknown): v is Collection {
-  if (!record(v) || !Array.isArray(v.captures) || !Array.isArray(v.boxes) || !v.boxes.length
+  if (!record(v) || v.schemaVersion !== 2 || !Array.isArray(v.captures) || !Array.isArray(v.boxes) || !v.boxes.length
     || typeof v.migrated !== "boolean" || !Array.isArray(v.legacyRewardIds)
     || !v.legacyRewardIds.every(id => text(id, 160))
     || (v.legacyBackup !== null && (!record(v.legacyBackup) || !Object.values(v.legacyBackup).every(value => value === null || typeof value === "string")))) return false;
@@ -50,6 +50,9 @@ export function isCollection(v: unknown): v is Collection {
     if (positions.has(position)) return false;
     ids.add(capture.id); positions.add(position);
   }
+  if (v.migrationBackup !== undefined && (!record(v.migrationBackup) || v.migrationBackup.schemaVersion !== 1 || !record(v.migrationBackup.metadata))) return false;
+  if (!Array.isArray(v.partyIds) || v.partyIds.length > 6 || v.partyIds.some(id => typeof id !== "string" || !ids.has(id))
+    || new Set(v.partyIds).size !== v.partyIds.length) return false;
   return positive(v.destinationBoxId) && boxIds.has(v.destinationBoxId) && Array.isArray(v.featuredIds) && v.featuredIds.length <= 6
     && v.featuredIds.every(id => typeof id === "string" && ids.has(id)) && new Set(v.featuredIds).size === v.featuredIds.length;
 }

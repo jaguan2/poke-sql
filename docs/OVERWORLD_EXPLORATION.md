@@ -5,7 +5,7 @@
 Open **Explore → Movement → Smooth overworld** in an outdoor Kanto or Hoenn
 location. Classic remains the default and is available for every existing area.
 The shared controller supports all 23 exported outdoor maps. Caves, gates,
-Johto, Sinnoh and Safari habitats still require Classic. Interiors are excluded;
+Johto, Sinnoh and Safari habitats still require Classic. Interiors are not implemented;
 Unova's world stays retired, while its species, sprites and collections remain.
 
 | Control | Action |
@@ -192,7 +192,9 @@ Current limits and ordered follow-up:
 5. Add authored spawns, persisted entity cooldowns, cycling, accessible key
    remapping, reduced camera motion, zoom/fullscreen, fishing and terrain-aware
    click-to-move in separate increments. Click-to-move must use pathfinding;
-   direct movement through obstacles is not a fallback. Interiors remain excluded.
+   direct movement through obstacles is not a fallback. The newer
+   [gameplay proposal](GAMEPLAY_FOUNDATION.md) allows justified future interiors;
+   they are not required for the current slice.
 
 ## Recorded verification — 2026-11-27
 

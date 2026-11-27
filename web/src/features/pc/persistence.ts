@@ -1,5 +1,6 @@
 import { applyCollectionCommand, createCollection, importLegacy } from "./model";
 import { isCollection } from "./validation";
+import { migrateCollection } from "./migrations";
 import type { CapturedPokemon, Collection, CollectionCommand, LegacyImport } from "./types";
 
 const DATABASE = "pokesql-collection-v1";
@@ -42,8 +43,7 @@ export async function updateCollection(legacy: LegacyImport, command?: Collectio
       const apply = () => {
         if (!captures || !metadataRead) return;
         try {
-          const previous: unknown = metadata === undefined && captures.length === 0 ? createCollection() : { ...metadata, captures };
-          if (!isCollection(previous)) throw new Error("PC data could not be read. Your original saved data has been kept.");
+          const previous = migrateCollection(metadata === undefined && captures.length === 0 ? createCollection() : { ...metadata, captures });
           // Recover verified outbox receipts first; the journal may already reflect
           // these wins after an interrupted first PC initialization.
           const awarded = command?.type === "deposit" ? applyCollectionCommand(previous, command) : previous;

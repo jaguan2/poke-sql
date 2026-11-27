@@ -21,10 +21,13 @@ export interface CapturedPokemon extends CaptureReceipt {
   boxId: number; slot: number; nickname: string; favorite: boolean;
 }
 export interface Collection {
+  schemaVersion: 2;
   captures: CapturedPokemon[];
   boxes: PCBox[];
   destinationBoxId: number;
   featuredIds: string[];
+  partyIds: string[]; // Ordered instance IDs; first is the leader, separate from the profile.
+  migrationBackup?: { schemaVersion: 1; metadata: Record<string, unknown> };
   migrated: boolean;
   legacyRewardIds: string[];
   legacyBackup: Record<string, string | null> | null;
@@ -35,6 +38,10 @@ export interface LegacyImport {
   backup: Record<string, string | null> | null;
 }
 export type CollectionCommand =
+  | { type: "party-add"; id: string }
+  | { type: "party-remove"; id: string }
+  | { type: "party-leader"; id: string }
+  | { type: "party-reorder"; id: string; direction: "earlier" | "later" }
   | { type: "deposit"; receipts: CaptureReceipt[] }
   | { type: "add-box" }
   | { type: "rename-box"; boxId: number; name: string }

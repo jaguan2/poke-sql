@@ -3,7 +3,9 @@ import { pokemonSprite } from "../../shared/pokemon/sprites";
 import { CaptureDetails } from "./CaptureDetails";
 import { useBoxDrag } from "./use-box-drag";
 import { WALLPAPERS } from "./validation";
-import type { Collection, CollectionCommand } from "./types";
+import { ActiveParty } from "./ActiveParty";
+import { indexCollection, filterCollection, type CollectionFilter, type CollectionSort } from "./collection-index";
+import type { CapturedPokemon, Collection, CollectionCommand } from "./types";
 import "./PCBoxes.css";
 
 export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRetry, onSafari, onProfile }: {
@@ -16,13 +18,16 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
   const [movingId, setMovingId] = useState<string | null>(null);
   const [activeSlot, setActiveSlot] = useState(0);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<CollectionFilter>("all");
+  const [sort, setSort] = useState<CollectionSort>("box");
   const [visibleCount, setVisibleCount] = useState(60);
   const cells = useRef<(HTMLButtonElement | null)[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
-  const box = collection?.boxes.find(item => item.id === boxId) ?? collection?.boxes[0];
-  const slots = useMemo(() => new Map(collection?.captures.filter(item => item.boxId === box?.id).map(item => [item.slot, item])), [collection, box?.id]);
-  const selected = collection?.captures.find(capture => capture.id === selectedId);
+  const index = useMemo(() => indexCollection(collection), [collection]);
+  const box = index.boxesById.get(boxId) ?? collection?.boxes[0];
+  const slots = index.byBox.get(box?.id ?? 0) ?? new Map<number, CapturedPokemon>();
+  const selected = selectedId ? index.byId.get(selectedId) : undefined;
   const locked = busy || pendingCount > 0;
   const changeBox = (id: number) => { setBoxId(id); setActiveSlot(0); if (!movingId) setSelectedId(null); };
   const dragging = useBoxDrag(locked, (id, destination, slot) => {
@@ -30,14 +35,19 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
       if (moved) { setSelectedId(id); setActiveSlot(slot); setMovingId(null); }
     });
   }, changeBox);
-  const held = useMemo(() => collection?.captures.find(item => item.id === dragging.drag?.id), [collection, dragging.drag?.id]);
+  const held = dragging.drag ? index.byId.get(dragging.drag.id) : undefined;
   const chooseSlot = async (slot: number) => {
     if (!collection || !box) return;
     if (movingId) {
       if (await onCommand({ type: "move", id: movingId, boxId: box.id, slot })) { setSelectedId(movingId); setMovingId(null); }
-    } else setSelectedId(collection.captures.find(capture => capture.boxId === box.id && capture.slot === slot)?.id ?? null);
+    } else setSelectedId(slots.get(slot)?.id ?? null);
   };
-  const matches = useMemo(() => search.trim() ? collection?.captures.filter(capture => `${capture.nickname} ${capture.pokemon.name}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())) ?? [] : [], [collection, search]);
+  const searching = !!search.trim() || filter !== "all" || sort !== "box";
+  const matches = useMemo(() => searching ? filterCollection(collection, index, search, filter, sort) : [], [collection, index, search, filter, sort, searching]);
+  const selectCapture = (capture: NonNullable<typeof selected>) => {
+    changeBox(capture.boxId); if (!movingId) setSelectedId(capture.id);
+    setSearch(""); setFilter("all"); setSort("box"); setActiveSlot(capture.slot);
+  };
   return <section className="pc-page" aria-labelledby="pc-title">
     <header className="pc-heading"><div><h2 id="pc-title" tabIndex={-1} ref={heading}>PC Boxes</h2>
       <p>{collection ? `${collection.captures.length.toLocaleString()} Pokémon · ${collection.boxes.length} boxes · ${(collection.boxes.length * 30).toLocaleString()} slots` : "Loading caught Pokémon…"}</p></div>
@@ -45,6 +55,7 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
     {(error || pendingCount > 0) && <div className="notice" role="status"><p>{error}{pendingCount > 0 && ` ${pendingCount} caught Pokémon waiting to be saved. Keep this window open if device storage is blocked.`}</p><button className="btn" disabled={busy} onClick={() => void onRetry()}>Retry PC save</button></div>}
     {!collection || !box ? <p className="pc-note">{error ? "Your existing PC data has been kept. Retry to open it." : "Opening PC storage…"}</p> : <>
       {!collection.migrated && <p className="notice">Existing progress could not be read. It will be imported when local storage is available.</p>}
+      <ActiveParty ids={collection.partyIds} captures={index.byId} busy={locked} onCommand={onCommand} onSelect={selectCapture} />
       <div className="pc-toolbar">
         <button className="btn" aria-label="Previous box" data-pc-switch={box.id - 1} disabled={box.id === 1} onClick={() => changeBox(box.id - 1)}>←</button>
         <label className="pc-box-select">Box<select value={box.id} onChange={event => changeBox(Number(event.target.value))}>
@@ -53,6 +64,12 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
         <button className="btn" aria-label="Next box" data-pc-switch={box.id + 1} disabled={box.id === collection.boxes.length} onClick={() => changeBox(box.id + 1)}>→</button>
         <button className="btn" disabled={locked} onClick={() => void onCommand({ type: "add-box" })}>Add box</button>
         <label className="pc-search">Find caught Pokémon<input type="search" value={search} placeholder="Species or nickname" onChange={event => { setSearch(event.target.value); setVisibleCount(60); }} /></label>
+        <label>Collection filter<select value={filter} onChange={event => { setFilter(event.target.value as CollectionFilter); setVisibleCount(60); }}>
+          <option value="all">All Pokémon</option><option value="favorites">Favorites</option><option value="shiny">Shiny</option><option value="duplicates">Duplicate species</option><option value="party">Active party</option>
+        </select></label>
+        <label>Sort collection<select value={sort} onChange={event => { setSort(event.target.value as CollectionSort); setVisibleCount(60); }}>
+          <option value="box">Box and slot</option><option value="name">Name</option><option value="level">Highest level</option><option value="newest">Newest first</option>
+        </select></label>
       </div>
       <p className="pc-note">Drag a Pokémon to any slot to move or swap it. Hold over a box arrow while dragging to change boxes. You can also select a Pokémon and choose Move.</p>
       <div className="pc-box-settings">
@@ -67,16 +84,14 @@ export function PCBoxes({ collection, error, pendingCount, busy, onCommand, onRe
       </div>
       {movingId && <p className="notice" role="status">Choose a destination slot. Occupied slots will be swapped. <button className="btn" onClick={() => setMovingId(null)}>Cancel move</button></p>}
       <div className="pc-layout">
-        <div>{search.trim() ? <section className="pc-search-results" aria-label="Caught Pokémon search results"><h3>{matches.length} matching Pokémon</h3>
-          {matches.slice(0, visibleCount).map(capture => <button className="pc-search-result" key={capture.id} onClick={() => {
-            changeBox(capture.boxId); if (!movingId) setSelectedId(capture.id); setSearch(""); setActiveSlot(capture.slot);
-          }}><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt="" width={48} height={48} /><span>{capture.nickname || capture.pokemon.name}<small>{collection.boxes.find(item => item.id === capture.boxId)?.name} · slot {capture.slot + 1}{capture.level !== null && ` · Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}</small></span></button>)}
+        <div>{searching ? <section className="pc-search-results" aria-label="Caught Pokémon search results"><h3>{matches.length} matching Pokémon</h3>
+          {matches.slice(0, visibleCount).map(capture => <button className="pc-search-result" key={capture.id} onClick={() => selectCapture(capture)}><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt="" width={48} height={48} /><span>{capture.nickname || capture.pokemon.name}<small>{index.boxesById.get(capture.boxId)?.name} · slot {capture.slot + 1}{capture.level !== null && ` · Lv. ${capture.level}`}{capture.shiny && " · ✦ Shiny"}</small></span></button>)}
           {matches.length > visibleCount && <button className="btn" onClick={() => setVisibleCount(count => count + 60)}>Show more</button>}
         </section> : <div className="pc-box" data-wallpaper={box.wallpaper}>
           <div className="pc-box-heading"><h3>{box.name}</h3><span>{slots.size}/30</span></div>
           <div className="pc-grid" role="group" aria-label={`${box.name} slots`}>{Array.from({ length: 30 }, (_, slot) => {
             const capture = slots.get(slot);
-            return <button key={slot} ref={element => { cells.current[slot] = element; }} className={`pc-slot${capture ? " is-occupied" : ""}${dragging.drag?.target?.boxId === box.id && dragging.drag.target.slot === slot ? " is-drop-target" : ""}${capture?.id === dragging.drag?.id ? " is-held" : ""}`}
+            return <button key={slot} ref={element => { cells.current[slot] = element; }} className={`pc-slot${capture ? " is-occupied" : ""}${dragging.drag?.target?.boxId === box.id && dragging.drag.target.slot === slot ? " is-drop-target" : ""}${capture && capture.id === dragging.drag?.id ? " is-held" : ""}`}
               data-pc-slot={slot} data-pc-box={box.id}
               aria-label={`Slot ${slot + 1}: ${capture ? `${capture.nickname || capture.pokemon.name}${capture.level === null ? "" : `, level ${capture.level}`}${capture.shiny ? ", shiny" : ""}` : "Empty"}`}
               aria-pressed={!!capture && capture.id === selectedId} tabIndex={activeSlot === slot ? 0 : -1} disabled={locked}

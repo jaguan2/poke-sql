@@ -241,6 +241,8 @@ See [releasing and testing updates](docs/RELEASING.md).
   a mouse, pen or finger to any slot; hover a box arrow to change boxes while
   holding a Pokémon. Select a Pokémon and use Move for keyboard controls. Capture
   details retain the encounter level, ball, location, date and successful SQL.
+  Filter by favorites, shiny Pokémon, duplicate species or active party; sort
+  by box/slot, name, highest recorded level or newest capture.
   New encounters roll levels 5–10 on a trainer's first day. Both ends of the
   range rise by one for each full day since the Trainer ID was issued, up to
   levels 45–50. The Pokémon keeps the level it had when the encounter began.
@@ -537,10 +539,17 @@ Canvas terrain from native Generation III map data. Adjacent layered assets
 preload through a bounded decoded-asset cache. Rebuild both outdoor regions with
 `python scripts/export_world_maps.py all` from the repository root. See
 [World maps](docs/WORLD_MAPS.md) for the format, source provenance and outdoor-only
-  scope; interiors are excluded. Explore → Movement → Smooth overworld enables
+  scope; interiors are not currently implemented. Explore → Movement → Smooth overworld enables
   continuous walking/running, Surf and visible Pokémon in those outdoor maps.
   See [Overworld exploration](docs/OVERWORLD_EXPLORATION.md) for controls,
   architecture and the prototype's limits.
+
+PC Boxes also has a collapsible **Active party** panel. Select an owned Pokémon
+and choose **Add to party**, then reorder up to six members or make one the
+leader. This is separate from the Trainer ID showcase. Party membership survives
+box moves and offline reloads. Training, followers and evolution remain planned;
+see [Gameplay foundation](docs/GAMEPLAY_FOUNDATION.md) for the assessment,
+architecture choices, save migration, research and implementation order.
 
 ## Verification
 

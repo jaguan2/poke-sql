@@ -22,6 +22,7 @@ test('drag moves, swaps, crosses boxes and persists without changing ownership',
   await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2); await page.mouse.down();
   await page.mouse.move(next.x + next.width / 2, next.y + next.height / 2, { steps: 12 });
   await expect(page.getByRole('group', { name: 'Box 2 slots', exact: true })).toBeVisible();
+  await slot(30).scrollIntoViewIfNeeded();
   const destination = (await slot(30).boundingBox())!;
   await page.mouse.move(destination.x + destination.width / 2, destination.y + destination.height / 2, { steps: 12 });
   await page.screenshot({ path: info.outputPath('pc-drag-between-boxes.png') });

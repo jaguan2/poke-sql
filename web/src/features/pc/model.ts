@@ -1,29 +1,37 @@
 import type { CaptureReceipt, Collection, CollectionCommand, LegacyImport, PCBox } from "./types";
 import { isCaptureReceipt, WALLPAPERS } from "./validation";
+import { applyPartyCommand } from "./party-model";
 
 const makeBox = (id: number): PCBox => ({ id, name: `Box ${id}`, wallpaper: WALLPAPERS[(id - 1) % WALLPAPERS.length].id });
 export function createCollection(): Collection {
-  return { captures: [], boxes: Array.from({ length: 64 }, (_, i) => makeBox(i + 1)), destinationBoxId: 1,
-    featuredIds: [], migrated: false, legacyRewardIds: [], legacyBackup: null };
+  return { schemaVersion: 2, captures: [], boxes: Array.from({ length: 64 }, (_, i) => makeBox(i + 1)), destinationBoxId: 1,
+    featuredIds: [], partyIds: [], migrated: false, legacyRewardIds: [], legacyBackup: null };
 }
 
 export function deposit(collection: Collection, receipts: CaptureReceipt[]): Collection {
+  if (!receipts.length) return collection;
   const captures = [...collection.captures];
   const boxes = [...collection.boxes];
   const ids = new Set([...captures.map(capture => capture.id), ...collection.legacyRewardIds]);
   const occupied = new Set(captures.map(capture => `${capture.boxId}:${capture.slot}`));
+  const start = boxes.findIndex(box => box.id === collection.destinationBoxId);
+  if (start < 0) throw new Error("This catch destination is unavailable.");
+  const free: { boxId: number; slot: number }[] = [];
+  for (let offset = 0; offset < boxes.length; offset++) {
+    const box = boxes[(start + offset) % boxes.length];
+    for (let slot = 0; slot < 30; slot++) if (!occupied.has(`${box.id}:${slot}`)) free.push({ boxId: box.id, slot });
+  }
+  let cursor = 0;
   for (const receipt of receipts) {
     if (!isCaptureReceipt(receipt)) throw new Error("This capture could not be verified.");
     if (ids.has(receipt.id)) continue;
-    const start = boxes.findIndex(box => box.id === collection.destinationBoxId);
-    let placement: { boxId: number; slot: number } | undefined;
-    for (let offset = 0; offset < boxes.length && !placement; offset++) {
-      const box = boxes[(start + offset) % boxes.length];
-      for (let slot = 0; slot < 30; slot++) if (!occupied.has(`${box.id}:${slot}`)) { placement = { boxId: box.id, slot }; break; }
+    if (cursor === free.length) {
+      const box = makeBox(boxes.length + 1); boxes.push(box);
+      for (let slot = 0; slot < 30; slot++) free.push({ boxId: box.id, slot });
     }
-    if (!placement) { const box = makeBox(boxes.length + 1); boxes.push(box); placement = { boxId: box.id, slot: 0 }; }
+    const placement = free[cursor++];
     captures.push({ ...receipt, ...placement, nickname: "", favorite: false });
-    occupied.add(`${placement.boxId}:${placement.slot}`); ids.add(receipt.id);
+    ids.add(receipt.id);
   }
   return { ...collection, boxes, captures };
 }
@@ -41,6 +49,7 @@ export function importLegacy(collection: Collection, legacy: LegacyImport): Coll
 
 export function applyCollectionCommand(collection: Collection, command: CollectionCommand): Collection {
   if (command.type === "deposit") return deposit(collection, command.receipts);
+  if (command.type === "party-add" || command.type === "party-remove" || command.type === "party-leader" || command.type === "party-reorder") return applyPartyCommand(collection, command);
   if (command.type === "add-box") return { ...collection, boxes: [...collection.boxes, makeBox(collection.boxes.length + 1)] };
   if (command.type === "featured") {
     if (command.ids.length > 6 || new Set(command.ids).size !== command.ids.length || command.ids.some(id => !collection.captures.some(capture => capture.id === id)))

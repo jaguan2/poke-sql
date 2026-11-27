@@ -54,7 +54,7 @@ native layers and metadata without changing movement or game saves.
    against existing portals, ledges, saves and encounter tests before replacing
    the current rows. Smooth consumes normalized terrain with elevation and
    separate bridge planes; raw metadata alone is not complete native behavior.
-5. Keep interiors out of scope. Broaden outdoor coverage and validate the
+5. Keep this exporter increment outdoors. Broaden outdoor coverage and validate the
    adapter with Emerald as well as FireRed. DS geometry needs its own adapter and render/occlusion study before
    attempting HeartGold or Platinum imports.
 
@@ -212,7 +212,8 @@ Tiled/metadata/atlas files total about 1.58 MB for all 23 maps.
 
 - All existing Kanto and Hoenn outdoor towns, routes and forests use layers.
   Gates, caves, Johto, Sinnoh and Safari habitats retain the existing renderer.
-  Interiors are excluded from the roadmap at the user's request.
+  Interiors remain unimplemented. The newer [gameplay plan](GAMEPLAY_FOUNDATION.md)
+  permits them when a concrete feature justifies extending the pipeline.
 - The exporter compares each pixel of the recombined layers against the
   existing committed PNG before registering output. This validates against
   the current decoder and baseline, not a captured original-game framebuffer.

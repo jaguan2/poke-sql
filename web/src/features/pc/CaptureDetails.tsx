@@ -7,6 +7,7 @@ export function CaptureDetails({ capture, collection, busy, moving, onCommand, o
   onCommand: (command: CollectionCommand) => Promise<boolean>; onMove: () => void; onProfile: () => void;
 }) {
   const featured = collection.featuredIds.includes(capture.id);
+  const inParty = collection.partyIds.includes(capture.id);
   const toggleFeatured = () => onCommand({ type: "featured", ids: featured ? collection.featuredIds.filter(id => id !== capture.id) : [...collection.featuredIds, capture.id] });
   return <section className="pc-summary" aria-label="Selected Pokémon">
     <div className="pc-portrait"><img src={pokemonSprite(capture.pokemon.id, capture.shiny)} alt={capture.shiny ? `Shiny ${capture.pokemon.name}` : capture.pokemon.name} width={144} height={144} /></div>
@@ -25,6 +26,8 @@ export function CaptureDetails({ capture, collection, busy, moving, onCommand, o
       event.preventDefault(); void onCommand({ type: "nickname", id: capture.id, name: String(new FormData(event.currentTarget).get("nickname") ?? "") });
     }}><label>Nickname<input name="nickname" maxLength={24} defaultValue={capture.nickname} placeholder={capture.pokemon.name} disabled={busy} /></label><button className="btn" disabled={busy}>Save nickname</button></form>
     <div className="pc-summary-actions">
+      <button className="btn" disabled={busy || !inParty && collection.partyIds.length >= 6} aria-pressed={inParty}
+        onClick={() => void onCommand({ type: inParty ? "party-remove" : "party-add", id: capture.id })}>{inParty ? "Remove from party" : "Add to party"}</button>
       <button className="btn" disabled={busy} aria-pressed={capture.favorite} onClick={() => void onCommand({ type: "favorite", id: capture.id, favorite: !capture.favorite })}>Favorite</button>
       <button className="btn" disabled={busy} onClick={onMove}>{moving ? "Cancel move" : "Move Pokémon"}</button>
       <button className="btn" disabled={busy || (!featured && collection.featuredIds.length >= 6)} aria-pressed={featured} onClick={() => void toggleFeatured()}>{featured ? "Remove from profile" : "Feature on profile"}</button>

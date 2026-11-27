@@ -9,6 +9,8 @@ The incremental layered-map exporter, rendering boundary, community research
 and migration plan are documented in [World maps](WORLD_MAPS.md).
 The opt-in continuous movement, Surf and visible SQL encounters are documented
 in [Overworld exploration](OVERWORLD_EXPLORATION.md).
+The collection/party increment and evaluated progression architecture are in
+[Gameplay foundation](GAMEPLAY_FOUNDATION.md).
 
 Unova world assets and travel navigation are currently retired. Safari restore
 removes retired visits/bookmarks and relocates a trainer saved in Unova to
@@ -68,6 +70,23 @@ captures without SQL replay. The journal remains unique by species. Legacy raw
 progress is preserved in the migration transaction, with unknown capture fields
 left unknown. Profile highlights reference at most six owned instance IDs.
 The profile receives its PC showcase as a React node composed by the app.
+
+Collection metadata now has domain `schemaVersion: 2`, independent of the
+unchanged IndexedDB database version 1. `pc/migrations.ts` upgrades old metadata
+inside the write transaction, retains a pre-upgrade metadata backup, initializes
+an empty party and preserves all capture records/unknown fields. Unsupported
+future versions fail without replacement. `partyIds` references up to six owned
+instances in order, with the first as leader; it is separate from `featuredIds`.
+Granular party commands validate the latest transaction state, so stale tabs
+cannot overwrite a whole lineup or exceed the limit. Box moves preserve IDs.
+XP, followers, evolution and party-based rewards are not implemented yet.
+
+PC views memoize ID/placement/species-count indexes per collection revision and
+render 30 slots or bounded search pages. Filters use existing favorite, shiny,
+species and party fields. Batch deposits enumerate free placements once instead
+of restarting a slot search per receipt. Persistence still reads/validates the
+whole collection per command; indexed writes and revisioned view patches remain
+future work subject to measurements.
 
 Box captures use a unique placement index. Moving to an occupied slot swaps
 both records in one transaction. The hook serializes local commands and refreshes
