@@ -6,20 +6,17 @@ import johtoMaps from "./johto-maps.json" with { type: "json" };
 import johtoRoutes from "./johto-routes.json" with { type: "json" };
 import sinnohMaps from "./sinnoh-maps.json" with { type: "json" };
 import sinnohRoutes from "./sinnoh-routes.json" with { type: "json" };
-import unovaMaps from "./unova-maps.json" with { type: "json" };
-import unovaRoutes from "./unova-routes.json" with { type: "json" };
 import honeyPool from "./honey-tree-pool.json" with { type: "json" };
-import unovaSpecies from "./unova-species.json" with { type: "json" };
 import type { Direction, Position, SafariSpecies, SafariZoneDefinition, ZoneId } from "./zones";
 
-const maps = { ...kantoMaps, ...hoennMaps, ...johtoMaps, ...sinnohMaps, ...unovaMaps };
-export type RegionId = "kanto" | "hoenn" | "johto" | "sinnoh" | "unova";
+const maps = { ...kantoMaps, ...hoennMaps, ...johtoMaps, ...sinnohMaps };
+export type RegionId = "kanto" | "hoenn" | "johto" | "sinnoh";
 export type RegionLocationId = keyof typeof maps;
 interface RouteRecipe {
   name: string; kind: string; description: string; pool: (string | number)[][];
-  overview?: boolean; landmark?: string; honeyTree?: Position; supplementalSpecies?: number[];
+  overview?: boolean; landmark?: string; honeyTree?: Position;
 }
-const routes: Readonly<Record<RegionLocationId, RouteRecipe>> = { ...kantoRoutes, ...hoennRoutes, ...johtoRoutes, ...sinnohRoutes, ...unovaRoutes };
+const routes: Readonly<Record<RegionLocationId, RouteRecipe>> = { ...kantoRoutes, ...hoennRoutes, ...johtoRoutes, ...sinnohRoutes };
 export const isRegionLocation = (id: unknown): id is RegionLocationId => typeof id === "string" && Object.prototype.hasOwnProperty.call(routes, id);
 export const regionalRoute = (id: ZoneId) => isRegionLocation(id) ? routes[id] : undefined;
 interface RegionPortal extends Position { to: RegionLocationId; arrival: Position }
@@ -49,10 +46,7 @@ function locations(ids: readonly RegionLocationId[], regionName: string): readon
       battleTerrain: cave || snow ? "cave" : lake ? "water" : sand ? "sand" : "grass",
       map: map.rows, start: map.start, rustle: map.rustle ?? map.start,
       layoutRevision: "revision" in map ? Number(map.revision) : 0,
-      species: recipeSpecies(route.pool).map(species => {
-        const native = unovaSpecies.find(entry => entry.id === species.id);
-        return { ...species, rarity: native?.mythical ? "Mythical" as const : native?.legendary ? "Legendary" as const : species.rarity };
-      }),
+      species: recipeSpecies(route.pool),
       ...(route.honeyTree ? { honeyTree: { ...route.honeyTree, species: honeySpecies } } : {}),
     };
   });
@@ -61,14 +55,12 @@ export const KANTO_LOCATIONS = locations(Object.keys(kantoRoutes) as RegionLocat
 export const HOENN_LOCATIONS = locations(Object.keys(hoennRoutes) as RegionLocationId[], "Hoenn");
 export const JOHTO_LOCATIONS = locations(Object.keys(johtoRoutes) as RegionLocationId[], "Johto");
 export const SINNOH_LOCATIONS = locations(Object.keys(sinnohRoutes) as RegionLocationId[], "Sinnoh");
-export const UNOVA_LOCATIONS = locations(Object.keys(unovaRoutes) as RegionLocationId[], "Unova");
 interface RegionDefinition { id: RegionId; name: string; start: RegionLocationId; locations: readonly SafariZoneDefinition[] }
 export const REGIONS: readonly RegionDefinition[] = [
   { id: "kanto", name: "Kanto", start: "pallet-town", locations: KANTO_LOCATIONS },
   { id: "hoenn", name: "Hoenn", start: "littleroot-town", locations: HOENN_LOCATIONS },
   { id: "johto", name: "Johto", start: "new-bark-town", locations: JOHTO_LOCATIONS },
   { id: "sinnoh", name: "Sinnoh", start: "twinleaf-town", locations: SINNOH_LOCATIONS },
-  { id: "unova", name: "Unova", start: "nuvema-town", locations: UNOVA_LOCATIONS },
 ];
 export const regionById = (id: RegionId): RegionDefinition => REGIONS.find(region => region.id === id)!;
 export const regionFor = (id: ZoneId): RegionDefinition | undefined => REGIONS.find(region => region.locations.some(location => location.id === id));

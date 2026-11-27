@@ -21,7 +21,11 @@
 .safari-map { image-rendering:pixelated; position:relative; aspect-ratio:15/10; overflow:hidden; isolation:isolate; border-block:4px solid var(--safari-canopy); background:var(--safari-canopy); }
 .safari-map:focus-visible { outline:3px solid var(--safari-accent); outline-offset:-4px; }
 .safari-terrain { display:block; width:100%; height:100%; image-rendering:pixelated; }
-.safari-route-world { position:absolute; top:0; left:0; transition:transform var(--safari-step-duration) linear; }
+.safari-route-world { position:absolute; top:0; left:0; isolation:isolate; z-index:0; transition:transform var(--safari-step-duration) linear; }
+.safari-world-ground,.safari-world-foreground { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; pointer-events:none; visibility:hidden; }
+.safari-world-ground[data-ready=true],.safari-world-foreground[data-ready=true] { visibility:visible; }
+.safari-world-ground { z-index:0; }
+.safari-world-foreground { z-index:var(--route-foreground-depth); }
 .safari-trailhead { position:absolute; transform:translate(-50%,-50%); color:#f8edd0; background:#285d48bd; border-radius:3px; font-size:15px; line-height:1.1; padding:2px 4px; }
 .safari-route-overview { border-top:1px solid var(--border); padding:12px 14px; font-size:11px; color:var(--text-dim); }
 .safari-route-overview > summary { cursor:pointer; color:var(--highlight); font-weight:650; }

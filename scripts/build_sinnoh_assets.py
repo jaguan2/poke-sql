@@ -210,16 +210,11 @@ def build_overview(region, recipes, runtime_routes, output):
     coast = [(9, 85), (17, 60), (31, 44), (28, 28), (44, 16), (79, 22), (103, 9), (119, 6),
              (149, 8), (166, 26), (155, 50), (162, 75), (151, 89), (158, 112), (134, 122),
              (111, 112), (93, 118), (73, 128), (65, 143), (28, 141), (17, 123)]
-    if region == "unova":
-        coast = [(8, 20), (40, 8), (99, 10), (125, 25), (162, 35), (172, 75), (151, 106), (143, 144), (106, 144), (96, 104), (51, 101), (22, 77), (15, 52)]
     draw.polygon(coast, fill="#99bd77", outline="#e7d397", width=3)
     if region == "sinnoh":
         draw.polygon([(103, 12), (120, 7), (147, 10), (162, 25), (148, 40), (122, 34), (112, 39)], fill="#c8dfd9")
         draw.ellipse((112, 10, 135, 22), fill="#66acc5", outline="#e7f3de")
         draw.ellipse((12, 95, 32, 110), fill="#66acc5", outline="#b6d8a0")
-    if region == "unova":
-        draw.polygon([(16, 17), (42, 14), (65, 37), (48, 55), (23, 51)], fill="#d4bc82")
-        draw.ellipse((66, 47, 93, 68), fill="#5497c4", outline="#bcc991")
     for x, y in [(34, 30), (39, 38), (47, 30), (50, 40), (65, 32), (70, 39), (74, 30), (31, 56), (28, 65), (22, 74)]:
         draw.polygon([(x, y - 5), (x - 4, y + 3), (x + 4, y + 3)], fill="#437f5d")
     for x, y in [(120, 45), (141, 53), (123, 61), (136, 70), (143, 85), (116, 79)]:
@@ -239,12 +234,14 @@ def build_overview(region, recipes, runtime_routes, output):
         x, y = point["x"], point["y"]
         draw.rectangle((x - 2, y - 2, x + 2, y + 2), fill="#f5e7b9", outline="#435753")
     return {"file": f"{region}/region-map.png", "game": "PokéSQL", "width": width, "height": height,
-            "points": points, "markers": [id for id, route in recipes.items() if route["kind"] in {"town", "forest", "lake", "snow"} or id in {"mt-coronet", "relic-castle", "wellspring-cave", "desert-resort"}],
+            "points": points, "markers": [id for id, route in recipes.items() if route["kind"] in {"town", "forest", "lake", "snow"} or id == "mt-coronet"],
             "recipeSha256": digest(runtime_routes), "pointsSha256": digest(points),
             "sha256": save_art(chart, output / "region-map.png")}
 
 
 def build(region="sinnoh"):
+    if region != "sinnoh":
+        raise ValueError("Only Sinnoh's authored world is supported")
     recipes = json.loads(Path(__file__).with_name(f"{region}_routes.json").read_text(encoding="utf-8"))
     output = PUBLIC / region
     output.mkdir(parents=True, exist_ok=True)
@@ -260,8 +257,6 @@ def build(region="sinnoh"):
         routes[id] = {key: route[key] for key in ("name", "kind", "description", "pool")}
         if "honeyTree" in route:
             routes[id]["honeyTree"] = route["honeyTree"]
-        if "supplementalSpecies" in route:
-            routes[id]["supplementalSpecies"] = route["supplementalSpecies"]
         file = f"{id}.png"
         assets.append({"file": file, "recipeSha256": digest(routes[id]), "layoutSha256": digest(maps[id]),
                        "sha256": save_art(render_layout(plan, route, art), output / file)})

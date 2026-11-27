@@ -11,6 +11,7 @@ import { SafariRanger } from "./SafariRanger";
 import { RANGER_POSITIONS, rangerSighting } from "./ranger";
 import { SAFARI_STEP_MS, useSafariMovement } from "./use-safari-movement";
 import { RouteTrainers } from "./RouteTrainers";
+import { WorldTerrain } from "./world/WorldTerrain";
 
 const controlsKey = "pokesql:safari-controls-seen";
 const terrainFor = (id: ZoneId) => `${import.meta.env.BASE_URL}safari/${regionFor(id)?.id ?? "maps"}/${id}.png`;
@@ -49,13 +50,14 @@ export function SafariMap({ zone, session, active, slideMs, rustling, weather, d
   return <>
     <div className={`safari-map safari-terrain-${zone.encounterTerrain}${isRegionLocation(zone.id) ? " is-region" : ""}${rustling ? " is-rustling" : ""}${slideMs ? " is-sliding" : ""}`} ref={map} role="group" aria-label={`${zone.name} exploration map`} aria-describedby="safari-controls-help" tabIndex={active ? 0 : -1}
       data-camera-x={camera.x} data-camera-y={camera.y} style={{ aspectRatio: `${camera.width}/${camera.height}`, "--safari-step-duration": `${slideMs || SAFARI_STEP_MS}ms` } as CSSProperties}>
-      <div className="safari-route-world" key={zone.id} style={{ width: `${width / camera.width * 100}%`, height: `${height / camera.height * 100}%`, transform: `translate(${-camera.x / width * 100}%, ${-camera.y / height * 100}%)`, "--route-columns": width } as CSSProperties}>
+      <div className="safari-route-world" key={zone.id} style={{ width: `${width / camera.width * 100}%`, height: `${height / camera.height * 100}%`, transform: `translate(${-camera.x / width * 100}%, ${-camera.y / height * 100}%)`, "--route-columns": width, "--route-foreground-depth": height + 3 } as CSSProperties}>
         <img className="safari-terrain" src={terrain} alt="" width={width * 16} height={height * 16} draggable={false} />
+        <WorldTerrain key={zone.id} zoneId={zone.id} width={width} height={height} />
         <span className="safari-trailhead" style={position(zone.start.x, zone.start.y)} aria-hidden="true">⚑</span>
         {patch && <span className="safari-rustle" style={position(patch.x, patch.y)} data-x={patch.x} data-y={patch.y} aria-hidden="true"><span>✦</span><i className="safari-hotspot-grass" /></span>}
         {exits.map(exit => <span key={`${exit.x}-${exit.y}`} className="safari-exit" style={position(Math.max(0, Math.min(exit.x, width - 1)), Math.max(0, Math.min(exit.y, height - 1)))} aria-hidden="true">{exit.y < 0 ? "↑" : exit.y >= height ? "↓" : exit.x < 0 ? "←" : exit.x >= width ? "→" : "↕"}<span>{zoneById(exit.to).name}</span></span>)}
         <RouteTrainers zoneId={zone.id} position={position} />
-        <div className="safari-player" style={position(session.position.x, session.position.y)} data-x={session.position.x} data-y={session.position.y} data-facing={session.direction}>
+        <div className="safari-player" style={{ ...position(session.position.x, session.position.y), zIndex: session.position.y + 2 }} data-x={session.position.x} data-y={session.position.y} data-facing={session.direction}>
           <TrainerSprite trainer={trainer} pose="walking" frame={frame} flipped={session.direction === "right"} className="safari-trainer" />
         </div>
         {rangerVisible && <SafariRanger style={position(ranger.x, ranger.y)} active={active} trainer={trainer}

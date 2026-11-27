@@ -118,21 +118,16 @@ See [releasing and testing updates](docs/RELEASING.md).
   On Route 204, at Valley Windworks and in Eterna Forest, walk beside a
   golden Honey Tree and check it for an immediate encounter. The trees share
   their own catch pool, with a rare chance to find Munchlax.
-- **Explore Unova:** start in Nuvema Town or choose one of 17 locations in
-  **Region map → Unova**. Land encounter pools combine Black and White data
-  with PokéSQL weights. Expanded regional sightings make all 156 native species
-  catchable, including starters, evolved forms, Legendary and Mythical Pokémon.
-  Open **Unova Pokédex** in the region map to see the regional total and find
-  a location for each species. **Sound effects** enables short encounter and catch cues.
-  The Unova layouts use the existing local tiles and area music. Rebuild them
-  with `py scripts/build_region_assets.py unova` and regenerate the original
-  notification tones with `py scripts/build_safari_sounds.py`.
-  Town architecture and route landscapes draw on Bulbapedia's location
-  descriptions. Their original PokéSQL layouts include gardens, warehouses,
-  harbor piers, amusement grounds and desert construction sites. Reference
-  links live in `scripts/unova_routes.json`. Towns in Sinnoh also have distinct
-  architecture. Older saves on rebuilt maps return to a safe trailhead while
-  retaining their active encounter, SQL draft and collection.
+- **Unova Pokémon:** all 156 Generation V species remain in SQL, the National
+  Pokédex and mystery encounters, with their local sprites and existing PC
+  catches. Unova exploration and its map assets are currently removed.
+  Expeditions saved there return to Pallet Town, retaining catches, step counts,
+  Bag effects and SQL drafts. The original expedition, including any unfinished
+  encounter, is archived in the Safari save's `retiredUnova` field. Existing
+  Unova visits/bookmarks are removed from live travel navigation.
+- **Sound effects:** enable short encounter and catch cues while exploring any
+  supported region or habitat. Rebuild the original notification tones with
+  `py scripts/build_safari_sounds.py`.
 - **Bag and game menus:** the framed navigation groups Explore, Pokédex, PC Boxes,
   Bag, Trainer ID and Options. The Bag has Items and Key Items pockets, local
   PokéAPI item icons and a description window. The Bag window and menu icon use
@@ -536,6 +531,13 @@ directories. The build checks dependency boundaries and runtime import cycles.
 
 See the [architecture guide](docs/ARCHITECTURE.md) for ownership rules and how to
 add a feature, and the [test guide](web/tests/README.md) for focused checks.
+
+The 23 existing outdoor Kanto and Hoenn towns, routes and forests use layered
+Canvas terrain from native Generation III map data. Adjacent layered assets
+preload through a bounded decoded-asset cache. Rebuild both outdoor regions with
+`python scripts/export_world_maps.py all` from the repository root. See
+[World maps](docs/WORLD_MAPS.md) for the format, source provenance and outdoor-only
+scope; interiors are excluded.
 
 ## Verification
 

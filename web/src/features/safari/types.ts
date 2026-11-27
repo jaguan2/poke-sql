@@ -21,6 +21,7 @@ export interface SafariSession {
   draft: string; lastCatch: SafariCatch | null;
   layoutRevision?: number;
   bag?: BagState; // Additive item effects; older expeditions start without an active effect.
+  retiredUnova?: unknown; // Original expedition archived when Unova world references are removed.
   visited?: ZoneId[]; // Additive save field; older Safari expeditions stay at their original habitat.
   regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction; layoutRevision?: number }>>;
 }

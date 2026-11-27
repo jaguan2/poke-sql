@@ -5,6 +5,16 @@ sandboxed Electron shell. The frontend uses a feature-oriented structure:
 behavior, content, styles, and components for a feature live together. There is
 no backend and no runtime API dependency.
 
+The incremental layered-map exporter, rendering boundary, community research
+and migration plan are documented in [World maps](WORLD_MAPS.md).
+
+Unova world assets and travel navigation are currently retired. Safari restore
+removes retired visits/bookmarks and relocates a trainer saved in Unova to
+Pallet Town, retaining counters, Bag state, last catch and SQL draft. The
+original expedition/task is archived once as `retiredUnova` inside the save.
+The species catalog, database, sprites and PC records remain independent of
+available world maps; historical Unova rewards still validate.
+
 ```text
 scripts/                    Python data build and sprite vendoring
 web/

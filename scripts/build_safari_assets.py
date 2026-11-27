@@ -67,8 +67,8 @@ def collision_layout(recipe, cells):
 
 
 class Tileset:
-    def __init__(self, secondary, archive="emerald", primary_name="general"):
-        load = lambda path: source(path, archive)
+    def __init__(self, secondary, archive="emerald", primary_name="general", loader=None):
+        load = loader or (lambda path: source(path, archive))
         self.split = 640 if archive == "firered" else 512
         primary = f"data/tilesets/primary/{primary_name}"
         extra = f"data/tilesets/secondary/{secondary}" if secondary else None
@@ -100,10 +100,19 @@ class Tileset:
 
     @cache
     def metatile(self, reference):
+        result = self.metatile_layer(reference, 0).copy()
+        result.alpha_composite(self.metatile_layer(reference, 1))
+        return result
+
+    @cache
+    def metatile_layer(self, reference, layer):
+        if layer not in (0, 1):
+            raise ValueError(f"Invalid metatile layer: {layer}")
         bank, number = reference.split(":")
-        # Emerald: a 16x16 metatile has two layers, each with four 8x8 tiles.
+        # Both Gen III formats store two groups of four 8x8 tile references.
         result = Image.new("RGBA", (16, 16))
-        for cell, entry in enumerate(struct.unpack_from("<8H", self.blocks[1 if bank == "S" else 0], int(number) * 16)):
+        entries = struct.unpack_from("<8H", self.blocks[1 if bank == "S" else 0], int(number) * 16)
+        for cell, entry in enumerate(entries[layer * 4:layer * 4 + 4]):
             tile_id, palette = entry & 0x3FF, entry >> 12
             secondary = tile_id >= self.split
             sheet = self.sheets[1 if secondary else 0]

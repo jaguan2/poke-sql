@@ -1,4 +1,5 @@
 import maps from "./maps.json" with { type: "json" };
+import unovaSpecies from "./unova-species.json" with { type: "json" };
 import { SAFARI_EVENT_VISITORS, safariEvents } from "./events";
 import { DIRECTION_STEP, REGIONS, isRegionLocation, regionTravel } from "./regions";
 import type { RegionLocationId } from "./regions";
@@ -112,7 +113,8 @@ export const zoneById = (id: ZoneId): SafariZoneDefinition => EXPLORATION_LOCATI
 export const isZoneId = (id: unknown): id is ZoneId => EXPLORATION_LOCATIONS.some(zone => zone.id === id);
 export const encounterSpecies = (zone: SafariZoneDefinition, source: SafariEncounter["source"]) =>
   source === "honey-tree" ? zone.honeyTree?.species ?? [] : zone.species;
-export const isSafariSpecies = (id: unknown): boolean => EXPLORATION_LOCATIONS.some(zone =>
+// Historical catches and verified rewards remain valid after retiring a region.
+export const isSafariSpecies = (id: unknown): boolean => unovaSpecies.some(species => species.id === id) || EXPLORATION_LOCATIONS.some(zone =>
   zone.species.some(species => species.id === id) || zone.honeyTree?.species.some(species => species.id === id));
 
 export function isBesideHoneyTree(tree: Position, position: Position): boolean {

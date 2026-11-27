@@ -1,37 +1,47 @@
 import { test, expect } from '@playwright/test';
 import { createSafariSession } from '../../src/features/safari/model';
-import { openSafariQuery } from '../fixtures/safari';
+import { entriesFor } from '../fixtures/pokemon-encounters';
 import { collectionSnapshot } from '../fixtures/pc';
 
-test('Unova catches and opt-in sound cues work offline', async ({ page, context }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+test('retired Unova saves keep their catches and the Unova Pokédex offline without world assets', async ({ page, context }) => {
+  const [entry] = await entriesFor([495]);
+  const legacy = { ...createSafariSession(), zoneId: 'unova-route-1', position: { x: 9, y: 5 },
+    steps: 74, catches: 1, draft: 'SELECT * FROM pokedex WHERE id = 504;',
+    lastCatch: { encounterId: 'earned-in-unova', pokemon: entry.pokemon, attempts: 1, caughtAt: '2026-11-26T12:00:00.000Z' },
+    encounter: { id: 'unfinished-unova', pokemonId: 504, assignmentId: 'field-notes', attempts: 2, outcome: 'active', fleeAfter: 5 },
+    visited: ['pallet-town', 'unova-route-1'],
+    regionPositions: { unova: { zoneId: 'nuvema-town', position: { x: 12, y: 9 }, direction: 'up' } },
+  };
+  const worldRequests: string[] = [];
+  page.on('request', request => { if (request.url().includes('/safari/unova/')) worldRequests.push(request.url()); });
   await page.addInitScript(session => {
     if (!localStorage.getItem('pokesql:safari')) localStorage.setItem('pokesql:safari', JSON.stringify(session));
-    Math.random = () => 0;
-  }, { ...createSafariSession('unova-route-1'), position: { x: 9, y: 5 }, grassSteps: 5 });
+  }, legacy);
   await page.goto('/');
-  await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 25000 });
-  await context.setOffline(true);
+  await expect(page.getByText('Available offline', { exact: true })).toBeVisible({ timeout: 30000 });
   await page.getByRole('button', { name: 'Explore', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Unova', exact: true })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Pallet Town exploration map', exact: true })).toBeVisible();
   await page.locator('.region-map > summary').click();
-  await page.getByText('Unova Pokédex · 0 / 156 registered', { exact: true }).click();
-  await expect(page.locator('.region-species li')).toHaveCount(156);
-  await expect(page.locator('.region-species li').filter({ hasText: '#649' })).toContainText('View Lostlorn Forest');
-  await page.locator('.region-map > summary').click();
-  const sounds = page.getByRole('button', { name: 'Sound effects', exact: true });
-  await expect(sounds).toHaveAttribute('aria-pressed', 'false');
-  await sounds.click();
-  const encounterCue = page.waitForResponse(response => response.url().endsWith('/sounds/encounter.wav'));
-  await page.locator('.safari-map').focus();
-  await page.keyboard.press('ArrowLeft');
-  expect((await encounterCue).ok()).toBe(true);
-  await openSafariQuery(page);
-  const id = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!).encounter.pokemonId);
-  await page.locator('.cm-content').fill(`SELECT * FROM pokedex WHERE id = ${id};`);
-  const catchCue = page.waitForResponse(response => response.url().endsWith('/sounds/caught.wav'));
-  await page.locator('.safari-assignment').getByRole('button', { name: 'Catch Pokémon', exact: true }).click();
-  expect((await catchCue).ok()).toBe(true);
-  await expect(page.getByRole('button', { name: 'Keep exploring', exact: true })).toBeVisible();
-  expect((await collectionSnapshot(page)).captures).toMatchObject([{ pokemon: { id }, location: 'Route 1' }]);
+  await expect(page.getByRole('navigation', { name: 'Regions', exact: true }).getByRole('button')).toHaveText(['Kanto', 'Hoenn', 'Johto', 'Sinnoh']);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('pokesql:safari')!));
+  expect(saved).toMatchObject({ zoneId: 'pallet-town', steps: 74, catches: 1, encounter: null,
+    draft: legacy.draft, lastCatch: legacy.lastCatch, retiredUnova: legacy });
+  expect(saved.regionPositions).not.toHaveProperty('unova');
+  expect((await collectionSnapshot(page)).captures).toMatchObject([{ pokemon: { id: 495, name: 'Snivy' } }]);
+  await page.getByRole('button', { name: 'My Pokédex', exact: true }).click();
+  await page.getByLabel('Region', { exact: true }).selectOption('5');
+  await expect(page.getByText('156 matching Pokémon', { exact: true })).toBeVisible();
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await expect(page.getByRole('heading', { name: 'Snivy', exact: true })).toBeVisible();
+  await context.setOffline(true); await page.reload();
+  await page.getByRole('button', { name: 'My Pokédex', exact: true }).click();
+  await page.getByLabel('Region', { exact: true }).selectOption('5');
+  await page.getByLabel('Status', { exact: true }).selectOption('owned');
+  await expect(page.getByRole('heading', { name: 'Snivy', exact: true })).toBeVisible();
+  expect(worldRequests).toEqual([]);
+  const cachedUnova = await page.evaluate(async () => {
+    const urls = (await Promise.all((await caches.keys()).map(async name => (await (await caches.open(name)).keys()).map(request => request.url)))).flat();
+    return urls.filter(url => url.includes('/safari/unova/'));
+  });
+  expect(cachedUnova).toEqual([]);
 });

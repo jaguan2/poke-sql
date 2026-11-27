@@ -114,7 +114,7 @@ def advance_maps(recipes, output, archive):
 
 
 def build(region):
-    if region in {"sinnoh", "unova"}:
+    if region == "sinnoh":
         from build_sinnoh_assets import build as build_sinnoh
         build_sinnoh(region)
         return
@@ -182,5 +182,5 @@ def build(region):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("region", choices=["kanto", "hoenn", "johto", "sinnoh", "unova"])
+    parser.add_argument("region", choices=["kanto", "hoenn", "johto", "sinnoh"])
     build(parser.parse_args().region)

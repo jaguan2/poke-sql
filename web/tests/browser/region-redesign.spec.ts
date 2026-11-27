@@ -7,10 +7,7 @@ for (const viewport of [{ width: 1440, height: 1050 }, { width: 820, height: 118
     await page.getByRole('button', { name: 'Explore', exact: true }).click();
     await page.getByRole('button', { name: 'Hide menu', exact: true }).click();
     for (const [region, id, name] of [
-      ['Unova', 'nuvema-town', 'Nuvema Town'], ['Unova', 'striaton-city', 'Striaton City'],
-      ['Unova', 'nacrene-city', 'Nacrene City'], ['Unova', 'castelia-city', 'Castelia City'],
-      ['Unova', 'nimbasa-city', 'Nimbasa City'], ['Unova', 'unova-route-3', 'Route 3'],
-      ['Unova', 'unova-route-4', 'Route 4'], ['Sinnoh', 'jubilife-city', 'Jubilife City'],
+      ['Sinnoh', 'jubilife-city', 'Jubilife City'],
       ['Sinnoh', 'floaroma-town', 'Floaroma Town'],
     ]) {
       await page.locator('.region-map > summary').click();

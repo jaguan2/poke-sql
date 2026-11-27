@@ -6,6 +6,7 @@ import { hasShinySprite } from "../../shared/pokemon/sprites";
 import { fieldAssignmentDraft, fieldAssignmentId, isFieldAssignment } from "./field-assignments";
 import { EXPLORATION_LOCATIONS, chooseSpecies, encounterSpecies, honeyTreeTable, isBesideHoneyTree, isEncounterTile, isSafariSpecies, isWalkable, isZoneId, resolveMovement, rollEncounter, rustlingPatch, tileAt, zoneById } from "./zones";
 import { isRegionLocation, isRegionId, regionTravel, regionFor, regionById } from "./regions";
+import { retireUnovaReferences } from "./retired-unova";
 import type { RegionId } from "./regions";
 import type { Direction, Position, WeatherId, ZoneId } from "./zones";
 import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariPhase, SafariSession } from "./types";
@@ -94,7 +95,7 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
     value = expedition;
   }
   if (record(value) && value.version === 3) {
-    const current = relocateRebuiltMap(value);
+    const current = relocateRebuiltMap(retireUnovaReferences(value, createSafariSession()));
     value = current;
     if (record(current.regionPositions)) {
       value = { ...current, regionPositions: Object.fromEntries(Object.entries(current.regionPositions)
