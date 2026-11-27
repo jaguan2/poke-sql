@@ -56,12 +56,12 @@ export function RegionMap({ session, disabled, onTravel, onRegion }: { session: 
   </details>;
 }
 
-export function RegionTown({ zoneId, onPc, onPokedex }: { zoneId: ZoneId; onPc: () => void; onPokedex: () => void }) {
+export function RegionTown({ zoneId, smooth = false, onPc, onPokedex }: { zoneId: ZoneId; smooth?: boolean; onPc: () => void; onPokedex: () => void }) {
   const route = regionalRoute(zoneId)!;
   const exits = [...new Set(regionPortals(zoneId).map(portal => portal.to))];
   return <aside className="region-town" aria-label={`${route.name} guide`}>
     <span className="region-town-icon" aria-hidden="true">⌂</span><h3>{route.kind === "gate" ? "Forest gate" : "Town guide"}</h3>
-    <p>{route.description}</p><p>No Pokémon encounters here.</p>
+    <p>{route.description}</p><p>{smooth ? "No land encounters here. Pokémon may appear in accessible water while surfing." : "No Pokémon encounters here."}</p>
     {route.kind === "town" && <div className="region-town-services"><button type="button" className="btn btn-primary" onClick={onPc}>Open PC Boxes</button><button type="button" className="btn" onClick={onPokedex}>View Pokédex</button></div>}
     <h4>Exits</h4><ul>{exits.map(id => <li key={id}>{zoneById(id).name}</li>)}</ul>
   </aside>;

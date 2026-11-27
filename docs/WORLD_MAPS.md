@@ -1,5 +1,11 @@
 # World-map migration
 
+The opt-in [Smooth overworld](OVERWORLD_EXPLORATION.md) now builds on this
+exporter for continuous movement, Surf, connected-map drawing and visible SQL
+encounters. This report describes the original layered-map migration; Classic
+keeps that rendering path. Current movement behavior and limitations are in the
+overworld report.
+
 ## Assessment and first increment
 
 The November 2026 world proposal describes a much larger product. The current
@@ -41,13 +47,13 @@ native layers and metadata without changing movement or game saves.
    fallback and for the overview. No perpetual animation loop is needed for
    static source animation frame zero.
 3. Bound decoded-asset caching and validate scrolling and input on
-   desktop and iPad. Move drawing and actors to one Phaser scene when animation,
-   viewport culling and effects justify it. Phaser is a strong future fit for
-   Tiled maps, camera and sprite batching; adding its physics or a second state
-   store now would duplicate the existing deterministic movement model.
+   desktop and iPad. Smooth now uses one animated Canvas with viewport culling.
+   Reassess Phaser when scene/effect complexity justifies an engine dependency;
+   retain the deterministic controller and existing capture state ownership.
 4. Treat topology/gameplay as a separate migration. Validate converted movement
    against existing portals, ledges, saves and encounter tests before replacing
-   the current rows. Elevation in an export is evidence, not bridge support.
+   the current rows. Smooth consumes normalized terrain with elevation and
+   separate bridge planes; raw metadata alone is not complete native behavior.
 5. Keep interiors out of scope. Broaden outdoor coverage and validate the
    adapter with Emerald as well as FireRed. DS geometry needs its own adapter and render/occlusion study before
    attempting HeartGold or Platinum imports.
@@ -147,6 +153,8 @@ Each map produces:
   four-bit elevation and metatile behavior IDs. `movementRows` and `transitions`
   snapshot the current application's supported walking policy; raw collision
   values must not be interpreted as the complete gameplay rules.
+  `terrain.version: 1` and its character rows normalize supported land, grass,
+  water, bridge and ledge permissions for Smooth exploration.
   Native `connections` retain direction/offset and unresolved destinations;
   `warps`, `objects`, `interactions`, `triggers` and `border` preserve source
   events rather than inventing missing behavior. Numeric warp indices remain
@@ -171,8 +179,8 @@ not reproduce every native sprite-priority/elevation interaction.
 Open a `.tmj` beside its PNG in Tiled to inspect layers and source event
 placements. Generated output is currently an inspection baseline: edits are
 overwritten by regeneration and deliberately rejected by production hashes.
-An authored override/import workflow, collision editor and in-app debug overlay
-remain future work. Do not claim arbitrary Tiled features are supported: the
+An authored override/import workflow and collision editor remain future work.
+Smooth includes a read-only debug overlay. Do not claim arbitrary Tiled features are supported: the
 runtime accepts only the exported finite, square-tile, one-atlas subset without
 Tiled GID flips (already baked), layer transforms or custom blend modes.
 
@@ -186,18 +194,19 @@ an in-flight preload before cleanup. Failures are evicted so a later visit can
 retry. Neighbor failures do not disable the visible map or walking.
 
 Least-recently-used, unpinned entries are evicted above six entries or 12 MiB of
-estimated decoded atlas/GID memory. Pending requests count toward the entry
+estimated decoded atlas/GID/elevation memory. Pending requests count toward the entry
 limit. Visible views take priority if their assets alone exceed a budget; all
 current exported atlases fit comfortably within it. This budget does not include
 the browser's HTTP/image cache, object overhead or the active Canvas surfaces.
 Only the current map owns Canvas backing stores, which are released on unmount.
-Maps draw once at native resolution; camera movement uses the existing transform.
+Classic maps draw once at native resolution and use the existing camera transform.
+Smooth draws culled tiles and actors into one viewport Canvas each frame.
 
-For the current exports, the largest atlas/GID estimate is 2,024,832 bytes
+For the current exports, the largest atlas/GID/elevation estimate is 2,028,032 bytes
 (Verdanturf Town). The largest pair of RGBA Canvas surfaces is 7,630,848 bytes
 (Viridian Forest). These are allocation estimates from the exported dimensions,
 not measurements of total browser memory or frame-rate guarantees. Generated
-Tiled/metadata/atlas files total about 1.54 MB for all 23 maps.
+Tiled/metadata/atlas files total about 1.58 MB for all 23 maps.
 
 ## Limitations and next validation gates
 
@@ -208,15 +217,16 @@ Tiled/metadata/atlas files total about 1.54 MB for all 23 maps.
   existing committed PNG before registering output. This validates against
   the current decoder and baseline, not a captured original-game framebuffer.
   Source game behavior remains the external reference for future visual tests.
-- The Canvas surfaces render once per map at native resolution. Actors and
+- In Classic, Canvas surfaces render once per map at native resolution. Actors and
   camera interpolation remain DOM-based; adjacent flat images retain their existing
   preload path alongside layered-asset preloading. No seamless adjacent-map
-  compositor, viewport tile culling, weather rewrite or new frame-rate claim.
+  compositor or viewport tile culling in that path. Smooth adds both through its
+  separate viewport renderer; neither path introduces a frame-rate guarantee.
 - Native animation frame zero is retained. Dynamic lighting, day/night,
-  animated source water, bridge planes, stairs/elevation rules, NPC behaviors,
+  animated source water, full native bridge/stair/elevation rules, NPC behaviors,
   native event scripts and unopened doors are not newly implemented.
-- Exported elevation is preserved for future adapters; it does not unlock
-  water, story obstacles or overlapping walkable surfaces. Existing catches,
+- Classic does not use exported elevation to unlock water or story obstacles.
+  Smooth uses the conservative subset in the overworld report. Existing catches,
   SQL assignments, PC ownership and save keys keep their current semantics.
 - No DS models were extracted. The choice between orthographic sprite exports,
   layered section renders and reconstructed tiles needs a small DSPRE export

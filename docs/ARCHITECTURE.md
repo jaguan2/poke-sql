@@ -7,6 +7,8 @@ no backend and no runtime API dependency.
 
 The incremental layered-map exporter, rendering boundary, community research
 and migration plan are documented in [World maps](WORLD_MAPS.md).
+The opt-in continuous movement, Surf and visible SQL encounters are documented
+in [Overworld exploration](OVERWORLD_EXPLORATION.md).
 
 Unova world assets and travel navigation are currently retired. Safari restore
 removes retired visits/bookmarks and relocates a trainer saved in Unova to

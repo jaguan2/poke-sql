@@ -537,7 +537,10 @@ Canvas terrain from native Generation III map data. Adjacent layered assets
 preload through a bounded decoded-asset cache. Rebuild both outdoor regions with
 `python scripts/export_world_maps.py all` from the repository root. See
 [World maps](docs/WORLD_MAPS.md) for the format, source provenance and outdoor-only
-scope; interiors are excluded.
+  scope; interiors are excluded. Explore → Movement → Smooth overworld enables
+  continuous walking/running, Surf and visible Pokémon in those outdoor maps.
+  See [Overworld exploration](docs/OVERWORLD_EXPLORATION.md) for controls,
+  architecture and the prototype's limits.
 
 ## Verification
 

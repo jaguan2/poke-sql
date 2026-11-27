@@ -8,8 +8,9 @@ import { safariAssignment } from "./assignments";
 import { isFieldAssignment } from "./field-assignments";
 import type { TrainerId } from "../../shared/trainer/profile";
 import { SafariMap } from "./SafariMap";
+import { SmoothOverworld } from "./world/SmoothOverworld";
 import { SafariSounds } from "./SafariSounds";
-import { SafariFieldGuide } from "./SafariFieldGuide";
+import { SafariFieldGuide, WaterFieldGuide } from "./SafariFieldGuide";
 import { SafariBattleScene } from "./SafariBattleScene";
 import { SafariPokedexEntry } from "./SafariPokedexEntry";
 import { SafariEvents } from "./SafariEvents";
@@ -22,13 +23,16 @@ import type { QueryResult } from "../../shared/sql/types";
 import { QueryResults } from "../../shared/ui/QueryResults";
 import "./SafariZone.css";
 
-export function SafariZone({ session, phase, slideMs, today, busy, saveError, fleeAfter, results, error, message, editor, musicLink, onMove, onZone, onRegion, onHoneyTree, onPreview, onSubmit, onStop, onLeave, onBag, onPokedex, onPc, registeredIds, ballTheme, trainer }: {
+export function SafariZone({ session, phase, slideMs, today, busy, saveError, fleeAfter, results, error, message, editor, musicLink, onMove, onZone, onRegion, onHoneyTree, onPreview, onSubmit, onStop, onLeave, onBag, onPokedex, onPc, registeredIds, ballTheme, trainer, onSmooth, onExplorationSave, onWild }: {
   session: SafariSession; phase: SafariPhase; slideMs: number; today: string; busy: boolean; saveError: boolean; fleeAfter: SafariFleeLimit; registeredIds: readonly number[]; ballTheme: string; trainer: TrainerId;
   results: QueryResult[]; error: string; message: string; editor: (controls: ReactNode) => ReactNode; musicLink?: ReactNode;
   onMove: (direction: Direction) => void; onZone: (id: ZoneId) => void; onPreview: () => void; onSubmit: () => void;
   onRegion: (id: RegionId) => void;
   onHoneyTree: () => void;
   onBag: () => void; onStop: () => void; onLeave: () => void; onPokedex: () => void; onPc: () => void;
+  onSmooth: (enabled: boolean) => void;
+  onExplorationSave: (snapshot: NonNullable<SafariSession["exploration"]>, steps: number) => void;
+  onWild: (pokemonId: number, id: string, aquatic: boolean, snapshot: NonNullable<SafariSession["exploration"]>, steps: number) => void;
 }) {
   const bag = session.bag ?? createBag();
   const zone = zoneById(session.zoneId);
@@ -67,17 +71,22 @@ export function SafariZone({ session, phase, slideMs, today, busy, saveError, fl
     {saveError && <p className="notice" role="status">Your expedition is available for this session, but this device could not save it. Keep this window open to retain the current encounter.</p>}
     <div className="safari-sound-controls"><SafariSounds phase={phase} /></div>
     <RegionMap key={session.zoneId} session={session} disabled={actionsDisabled} onTravel={onZone} onRegion={onRegion} />
+    {roaming && <div className="overworld-mode"><label>Movement <select aria-label="Exploration movement" value={session.exploration?.enabled ? "smooth" : "classic"}
+      onChange={e => onSmooth(e.target.value === "smooth")}><option value="classic">Classic</option><option value="smooth">Smooth overworld</option></select></label>
+      {session.exploration?.enabled && <span>Choose a visible Pokémon. Correct SQL guarantees capture; retries are unlimited.</span>}</div>}
     <details className="safari-area-picker" ref={areas}><summary><strong>{region ? "Safari habitats" : `${zone.icon} ${zone.name}`}</strong><span>Choose from {SAFARI_ZONES.length} habitats</span></summary><nav className="safari-zones" aria-label="Safari areas">{SAFARI_ZONES.map(area => <button key={area.id} aria-pressed={area.id === session.zoneId} disabled={actionsDisabled} onClick={() => { onZone(area.id); if (areas.current) { areas.current.open = false; areas.current.querySelector("summary")?.focus(); } }}><span>{area.icon}</span><strong>{area.name}</strong><small>{area.id === featured ? "★ Featured today" : "Open to explore"}</small></button>)}</nav></details>
     {!region && <div className="safari-day-note">Today's featured area: <strong>{zoneById(featured).name}</strong><span>{today} · UTC</span></div>}
-    {exploring && !safe && <p className="safari-rules">{fleeAfter === null ? "Relaxed practice · Unlimited attempts" : `Pokémon flee after ${fleeAfter} incorrect answers`}. Change this in Settings.</p>}
+    {exploring && !safe && !session.exploration?.enabled && <p className="safari-rules">{fleeAfter === null ? "Relaxed practice · Unlimited attempts" : `Pokémon flee after ${fleeAfter} incorrect answers`}. Change this in Settings.</p>}
     {exploring && <div className="safari-item-bar"><button className="btn" disabled={actionsDisabled} onClick={onBag}>Bag</button><span role="status">{bag.repelSteps > 0 ? `Repel · ${bag.repelSteps} steps left` : "Repel inactive"}{shinyOdds(bag, session.catches) < SHINY_ODDS ? " · Shiny Charm active" : ""}</span></div>}
     {roaming && message && <p className="notice" role="status">{message}</p>}
     {exploring && !region && <SafariEvents date={today} disabled={actionsDisabled} previousId={session.lastCatch?.pokemon.id} registeredIds={registeredIds} onZone={onZone} />}
     {exploring ? <div className="safari-expedition"><div className="safari-field"><div className="safari-field-heading"><strong>{zone.routeName}</strong>{musicLink}<span className="safari-live">{WEATHER[weather].icon} {WEATHER[weather].name}</span></div>
-      <SafariMap trainer={trainer} zone={zone} session={session} active={roaming && !busy} slideMs={slideMs} rustling={phase === "rustling"} weather={weather} date={today} onMove={onMove} onHoneyTree={onHoneyTree} />
+      {session.exploration?.enabled ? <SmoothOverworld session={session} trainer={trainer} date={today} registeredIds={registeredIds} onSave={onExplorationSave} onInteract={onWild} onPokedex={onPokedex} />
+        : <SafariMap trainer={trainer} zone={zone} session={session} active={roaming && !busy} slideMs={slideMs} rustling={phase === "rustling"} weather={weather} date={today} onMove={onMove} onHoneyTree={onHoneyTree} />}
       {hasIce(zone) && <p className="safari-ice-help">On slick ice, you slide straight ahead until you reach firm ground or an obstacle.</p>}
-      <div className="safari-ranger-note"><span aria-hidden="true">{safe ? "↕" : "✦"}</span><p>{bag.repelSteps > 0 ? "Repel keeps walking encounters away. Open your Bag to check the remaining steps." : region ? safe ? "Walk through a marked exit to continue your journey. Open Region map to find your way." : regionalRoute(zone.id)?.kind === "cave" ? "Pokémon appear while walking through the cave. Follow marked exits to continue." : zone.encounterTerrain === "snow" ? "Search the snowdrifts for Pokémon. Follow marked exits to continue." : zone.encounterTerrain === "sand" ? "Search the rough sand for Pokémon. Follow marked exits to continue." : "Walk into tall grass to encounter Pokémon. Follow marked exits to reach the next town or route." : "Walk onto the sparkle for a guaranteed encounter. Talk to the ranger near the trailhead for a rare sighting. Open Route map to find both."}</p></div></div>
-      {safe ? <RegionTown zoneId={zone.id} onPc={onPc} onPokedex={onPokedex} /> : <SafariFieldGuide shinyOdds={shinyOdds(bag, session.catches)} zone={zone} registeredIds={registeredIds} weather={weather} previousId={session.lastCatch?.pokemon.id} date={today} />}
+      <div className="safari-ranger-note"><span aria-hidden="true">{safe ? "↕" : "✦"}</span><p>{session.exploration?.enabled ? "Approach a visible Pokémon and choose Interact. Use Surf / Land at a shoreline; open Region map to travel elsewhere." : bag.repelSteps > 0 ? "Repel keeps walking encounters away. Open your Bag to check the remaining steps." : region ? safe ? "Walk through a marked exit to continue your journey. Open Region map to find your way." : regionalRoute(zone.id)?.kind === "cave" ? "Pokémon appear while walking through the cave. Follow marked exits to continue." : zone.encounterTerrain === "snow" ? "Search the snowdrifts for Pokémon. Follow marked exits to continue." : zone.encounterTerrain === "sand" ? "Search the rough sand for Pokémon. Follow marked exits to continue." : "Walk into tall grass to encounter Pokémon. Follow marked exits to reach the next town or route." : "Walk onto the sparkle for a guaranteed encounter. Talk to the ranger near the trailhead for a rare sighting. Open Route map to find both."}</p></div></div>
+      {session.exploration?.enabled && session.exploration.mode === "surfing" ? <WaterFieldGuide registeredIds={registeredIds} />
+        : safe ? <RegionTown zoneId={zone.id} smooth={session.exploration?.enabled} onPc={onPc} onPokedex={onPokedex} /> : <SafariFieldGuide visible={session.exploration?.enabled} shinyOdds={shinyOdds(bag, session.catches)} zone={zone} registeredIds={registeredIds} weather={weather} previousId={session.exploration?.enabled ? undefined : session.lastCatch?.pokemon.id} date={today} />}
     </div> : species && assignment && encounter && <section className={`safari-encounter is-${phase}${showQuery || phase === "caught" || phase === "fled" ? " has-sidebar" : ""}`} aria-labelledby="safari-wild-name">
       <SafariBattleScene trainer={trainer} ref={scene} key={encounter.id} species={species} zone={zone} phase={phase} encounter={encounter} registered={registeredIds.includes(species.id)} ballTheme={ballTheme}
         commands={{ busy, queryOpen: showQuery, onCatch: () => setQueryEncounterId(showQuery ? undefined : encounter.id), onLeave }} />

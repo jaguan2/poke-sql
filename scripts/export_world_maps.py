@@ -68,6 +68,28 @@ def outdoor_maps(recipes):
     return [id for id, recipe in recipes.items() if recipe["kind"] in OUTDOOR_KINDS]
 
 
+def terrain_rows(width, numbers, collision, attrs, archive, runtime):
+    """Conservative, source-specific normalization; never infer from artwork."""
+    water = {0x10, 0x12, 0x15, 0x1A} if archive == "firered" else {0x10, 0x11, 0x12, 0x14, 0x15, 0x19, 0x22}
+    bridges = set() if archive == "firered" else {0x70, 0x71, 0x72, 0x73, 0x7A, 0x7B, 0x7C, 0x7D}
+    land = {0, 2, 3, 6, 7, 8, 9, 10, 11, 12, 0x16, 0x17, 0x21, 0x28}
+    cells = []
+    for i, number in enumerate(numbers):
+        behavior = attrs[number] & (0x1FF if archive == "firered" else 0xFF)
+        original = runtime["rows"][i // width][i % width]
+        tile = "#"
+        if not collision[i] and behavior in water:
+            tile = "~"
+        elif not collision[i] and behavior in bridges:
+            tile = "B"
+        elif original in ".g><^v":
+            tile = original
+        elif not collision[i] and behavior in land:
+            tile = "g" if behavior in {2, 3, 8, 9, 11} else "."
+        cells.append(tile)
+    return ["".join(cells[y:y + width]) for y in range(0, len(cells), width)]
+
+
 def verify_render(id, region, width, height, numbers, layers, halves, tiles):
     """Validate all pixels before publishing this map's generated assets."""
     with Image.open(PUBLIC / region / f"{id}.png") as original:
@@ -168,6 +190,7 @@ def export(region, ids=None, source_root=None):
                     "name": recipe["name"], "sourceGeneration": 3, "width": width, "height": height,
                     "tileSize": 16, "visualTileSize": 16, "tilemap": tilemap_name,
                     "spawnPoints": {"default": runtime["start"]}, "movementRows": runtime["rows"],
+                    "terrain": {"version": 1, "rows": terrain_rows(width, numbers, collision, attrs, archive, runtime)},
                     "cells": {"metatile": numbers, "collision": collision, "elevation": elevation,
                               "behavior": [attrs[n] & (0x1FF if archive == "firered" else 0xFF) for n in numbers]},
                     "connections": [{**connection, "runtimeDestination": native_ids.get(connection["map"])}

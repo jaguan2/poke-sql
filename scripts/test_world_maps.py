@@ -3,11 +3,18 @@ import struct
 import unittest
 
 from PIL import Image
-from export_world_maps import decode_blocks, visual_layers, outdoor_maps
+from export_world_maps import decode_blocks, visual_layers, outdoor_maps, terrain_rows
 from build_safari_assets import Tileset
 
 
 class WorldMapTests(unittest.TestCase):
+    def test_terrain_normalization_uses_source_behavior_and_collision(self):
+        attrs = {0: 0x10, 1: 0x70, 2: 2, 3: 0xFF, 4: 0x10, 5: 0}
+        runtime = {"rows": ["######"]}
+        self.assertEqual(terrain_rows(6, list(range(6)), [0, 0, 0, 0, 1, 0], attrs, "emerald", runtime), ["~Bg##."])
+        self.assertEqual(terrain_rows(6, list(range(6)), [0, 0, 0, 0, 1, 0], attrs, "firered", runtime), ["~#g##."])
+        self.assertEqual(terrain_rows(2, [0, 0], [1, 1], attrs, "emerald", {"rows": [".v"]}), [".v"])
+
     def test_bulk_selection_excludes_interiors_gates_and_caves(self):
         recipes = {"town": {"kind": "town"}, "route": {"kind": "route"}, "woods": {"kind": "forest"},
                    "gate": {"kind": "gate"}, "room": {"kind": "interior"}, "cave": {"kind": "cave"}}

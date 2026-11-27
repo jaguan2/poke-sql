@@ -1,10 +1,11 @@
 import manifest from "../world-assets.json" with { type: "json" };
 import { parseWorldTilemap, type WorldTilemap } from "./tilemap";
+import { parseTerrain, type TerrainMap } from "./terrain";
 
-interface MapEntry { tilemap: string; width: number; height: number }
+interface MapEntry { tilemap: string; metadata: string; width: number; height: number }
 const maps: Readonly<Record<string, MapEntry>> = manifest.maps;
 export const hasWorldMap = (id: string) => Object.prototype.hasOwnProperty.call(maps, id);
-export interface WorldAsset { map: WorldTilemap; atlas: HTMLImageElement; bytes: number }
+export interface WorldAsset { map: WorldTilemap; atlas: HTMLImageElement; bytes: number; terrain?: TerrainMap }
 type Loader = (id: string, signal: AbortSignal) => Promise<WorldAsset>;
 interface Entry {
   id: string; serial: number; controller: AbortController; promise: Promise<WorldAsset>;
@@ -18,6 +19,9 @@ async function loadWorldAsset(id: string, signal: AbortSignal): Promise<WorldAss
   const response = await fetch(url, { signal });
   if (!response.ok) throw new Error("World tilemap unavailable");
   const map = parseWorldTilemap(await response.json(), entry.width, entry.height);
+  const metadata = await fetch(new URL(`${import.meta.env.BASE_URL}safari/${entry.metadata}`, window.location.href), { signal });
+  if (!metadata.ok) throw new Error("World terrain unavailable");
+  const terrain = parseTerrain(await metadata.json(), id, entry.width, entry.height);
   signal.throwIfAborted();
   const image = new Image();
   // Removing the source cancels an in-flight decode when a queued neighbor is
@@ -30,9 +34,9 @@ async function loadWorldAsset(id: string, signal: AbortSignal): Promise<WorldAss
     signal.throwIfAborted();
     const atlas = map.tilesets[0];
     if (image.naturalWidth !== atlas.imagewidth || image.naturalHeight !== atlas.imageheight) throw new Error("World atlas dimensions differ");
-    // Estimate decoded RGBA pixels and the three numeric GID arrays, not PNG
+    // Estimate decoded RGBA pixels, three numeric GID arrays and elevations, not PNG
     // transfer size. Canvas surfaces are owned by the mounted view, not cached.
-    return { map, atlas: image, bytes: image.naturalWidth * image.naturalHeight * 4 + map.width * map.height * 3 * 8 };
+    return { map, atlas: image, terrain, bytes: image.naturalWidth * image.naturalHeight * 4 + map.width * map.height * 4 * 8 };
   } finally { signal.removeEventListener("abort", abort); }
 }
 

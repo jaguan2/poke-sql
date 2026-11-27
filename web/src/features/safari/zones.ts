@@ -112,7 +112,8 @@ export const EXPLORATION_LOCATIONS: readonly SafariZoneDefinition[] = [...REGION
 export const zoneById = (id: ZoneId): SafariZoneDefinition => EXPLORATION_LOCATIONS.find(zone => zone.id === id)!;
 export const isZoneId = (id: unknown): id is ZoneId => EXPLORATION_LOCATIONS.some(zone => zone.id === id);
 export const encounterSpecies = (zone: SafariZoneDefinition, source: SafariEncounter["source"]) =>
-  source === "honey-tree" ? zone.honeyTree?.species ?? [] : zone.species;
+  source === "honey-tree" ? zone.honeyTree?.species ?? [] : source === "overworld-water" ? waterSpecies : zone.species;
+export const waterSpecies = REGULAR_ZONES.find(zone => zone.id === "wetlands")!.species;
 // Historical catches and verified rewards remain valid after retiring a region.
 export const isSafariSpecies = (id: unknown): boolean => unovaSpecies.some(species => species.id === id) || EXPLORATION_LOCATIONS.some(zone =>
   zone.species.some(species => species.id === id) || zone.honeyTree?.species.some(species => species.id === id));

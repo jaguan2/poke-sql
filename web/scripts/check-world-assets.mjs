@@ -26,6 +26,8 @@ export async function checkWorldAssets(runtimeMaps, recipes) {
     if (!runtime || !manifest.assets[entry.metadata] || !manifest.assets[entry.tilemap]) fail(`Missing world asset: ${id}`);
     const metadata = await readJson(entry.metadata), map = await readJson(entry.tilemap);
     const width = runtime.rows[0].length, height = runtime.rows.length;
+    if (metadata.terrain?.version !== 1 || !Array.isArray(metadata.terrain.rows) || metadata.terrain.rows.length !== height
+      || metadata.terrain.rows.some(row => typeof row !== 'string' || row.length !== width || /[^.g~#Bsi><^v]/.test(row))) fail(`Invalid normalized terrain: ${id}`);
     if (metadata.formatVersion !== 1 || metadata.id !== `${entry.region}.${id}` || metadata.runtimeId !== id
       || metadata.region !== entry.region || metadata.width !== width || metadata.height !== height || entry.width !== width || entry.height !== height
       || metadata.recipeSha256 !== json(recipes[id]) || json(metadata.generators) !== json(manifest.generators)

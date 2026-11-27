@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import metadata from "./route-trainers.json";
+import metadata from "./route-trainers.json" with { type: "json" };
 import sinnohTrainers from "./sinnoh-trainers.json";
 import { framePosition } from "../../shared/trainer/profile";
 

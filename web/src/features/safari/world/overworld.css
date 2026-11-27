@@ -1,0 +1,17 @@
+.smooth-overworld { min-width:0; outline:none; }
+.smooth-overworld:focus-visible { outline:2px solid var(--highlight); outline-offset:3px; }
+.overworld-viewport { position:relative; overflow:hidden; background:#7eaf91; }
+.overworld-viewport canvas { display:block; width:100%; height:auto; aspect-ratio:3/2; image-rendering:pixelated; touch-action:none; }
+.overworld-location { position:absolute; inset:10px auto auto 10px; border-radius:5px; padding:6px 9px; color:#fff; background:#193e32de; font-size:12px; pointer-events:none; }
+.overworld-controls,.overworld-interactions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px; font-size:12px; }
+.overworld-controls > span { flex-basis:100%; line-height:1.6; color:var(--text-dim); }
+.overworld-controls label { display:flex; align-items:center; gap:5px; }
+.overworld-interactions button { min-height:44px; }
+.overworld-interactions p { margin:0; }
+.overworld-controls .btn { min-height:44px; }
+.overworld-pause { position:absolute; inset:0; display:grid; place-items:center; background:#18362a77; }
+.overworld-pad { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; padding:0 12px 12px; }
+.overworld-pad button { min-width:60px; min-height:48px; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text); touch-action:none; }
+.overworld-debug { padding:12px; font:12px/1.6 monospace; }
+.overworld-debug output { display:block; }
+.overworld-mode { display:flex; gap:12px; align-items:center; margin-bottom:14px; flex-wrap:wrap; font-size:12px; }

@@ -1,6 +1,6 @@
 import { createBag, useBagItem, type BagItemId } from "../features/safari/bag-model";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { visibleSafariPokemonId, changeSafariRegion, changeSafariZone, checkHoneyTree, recordSafariReply, walkSafari } from "../features/safari/model";
+import { visibleSafariPokemonId, changeSafariRegion, changeSafariZone, checkHoneyTree, recordSafariReply, walkSafari, saveExploration, interactWithWild } from "../features/safari/model";
 import type { RegionId } from "../features/safari/regions";
 import { loadSafariSession } from "../features/safari/persistence";
 import { SAFARI_TRANSITIONS } from "../features/safari/animation";
@@ -27,7 +27,10 @@ type Action =
   | { type: "restore-catch"; caught: SafariCatch; shiny: boolean }
   | { type: "error"; message: string }
   | { type: "leave" }
-  | { type: "item"; id: BagItemId };
+  | { type: "item"; id: BagItemId }
+  | { type: "exploration"; snapshot: NonNullable<SafariSession["exploration"]>; steps: number }
+  | { type: "smooth-mode"; enabled: boolean }
+  | ({ type: "wild"; pokemonId: number; entityId: string; aquatic: boolean; snapshot: NonNullable<SafariSession["exploration"]>; steps: number } & EncounterRoll);
 
 function initialState(): State {
   const session = loadSafariSession();
@@ -35,6 +38,20 @@ function initialState(): State {
 }
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case "smooth-mode": return state.phase !== "roaming" ? state : { ...state, session: { ...state.session, exploration: {
+      mapId: state.session.zoneId, x: state.session.position.x, y: state.session.position.y, mode: "walking", direction: state.session.direction,
+      autoSurf: state.session.exploration?.autoSurf ?? false,
+      ...(state.session.exploration?.enabled ? state.session.exploration : {}),
+      enabled: action.enabled, generation: (state.session.exploration?.generation ?? 0) + 1,
+    } } };
+    case "exploration": return state.phase !== "roaming" || !state.session.exploration?.enabled ? state : { ...state, session: saveExploration(state.session, action.snapshot, action.steps) };
+    case "wild": {
+      if (state.phase !== "roaming" || !state.session.exploration?.enabled) return state;
+      const saved = saveExploration(state.session, action.snapshot, action.steps);
+      if (saved === state.session) return state;
+      const session = interactWithWild(saved, action.pokemonId, action.entityId, action.aquatic, action);
+      return { ...state, session, phase: session.encounter ? "entering" : "roaming", message: "", error: "" };
+    }
     case "move": {
       if (state.phase !== "roaming" || state.slideMs) return state;
       const weather = weatherFor(zoneById(state.session.zoneId), action.date);
@@ -138,6 +155,11 @@ export function useSafari(check: (sql: string, pokemonId: number, assignmentId: 
     finally { checking.current = false; }
   };
   return { ...state, saveError, visiblePokemonId: visibleSafariPokemonId(state.session.encounter, state.phase), actions: { move,
+    setSmooth: (enabled: boolean) => { if (!checking.current) dispatch({ type: "smooth-mode", enabled }); },
+    saveExploration: (snapshot: NonNullable<SafariSession["exploration"]>, steps: number) => { if (!checking.current) dispatch({ type: "exploration", snapshot, steps }); },
+    interact: (pokemonId: number, entityId: string, aquatic: boolean, snapshot: NonNullable<SafariSession["exploration"]>, steps: number) => {
+      if (!checking.current) dispatch({ type: "wild", pokemonId, entityId, aquatic, snapshot, steps, ...encounterRoll(new Date()) });
+    },
     checkHoneyTree: () => { if (!checking.current) dispatch({ type: "honey-tree", zoneId: state.session.zoneId, ...encounterRoll(new Date()) }); },
     restoreCatch,
     useItem: (id: BagItemId) => { if (!checking.current) dispatch({ type: "item", id }); },

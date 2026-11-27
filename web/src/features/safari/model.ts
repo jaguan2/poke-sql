@@ -12,6 +12,28 @@ import type { Direction, Position, WeatherId, ZoneId } from "./zones";
 import type { AssignmentId, SafariCheckReply, SafariEncounter, SafariFleeLimit, SafariPhase, SafariSession } from "./types";
 
 export const ASSIGNMENTS: readonly AssignmentId[] = ["field-notes", "stat-scan", "type-tracker", "ability-survey"];
+export function isExploration(value: unknown): value is NonNullable<SafariSession["exploration"]> {
+  return record(value) && typeof value.enabled === "boolean" && isZoneId(value.mapId)
+    && typeof value.x === "number" && Number.isFinite(value.x) && value.x >= -.5 && value.x < zoneById(value.mapId).map[0].length - .5
+    && typeof value.y === "number" && Number.isFinite(value.y) && value.y >= -.5 && value.y < zoneById(value.mapId).map.length - .5
+    && ["walking", "running", "surfing"].includes(String(value.mode)) && ["up", "down", "left", "right"].includes(String(value.direction))
+    && typeof value.autoSurf === "boolean" && (value.generation === undefined || integer(value.generation));
+}
+export function saveExploration(session: SafariSession, snapshot: NonNullable<SafariSession["exploration"]>, steps: number): SafariSession {
+  if (session.encounter || session.exploration?.enabled === false || !isExploration(snapshot) || !Number.isSafeInteger(steps) || steps < 0 || steps > 1000) return session;
+  if (session.exploration && (snapshot.generation ?? 0) !== (session.exploration.generation ?? 0)) return session;
+  const zone = zoneById(snapshot.mapId as ZoneId), cell = { x: Math.floor(snapshot.x + .5), y: Math.floor(snapshot.y + .5) };
+  const position = isWalkable(zone, cell) ? cell : session.zoneId === zone.id ? session.position : zone.start;
+  return { ...session, zoneId: zone.id, position, direction: snapshot.direction, exploration: snapshot,
+    steps: session.steps + steps, layoutRevision: zone.layoutRevision ?? 0, visited: [...new Set([...visitedLocations(session), zone.id])],
+    ...(session.bag ? { bag: { ...session.bag, repelSteps: Math.max(0, session.bag.repelSteps - steps) } } : {}) };
+}
+export function interactWithWild(session: SafariSession, pokemonId: number, id: string, aquatic: boolean, options: { trainerDays: number; shinyRoll: number }): SafariSession {
+  const source = aquatic ? "overworld-water" : undefined;
+  if (!session.exploration?.enabled || session.encounter || !id.startsWith(`wild:${session.zoneId}:`) || id.length > 80
+    || !encounterSpecies(zoneById(session.zoneId), source).some(species => species.id === pokemonId)) return session;
+  return startEncounter(session, pokemonId, id, { ...options, fleeAfter: null }, source);
+}
 export function visibleSafariPokemonId(encounter: SafariEncounter | null, phase: SafariPhase): number | undefined {
   if (!encounter || phase === "roaming" || phase === "rustling" || (encounter.assignmentId === "tracking" && phase !== "caught")) return undefined;
   return encounter.pokemonId;
@@ -26,7 +48,7 @@ const record = (value: unknown): value is Record<string, unknown> => !!value && 
 export const isSafariFleeLimit = (value: unknown): value is SafariFleeLimit => value === null || value === 5 || value === 8;
 function isSafariEncounter(value: unknown, zoneId: ZoneId): value is SafariEncounter {
   if (!record(value) || typeof value.id !== "string" || !value.id || value.id.length > 80
-    || (value.source !== undefined && value.source !== "honey-tree")
+    || (value.source !== undefined && value.source !== "honey-tree" && value.source !== "overworld-water")
     || typeof value.pokemonId !== "number" || !encounterSpecies(zoneById(zoneId), value.source).some(species => species.id === value.pokemonId)
     || (value.level !== undefined && !isEncounterLevel(value.level))
     || (value.shiny !== undefined && typeof value.shiny !== "boolean")) return false;
@@ -61,6 +83,7 @@ export function isSafariSession(value: unknown): value is SafariSession {
     }
   }
   if (value.bag !== undefined && !isBagState(value.bag)) return false;
+  if (value.exploration !== undefined && !isExploration(value.exploration)) return false;
   const encounter = value.encounter;
   if (encounter !== null && !isSafariEncounter(encounter, value.zoneId)) return false;
   const caught = value.lastCatch;
@@ -93,6 +116,12 @@ export function restoreSafariSession(value: unknown): SafariSession | null {
   if (record(value) && value.bag !== undefined && !isBagState(value.bag)) {
     const { bag: _invalidBag, ...expedition } = value;
     value = expedition;
+  }
+  if (record(value) && value.version === 3) {
+    if (value.exploration !== undefined && !isExploration(value.exploration)) {
+      const { exploration: _invalidExploration, ...saved } = value;
+      value = saved;
+    }
   }
   if (record(value) && value.version === 3) {
     const current = relocateRebuiltMap(retireUnovaReferences(value, createSafariSession()));
@@ -187,6 +216,8 @@ function arrive(session: SafariSession, zoneId: ZoneId, position: Position, dire
     ? { ...session.regionPositions, [leaving.id]: { zoneId: session.zoneId, position: session.position, direction: session.direction, layoutRevision: session.layoutRevision } }
     : session.regionPositions;
   return { ...session, zoneId, layoutRevision: zoneById(zoneId).layoutRevision ?? 0, position: { ...position }, direction, grassSteps: 0,
+    ...(session.exploration ? { exploration: { ...session.exploration, mapId: zoneId, x: position.x, y: position.y, mode: "walking" as const, direction,
+      generation: (session.exploration.generation ?? 0) + 1 } } : {}),
     visited: [...new Set([...visitedLocations(session), zoneId])], ...(regionPositions ? { regionPositions } : {}) };
 }
 export function changeSafariRegion(session: SafariSession, id: RegionId): SafariSession {

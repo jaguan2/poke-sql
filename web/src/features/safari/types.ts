@@ -13,7 +13,7 @@ export interface SafariEncounter {
   outcome: "active" | "caught" | "fled"; fleeAfter: SafariFleeLimit;
   level?: number; // Absent in saves created before encounter levels.
   shiny?: boolean; // Older encounters default to their normal colors.
-  source?: "honey-tree"; // Walking encounters omit the source, including old saves.
+  source?: "honey-tree" | "overworld-water";
 }
 export interface SafariSession {
   version: 3; zoneId: ZoneId; position: Position; direction: Direction;
@@ -22,6 +22,7 @@ export interface SafariSession {
   layoutRevision?: number;
   bag?: BagState; // Additive item effects; older expeditions start without an active effect.
   retiredUnova?: unknown; // Original expedition archived when Unova world references are removed.
+  exploration?: { enabled: boolean; mapId: string; x: number; y: number; mode: "walking" | "running" | "surfing"; direction: Direction; autoSurf: boolean; generation?: number };
   visited?: ZoneId[]; // Additive save field; older Safari expeditions stay at their original habitat.
   regionPositions?: Partial<Record<RegionId, { zoneId: RegionLocationId; position: Position; direction: Direction; layoutRevision?: number }>>;
 }

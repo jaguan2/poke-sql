@@ -86,6 +86,7 @@ export default function App() {
         : showPc ? <PCBoxes collection={pc.collection} error={pc.error} pendingCount={pc.pendingCount} busy={pc.busy} onCommand={pc.command} onRetry={pc.retry} onSafari={actions.openSafari} onProfile={actions.openProfiles} />
         : showSafari ? <SafariZone session={safari.session} phase={safari.phase} slideMs={safari.slideMs} today={today} busy={busy} saveError={safari.saveError} fleeAfter={safariFleeAfter} ballTheme={ballTheme} trainer={trainer} musicLink={areaMusic && <a href="#game-music">♫ Music</a>} onRegion={safari.actions.changeRegion}
           registeredIds={encounters.map(entry => entry.pokemon.id)} results={safari.results} message={safari.message} error={safari.error} onMove={safari.actions.move} onZone={safari.actions.changeZone} onHoneyTree={safari.actions.checkHoneyTree}
+          onSmooth={safari.actions.setSmooth} onExplorationSave={safari.actions.saveExploration} onWild={safari.actions.interact}
           onBag={() => actions.navigate("bag")} onPreview={safari.actions.preview} onSubmit={safari.actions.submit} onStop={() => actions.stop()} onLeave={safari.actions.leave} onPokedex={actions.openPokedex} onPc={() => actions.navigate("pc")}
           editor={controls => <SqlEditor draftKey={`safari:${safari.session.encounter?.id ?? "map"}`} value={safari.session.draft} schema={editorSchema}
             onChange={safari.actions.editDraft} onRun={safari.actions.submit} busy={busy} autocomplete={autocomplete} autoFocus actions={controls} />} />
