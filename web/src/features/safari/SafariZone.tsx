@@ -1,3 +1,4 @@
+import { QueryAction } from "../../shared/ui/QueryAction";
 import { createBag, shinyOdds, SHINY_ODDS } from "./bag-model";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
@@ -101,10 +102,9 @@ export function SafariZone({ session, phase, slideMs, today, busy, saveError, fl
         </div>
         <details><summary>Need a hint?</summary><p>{assignment.hint}</p></details>
         {editor(<div className="safari-query-actions">
-          {busy ? <button className="btn btn-primary" onClick={onStop}>■ Stop catch query</button>
-            : fieldwork && <button className="btn" disabled={!canSubmit} onClick={onPreview}>Preview SQL</button>}
+          {fieldwork && <button className="btn" disabled={busy || !canSubmit} onClick={onPreview}>Preview SQL</button>}
           <span>{encounter.attempts} {fieldwork ? encounter.attempts === 1 ? "throw" : "throws" : encounter.attempts === 1 ? "checked query" : "checked queries"}</span>
-          {!busy && <button className="btn btn-primary safari-catch-submit" disabled={!canSubmit} aria-label="Catch Pokémon" onClick={onSubmit}>Run query <kbd>Ctrl+Enter</kbd></button>}
+          <QueryAction className="safari-catch-submit" busy={busy} disabled={!canSubmit} runAriaLabel="Catch Pokémon" stopLabel="Stop catch query" onRun={onSubmit} onStop={onStop} />
         </div>)}
         {error && <p className="error-panel" role="alert">{error}</p>}{message && <p className="notice" role="status">{message}</p>}
         {results.length > 0 && <div className="safari-query-results"><h4>{fieldwork ? "Query results" : "Last checked query results"}</h4><QueryResults results={results} /></div>}

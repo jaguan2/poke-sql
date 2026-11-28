@@ -1,0 +1,29 @@
+/* Short, local transitions keep the action and its result in the same place. */
+.motion-icon { opacity:0; filter:blur(3px); transition:opacity 160ms ease,filter 160ms ease; pointer-events:none; }
+.motion-icon[data-active=true] { opacity:1; filter:blur(0); }
+.query-action { min-width:148px; display:inline-flex; justify-content:center; align-items:center; gap:7px; }
+.query-action-icon { position:relative; display:inline-block; width:16px; height:16px; flex:none; }
+.query-action-icon svg { position:absolute; inset:0; width:100%; height:100%; }
+.query-action kbd[hidden] { display:none; }
+
+/* Native details retain their content, keyboard semantics and closed-state focus rules. */
+@supports (interpolate-size:allow-keywords) {
+  :is(.query-help details,.safari-assignment > details,.region-map,.safari-area-picker,.safari-events) { interpolate-size:allow-keywords; }
+  :is(.query-help details,.safari-assignment > details,.region-map,.safari-area-picker,.safari-events)::details-content {
+    block-size:0; opacity:0; overflow:clip;
+    transition:block-size 240ms ease,opacity 180ms ease,content-visibility 240ms allow-discrete;
+  }
+  :is(.query-help details,.safari-assignment > details,.region-map,.safari-area-picker,.safari-events)[open]::details-content { block-size:auto; opacity:1; }
+}
+
+/* Headings establish context first; supporting controls follow without blocking input. */
+:is(.bag-page,.profiles-page,.practice-catalog,.workspace-library,.personal-pokedex,.pc-page) > :first-child { animation:focus-arrival 160ms ease-out both; }
+:is(.bag-page,.profiles-page,.practice-catalog,.workspace-library,.personal-pokedex,.pc-page) > :nth-child(n+2) { animation:focus-arrival 200ms 50ms ease-out both; }
+@keyframes focus-arrival { from { opacity:0; translate:0 4px; } to { opacity:1; translate:0 0; } }
+.main h2[tabindex="-1"]:focus-visible { outline:2px solid var(--highlight); outline-offset:5px; }
+
+@media(prefers-reduced-motion:reduce) {
+  .motion-icon,.motion-icon[data-active] { transition:none; filter:none; }
+  :is(.query-help details,.safari-assignment > details,.region-map,.safari-area-picker,.safari-events)::details-content { transition:none; }
+  :is(.bag-page,.profiles-page,.practice-catalog,.workspace-library,.personal-pokedex,.pc-page) > * { animation:none; }
+}

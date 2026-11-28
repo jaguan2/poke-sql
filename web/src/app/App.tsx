@@ -1,3 +1,6 @@
+import { QueryAction } from "../shared/ui/QueryAction";
+import { confirmAction } from "../shared/ui/action-feedback";
+import "./interaction-motion.css";
 import { Bag } from "../features/safari/Bag";
 import "../shared/ui/GameWindows.css";
 import { QueryResults } from "../shared/ui/QueryResults";
@@ -5,7 +8,7 @@ import { Sidebar } from "./components/Sidebar";
 import { SqlEditor } from "./components/SqlEditor";
 import { WorkspaceLibrary } from "./components/WorkspaceLibrary";
 import { PracticeCatalog } from "../features/practice/PracticeCatalog";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { readLocal, writeLocal } from "../shared/storage/local";
 import { Profiles } from "../features/profiles/Profiles";
 import { Settings } from "../features/profiles/Settings";
@@ -32,20 +35,27 @@ export default function App() {
   } = useWorkspace();
   const profileButton = useRef<HTMLButtonElement>(null);
   const settingsButton = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (showProfiles || showSettings) return;
+    returnFocus.current?.focus();
+    returnFocus.current = null;
+  }, [showProfiles, showSettings]);
   const [menuOpen, setMenuOpen] = useState(() => readLocal("menu-open", true, (value): value is boolean => typeof value === "boolean"));
 
   if (loadError) return <div className="load-screen"><h1>Could not load PokéSQL</h1><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Try again</button></div>;
   if (!ready) return <div className="load-screen"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={64} height={64} className="spin" /><p>Loading your Pokédex…</p></div>;
   const areaMusic = showSafari ? zoneById(safari.session.zoneId).music : undefined;
 
-  return <div className="app">
+  return <div className="app" onClick={confirmAction}>
     <header className="header">
       <div className="brand">
         <button className="btn btn-secondary menu-button" aria-label={menuOpen ? "Hide menu" : "Show menu"} title={menuOpen ? "Hide menu" : "Show menu"}
           aria-expanded={menuOpen} aria-controls="workspace-menu" onClick={() => { const next = !menuOpen; setMenuOpen(next); writeLocal("menu-open", next); }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
             <rect x="3" y="4" width="18" height="16" rx="3" /><path d="M9 4v16" />
-            <path d={menuOpen ? "m16 9-3 3 3 3" : "m13 9 3 3-3 3"} />
+            <g className="motion-icon" data-active={menuOpen}><path d="m16 9-3 3 3 3" /></g>
+            <g className="motion-icon" data-active={!menuOpen}><path d="m13 9 3 3-3 3" /></g>
           </svg>
         </button>
         <div className="dex-lights" aria-hidden="true"><span className="dex-lens" /><span className="dex-light" /><span className="dex-light" /></div>
@@ -75,10 +85,10 @@ export default function App() {
         {showProfiles ? <Profiles name={trainerName} trainer={trainer} identity={trainerIdentity} progress={profileProgress} ballTheme={ballTheme} saveError={profileSaveError}
           featuredPokemon={<FeaturedPokemon collection={pc.collection} busy={pc.busy || pc.pendingCount > 0} error={pc.error} onCommand={pc.command} onRetry={pc.retry} onOpenPc={() => actions.navigate("pc")} />}
           onNameChange={actions.changeTrainerName} onTrainerChange={actions.changeTrainer}
-          onDone={() => { actions.closePersonalization(); profileButton.current?.focus(); }} />
+          onDone={() => { returnFocus.current = profileButton.current; actions.closePersonalization(); }} />
         : showSettings ? <Settings ballTheme={ballTheme} autocomplete={autocomplete} safariFleeAfter={safariFleeAfter} saveError={profileSaveError}
           onThemeChange={actions.changeTheme} onAutocompleteChange={actions.changeAutocomplete} onSafariFleeAfterChange={actions.changeSafariFleeAfter}
-          onDone={() => { actions.closePersonalization(); settingsButton.current?.focus(); }} />
+          onDone={() => { returnFocus.current = settingsButton.current; actions.closePersonalization(); }} />
         : catalogKind ? <PracticeCatalog kind={catalogKind} filters={catalogFilters[catalogKind]} completed={completed} drafts={drafts} busy={busy} onFiltersChange={filters => actions.setCatalogFilters(catalogKind, filters)} onSelect={catalogKind === "samples" ? actions.selectSample : actions.selectChallenge} onFreePractice={() => actions.navigate("workspace")} />
         : libraryView ? <WorkspaceLibrary view={libraryView} schema={editorSchema} history={history} saved={saved} busy={busy} schemaTitle={isMystery ? "Mystery schema" : challenge ? "Challenge schema" : "Schema"}
           onPreviewSql={actions.previewSql} onGuideSql={actions.loadGuideSql} onLoadSql={actions.loadSql} onDeleteSaved={actions.deleteSaved} onClearHistory={actions.clearHistory} />
@@ -108,8 +118,7 @@ export default function App() {
         <div className="editor-label">{isMystery ? "Your next guess" : practice ? "Your answer" : "Free practice"}</div>
         <SqlEditor draftKey={draftKey} value={query} schema={editorSchema} onChange={actions.editQuery}
           onRun={actions.run} busy={busy} autocomplete={autocomplete} actions={
-            busy ? <button className="btn btn-primary" onClick={() => actions.stop()}>■ Stop query</button>
-              : <button className="btn btn-primary" disabled={!query.trim() || (isMystery && (!mysteryRound || mysterySolved(mysteryRound)))} onClick={actions.run}>Run query <kbd>Ctrl+Enter</kbd></button>
+            <QueryAction busy={busy} disabled={!query.trim() || (isMystery && (!mysteryRound || mysterySolved(mysteryRound)))} onRun={actions.run} onStop={() => actions.stop()} />
           } />
         <div className="results" aria-busy={busy}>
           <h2 className="results-heading">{isMystery ? "Mystery notebook" : "Query results"}</h2>

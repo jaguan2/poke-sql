@@ -313,3 +313,20 @@ independent. No new worker, network request or privileged desktop API is needed.
 pinned `graphics/interface/bag_male.png` sheet. The full Safari asset builder
 uses the same function. The asset manifest verifies its hash; production checks
 require the frame dimensions. Navigation and the Bag window share the local PNG.
+
+### Interaction feedback
+
+Application motion styling lives in `app/interaction-motion.css`. Brief activation
+pulses acknowledge enabled buttons and native radio/checkbox selections; they do
+not indicate SQL correctness. Run/Stop uses the shared `QueryAction` control in
+practice, mystery and Safari, retaining the button during worker execution.
+Paired icon layers crossfade with a short blur; Bag artwork reserves one fixed
+space for the layers. Native details expand their existing content using
+feature-detected intrinsic-size transitions, retaining native keyboard/focus
+semantics and falling back to ordinary details where unsupported.
+
+Page headings arrive before supporting controls. Existing pages retain their
+own heading focus, the Bag follows the same convention, and App restores
+personalization focus after the destination page mounts. No animation delays
+query execution, cancellation or keyboard input. Reduced-motion preferences
+skip activation pulses, blurs, disclosure transitions and staged entry effects.
