@@ -210,7 +210,7 @@ See [releasing and testing updates](docs/RELEASING.md).
   [Pokémon Emerald assets](https://github.com/pret/pokeemerald/tree/9103e529c2fbdd7add4a1ff3350c6c1f92112c42/data/tilesets).
   Red's walking/back sprites, battle platforms, window frames and pixel lettering
   use [FireRed/LeafGreen assets](https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics).
-  Grass encounters pair native platforms with a warm striped backdrop; a light
+  Grass encounters use the original FireRed background and palette; a native
   dialogue window and compact Dex/status plate follow the supplied game references.
   Pokémon keep their native proportions, with transparent margins removed at display time
   so their feet sit on the platform. The plate shows the name, a random level
@@ -426,11 +426,11 @@ adapter decodes native block maps, tiles, palette maps, per-town roofs and
 and asset manifest as Kanto/Hoenn. Recipes live in `johto-routes.json`.
 All Johto encounter species have bundled normal and shiny sprites.
 
-Sinnoh uses original PokéSQL layouts and an atlas with the app's bundled terrain
+Sinnoh uses authored PokéSQL field layouts with native Gen III terrain/building artwork and an original Platinum town map; the field maps use the app's bundled terrain
 tiles, trainer sprites and area music. Edit `scripts/sinnoh_routes.json` and run
 `py scripts/build_region_assets.py sinnoh` (Pillow required) to rebuild the art,
 collision maps, capture pools, decorative trainers and asset manifests. The
-generator works offline with the checked-in map art.
+generator reuses cached pinned source archives after its first download.
 
 Safari offers 72 regular species plus nine Legendary and six Mythical event
 visitors across nine habitats (87 distinct species and 90 habitat slots,
@@ -610,3 +610,7 @@ Regional maps also include decorative Youngsters, Lasses, Bug Catchers and Hiker
 at 92 original object-event positions across Kanto, Hoenn and Johto. These NPCs
 use pinned FireRed sprites; they do not start battles or change walking paths.
 Rebuild them with `py scripts/build_route_trainers.py`.
+
+Game-facing artwork and remaining authored assets are listed in
+[the asset inventory](docs/NATIVE_ASSETS.md). Rebuild the original-game UI,
+PC wallpapers, badges and Platinum town map with `py scripts/build_game_ui.py`.

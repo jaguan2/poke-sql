@@ -1,3 +1,4 @@
+import nativeUi from '../src/shared/ui/native-assets.json' with { type: 'json' };
 import bagItems from '../src/features/safari/bag-items.json' with { type: 'json' };
 import { checkWorldAssets } from './check-world-assets.mjs';
 import { readFile, readdir } from 'node:fs/promises';
@@ -177,3 +178,9 @@ for (const sprite of Object.values(routeTrainers.sprites)) {
   if (data.readUInt32BE(16) !== 64 || data.readUInt32BE(20) !== 32 || createHash('sha256').update(data).digest('hex') !== sprite.sha256) throw new Error(`Invalid decorative trainer sheet ${sprite.file}.`);
 }
 console.log(`Verified ${Object.keys(routeTrainers.sprites).length} decorative trainer sheets and regional object positions.`);
+
+for (const asset of nativeUi.assets) {
+  const bytes = await readFile(new URL(`../public/${asset.file}`, import.meta.url));
+  if (bytes.readUInt32BE(16) !== asset.width || bytes.readUInt32BE(20) !== asset.height || createHash('sha256').update(bytes).digest('hex') !== asset.sha256) throw new Error(`Native UI asset changed: ${asset.file}. Run py scripts/build_game_ui.py.`);
+}
+console.log(`Verified ${nativeUi.assets.length} original game UI assets.`);

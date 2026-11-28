@@ -66,7 +66,7 @@
     },
     {
       "file": "battle/grass.png",
-      "sha256": "fcf413a413a93d4fc46b093f145bd8a938ecd82bb5b9bbf4cedb2fc99a7601f9"
+      "sha256": "be9bd8d6bd78c0285df74903cc6f3ce6837cce5799e927530b207b1f4bf75d9d"
     },
     {
       "file": "battle/sand.png",
@@ -82,7 +82,7 @@
     },
     {
       "file": "battle/dialogue.png",
-      "sha256": "aa30717d45b93739f17d9e0bdb43b54d6fd79af118ecf2ff39c82ca38f4acd47"
+      "sha256": "41b1090b6ea1c3ff40dfce78937538d24bd11c35f581de9644a1ad8576cdabb0"
     },
     {
       "file": "battle/nameplate.png",
@@ -101,16 +101,16 @@
       "sha256": "cd56e9c887a82cf0f95e357eacf9fc7bbeace7f4635e8fe2da2da037830287e9"
     },
     {
+      "file": "trainer-red-portrait.png",
+      "sha256": "4442795842373b5045041f7207619799160edcc9e0124e19996e46401ed149f0"
+    },
+    {
       "file": "trainer-girl-walking.png",
       "sha256": "1229935843ebeb349176fe0c0dad579fdb855c5b89ecad8a22cbb9096581e1df"
     },
     {
       "file": "trainer-girl-battle.png",
       "sha256": "122b170c9823b4d66f5bf41bd05ce5c242ccca124abb2d474987b11435801da5"
-    },
-    {
-      "file": "trainer-red-portrait.png",
-      "sha256": "4442795842373b5045041f7207619799160edcc9e0124e19996e46401ed149f0"
     },
     {
       "file": "trainer-leaf-portrait.png",

@@ -53,3 +53,5 @@
 }
 
 @media(prefers-reduced-motion:reduce) { .encounter-scene.is-catching .encounter-catch-ball { opacity:1; } .encounter-scene.is-catching .encounter-sprite { opacity:0; } .encounter-catch-flash { display:none; } }
+
+.encounter-caption { color:#fff; text-shadow:.416667cqw .416667cqw #183442; }

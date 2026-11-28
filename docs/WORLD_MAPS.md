@@ -21,7 +21,7 @@ in IndexedDB. These ownership boundaries must survive renderer changes.
 `scripts/build_region_assets.py` already imports native FireRed and Emerald
 maps, edge offsets and selected warps. `crystal_maps.py` imports Crystal, not
 HeartGold. Sinnoh uses authored PokéSQL layouts assembled from bundled art and
-procedural buildings; these are not extracted DS environments. Unova's former
+native Gen III building crops and a few authored landmarks; these are not extracted DS environments. Unova's former
 authored world and map assets have been removed for now. Its Pokémon remain in
 the database, National Pokédex, mystery encounters and existing collections.
 `SafariMap.tsx` displays a complete PNG in a scrolling DOM world, overlays
@@ -263,3 +263,38 @@ Traces, screenshots and native Canvas allocation estimates are retained under
 `web/test-results/world-outdoors-verification/`. Viridian Forest and Route 104
 desktop renders were also visually inspected. These are production-browser
 checks, not a packaged Electron or physical-iPad performance certification.
+
+## Native artwork update (2026-11-28)
+
+Sinnoh's overview now renders original Platinum map layers and derives markers
+from native town-map data. Its walking geometry remains authored, but ordinary
+buildings and painted surfaces now use bundled native Gen III crops. The native
+DS field-map/model pipeline remains separate. See [asset inventory](NATIVE_ASSETS.md)
+for the few remaining authored props and all rebuild/provenance details.
+
+
+## Sinnoh walking-layout pass (2026-11-28)
+
+The six towns now use native-size building footprints and narrow connected
+footpaths instead of repeated broad plazas. Twinleaf has two homes, pond-side
+space and flower beds; larger towns retain their lab, station, Center and other
+landmarks. Town dimensions remain 34 × 28 tiles.
+
+| Area | Previous tiles | Current tiles |
+| --- | --- | --- |
+| Route 201 | 24 × 18 | 40 × 24 |
+| Route 202 | 24 × 18 | 28 × 36 |
+| Route 203 | 24 × 18 | 40 × 24 |
+| Route 204 | 22 × 20 | 28 × 34 |
+| Eterna Forest | 26 × 20 | 34 × 38 |
+
+These authored layouts add bends, separate grass clearings, tree groves and
+optional paths. They preserve native artwork and the existing location/encounter
+pools. They do not claim to reproduce native DS geography. Classic movement is
+still used in Sinnoh; this does not extend the Smooth renderer to another region.
+
+Changed layouts increment their revision. Existing exploration saves use the
+existing relocation contract to return to the safe trailhead while keeping
+progress and drafts. PC ownership is untouched. All exits, grass clearings and
+Honey Tree approaches are checked; the desktop/tablet browser checks walk an
+expanded route and reload offline at the same position.

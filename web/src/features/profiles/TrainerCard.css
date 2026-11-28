@@ -5,10 +5,8 @@
   color:#243f60; font-family:"PokeSQL Battle",ui-monospace,monospace;
   border:4px solid #73838a; border-radius:16px;
   box-shadow:inset 0 0 0 3px #f4f4df,0 5px 0 #172d3c18;
-  background:
-    linear-gradient(0deg,#427cc33b 10%,transparent 10% 90%,#9cd4ed52 90%),
-    radial-gradient(circle at 12% 18%,#d2f0ff66 0 17%,transparent 17% 28%,#d2f0ff35 28% 45%,transparent 45%),
-    #5798dd;
+  background:url('/game-ui/trainer-card.png') center/100% 100%;
+  image-rendering:pixelated;
 }
 .trainer-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#fffbe9; font-size:clamp(18px,5.4cqw,32px); line-height:1; text-shadow:2px 2px #4779b7; }
 .trainer-card-top img { image-rendering:pixelated; width:7cqw; height:7cqw; }
@@ -32,7 +30,7 @@
 .trainer-card-badges > span { color:#244d7d; font-size:clamp(10px,2.6cqw,15px); letter-spacing:1px; }
 .trainer-card-badges ul { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:5px; padding:0; margin:6px 0 0; list-style:none; }
 .trainer-card-badges li { display:grid; place-items:center; aspect-ratio:1; border:1px solid #417bad90; border-radius:5px; background:#b6def23d; }
-.trainer-card-badges svg { width:80%; fill:#9dc4df; stroke:#5b809f; stroke-width:1.5; }
+.trainer-card-badges img { width:80%; height:auto; image-rendering:pixelated; opacity:.3; }
 .trainer-card-badges [data-earned=true] { background:#c6ebf870; }
-.trainer-card-badges [data-earned=true] svg { fill:#ffe1a0; stroke:#795f34; filter:drop-shadow(1px 1px 0 #ffffffa0); }
+.trainer-card-badges [data-earned=true] img { opacity:1; }
 @media(max-width:620px) { .trainer-card { padding:12px; border-radius:12px; }.trainer-card-body { gap:7px; }.trainer-card-name,.profile-statistics > div { gap:4px; padding:3px 4px; }.trainer-card-badges ul { gap:3px; } }

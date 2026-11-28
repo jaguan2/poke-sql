@@ -17,6 +17,8 @@ test('drag moves, swaps, crosses boxes and persists without changing ownership',
   await slot(6).dragTo(slot(2));
   await expect(slot(2)).toContainText('Bulbasaur');
   await expect(slot(6)).toContainText('Charmander');
+  // A previous drag may scroll the box; hover a visible control, not one behind the header.
+  await page.getByRole('button', { name: 'Next box', exact: true }).scrollIntoViewIfNeeded();
   const source = (await slot(2).boundingBox())!;
   const next = (await page.getByRole('button', { name: 'Next box', exact: true }).boundingBox())!;
   await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2); await page.mouse.down();

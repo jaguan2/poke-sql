@@ -40,11 +40,14 @@ async function shoot(page: Page, name: string, fullPage = false) {
   const main = (await page.locator('main').boundingBox())!;
   expect(Math.abs(main.y - menu.y)).toBeLessThanOrEqual(1);
   expect(main.x).toBeGreaterThan(menu.x + menu.width);
+  // Large walking maps can push lazy table sprites beyond the loading threshold.
+  await page.locator('img').evaluateAll(images => { for (const image of images) image.loading = 'eager'; });
   await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   await page.locator('.safari-route-trainer').evaluateAll(nodes => Promise.all([...new Set(nodes.map(node => getComputedStyle(node).backgroundImage.slice(5, -2)))].map(async file => {
     const image = new Image(); image.src = file; await image.decode();
   })));
-  await page.screenshot({ path: path.join(output, name), fullPage, animations: 'disabled' });
+  await page.evaluate(() => Promise.all(document.getAnimations().filter(animation => animation instanceof CSSTransition).map(animation => animation.finished.catch(() => {}))));
+  await page.screenshot({ path: path.join(output, name), fullPage, animations: 'disabled', style: 'details[open]::details-content { transition:none!important; block-size:auto!important; opacity:1!important; }' });
 }
 
 async function sql(page: Page, text: string, action = /Run query/) {
@@ -385,5 +388,27 @@ for (const viewport of [{ width: 1600, height: 1100 }, { width: 820, height: 118
       await expect(page.locator('.bag-effects')).toContainText('Active · 1 in 64');
       await shoot(page, 'bag-key-items.png');
     }
+  });
+}
+
+
+test('Sinnoh native town map and adapted field art', async ({ page }) => {
+  await open(page, 'poke-ball', createSafariSession('twinleaf-town'));
+  await page.getByRole('button', { name: 'Explore', exact: true }).click();
+  await page.getByRole('button', { name: 'Got it', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'Twinleaf Town exploration map' })).toBeVisible();
+  await shoot(page, 'sinnoh-twinleaf-town.png');
+  await page.locator('.region-map > summary').click();
+  await page.setViewportSize({ width: 1600, height: 1500 });
+  await shoot(page, 'sinnoh-region-map.png');
+});
+
+
+for (const area of ['route-201', 'eterna-forest'] as const) {
+  test(`expanded Sinnoh walking map ${area}`, async ({ page }) => {
+    await open(page, 'poke-ball', createSafariSession(area));
+    await page.getByRole('button', { name: 'Explore', exact: true }).click();
+    await page.getByRole('button', { name: 'Got it', exact: true }).click();
+    await shoot(page, `sinnoh-${area}.png`);
   });
 }

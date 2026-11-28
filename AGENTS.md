@@ -4,6 +4,8 @@ A SQL practice IDE that runs queries against a Pokédex database — built for
 refreshing SQL skills with data that's actually fun to query. Everything runs
 locally: no cloud database, no backend server.
 
+Current decisions and recent commit context: [project memory](docs/PROJECT_MEMORY.md).
+
 Primary screens are desktop/laptop browsers and iPads in portrait or landscape.
 Prioritize a comfortable SQL editor, touch controls and keyboard access there.
 Phones are a basic responsive fallback, not a primary SQL-writing experience.
@@ -29,8 +31,8 @@ web/
     pokedex/               Encounters, personal journal and achievements
     music/                 Player, styles and curated track manifest
     profiles/              Trainer card, model selection, preferences and palettes
-    pc/                    Individual catches, 30-slot boxes and profile highlights
-    safari/                Biome maps, encounters and SQL catch assignments
+    pc/                    Individual catches, active party, boxes and profile highlights
+    safari/                Regions, Classic/Smooth exploration and SQL catch assignments
   src/shared/
     sql/                   Execution, schema introspection and result types
     storage/               IndexedDB snapshots and localStorage helpers
@@ -56,7 +58,10 @@ one transaction. A per-reward localStorage outbox bridges capture commits and
 the existing game saves. Retry pending captures without rerunning SQL. The app
 reconciles interrupted game/journal updates from committed captures. Preserve
 legacy backups, unknown imported capture fields and the six-owned-Pokémon
-profile limit. SQL practice/reset never changes PC ownership or highlights.
+profile limit. The domain collection schema is version 2 while the IndexedDB
+store version remains 1. Ordered `partyIds` holds up to six owned instances and
+is independent of the six `featuredIds` on Trainer ID; party members keep their
+box placements. SQL practice/reset never changes ownership, party or highlights.
 
 ## Commands
 

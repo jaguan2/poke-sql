@@ -1,3 +1,4 @@
+import { NavigationIcon } from "./components/NavigationIcon";
 import { QueryAction } from "../shared/ui/QueryAction";
 import { confirmAction } from "../shared/ui/action-feedback";
 import "./interaction-motion.css";
@@ -38,13 +39,13 @@ export default function App() {
   const returnFocus = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (showProfiles || showSettings) return;
-    returnFocus.current?.focus();
+    if (!showSafari) returnFocus.current?.focus();
     returnFocus.current = null;
-  }, [showProfiles, showSettings]);
+  }, [showProfiles, showSettings, showSafari]);
   const [menuOpen, setMenuOpen] = useState(() => readLocal("menu-open", true, (value): value is boolean => typeof value === "boolean"));
 
   if (loadError) return <div className="load-screen"><h1>Could not load PokéSQL</h1><p>{loadError}</p><button className="btn" onClick={() => location.reload()}>Try again</button></div>;
-  if (!ready) return <div className="load-screen"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={64} height={64} className="spin" /><p>Loading your Pokédex…</p></div>;
+  if (!ready) return <div className="load-screen"><img src={`${import.meta.env.BASE_URL}sprites/items/poke-ball.png`} alt="" width={64} height={64} className="spin" /><p>Loading your Pokédex…</p></div>;
   const areaMusic = showSafari ? zoneById(safari.session.zoneId).music : undefined;
 
   return <div className="app" onClick={confirmAction}>
@@ -63,10 +64,10 @@ export default function App() {
       </div>
       <div className="header-personalization">
         <button className="btn btn-secondary header-icon profiles-button" ref={profileButton} aria-label="Profiles" title="Trainer ID" aria-pressed={showProfiles} disabled={busy} onClick={actions.openProfiles}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><rect x="2" y="3" width="20" height="18" rx="3" /><circle cx="9" cy="9" r="2.5" /><path d="M4.5 18v-1a4.5 4.5 0 0 1 9 0v1M16 8h3m-3 4h3m-3 4h3" /></svg>
+          <NavigationIcon name="trainer" />
         </button>
         <button className="btn btn-secondary header-icon" ref={settingsButton} aria-label="Settings" title="Settings" aria-pressed={showSettings} disabled={busy} onClick={actions.openSettings}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" aria-hidden="true"><path d="M9 2h6l1 4 3-1 3 5-3 2 3 2-3 5-3-1-1 4H9l-1-4-3 1-3-5 3-2-3-2 3-5 3 1Z" /><circle cx="12" cy="12" r="3" /></svg>
+          <NavigationIcon name="gear" />
         </button>
       </div>
       <div className="header-actions">

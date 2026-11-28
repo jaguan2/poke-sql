@@ -14,7 +14,7 @@ function Cell({ column, value }: { column: string; value: SqlValue }) {
     ?? text.match(/^sprites\/(\d+)\.png$/);
   if (column.endsWith("sprite_url") && sprite) {
     return <img className="sprite" src={`${import.meta.env.BASE_URL}sprites/${sprite[1]}.png`} alt="" loading="lazy" width={48} height={48}
-      onError={event => { const fallback = new URL(`${import.meta.env.BASE_URL}pokeball.svg`, location.href).href; if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback; }} />;
+      onError={event => { const fallback = new URL(`${import.meta.env.BASE_URL}sprites/items/poke-ball.png`, location.href).href; if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback; }} />;
   }
   if (column.toLowerCase().includes("type") && isPokemonType(text)) return <TypeBadge type={text} />;
   return <span className={typeof value === "number" ? "cell-num" : undefined}>{text}</span>;

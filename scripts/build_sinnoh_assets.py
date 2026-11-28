@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-from region_architecture import draw_building, draw_landmark, footprint
+from region_architecture import draw_landmark, footprint
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "web" / "public" / "safari"
@@ -117,7 +117,16 @@ def tile_sources():
         "forest-grass": crop("hoenn/petalburg-woods", 6, 9),
         "tree": crop("hoenn/littleroot-town", 0, 0, 2, 2),
         "forest-tree": crop("hoenn/petalburg-woods", 0, 0, 2, 2),
-        "house": crop("hoenn/littleroot-town", 2, 4, 5, 5),
+        "house": crop("kanto/pallet-town", 5, 3, 5, 5),
+        "center": crop("kanto/cerulean-city", 20, 15, 5, 5),
+        "lab": crop("kanto/pallet-town", 13, 9, 7, 5),
+        "station": crop("kanto/cerulean-city", 27, 25, 4, 4),
+        "warehouse": crop("kanto/cerulean-city", 28, 17, 7, 5),
+        "museum": crop("kanto/cerulean-city", 28, 17, 7, 5),
+        "cafe": crop("kanto/cerulean-city", 13, 14, 7, 4),
+        "paving": crop("kanto/cerulean-city", 11, 13),
+        "boardwalk": crop("kanto/cerulean-city", 22, 2),
+        "water": crop("hoenn/route-103", 25, 9),
         "cave-ground": crop("johto/union-cave-1f", 11, 10),
         "cave-wall": crop("johto/union-cave-1f", 12, 13),
         "snow-ground": crop("maps/tundra", 5, 11),
@@ -125,12 +134,9 @@ def tile_sources():
         "snow-ice": crop("maps/tundra", 4, 14),
         "snow-wall": crop("maps/tundra", 0, 0, 2, 2),
     }
-    golden = art["tree"].copy()
-    golden.putdata([
-        (g, (r + 3 * g) // 5, min(b, g // 3)) if g > r + 8 and g > b + 17 else (r, g, b)
-        for r, g, b in art["tree"].getdata()
-    ])
-    art["honey-tree"] = golden
+    # Keep native tree colors; the interaction marker identifies the Honey Tree.
+    art["honey-tree"] = art["tree"]
+    art["sand"] = crop("maps/desert", 5, 11)
     return art
 
 
@@ -144,10 +150,7 @@ def render_layout(plan, route, art):
     wall = art["cave-wall" if cave else "snow-wall" if snow else "forest-tree" if forest else "tree"]
     grass = art["cave-ground" if cave else "snow-drift" if snow else "forest-grass" if forest else "grass"]
     if kind == "sand":
-        ground = Image.blend(ground, Image.new("RGB", ground.size, "#d4af76"), .8)
-        grass = Image.blend(grass, Image.new("RGB", grass.size, "#a78258"), .8)
-    if cave:
-        grass = Image.blend(grass, Image.new("RGB", grass.size, "#634d76"), .45)
+        ground = grass = art["sand"]
     for y, row in enumerate(plan):
         for x, cell in enumerate(row):
             px, py = x * TILE, y * TILE
@@ -157,39 +160,19 @@ def render_layout(plan, route, art):
                 image.paste(wall.crop((left, top, left + TILE, top + TILE)), (px, py))
             elif cell == "encounters":
                 image.paste(grass, (px, py))
-                if cave:
-                    draw.line((px + 5, py + 12, px + 9, py + 12), fill="#413751")
-                    draw.line((px + 6, py + 11, px + 8, py + 11), fill="#b7a3ac")
             elif cell == "ice":
                 image.paste(art["snow-ice"], (px, py))
             elif cell == "flowers" and (x + y) % 2 == 0:
                 image.paste(art["flowers"], (px, py))
             elif cell == "path" and not cave and not snow:
                 image.paste(art["path"], (px, py))
-            elif cell == "paving":
-                draw.rectangle((px, py, px + 15, py + 15), fill=route.get("pavingColor", "#bcc6c2"))
-                draw.line((px, py, px + 15, py), fill="#8f9e9e")
-                draw.line((px, py, px, py + 15), fill="#a5b1ae")
-            elif cell == "boardwalk":
-                draw.rectangle((px, py, px + 15, py + 15), fill="#ad9471")
-                for line in range(1, 16, 4):
-                    draw.line((px, py + line, px + 15, py + line), fill="#d3bb8d")
-            elif cell == "water":
-                draw.rectangle((px, py, px + 15, py + 15), fill="#4b86b3" if snow else "#3c8fad")
-                shift = (x + y * 3) % 5
-                draw.line((px + 2 + shift, py + 5, px + 7 + shift, py + 5), fill="#8ac5db")
-                draw.line((px + 8 - shift, py + 12, px + 11 - shift, py + 12), fill="#67aec8")
-                for dx, dy, edge in [(0, -1, (0, 0, 15, 0)), (0, 1, (0, 15, 15, 15)),
-                                     (-1, 0, (0, 0, 0, 15)), (1, 0, (15, 0, 15, 15))]:
-                    if plan[y + dy][x + dx] != "water":
-                        x1, y1, x2, y2 = edge
-                        draw.line((px + x1, py + y1, px + x2, py + y2), fill="#d4e7d6", width=2)
+            elif cell in {"paving", "boardwalk", "water"}:
+                image.paste(art[cell], (px, py))
     for building in route.get("buildings", []):
-        if isinstance(building, list):
-            x, y = building
-            image.paste(art["house"], (x * TILE, y * TILE))
-        else:
-            draw_building(draw, building)
+        x, y, width, height = footprint(building)
+        style = building.get("style", "home") if isinstance(building, dict) else "home"
+        original = art.get(style, art["house"])
+        image.paste(original.resize((width * TILE, height * TILE), Image.Resampling.NEAREST), (x * TILE, y * TILE))
     for landmark in route.get("landmarks", []):
         draw_landmark(draw, landmark)
     for x, y in route.get("turbines", []):
@@ -204,39 +187,8 @@ def render_layout(plan, route, art):
 
 
 def build_overview(region, recipes, runtime_routes, output):
-    width, height = 176, 152
-    chart = Image.new("RGB", (width, height), "#5497c4")
-    draw = ImageDraw.Draw(chart)
-    coast = [(9, 85), (17, 60), (31, 44), (28, 28), (44, 16), (79, 22), (103, 9), (119, 6),
-             (149, 8), (166, 26), (155, 50), (162, 75), (151, 89), (158, 112), (134, 122),
-             (111, 112), (93, 118), (73, 128), (65, 143), (28, 141), (17, 123)]
-    draw.polygon(coast, fill="#99bd77", outline="#e7d397", width=3)
-    if region == "sinnoh":
-        draw.polygon([(103, 12), (120, 7), (147, 10), (162, 25), (148, 40), (122, 34), (112, 39)], fill="#c8dfd9")
-        draw.ellipse((112, 10, 135, 22), fill="#66acc5", outline="#e7f3de")
-        draw.ellipse((12, 95, 32, 110), fill="#66acc5", outline="#b6d8a0")
-    for x, y in [(34, 30), (39, 38), (47, 30), (50, 40), (65, 32), (70, 39), (74, 30), (31, 56), (28, 65), (22, 74)]:
-        draw.polygon([(x, y - 5), (x - 4, y + 3), (x + 4, y + 3)], fill="#437f5d")
-    for x, y in [(120, 45), (141, 53), (123, 61), (136, 70), (143, 85), (116, 79)]:
-        draw.polygon([(x, y - 8), (x - 7, y + 5), (x + 7, y + 5)], fill="#8d8990", outline="#6d6c7d")
-        draw.polygon([(x, y - 7), (x - 3, y - 2), (x + 3, y - 2)], fill="#e4ece7")
-    linked = set()
-    for route_id, route in recipes.items():
-        for other in route["exits"].values():
-            edge = tuple(sorted((route_id, other)))
-            if edge not in linked:
-                line = [tuple(route["point"]), tuple(recipes[other]["point"])]
-                draw.line(line, fill="#667e56", width=5)
-                draw.line(line, fill="#f3df9d", width=3)
-                linked.add(edge)
-    points = {id: position(*route["point"]) for id, route in recipes.items()}
-    for point in points.values():
-        x, y = point["x"], point["y"]
-        draw.rectangle((x - 2, y - 2, x + 2, y + 2), fill="#f5e7b9", outline="#435753")
-    return {"file": f"{region}/region-map.png", "game": "PokéSQL", "width": width, "height": height,
-            "points": points, "markers": [id for id, route in recipes.items() if route["kind"] in {"town", "forest", "lake", "snow"} or id == "mt-coronet"],
-            "recipeSha256": digest(runtime_routes), "pointsSha256": digest(points),
-            "sha256": save_art(chart, output / "region-map.png")}
+    from build_game_ui import sinnoh_overview
+    return sinnoh_overview(recipes, runtime_routes, output)
 
 
 def build(region="sinnoh"):

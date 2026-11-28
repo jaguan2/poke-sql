@@ -1,11 +1,14 @@
 # PokéSQL screenshot gallery
 
-Fresh application photos captured November 23, 2026, from the production build
+Fresh application photos captured November 28, 2026, from the production build
 in isolated Chrome contexts. These replace the older galleries and videos.
 The primary gallery targets desktop browsers and iPads. Tablet images use touch
 emulation at portrait/landscape sizes; they are not captures from physical iPad hardware.
 These captures include the compact page gutters, aligned navigation and revised
-schema picker with its adjacent column reference.
+schema picker with its adjacent column reference. Game menus, window frames, PC
+wallpapers and Trainer Card now use native game artwork. Battles retain the
+original FireRed palette. Sinnoh includes the native Platinum town map and
+authored walking layouts assembled with adapted Gen III artwork.
 The editor photos show Undo/Redo and right-aligned Run controls. Wild encounters
 first show Catch/Run inside the battle dialogue window; choosing Catch opens SQL.
 The regional trainer photos show decorative NPCs at native object-event positions.
@@ -18,7 +21,7 @@ Hoenn photos show Littleroot Town, the first journey's 14-location overview
 and Petalburg Woods. Hoenn tablet photos show the region map with the menu collapsed.
 Johto photos show the first 17-location journey, native New Bark Town and Ilex
 Forest. The area dropdown permits direct travel to any included map in all
-three regions. Johto tablet photos show this control with the menu collapsed.
+four regions. Johto tablet photos show this control with the menu collapsed.
 
 The demonstration profile has 12 Pokédex entries, 12 Safari catches and four
 completed challenges. The Lapras catch runs a correct SQL statement and raises
@@ -142,3 +145,15 @@ Shiny Charm effects are visible in the Bag photos.
 | [Key Items and active Shiny Charm](bag-key-items.png) | Poké Ball | 1600 × 1100 |
 | [Portrait tablet Bag](bag-820.png) | Poké Ball | 820 × 1180 |
 | [Landscape tablet Bag](bag-1180.png) | Poké Ball | 1180 × 820 |
+
+| Sinnoh | Theme | Viewport |
+| --- | --- | --- |
+| [Twinleaf Town](sinnoh-twinleaf-town.png) | Poké Ball | 1600 × 1100 |
+| [Sinnoh region map](sinnoh-region-map.png) | Poké Ball | 1600 × 1500 |
+
+| [Expanded Route 201](sinnoh-route-201.png) | Poké Ball | 1600 × 1100 |
+| [Expanded Eterna Forest](sinnoh-eterna-forest.png) | Poké Ball | 1600 × 1100 |
+
+Sinnoh walking photos include the November 28 town/path redesign and expanded
+routes/forest. Other gallery captures retain the same native-art production build
+from the preceding artwork pass; their maps did not change in this layout pass.

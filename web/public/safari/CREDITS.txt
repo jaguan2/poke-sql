@@ -115,11 +115,11 @@ Trainer sprites, battle scenery, window frames and lettering
   battle/{grass,sand,cave,water}.png:
     graphics/battle_terrain/<terrain>/terrain.{png,bin,pal}
     Original tiles, flip bits and palettes reconstruct the 240x160 scene.
-    Grass retains native platform pixels with an olive palette and a warm striped
-    backdrop adapted to the user's encounter reference. Other terrain is unchanged.
+    The grass background now uses the original game tiles and palette too;
+    the former authored warm backdrop and olive recoloring have been removed.
   battle/dialogue.png:
     graphics/battle_interface/textbox.png, textbox.bin, textbox1.pal, textbox2.pal
-    Native 240x48 dialogue geometry with an adapted slate/white palette.
+    Native 240x48 dialogue geometry with the original blue/gold game palette.
   battle/nameplate.png:
     graphics/battle_interface/healthbox_singles_opponent.png, healthbox.pal
     Reassembled OAM tiles; widened 8px and the baked-in level label cleared.
@@ -164,16 +164,19 @@ location coordinates are recorded in region-overviews.json. Runtime assets are
 local PNGs under safari/region-maps; no ROM or network request is needed to view them.
 Original game artwork belongs to Nintendo, Game Freak and Creatures.
 
-Sinnoh: original PokéSQL layouts and atlas. Local terrain pieces are drawn from
-the bundled FireRed Route 1, Emerald Littleroot Town and Petalburg Woods,
-Crystal Union Cave and the Safari tundra. The area themes and decorative
-trainers use the existing bundled soundtrack and FireRed sprite sheets.
-Rebuild with py scripts/build_region_assets.py sinnoh.
-
-Sinnoh town architecture: original pixel drawings in
-scripts/region_architecture.py. Buildings, fountains, piers, amusement scenery
-and construction details are generated locally from authored layout recipes.
-Rebuild with py scripts/build_region_assets.py sinnoh.
+Sinnoh: authored PokéSQL walking layouts using native Gen III terrain and
+building artwork. House/lab crops come from FireRed Pallet Town; Center/Mart/
+large-building and paving/bridge crops from FireRed Cerulean City. Additional
+ground, trees, flowers and water use the already-vendored Emerald maps; snow and
+cave pieces use the existing bundled maps. Buildings are fitted with nearest-
+neighbor scaling to the unchanged authored collision footprints. These are
+native Gen III art adaptations, not extracted native DS field maps.
+The remaining authored field props are the fountain, construction landmark
+and wind turbines, in region_architecture.py/build_sinnoh_assets.py. A native
+Sinnoh model/texture pipeline is still required for those DS-specific objects.
+Sinnoh's town map is original Pokemon Platinum artwork, palettes and tilemaps;
+anchors are derived from its town_map_data.json, not the authored field layout.
+Rebuild fields with py scripts/build_region_assets.py sinnoh.
 
 Decorative regional trainers: native FireRed Youngster, Lass, Bug Catcher and Hiker sprites, with original object-event positions from pinned FireRed, Emerald and Crystal maps. Rebuild with py scripts/build_route_trainers.py. Four facing poses retain native pixels; these NPCs are scenery and do not initiate battles or alter collisions. Pins and per-sheet hashes: src/features/safari/route-trainers.json.
 
@@ -182,3 +185,16 @@ Closed backpack frame from pret/pokefirered graphics/interface/bag_male.png,
 pinned at ce6406d8c2eaf46d543c8a2606de0c3cb1951982 by safari_sources.py.
 Vendored as a transparent 64x64 PNG by py scripts/build_bag.py. Both the Bag
 window and navigation icon use this local asset with nearest-neighbor scaling.
+
+ORIGINAL GAME UI
+FireRed: native text-window tiles, PC wallpapers (Forest, Beach, Cave, City),
+Trainer Card background tiles and the eight Kanto badge images. Badge pictures
+represent PokéSQL SQL challenge milestones; they do not award in-game Gym wins.
+Platinum: native start-menu Pokedex/Pokemon/Trainer/Options icons and native
+Sinnoh touch-screen town map. Sources are pinned in safari_sources.py:
+https://github.com/pret/pokefirered/tree/ce6406d8c2eaf46d543c8a2606de0c3cb1951982/graphics
+https://github.com/pret/pokeplatinum/tree/0660186c565124910371a3b0516a1b1df31b5b93/res/graphics
+Rebuild with py scripts/build_game_ui.py. Per-input and per-output SHA256 hashes
+are recorded in shared/ui/native-assets.json; the town-map manifest also records
+its native inputs/anchors. All output PNGs ship locally and work offline.
+The application/favicon/desktop icon use the bundled PokéAPI game Poké Ball PNG.

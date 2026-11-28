@@ -114,3 +114,27 @@ test('checking a Honey Tree requires standing beside it and preserves a catch ac
     db.close();
   }
 });
+
+
+test('expanded routes keep every tall-grass clearing reachable from their trailheads', () => {
+  for (const id of ['route-201', 'route-202', 'route-203', 'route-204', 'eterna-forest'] as const) {
+    const zone = zoneById(id);
+    const reached = regionJourney(id, zone.start, id).seen;
+    for (const [y, row] of zone.map.entries()) for (const [x, tile] of [...row].entries()) {
+      if (tile === 'g') expect(reached.has(`${id}:${x},${y}`), `${id} clearing ${x},${y}`).toBe(true);
+    }
+  }
+  for (const position of [{ x: 8, y: 11 }, { x: 25, y: 11 }, { x: 11, y: 20 }]) {
+    expect(() => routePath('twinleaf-town', zoneById('twinleaf-town').start, position)).not.toThrow();
+  }
+});
+
+test('an older town save moves off rebuilt terrain and keeps progress and SQL', () => {
+  const previous = { ...createSafariSession('twinleaf-town'), layoutRevision: 1,
+    position: { x: 12, y: 23 }, steps: 50, catches: 7, draft: "SELECT name FROM pokedex;" };
+  expect(isWalkable(zoneById('twinleaf-town'), previous.position)).toBe(false);
+  expect(restoreSafariSession(previous)).toMatchObject({
+    zoneId: 'twinleaf-town', layoutRevision: 2, position: { x: 17, y: 14 },
+    steps: 50, catches: 7, draft: "SELECT name FROM pokedex;",
+  });
+});

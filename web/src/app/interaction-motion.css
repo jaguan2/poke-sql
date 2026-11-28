@@ -25,5 +25,5 @@
 @media(prefers-reduced-motion:reduce) {
   .motion-icon,.motion-icon[data-active] { transition:none; filter:none; }
   :is(.query-help details,.safari-assignment > details,.region-map,.safari-area-picker,.safari-events)::details-content { transition:none; }
-  :is(.bag-page,.profiles-page,.practice-catalog,.workspace-library,.personal-pokedex,.pc-page) > * { animation:none; }
+  :is(.bag-page,.profiles-page,.practice-catalog,.workspace-library,.personal-pokedex,.pc-page) > :is(:first-child,:nth-child(n+2)) { animation:none; }
 }

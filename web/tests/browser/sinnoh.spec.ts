@@ -43,7 +43,7 @@ test('Sinnoh works offline from the atlas through a shiny catch and PC deposit',
   for (const direction of journey.path!) await step(page, direction);
 
   await expect(page.getByRole('group', { name: 'Route 201 exploration map', exact: true })).toBeVisible();
-  await expect(page.locator('.safari-terrain')).toHaveJSProperty('naturalWidth', 384);
+  await expect(page.locator('.safari-terrain')).toHaveJSProperty('naturalWidth', 640);
   const table = page.getByRole('table', { name: 'Route 201 encounter table' });
   await expect(table.locator('.safari-silhouette')).toHaveCount(3);
   const route = await saved(page);

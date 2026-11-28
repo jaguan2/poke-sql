@@ -45,36 +45,7 @@ def build_background(terrain, target):
     sheet = Image.open(firered(base + ".png"))
     entries = struct.unpack("<2048H", firered(base + ".bin").read_bytes())
     colors = palette(firered(base + ".pal"))
-    if terrain == "grass":
-        # Preserve native grass/platform pixels. Only the empty backdrop gets
-        # warm horizontal bands inspired by the supplied encounter reference.
-        warm = [(174, 120, 96), (185, 128, 102), (179, 121, 95), (190, 133, 103),
-                (197, 133, 91), (207, 139, 83), (214, 144, 72), (224, 149, 63),
-                (218, 139, 56), (225, 145, 53), (220, 142, 55), (220, 151, 68),
-                (220, 158, 78), (215, 156, 83)]
-        image = Image.new("RGBA", (240, 160))
-        draw = ImageDraw.Draw(image)
-        for y in range(112):
-            color = warm[y // 8]
-            shade = -5 if y % 8 in (0, 1, 5) else 0
-            draw.line((0, y, 239, y), fill=tuple(value + shade for value in color) + (255,))
-        native = tilemap(sheet, entries, colors, 2)
-        grass_colors = {colors[bank * 16 + value] for bank in range(2) for value in range(2, 9)}
-        grass_colors.update(colors[33:36])
-        # Trim each native platform scanline, including its interior highlights,
-        # rather than retaining rectangular pieces of the original pale sky.
-        olive = [(183, 200, 111), (116, 166, 56), (92, 143, 43), (154, 183, 74),
-                 (186, 201, 103), (107, 155, 48), (156, 180, 105), (132, 165, 78)]
-        recolor = {color: replacement for bank in range(2)
-                   for color, replacement in zip(colors[bank * 16 + 1:bank * 16 + 9], olive)}
-        for y in range(112):
-            xs = [x for x in range(240) if native.getpixel((x, y))[:3] in grass_colors]
-            if xs:
-                for x in range(min(xs), max(xs) + 1):
-                    pixel = native.getpixel((x, y))
-                    image.putpixel((x, y), recolor.get(pixel[:3], pixel[:3]) + (255,))
-    else:
-        image = tilemap(sheet, entries, colors, 2)
+    image = tilemap(sheet, entries, colors, 2)
     image.save(target)
 
 
@@ -83,9 +54,6 @@ def build_dialogue(target):
     sheet = Image.open(firered(base + ".png"))
     entries = struct.unpack("<2048H", firered(base + ".bin").read_bytes())
     colors = palette(firered(base + "1.pal")) + palette(firered(base + "2.pal"))
-    # The reference uses a light, slate-rimmed dialogue window. Keep the game's
-    # tile geometry and replace its default blue/gold dialogue palette.
-    colors[13], colors[14], colors[15] = (89, 105, 112), (155, 170, 174), (248, 248, 248)
     tilemap(sheet, entries, colors).crop((0, 112, 240, 160)).save(target)
 
 

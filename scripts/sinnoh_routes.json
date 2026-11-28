@@ -7,7 +7,7 @@
       38,
       130
     ],
-    "description": "Start beside the flower beds. Take the north path to Route 201.",
+    "description": "Two homes overlook the village paths. Walk north to Route 201 or explore the pond and flower beds.",
     "exits": {
       "north": "route-201"
     },
@@ -16,50 +16,41 @@
       34,
       28
     ],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
-        "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "home",
-        "roof": "#778a98",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 19,
-        "width": 6,
+        "x": 6,
+        "y": 6,
+        "width": 5,
         "height": 5,
-        "style": "home",
-        "roof": "#778a98",
-        "wall": "#e3d8be"
+        "style": "home"
+      },
+      {
+        "x": 23,
+        "y": 6,
+        "width": 5,
+        "height": 5,
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
-        3,
-        19,
+        5,
+        12,
         9,
+        14
+      ],
+      [
+        24,
+        12,
+        28,
+        14
+      ],
+      [
+        22,
+        21,
+        27,
         23
       ]
     ],
@@ -67,6 +58,66 @@
       14,
       12,
       "lass"
+    ],
+    "paths": [
+      [
+        8,
+        11,
+        17,
+        12
+      ],
+      [
+        16,
+        11,
+        18,
+        14
+      ],
+      [
+        17,
+        11,
+        25,
+        12
+      ],
+      [
+        16,
+        11,
+        18,
+        14
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
+    ],
+    "water": [
+      [
+        5,
+        18,
+        10,
+        22
+      ]
     ]
   },
   "route-201": {
@@ -85,24 +136,48 @@
     },
     "encounters": [
       [
-        3,
-        3,
-        9,
-        6
+        4,
+        4,
+        12,
+        8
       ],
       [
-        14,
-        11,
-        20,
-        14
+        25,
+        4,
+        35,
+        8
+      ],
+      [
+        4,
+        16,
+        13,
+        20
+      ],
+      [
+        25,
+        18,
+        35,
+        21
       ]
     ],
     "trees": [
       [
-        14,
-        2,
-        21,
-        5
+        15,
+        3,
+        18,
+        7
+      ],
+      [
+        31,
+        11,
+        35,
+        15
+      ],
+      [
+        3,
+        10,
+        6,
+        14
       ]
     ],
     "pool": [
@@ -121,7 +196,50 @@
         "Kricketot",
         20
       ]
-    ]
+    ],
+    "size": [
+      40,
+      24
+    ],
+    "flowers": [
+      [
+        13,
+        18,
+        16,
+        20
+      ]
+    ],
+    "exitPaths": {
+      "west": [
+        [
+          10,
+          12
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "east": [
+        [
+          30,
+          12
+        ],
+        [
+          30,
+          16
+        ],
+        [
+          20,
+          16
+        ]
+      ]
+    },
+    "revision": 1
   },
   "verity-lakefront": {
     "name": "Lake Verity",
@@ -194,7 +312,7 @@
       62,
       113
     ],
-    "description": "A small coastal town with a PC. Route 202 leaves to the north.",
+    "description": "Follow the paths past the lab and Pokémon Center. Route 201 is west; Route 202 is north.",
     "exits": {
       "west": "route-201",
       "north": "route-202"
@@ -204,44 +322,30 @@
       34,
       28
     ],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
-        "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "lab",
-        "roof": "#7fabb1",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 19,
-        "width": 6,
+        "x": 4,
+        "y": 5,
+        "width": 7,
         "height": 5,
-        "style": "home",
-        "roof": "#7fabb1",
-        "wall": "#e3d8be"
+        "style": "lab"
+      },
+      {
+        "x": 23,
+        "y": 5,
+        "width": 5,
+        "height": 5,
+        "style": "center"
+      },
+      {
+        "x": 24,
+        "y": 18,
+        "width": 5,
+        "height": 5,
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
@@ -271,6 +375,70 @@
         7,
         23
       ]
+    ],
+    "paths": [
+      [
+        7,
+        10,
+        17,
+        11
+      ],
+      [
+        16,
+        10,
+        18,
+        14
+      ],
+      [
+        17,
+        10,
+        25,
+        11
+      ],
+      [
+        16,
+        10,
+        18,
+        14
+      ],
+      [
+        17,
+        23,
+        26,
+        24
+      ],
+      [
+        16,
+        14,
+        18,
+        23
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
     ]
   },
   "route-202": {
@@ -288,29 +456,53 @@
     },
     "encounters": [
       [
-        4,
-        4,
-        9,
-        9
+        3,
+        10,
+        6,
+        16
       ],
       [
-        15,
-        8,
+        18,
+        4,
+        24,
+        10
+      ],
+      [
+        3,
+        24,
+        10,
+        30
+      ],
+      [
+        22,
         20,
-        13
+        25,
+        26
       ]
     ],
     "trees": [
       [
+        10,
         3,
         12,
-        6,
-        15
+        6
+      ],
+      [
+        3,
+        19,
+        10,
+        21
+      ],
+      [
+        17,
+        11,
+        24,
+        14
       ]
     ],
     "trainer": [
-      10,
-      8,
+      12,
+      18,
       "youngster"
     ],
     "pool": [
@@ -334,7 +526,50 @@
         "Kricketot",
         10
       ]
-    ]
+    ],
+    "size": [
+      28,
+      36
+    ],
+    "flowers": [
+      [
+        4,
+        3,
+        7,
+        6
+      ]
+    ],
+    "exitPaths": {
+      "north": [
+        [
+          14,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          18
+        ]
+      ],
+      "south": [
+        [
+          14,
+          29
+        ],
+        [
+          20,
+          29
+        ],
+        [
+          20,
+          18
+        ]
+      ]
+    },
+    "revision": 1
   },
   "jubilife-city": {
     "name": "Jubilife City",
@@ -355,44 +590,37 @@
       "north": "route-204"
     },
     "pool": [],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
-        "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "station",
-        "roof": "#6f7d92",
-        "wall": "#e3d8be"
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 4,
+        "style": "station"
       },
       {
         "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
+        "y": 4,
+        "width": 5,
+        "height": 5,
+        "style": "center"
+      },
+      {
+        "x": 3,
+        "y": 20,
+        "width": 7,
+        "height": 5,
+        "style": "warehouse"
       },
       {
         "x": 24,
         "y": 19,
-        "width": 6,
+        "width": 5,
         "height": 5,
-        "style": "home",
-        "roof": "#6f7d92",
-        "wall": "#e3d8be"
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
@@ -415,6 +643,82 @@
         "height": 3,
         "style": "fountain"
       }
+    ],
+    "paths": [
+      [
+        6,
+        8,
+        17,
+        9
+      ],
+      [
+        16,
+        8,
+        18,
+        14
+      ],
+      [
+        17,
+        9,
+        26,
+        10
+      ],
+      [
+        16,
+        9,
+        18,
+        14
+      ],
+      [
+        6,
+        25,
+        17,
+        26
+      ],
+      [
+        16,
+        14,
+        18,
+        25
+      ],
+      [
+        17,
+        24,
+        26,
+        25
+      ],
+      [
+        16,
+        14,
+        18,
+        24
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
     ]
   },
   "route-203": {
@@ -432,29 +736,35 @@
     },
     "water": [
       [
-        7,
+        8,
         3,
-        15,
-        6
+        17,
+        7
       ]
     ],
     "encounters": [
       [
-        4,
-        11,
-        10,
-        14
+        3,
+        17,
+        12,
+        21
       ],
       [
-        15,
-        11,
-        20,
-        14
+        25,
+        4,
+        35,
+        8
+      ],
+      [
+        26,
+        17,
+        35,
+        21
       ]
     ],
     "trainer": [
-      17,
-      6,
+      24,
+      12,
       "youngster"
     ],
     "pool": [
@@ -478,7 +788,62 @@
         "Psyduck",
         15
       ]
-    ]
+    ],
+    "size": [
+      40,
+      24
+    ],
+    "trees": [
+      [
+        3,
+        3,
+        5,
+        8
+      ],
+      [
+        20,
+        3,
+        22,
+        8
+      ],
+      [
+        21,
+        17,
+        23,
+        21
+      ]
+    ],
+    "exitPaths": {
+      "west": [
+        [
+          7,
+          12
+        ],
+        [
+          7,
+          15
+        ],
+        [
+          20,
+          15
+        ]
+      ],
+      "east": [
+        [
+          33,
+          12
+        ],
+        [
+          33,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ]
+    },
+    "revision": 1
   },
   "oreburgh-gate": {
     "name": "Oreburgh Gate",
@@ -566,44 +931,30 @@
       34,
       28
     ],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
         "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "warehouse",
-        "roof": "#927c62",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
-      },
-      {
-        "x": 24,
-        "y": 19,
-        "width": 6,
+        "y": 4,
+        "width": 7,
         "height": 5,
-        "style": "home",
-        "roof": "#927c62",
-        "wall": "#e3d8be"
+        "style": "warehouse"
+      },
+      {
+        "x": 24,
+        "y": 5,
+        "width": 5,
+        "height": 5,
+        "style": "center"
+      },
+      {
+        "x": 24,
+        "y": 20,
+        "width": 5,
+        "height": 5,
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
@@ -626,6 +977,70 @@
         "height": 4,
         "style": "construction"
       }
+    ],
+    "paths": [
+      [
+        6,
+        9,
+        17,
+        10
+      ],
+      [
+        16,
+        9,
+        18,
+        14
+      ],
+      [
+        17,
+        10,
+        26,
+        11
+      ],
+      [
+        16,
+        10,
+        18,
+        14
+      ],
+      [
+        17,
+        25,
+        26,
+        26
+      ],
+      [
+        16,
+        14,
+        18,
+        25
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
     ]
   },
   "route-204": {
@@ -638,8 +1053,8 @@
     ],
     "description": "Search the grassy banks on the way north to Floaroma Town.",
     "size": [
-      22,
-      20
+      28,
+      34
     ],
     "exits": {
       "south": "jubilife-city",
@@ -647,13 +1062,25 @@
     },
     "water": [
       [
-        2,
-        9,
-        6,
-        14
+        3,
+        11,
+        7,
+        16
       ]
     ],
     "encounters": [
+      [
+        3,
+        23,
+        9,
+        29
+      ],
+      [
+        18,
+        11,
+        24,
+        15
+      ],
       [
         3,
         3,
@@ -661,18 +1088,24 @@
         6
       ],
       [
-        14,
-        10,
-        19,
-        16
+        21,
+        22,
+        25,
+        26
       ]
     ],
     "flowers": [
       [
-        13,
         4,
-        17,
-        6
+        8,
+        7,
+        9
+      ],
+      [
+        21,
+        30,
+        24,
+        31
       ]
     ],
     "honeyTree": {
@@ -700,7 +1133,58 @@
         "Shinx",
         15
       ]
-    ]
+    ],
+    "trees": [
+      [
+        20,
+        4,
+        23,
+        9
+      ],
+      [
+        3,
+        18,
+        8,
+        20
+      ],
+      [
+        10,
+        23,
+        12,
+        27
+      ]
+    ],
+    "exitPaths": {
+      "north": [
+        [
+          14,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          17
+        ]
+      ],
+      "south": [
+        [
+          14,
+          28
+        ],
+        [
+          20,
+          28
+        ],
+        [
+          20,
+          17
+        ]
+      ]
+    },
+    "revision": 1
   },
   "floaroma-town": {
     "name": "Floaroma Town",
@@ -721,44 +1205,30 @@
       34,
       28
     ],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
         "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "cafe",
-        "roof": "#b18b91",
-        "wall": "#e3d8be"
+        "y": 4,
+        "width": 7,
+        "height": 4,
+        "style": "cafe"
       },
       {
         "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
+        "y": 5,
+        "width": 5,
+        "height": 5,
+        "style": "center"
       },
       {
         "x": 24,
         "y": 19,
-        "width": 6,
+        "width": 5,
         "height": 5,
-        "style": "home",
-        "roof": "#b18b91",
-        "wall": "#e3d8be"
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
@@ -784,6 +1254,70 @@
       14,
       12,
       "lass"
+    ],
+    "paths": [
+      [
+        6,
+        8,
+        17,
+        9
+      ],
+      [
+        16,
+        8,
+        18,
+        14
+      ],
+      [
+        17,
+        10,
+        26,
+        11
+      ],
+      [
+        16,
+        10,
+        18,
+        14
+      ],
+      [
+        17,
+        24,
+        26,
+        25
+      ],
+      [
+        16,
+        14,
+        18,
+        24
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
     ]
   },
   "valley-windworks": {
@@ -877,8 +1411,8 @@
     ],
     "description": "Look for wild Pokémon in the clearings between the trees.",
     "size": [
-      26,
-      20
+      34,
+      38
     ],
     "exits": {
       "south": "floaroma-town",
@@ -892,53 +1426,77 @@
         8
       ],
       [
-        16,
+        20,
         3,
-        22,
-        6
+        30,
+        8
       ],
       [
-        5,
-        13,
-        9,
-        16
-      ],
-      [
-        17,
+        3,
         14,
+        6,
+        23
+      ],
+      [
+        12,
+        23,
         21,
-        17
+        27
+      ],
+      [
+        23,
+        25,
+        29,
+        32
+      ],
+      [
+        3,
+        33,
+        11,
+        35
+      ],
+      [
+        28,
+        11,
+        30,
+        16
       ]
     ],
     "encounters": [
       [
-        10,
+        12,
         4,
-        14,
-        7
-      ],
-      [
-        3,
-        9,
-        8,
-        11
-      ],
-      [
-        16,
-        7,
-        22,
+        17,
         9
       ],
       [
-        15,
+        3,
+        25,
+        6,
+        30
+      ],
+      [
         12,
+        31,
+        22,
+        35
+      ],
+      [
+        21,
+        10,
+        24,
+        16
+      ],
+      [
+        14,
+        14,
         20,
-        13
+        17
       ]
     ],
     "trainer": [
-      10,
-      10,
+      18,
+      19,
       "bug_catcher"
     ],
     "honeyTree": {
@@ -971,7 +1529,58 @@
         "Misdreavus",
         10
       ]
-    ]
+    ],
+    "paths": [
+      [
+        12,
+        6,
+        13,
+        13
+      ],
+      [
+        12,
+        12,
+        18,
+        13
+      ],
+      [
+        9,
+        8,
+        18,
+        9
+      ]
+    ],
+    "exitPaths": {
+      "south": [
+        [
+          17,
+          30
+        ],
+        [
+          9,
+          30
+        ],
+        [
+          9,
+          19
+        ]
+      ],
+      "east": [
+        [
+          26,
+          19
+        ],
+        [
+          26,
+          12
+        ],
+        [
+          17,
+          12
+        ]
+      ]
+    },
+    "revision": 1
   },
   "eterna-city": {
     "name": "Eterna City",
@@ -991,44 +1600,37 @@
       34,
       28
     ],
-    "revision": 1,
-    "street": "paving",
+    "revision": 2,
+    "street": "path",
     "buildings": [
       {
-        "x": 3,
-        "y": 3,
-        "width": 8,
-        "height": 6,
-        "style": "museum",
-        "roof": "#748b80",
-        "wall": "#e3d8be"
+        "x": 4,
+        "y": 4,
+        "width": 5,
+        "height": 5,
+        "style": "home"
       },
       {
         "x": 24,
-        "y": 3,
-        "width": 6,
-        "height": 6,
-        "style": "center",
-        "roof": "#ac6874",
-        "wall": "#e3d8be"
+        "y": 4,
+        "width": 5,
+        "height": 5,
+        "style": "center"
+      },
+      {
+        "x": 3,
+        "y": 19,
+        "width": 7,
+        "height": 5,
+        "style": "museum"
       },
       {
         "x": 24,
         "y": 19,
-        "width": 6,
+        "width": 5,
         "height": 5,
-        "style": "home",
-        "roof": "#748b80",
-        "wall": "#e3d8be"
+        "style": "home"
       }
-    ],
-    "paving": [
-      [
-        10,
-        10,
-        24,
-        17
-      ]
     ],
     "flowers": [
       [
@@ -1042,6 +1644,82 @@
       14,
       12,
       "lass"
+    ],
+    "paths": [
+      [
+        6,
+        9,
+        17,
+        10
+      ],
+      [
+        16,
+        9,
+        18,
+        14
+      ],
+      [
+        17,
+        9,
+        26,
+        10
+      ],
+      [
+        16,
+        9,
+        18,
+        14
+      ],
+      [
+        6,
+        24,
+        17,
+        25
+      ],
+      [
+        16,
+        14,
+        18,
+        24
+      ],
+      [
+        17,
+        24,
+        26,
+        25
+      ],
+      [
+        16,
+        14,
+        18,
+        24
+      ]
+    ],
+    "trees": [
+      [
+        2,
+        2,
+        3,
+        9
+      ],
+      [
+        30,
+        2,
+        31,
+        11
+      ],
+      [
+        30,
+        20,
+        31,
+        25
+      ],
+      [
+        12,
+        22,
+        15,
+        25
+      ]
     ]
   },
   "mt-coronet": {

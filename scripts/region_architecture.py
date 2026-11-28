@@ -1,4 +1,4 @@
-"""Original pixel buildings and street furniture for authored region maps."""
+"""Remaining authored street furniture and shared footprints for region maps."""
 from math import cos, pi, sin
 
 TILE = 16
@@ -9,40 +9,6 @@ def footprint(building):
         x, y = building
         return x, y, 5, 5
     return building["x"], building["y"], building["width"], building["height"]
-
-
-def draw_building(draw, building):
-    x, y, width, height = footprint(building)
-    x, y, width, height = x * TILE, y * TILE, width * TILE, height * TILE
-    roof = building.get("roof", "#526d8c")
-    wall = building.get("wall", "#e4d8ba")
-    style = building.get("style", "home")
-    right, bottom = x + width - 1, y + height - 1
-    draw.rectangle((x + 3, y + 5, right, bottom), fill="#45565a")
-    draw.rectangle((x, y + 3, right - 4, bottom - 3), fill=wall, outline="#3b494d", width=2)
-    roof_height = height // 3
-    draw.polygon([(x - 1, y + roof_height), (x + 8, y), (right - 12, y),
-                  (right - 3, y + roof_height)], fill=roof, outline="#344349")
-    for line in range(y + 5, y + roof_height, 5):
-        draw.line((x + 7, line, right - 12, line), fill="#ffffff35", width=1)
-    for wy in range(y + roof_height + 7, bottom - 18, 14):
-        for wx in range(x + 8, right - 11, 14):
-            draw.rectangle((wx, wy, wx + 7, wy + 8), fill="#496d83", outline="#354c5b")
-            draw.line((wx + 1, wy + 1, wx + 6, wy + 1), fill="#c4e3df")
-    door_x = x + width // 2 - 7
-    draw.rectangle((door_x, bottom - 19, door_x + 12, bottom - 4), fill="#354957", outline="#243c43")
-    draw.line((door_x + 6, bottom - 18, door_x + 6, bottom - 5), fill="#b9caca")
-    if style == "warehouse":
-        draw.rectangle((x + 8, bottom - 24, right - 12, bottom - 5), fill="#707b7d", outline="#3b494d")
-        for line in range(bottom - 22, bottom - 5, 4):
-            draw.line((x + 9, line, right - 13, line), fill="#a2aaa4")
-    if style in {"lab", "museum", "station", "center"}:
-        draw.rectangle((x + 7, y + roof_height + 2, right - 11, y + roof_height + 12), fill="#f0ead7", outline="#43575b")
-        label = {"lab": "LAB", "museum": "MUSEUM", "station": "STATION", "center": "PC"}[style]
-        draw.text((x + 12, y + roof_height + 3), label, fill="#344c5a")
-    if style == "cafe":
-        for offset in range(5, width - 8, 8):
-            draw.rectangle((x + offset, bottom - 27, x + offset + 6, bottom - 19), fill="#a54c50" if offset % 16 < 8 else "#f3e5bb")
 
 
 def draw_landmark(draw, landmark):

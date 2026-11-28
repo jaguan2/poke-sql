@@ -2,7 +2,7 @@
   "twinleaf-town": {
     "name": "Twinleaf Town",
     "kind": "town",
-    "description": "Start beside the flower beds. Take the north path to Route 201.",
+    "description": "Two homes overlook the village paths. Walk north to Route 201 or explore the pond and flower beds.",
     "pool": []
   },
   "route-201": {
@@ -57,7 +57,7 @@
   "sandgem-town": {
     "name": "Sandgem Town",
     "kind": "town",
-    "description": "A small coastal town with a PC. Route 202 leaves to the north.",
+    "description": "Follow the paths past the lab and Pokémon Center. Route 201 is west; Route 202 is north.",
     "pool": []
   },
   "route-202": {

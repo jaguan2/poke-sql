@@ -1,72 +1,72 @@
 {
   "file": "sinnoh/region-map.png",
-  "game": "PokéSQL",
-  "width": 176,
-  "height": 152,
+  "game": "Pokémon Platinum",
+  "width": 512,
+  "height": 512,
   "points": {
     "twinleaf-town": {
-      "x": 38,
-      "y": 130
+      "x": 56,
+      "y": 440
     },
     "route-201": {
-      "x": 38,
-      "y": 113
+      "x": 64,
+      "y": 424
     },
     "verity-lakefront": {
-      "x": 19,
-      "y": 103
+      "x": 32,
+      "y": 416
     },
     "sandgem-town": {
-      "x": 62,
-      "y": 113
+      "x": 88,
+      "y": 424
     },
     "route-202": {
-      "x": 62,
-      "y": 100
+      "x": 88,
+      "y": 408
     },
     "jubilife-city": {
-      "x": 62,
-      "y": 84
+      "x": 80,
+      "y": 384
     },
     "route-203": {
-      "x": 84,
-      "y": 89
+      "x": 112,
+      "y": 376
     },
     "oreburgh-gate": {
-      "x": 105,
-      "y": 95
+      "x": 120,
+      "y": 376
     },
     "oreburgh-city": {
-      "x": 133,
-      "y": 104
+      "x": 147,
+      "y": 381
     },
     "route-204": {
-      "x": 60,
-      "y": 70
+      "x": 88,
+      "y": 352
     },
     "floaroma-town": {
-      "x": 57,
-      "y": 52
+      "x": 88,
+      "y": 320
     },
     "valley-windworks": {
-      "x": 92,
-      "y": 55
+      "x": 120,
+      "y": 328
     },
     "eterna-forest": {
-      "x": 54,
-      "y": 33
+      "x": 112,
+      "y": 272
     },
     "eterna-city": {
-      "x": 92,
-      "y": 32
+      "x": 157,
+      "y": 269
     },
     "mt-coronet": {
-      "x": 130,
-      "y": 43
+      "x": 195,
+      "y": 283
     },
     "acuity-lakefront": {
-      "x": 127,
-      "y": 16
+      "x": 160,
+      "y": 112
     }
   },
   "markers": [
@@ -82,7 +82,15 @@
     "mt-coronet",
     "acuity-lakefront"
   ],
-  "recipeSha256": "e20126f44f20cd030596cde01bc1b91155e13e7df033e3aa6b8be094d92f1a12",
-  "pointsSha256": "04dedcbd196ca7711332a199483fc26a666cee3831525f92217f209ea1d2e6f0",
-  "sha256": "1fa03a6cfb4d58fdfbf1b27616a5360d84c450dd5702e141f26a72fde1b66d37"
+  "recipeSha256": "bc19472781035afc48e53760f50dc6e33082204ad737f9d487b962fe5cafec94",
+  "pointsSha256": "9c0e3e2084fe5bc1f0c470cb6ba31b0a9270dfd68e57d29abaa1d31368cb8f49",
+  "sha256": "0677ab8db2030a966cb5dc0164c0112a9b18d8443fd7c6932043e816bd8e7d16",
+  "revision": "0660186c565124910371a3b0516a1b1df31b5b93",
+  "sources": {
+    "res/graphics/town_map/bottom_screen_map_tiles.png": "8ad941c3efb207cf1af2cc566dd783576ae8e91d03dcd6ade35e11095dab1e5e",
+    "res/graphics/town_map/bottom_screen_region_map_tilemap.NSCR": "3eef75d0fc900c9916c3803cc8e5c3049deecaeac7491c28c5fb44b479f8667b",
+    "res/graphics/town_map/bottom_screen_map.pal": "ea113eacfea477f6385f4964ad9ad5e4a31377b42342e6a9d9cf9fe4b30f83b6",
+    "res/graphics/town_map/bottom_screen_region_bg_tilemap.NSCR": "9478ea77d25717dca3072778dae2cb4ab94ba9a21d0cbca941c25079c3d733a4",
+    "res/town_map/town_map_data.json": "b5f6792e7993afa57df3d5b86c0af57488d23642576c4a224ba401bd762ba6b8"
+  }
 }

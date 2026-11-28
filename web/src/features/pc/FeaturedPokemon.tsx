@@ -31,7 +31,7 @@ export function FeaturedPokemon({ collection, busy, error, onCommand, onRetry, o
           <button className="btn" disabled={busy || index === ids.length - 1} aria-label={`Move ${capture.nickname || capture.pokemon.name} right`} onClick={() => reorder(index, 1)}>→</button>
           <button className="btn" disabled={busy} aria-label={`Remove ${capture.nickname || capture.pokemon.name} from profile`} onClick={() => void onCommand({ type: "featured", ids: ids.filter(id => id !== capture.id) })}>×</button>
         </div>
-      </> : <><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={36} height={36} /><span>Slot {index + 1}</span></>}</li>;
+      </> : <><img src={`${import.meta.env.BASE_URL}sprites/items/poke-ball.png`} alt="" width={36} height={36} /><span>Slot {index + 1}</span></>}</li>;
     })}</ol>
     {!captures.length && <p className="pc-note">Caught Pokémon will appear in PC Boxes and can be featured here.</p>}
     <dialog className="featured-picker" ref={picker} aria-labelledby="featured-picker-title">

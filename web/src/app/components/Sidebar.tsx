@@ -11,7 +11,7 @@ interface Props {
 
 export function Sidebar({ collapsed, active, busy, pokedexCount, pcCount, completedCount, challengeCount, onNavigate }: Props) {
   return <aside id="workspace-menu" className={`sidebar${collapsed ? " is-collapsed" : ""}`} aria-label="Workspace menu">
-    <div className="sidebar-brand"><img src={`${import.meta.env.BASE_URL}pokeball.svg`} alt="" width={28} height={28} /><span>PokéSQL</span></div>
+    <div className="sidebar-brand"><img src={`${import.meta.env.BASE_URL}sprites/items/poke-ball.png`} alt="" width={28} height={28} /><span>PokéSQL</span></div>
     <nav aria-label="Main navigation">{NAVIGATION.map(section => <section className="nav-section" key={section.caption}>
       <h2>{section.caption}</h2>
       {section.items.map(item => <button key={item.id} className="nav-destination" title={item.label} aria-label={item.label} aria-current={active === item.id ? "page" : undefined} aria-pressed={active === item.id} disabled={busy} onClick={() => onNavigate(item.id)}>

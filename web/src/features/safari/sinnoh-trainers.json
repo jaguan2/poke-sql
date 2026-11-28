@@ -19,8 +19,8 @@
   ],
   "route-202": [
     {
-      "x": 10,
-      "y": 8,
+      "x": 12,
+      "y": 18,
       "kind": "youngster",
       "facing": "down"
     }
@@ -35,8 +35,8 @@
   ],
   "route-203": [
     {
-      "x": 17,
-      "y": 6,
+      "x": 24,
+      "y": 12,
       "kind": "youngster",
       "facing": "down"
     }
@@ -69,8 +69,8 @@
   "valley-windworks": [],
   "eterna-forest": [
     {
-      "x": 10,
-      "y": 10,
+      "x": 18,
+      "y": 19,
       "kind": "bug_catcher",
       "facing": "down"
     }

@@ -1,0 +1,148 @@
+{
+  "revisions": {
+    "firered": "ce6406d8c2eaf46d543c8a2606de0c3cb1951982",
+    "platinum": "0660186c565124910371a3b0516a1b1df31b5b93"
+  },
+  "sources": {
+    "firered": {
+      "graphics/trainer_card/badges.png": "213fcf06d1125b42df17c9de249fa8cd76a428da2b38582a04c9b1f52b2130c1",
+      "graphics/trainer_card/tiles.png": "14a71c8d062be82737dde8950ea191361ffc799060e5413479718798e49fb4f5",
+      "graphics/trainer_card/bg.bin": "7b285d40ee401c1c6c2ec8cefaeb69209ed636cae8d408e6b8b50b3daf1a113c",
+      "graphics/items/icons/town_map.png": "d0a185a9b7af56c7e78fc503d8fed8619556f41cf6c1cd228132fd6f3904b244",
+      "graphics/text_window/std.png": "d8213d92e1da4aecad24df6d63459ba9520ff7e9567700258514a1b8f171f8ad",
+      "graphics/text_window/stdpal_0.pal": "c6cf65c60e7fd1e62050b9895393f20b41144986178649b6f71d66d8a3987b7d",
+      "graphics/pokemon_storage/wallpapers/forest/tiles.png": "fc8f20243a1dd2fbcbd86647e77395c84a428689c2c25918152d6c9525969aed",
+      "graphics/pokemon_storage/wallpapers/forest/tilemap.bin": "88683558e797ea721978fba2b7c528ad33b2b44e0b53f2dcaec4307fc7f91616",
+      "graphics/pokemon_storage/wallpapers/beach/tiles.png": "64badb4c2f1a226d6bb78081ff1778486546c5408ec1f7dbcc48f958b299357d",
+      "graphics/pokemon_storage/wallpapers/beach/tilemap.bin": "1d1439e38d70769139b9a8cdda28eebf7d31e168ef8447ff5865f750247c08d4",
+      "graphics/pokemon_storage/wallpapers/cave/tiles.png": "53577909ada971fe293f440c0cdcc47b9856c97a44405bea3f4e98977558892c",
+      "graphics/pokemon_storage/wallpapers/cave/tilemap.bin": "8ac44c36c550b0aba7f3486b8d2bf9be65f2d30029e6e91e0d44363d299e8ef2",
+      "graphics/pokemon_storage/wallpapers/city/tiles.png": "f83eaeea908deddb1479579f33f307200fd390f2fd0668b2143c1d008b925d39",
+      "graphics/pokemon_storage/wallpapers/city/tilemap.bin": "76d7db99941acb2b2a0884ac6236db79024022f37305a9c184a6d7c6e6f3f99a"
+    },
+    "platinum": {
+      "res/graphics/start_menu/icons.png": "ac4d9f977bc7b8a9e2b7d7ba454654b130421d872def33ee0db63e156db313f2",
+      "res/graphics/town_map/bottom_screen_map_tiles.png": "8ad941c3efb207cf1af2cc566dd783576ae8e91d03dcd6ade35e11095dab1e5e",
+      "res/graphics/town_map/bottom_screen_region_map_tilemap.NSCR": "3eef75d0fc900c9916c3803cc8e5c3049deecaeac7491c28c5fb44b479f8667b",
+      "res/graphics/town_map/bottom_screen_map.pal": "ea113eacfea477f6385f4964ad9ad5e4a31377b42342e6a9d9cf9fe4b30f83b6",
+      "res/graphics/town_map/bottom_screen_region_bg_tilemap.NSCR": "9478ea77d25717dca3072778dae2cb4ab94ba9a21d0cbca941c25079c3d733a4",
+      "res/town_map/town_map_data.json": "b5f6792e7993afa57df3d5b86c0af57488d23642576c4a224ba401bd762ba6b8"
+    }
+  },
+  "assets": [
+    {
+      "file": "game-ui/pokedex.png",
+      "width": 32,
+      "height": 32,
+      "sha256": "0e90d971df0f72463196b1af441aaf7823af914a461fd58781d5afe545ea6c9b"
+    },
+    {
+      "file": "game-ui/pokemon.png",
+      "width": 32,
+      "height": 32,
+      "sha256": "37f7818a5ea54f8c7ed38064dafb290c35d60fcd85f98df300d072a0be617b2c"
+    },
+    {
+      "file": "game-ui/trainer.png",
+      "width": 32,
+      "height": 32,
+      "sha256": "796227b062183932e1b8d61eb86e6d7ed0f0ab14c0cf67923df92077ce3f12c6"
+    },
+    {
+      "file": "game-ui/options.png",
+      "width": 32,
+      "height": 32,
+      "sha256": "ce3e6420ae3c1df90bbd635361de6684bd94c97cc001067114149f3bb4827be2"
+    },
+    {
+      "file": "game-ui/badge-1.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "d56dbb214560f134f4c99bd6704abcd68ddcc7316dd6531cbc93f3b8caffdcc5"
+    },
+    {
+      "file": "game-ui/badge-2.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "1818cafd009bcd58bec1846ce28462d95a686f22900ffd485cd4835ea0d62e62"
+    },
+    {
+      "file": "game-ui/badge-3.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "de4579d9375ab26ac1ceeb517742f63c94fe756d249bf1168ccd921e8344c48b"
+    },
+    {
+      "file": "game-ui/badge-4.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "e9e6bab5f91d5159c1abecd96c675173314365291d7c79a368812e091a319eda"
+    },
+    {
+      "file": "game-ui/badge-5.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "950387085c9a3f04c66a2a12abaea9eb13f7bfa3edcdb63b40322b7a010552e3"
+    },
+    {
+      "file": "game-ui/badge-6.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "5aaebf61403a70655e5b961e1dc09b2cf602ec89d24b7ba8941580b2ad645dab"
+    },
+    {
+      "file": "game-ui/badge-7.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "c8f6ee8516b1c3b3b0ed3689d678ffcb7d29eecc76e2b63f4a97c4731e6e01b6"
+    },
+    {
+      "file": "game-ui/badge-8.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "d624344c5dc330787470b06f964d2804311f19bca81e05aab34b994acacb5320"
+    },
+    {
+      "file": "game-ui/trainer-card.png",
+      "width": 240,
+      "height": 160,
+      "sha256": "cf2a8f9b41ee4b37f215b35121358d35cc21330e22364f1e4701018da3e8a3f9"
+    },
+    {
+      "file": "game-ui/town-map.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "2601154ac803056d565f4cfec7860025baa5cbd47c820a2f853ebf3550e306f4"
+    },
+    {
+      "file": "game-ui/window.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "ce49816ba3c8e83a551720d649af596a02dfc376910927e97a06724dfcc31cee"
+    },
+    {
+      "file": "game-ui/pc-forest.png",
+      "width": 160,
+      "height": 144,
+      "sha256": "4092f3b315029a948b841dcbbf36b348e30d4c4d086a6f6bf7814df974571316"
+    },
+    {
+      "file": "game-ui/pc-coast.png",
+      "width": 160,
+      "height": 144,
+      "sha256": "f520bab65806d24ecd1015bb814d516e037023ba7bb09fab8039259a1a8d49ca"
+    },
+    {
+      "file": "game-ui/pc-cave.png",
+      "width": 160,
+      "height": 144,
+      "sha256": "80878ba055e46548673192ea1138279def407e9fd174672fa0ad0cb4ede201cc"
+    },
+    {
+      "file": "game-ui/pc-city.png",
+      "width": 160,
+      "height": 144,
+      "sha256": "aa5ca9bcf8e15ea4a465f123a71b324b138ca0cd419473fd1aed121902fc57b8"
+    }
+  ]
+}
